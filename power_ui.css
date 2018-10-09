@@ -1,0 +1,20 @@
+/* Menu */
+.power-menu-item {
+    list-style-type: none;
+}
+
+.power-menu-item, .power-menu-list {
+    padding:0px;
+    margin:0px;
+}
+
+.power-menu-item, .power-menu-list {
+    display: inline;
+}
+
+.power-menu-link {
+    text-decoration: underline;
+    cursor: pointer;
+}
+/* Menu end*/
+
