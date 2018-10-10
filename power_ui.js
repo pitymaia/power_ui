@@ -39,8 +39,19 @@ class PowerMenus {
 
             // Add all menuItems
             for (const menuItem of menuItems) {
-                const menuItemId = menuItem.getAttribute('id') || null;
-                menuToAdd.items.push({element: menuItem, id: menuItemId});
+                let itemToAdd = {element: menuItem};
+                // console.log('menuItem', menuItem.childNodes, menuItem.children[0]);
+                if (menuItem.children[0]) {
+                    console.log('TEM:', menuItem.children.length);
+                } else if (menuItem.innerText) {
+                    itemToAdd.label = menuItem.innerText;
+                }
+
+                if (!itemToAdd.label) {
+                    itemToAdd.label = null;
+                }
+                itemToAdd.id = menuItem.getAttribute('id') || null;
+                menuToAdd.items.push(itemToAdd);
             }
             this.menus.push(menuToAdd);
         }
@@ -81,4 +92,7 @@ app.menus.menuItemElById('news').addEventListener('mouseover', function() {
 });
 app.menus.menuItemElById('esporte').addEventListener('click', function() {
     window.console.log('Click esporte', app);
+});
+app.menus.menuItemElById('outro').addEventListener('click', function() {
+    window.console.log('Click outro', app.menus);
 });
