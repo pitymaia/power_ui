@@ -36,37 +36,36 @@ function powerMenuItems(menu) {
     const itemsElements = menu.getElementsByClassName('power-menu-item');
 
     for (const menuItem of itemsElements) {
-        let itemToAdd = {element: menuItem, children: []};
-        // Check for elements like <span> or <a> inside menu to hold label and icon
+        let itemToAdd = {element: menuItem, children: [], className: menuItem.className || null};
+        // Check for elements like <span> or <a> inside menu to hold innerText and icon
         if (menuItem.children.length) {
+            console.log('menuItem.innerText', menuItem.innerText);
             let childIndex = 0;
             for (const child of menuItem.children) {
-                let childToAdd = {element: child, tagName: child.tagName};
-                // Check for label inside child element
-                // <li><span class="icon"></span><a>Some Label</a></li>
+                let childToAdd = {element: child, tagName: child.tagName, className: child.className || null};
+                // Check for innerText inside child element
+                // <li><span class="icon"></span><a>Some innerText</a></li>
+                console.log('child.className', child.className);
                 if (child.innerText) {
-                    childToAdd.label = child.innerText;
-                    itemToAdd.labelChildIndex = childIndex;
-                } else {
-                    // If don't find label may have it outside element side-by-side with some icon
-                    // <li><span class="icon"></span>Some Label</li>
-                    if (menuItem.innerText) {
-                        itemToAdd.label = menuItem.innerText;
-                    } else {
-                        childToAdd.label = null;
-                    }
+                    childToAdd.innerText = child.innerText;
+                    itemToAdd.innerTextChildIndex = childIndex;
+                }
+                // If don't find innerText may have it outside element side-by-side with some icon
+                // <li><span class="icon"></span>Some innerText</li>
+                if (menuItem.innerText) {
+                    itemToAdd.innerText = menuItem.innerText;
                 }
                 itemToAdd.children.push(childToAdd);
                 childIndex++;
             }
         } else if (menuItem.innerText) {
-            // Maybe the label is direct on <li>
-            // <li>Some Label</li>
-            itemToAdd.label = menuItem.innerText;
+            // Maybe the innerText is direct on <li>
+            // <li>Some innerText</li>
+            itemToAdd.innerText = menuItem.innerText;
         }
 
-        if (!itemToAdd.label) {
-            itemToAdd.label = null;
+        if (!itemToAdd.innerText) {
+            itemToAdd.innerText = null;
         }
         itemToAdd.id = menuItem.getAttribute('id') || null;
         items.push(itemToAdd);
@@ -81,7 +80,7 @@ class PowerMenus {
         const menus = document.getElementsByClassName('power-menu');
         for (const menu of menus) {
             const menuId = menu.getAttribute('id');
-            let menuToAdd = {element: menu, id: menuId, items: powerMenuItems(menu)};
+            let menuToAdd = {element: menu, id: menuId, items: powerMenuItems(menu), className: menu.className || null};
             this.menus.push(menuToAdd);
         }
     }
