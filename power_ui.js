@@ -14,7 +14,9 @@ class Event {
         this.observers = this.observers.filter((x) => x !== fn);
     }
     broadcast() { // Accepts arguments.
-        for (const o of this.observers)  o.fn.apply(o.ctx, arguments);
+        for (const o of this.observers) {
+            o.fn.apply(o.ctx, arguments);
+        }
     }
 }
 Event.index = {}; // storage for all named events
@@ -27,32 +29,59 @@ class PowerUi {
     }
 }
 
+// Create all the menu items
+function powerMenuItems(menu) {
+    let items = [];
+
+    const itemsElements = menu.getElementsByClassName('power-menu-item');
+
+    for (const menuItem of itemsElements) {
+        let itemToAdd = {element: menuItem, children: []};
+        // Check for elements like <span> or <a> inside menu to hold label and icon
+        if (menuItem.children.length) {
+            let childIndex = 0;
+            for (const child of menuItem.children) {
+                let childToAdd = {element: child, tagName: child.tagName};
+                // Check for label inside child element
+                // <li><span class="icon"></span><a>Some Label</a></li>
+                if (child.innerText) {
+                    childToAdd.label = child.innerText;
+                    itemToAdd.labelChildIndex = childIndex;
+                } else {
+                    // If don't find label may have it outside element side-by-side with some icon
+                    // <li><span class="icon"></span>Some Label</li>
+                    if (menuItem.innerText) {
+                        itemToAdd.label = menuItem.innerText;
+                    } else {
+                        childToAdd.label = null;
+                    }
+                }
+                itemToAdd.children.push(childToAdd);
+                childIndex++;
+            }
+        } else if (menuItem.innerText) {
+            // Maybe the label is direct on <li>
+            // <li>Some Label</li>
+            itemToAdd.label = menuItem.innerText;
+        }
+
+        if (!itemToAdd.label) {
+            itemToAdd.label = null;
+        }
+        itemToAdd.id = menuItem.getAttribute('id') || null;
+        items.push(itemToAdd);
+    }
+    return items;
+}
+
 class PowerMenus {
     constructor() {
         this.menus = [];
 
         const menus = document.getElementsByClassName('power-menu');
         for (const menu of menus) {
-            const menuItems = menu.getElementsByClassName('power-menu-item');
             const menuId = menu.getAttribute('id');
-            let menuToAdd = {element: menu, id: menuId, items: []};
-
-            // Add all menuItems
-            for (const menuItem of menuItems) {
-                let itemToAdd = {element: menuItem};
-                // console.log('menuItem', menuItem.childNodes, menuItem.children[0]);
-                if (menuItem.children[0]) {
-                    console.log('TEM:', menuItem.children.length);
-                } else if (menuItem.innerText) {
-                    itemToAdd.label = menuItem.innerText;
-                }
-
-                if (!itemToAdd.label) {
-                    itemToAdd.label = null;
-                }
-                itemToAdd.id = menuItem.getAttribute('id') || null;
-                menuToAdd.items.push(itemToAdd);
-            }
+            let menuToAdd = {element: menu, id: menuId, items: powerMenuItems(menu)};
             this.menus.push(menuToAdd);
         }
     }
@@ -85,7 +114,7 @@ let app = new PowerUi();
 window.console.log('power', app);
 
 app.menus.menuItemElById('news').addEventListener('click', function() {
-    window.console.log('Click news', app.menus);
+    window.console.log('Click news', app);
 });
 app.menus.menuItemElById('news').addEventListener('mouseover', function() {
     window.console.log('Hover news');
