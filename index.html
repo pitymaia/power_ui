@@ -5,15 +5,16 @@
     <title>Power UI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="power_ui.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <!-- Menu -->
     <div id="top" class="power-menu power-menu-horizontal">
-        <span class="power-menu-heading">BRAND</span>
+        <span class="power-menu-heading power-menu-brand">BRAND</span>
         <ul class="power-menu-list">
-            <li class="power-menu-item power-menu-link" id="news">01News</li>
-            <li class="power-menu-item power-menu-link" id="sports">02Sports</li>
-            <li class="power-menu-item power-menu-link" id="finance">03Finance</li>
+            <li class="power-menu-item power-menu-link" id="news"><i class="power-icon fa fa-car"></i></span><span class="power-label">01News</span></li>
+            <li class="power-menu-item power-menu-link power-label" id="sports">02Sports</li>
+            <li class="power-menu-item power-menu-link power-label" id="finance">03Finance</li>
         </ul>
     </div>
 
@@ -24,17 +25,21 @@
     <div id="bottom" class="power-menu power-menu-horizontal">
         <span class="power-menu-heading">OUTRO</span>
         <ul  class="power-menu-list">
-            <li class="power-menu-item power-menu-link">04Noticias</li>
-            <li class="power-menu-item power-menu-link" id="esporte">05Esporte</li>
-            <li class="power-menu-item power-menu-link" id="algum-id-maluco"><a href="#">06Finanças</a></li>
+            <li class="power-menu-item power-menu-link power-label">04Noticias</li>
+            <li class="power-menu-item power-menu-link power-label " id="esporte">05Esporte</li>
+            <li class="power-menu-item power-menu-link" id="algum-id-maluco"><a class="power-label" href="#">06Finanças</a></li>
         </ul>
     </div>
     <nav class="power-menu power-menu-horizontal">
         <span class="power-menu-heading">OUTRO</span>
-        <a class="power-menu-item power-menu-link">07Mais</a>
-        <a class="power-menu-item power-menu-link" id="outro"><i class="ico ico-small"></i>08Outro</a>
-        <a class="power-menu-item power-menu-link"><i class="ico"></i><span>09Nossa</span></a>
+        <a class="power-menu-item power-menu-link power-label">07Mais</a>
+        <a class="power-menu-item power-menu-link power-label" id="outro"><i class="power-icon icon-small fa fa-car"></i>08Outro</a>
+        <a class="power-menu-item power-menu-link"><i class="power-icon fa fa-car"></i><span class="power-label">09Nossa</span></a>
+        <a class="power-menu-item power-menu-link" id="louco"><i class="power-icon fa fa-car"><i class="power-label">10Louco</i></i></a>
     </nav>
+    <button onclick="changeMenu()">Change</button>
+    <button onclick="showMenuLabel()">Show</button>
+
     <script src="power_ui.js"></script>
   </body>
 </html>

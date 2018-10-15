@@ -2,6 +2,16 @@
 
 'use strict';
 
+function _getId(ctx) {
+	return ctx.element.getAttribute('id') || null;
+}
+
+function _setId(ctx, id) {
+	ctx.element.setAttribute('id', id);
+	ctx._id = id;
+}
+
+
 class Event {
 	constructor(name) {
 		this.observers = [];
@@ -21,6 +31,7 @@ class Event {
 }
 Event.index = {}; // storage for all named events
 
+
 class PowerUi {
 	constructor() {
 		this.menus = new PowerMenus();
@@ -29,86 +40,98 @@ class PowerUi {
 	}
 }
 
+
 // Create the menu item
 class PowerMenuItem {
 	constructor(item) {
-		this.children = [];
 		this.element = item;
-		this.className = item.className || null;
-		// Check for elements like <span> or <a> inside menu to hold innerText and icon
-		if (item.children.length) {
-			this.creatChildren(item);
-			// Some element with children can have innerText side-by-side with some element like icon
-			// <li><span class="icon"></span>Some innerText</li>
-			if (item.innerText) {
-				this._innerText = item.innerText;
-			}
-		} else if (item.innerText) {
-			// Maybe the innerText is direct on <li>
-			// <li>Some innerText</li>
-			this._innerText = item.innerText;
-		}
-
-		if (!this._innerText) {
-			this._innerText = null;
-		}
-		this.id = item.getAttribute('id') || null;
+		this._id = this.id;
+		this._label = this.label;
 	}
 
-	creatChildren(item) {
-		console.log('children', item.children);
-		this.children = [];
-		let childIndex = 0;
-		for (const child of item.children) {
-			let childToAdd = {element: child, tagName: child.tagName, className: child.className || null};
-			// Check for innerText inside child element
-			// <li><span class="icon"></span><a>Some innerText</a></li>
-			if (child.innerText) {
-				childToAdd.innerText = child.innerText;
-				this._innerTextChildIndex = childIndex;
-			}
-			this.children.push(childToAdd);
-			childIndex++;
+	_validateLabelClassSelectors(labelElements) {
+		let error = 'ERROR: The menu item have more than one element with the class selector "power-label", so we can not know with one is the real label:';
+		let throwError = false;
+		if (labelElements.length > 1) {
+			throwError = true;
+		} else if (this.element.className.includes('power-label') && labelElements.length) {
+			throwError = true;
+		} else if (!this.element.className.includes('power-label') && !labelElements.length) {
+			// Menu item always needs a label
+			error = 'ERROR: All menu items needs at least one element with the class selector "power-label":';
+			throwError = true;
+		}
+		if (throwError) {
+			window.console.error(error, this.element);
+			throw 'power-label Error';
 		}
 	}
 
-	get innerText() {
-		return this._innerText;
-	}
-	// Alias for innerText
 	get label() {
-		return this._innerText;
+		const labelElements = this.element.getElementsByClassName('power-label');
+		this._validateLabelClassSelectors(labelElements);
+		// the label is the innerText of the menu item or
+		// children element with 'power-label' class selector
+		return this.element.className.includes('power-label') ?
+			this.element.innerText : labelElements[0].innerText;
 	}
 
-	changeInnerText(value) {
-		const self = this;
-		this.element.innerText = value;
-		this._innerText = value;
-		this.creatChildren(self.element);
+	set label(label) {
+		const labelElements = this.element.getElementsByClassName('power-label');
+		this._validateLabelClassSelectors(labelElements);
+		if (this.element.className.includes('power-label')) {
+			this.element.innerText = label;
+		} else if (labelElements[0]) {
+			labelElements[0].innerText = label;
+		}
+		this._label = label;
 	}
 
-	set innerText(value) {
-		this.changeInnerText(value);
+	get id() {
+		return _getId(this);
 	}
-	// Alias for innerText
-	set label(value) {
-		this.changeInnerText(value);
+
+	set id(id) {
+		_setId(this, id);
 	}
 }
+
 
 class PowerMenu {
 	constructor(menu) {
 		this.element = menu;
-		this.id = menu.getAttribute('id');
+		this._id = this.id;
 		this.items = [];
-		this.className = menu.className || null;
+		this._brand = this.brand;
 
 		const itemsElements = menu.getElementsByClassName('power-menu-item');
 		for (const menuItem of itemsElements) {
 			this.items.push(new PowerMenuItem(menuItem));
 		}
 	}
+	get id() {
+		return _getId(this);
+	}
+
+	set id(id) {
+		_setId(this, id);
+	}
+
+	get brand() {
+		const brandElements = this.element.getElementsByClassName('power-menu-brand');
+		this._validateBrandClassSelectors(brandElements);
+		return brandElements[0] || null;
+	}
+
+	_validateBrandClassSelectors(brandElements) {
+		const error = 'ERROR: The menu can not have more than one class selector "power-menu-brand":';
+		if (brandElements.length > 1) {
+			window.console.error(error, this.element);
+			throw 'power-menu-brand Error';
+		}
+	}
 }
+
 
 class PowerMenus {
 	constructor() {
@@ -143,12 +166,21 @@ class PowerMenus {
 	}
 }
 
+
 let app = new PowerUi();
 
 function changeMenu() {
-	var item = app.menus.menuItemById('news');
+	var item = app.menus.menuItemById('louco') || app.menus.menuItemById('novidades');
 	item.label = 'Novidades';
-	window.console.log('click ' + item.label, app);
+	item.id = 'novidades';
+	window.console.log('click label ' + item.label, app);
+	window.console.log('click id ' + item.id, app);
+}
+
+function showMenuLabel() {
+	var item = app.menus.menuItemById('louco') || app.menus.menuItemById('novidades');
+	window.console.log('click label ' + item.label);
+	window.console.log('click id ' + item.id);
 }
 
 window.console.log('power', app);
@@ -157,7 +189,7 @@ app.menus.menuItemElById('news').addEventListener('click', function() {
 	window.console.log('Click news', app);
 });
 app.menus.menuItemElById('news').addEventListener('mouseover', function() {
-	window.console.log('Hover news');
+	window.console.log('Hover ', this.innerText);
 });
 app.menus.menuItemElById('esporte').addEventListener('click', function() {
 	window.console.log('Click esporte', app);
