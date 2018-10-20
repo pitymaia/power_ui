@@ -180,7 +180,7 @@ function changeMenu() {
 function showMenuLabel() {
 	var item = app.menus.menuItemById('louco') || app.menus.menuItemById('novidades');
 	window.console.log('click label ' + item.label);
-	debug('click id ' + item.id);
+	window.console.log('click id ' + item.id);
 }
 
 window.console.log('power', app);
