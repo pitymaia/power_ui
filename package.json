@@ -1,0 +1,13 @@
+{
+  "name": "Power-UI",
+  "version": "0.0.1",
+  "description": "Design Framework",
+  "main": "index.html",
+  "author": "Andre Maia",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "2.24.7",
+    "gulp": "3.9.1",
+    "gulp-insert-lines": "0.0.4"
+  }
+}
