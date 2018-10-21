@@ -8,7 +8,6 @@ function _getId(ctx) {
 
 function _setId(ctx, id) {
 	ctx.element.setAttribute('id', id);
-	ctx._id = id;
 }
 
 
@@ -44,12 +43,11 @@ class PowerUi {
 }
 
 
-// Create the menu item
-class PowerMenuItem {
-	constructor(item) {
-		this.element = item;
-		this._id = this.id;
-		this._label = this.label;
+// Abstract class to create menu elements
+class _PowerBasicElement {
+	constructor(element, kind) {
+		this.__kind__ = kind;
+		this.element = element;
 	}
 
 	_validateLabelClassSelectors(labelElements) {
@@ -60,9 +58,8 @@ class PowerMenuItem {
 		} else if (this.element.className.includes('power-label') && labelElements.length) {
 			throwError = true;
 		} else if (!this.element.className.includes('power-label') && !labelElements.length) {
-			// Menu item always needs a label
-			error = 'ERROR: All menu items needs at least one element with the class selector "power-label":';
-			throwError = true;
+			// Better if items always have a label
+			this.__labelUndefined__ = `It is better if all ${this.__kind__}s on menu have the class selector "power-label", now assuming the label is the element innerText with the class selector ${this.__kind__}`;
 		}
 		if (throwError) {
 			window.console.error(error, this.element);
@@ -75,8 +72,9 @@ class PowerMenuItem {
 		this._validateLabelClassSelectors(labelElements);
 		// the label is the innerText of the menu item or
 		// children element with 'power-label' class selector
+		// If there is no 'power-label' class, assume the label is this.element.innerText
 		return this.element.className.includes('power-label') ?
-			this.element.innerText : labelElements[0].innerText;
+			this.element.innerText : (labelElements[0] ? labelElements[0].innerText : this.element.innerText);
 	}
 
 	set label(label) {
@@ -86,8 +84,9 @@ class PowerMenuItem {
 			this.element.innerText = label;
 		} else if (labelElements[0]) {
 			labelElements[0].innerText = label;
+		} else {
+			this.element.innerText = label;
 		}
-		this._label = label;
 	}
 
 	get id() {
@@ -100,17 +99,52 @@ class PowerMenuItem {
 }
 
 
+class PowerMenuHeading extends _PowerBasicElement {
+	constructor(element) {
+		super(element, 'power-heading');
+	}
+}
+
+class PowerMenuItem extends _PowerBasicElement {
+	constructor(element) {
+		super(element, 'power-item');
+	}
+}
+
+class PowerMenuBrand extends _PowerBasicElement {
+	constructor(element) {
+		super(element, 'power-brand');
+	}
+}
+
+
 class PowerMenu {
 	constructor(menu) {
 		this.element = menu;
-		this._id = this.id;
 		this.items = [];
-		this._brand = this.brand;
+		this.headings = [];
 
 		const itemsElements = menu.getElementsByClassName('power-item');
 		for (const menuItem of itemsElements) {
 			this.items.push(this.newPowerMenuItem(menuItem));
 		}
+
+		const headingsElements = this.element.getElementsByClassName('power-heading');
+		for (const menuHeading of headingsElements) {
+			this.headings.push(this.newPowerMenuHeading(menuHeading));
+		}
+
+		this.newPowerMenuBrand();
+	}
+
+	newPowerMenuBrand() {
+		const elements = this.element.getElementsByClassName('power-brand');
+		this._validateSingleClassSelectors(elements);
+		this.brand =  elements[0] ? new PowerMenuBrand(elements[0]) : null;
+	}
+
+	newPowerMenuHeading(menuHeading) {
+		return new PowerMenuHeading(menuHeading);
 	}
 
 	newPowerMenuItem(menuItem) {
@@ -125,17 +159,11 @@ class PowerMenu {
 		_setId(this, id);
 	}
 
-	get brand() {
-		const brandElements = this.element.getElementsByClassName('power-menu-brand');
-		this._validateBrandClassSelectors(brandElements);
-		return brandElements[0] || null;
-	}
-
-	_validateBrandClassSelectors(brandElements) {
-		const error = 'ERROR: The menu can not have more than one class selector "power-menu-brand":';
-		if (brandElements.length > 1) {
+	_validateSingleClassSelectors(elements, selector) {
+		const error = `ERROR: The menu can not have more than one class selector "${selector}":`;
+		if (elements.length > 1) {
 			window.console.error(error, this.element);
-			throw 'power-menu-brand Error';
+			throw `${selector} Error`;
 		}
 	}
 }
@@ -178,39 +206,37 @@ class PowerMenus {
 }
 
 
+// class TesteMenu extends PowerMenu {
+// 	constructor(menu, info) {
+// 		super(menu);
+// 		this.testMenu = true;
+// 		this.descri = info.descri;
+// 	}
+// }
+// class TesteMenus extends PowerMenus {
+// 	constructor() {
+// 		super();
+// 		this.testMenus = true;
+// 		this.descri = 'Esse é o menu de testes';
+// 	}
 
-class TesteMenu extends PowerMenu {
-	constructor(menu, info) {
-		super(menu);
-		this.testMenu = true;
-		this.descri = info.descri;
-	}
-}
+// 	newPowerMenu(menu) {
+// 		const info = {descri: 'Descrição do menu'};
+// 		return new TesteMenu(menu, info);
+// 	}
+// }
+// class TesteUi extends PowerUi {
+// 	constructor() {
+// 		super();
+// 		this.fake = {};
+// 	}
+// 	newPowerMenus() {
+// 		return new TesteMenus();
+// 	}
+// }
+// let app = new TesteUi();
 
-class TesteMenus extends PowerMenus {
-	constructor() {
-		super();
-		this.testMenus = true;
-		this.descri = 'Esse é o menu de testes';
-	}
-
-	newPowerMenu(menu) {
-		const info = {descri: 'Descrição do menu'};
-		return new TesteMenu(menu, info);
-	}
-}
-class TesteUi extends PowerUi {
-	constructor() {
-		super();
-		this.fake = {};
-	}
-	newPowerMenus() {
-		return new TesteMenus();
-	}
-}
-
-let app = new TesteUi();
-// let app = new PowerUi();
+let app = new PowerUi();
 
 function changeMenu() {
 	var item = app.menus.menuItemById('sports') || app.menus.menuItemById('novidades');
