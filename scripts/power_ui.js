@@ -45,8 +45,7 @@ class PowerUi {
 
 // Abstract class to create menu elements
 class _PowerBasicElement {
-	constructor(element, kind) {
-		this.__kind__ = kind;
+	constructor(element) {
 		this.element = element;
 	}
 
@@ -57,9 +56,6 @@ class _PowerBasicElement {
 			throwError = true;
 		} else if (this.element.className.includes('power-label') && labelElements.length) {
 			throwError = true;
-		} else if (!this.element.className.includes('power-label') && !labelElements.length) {
-			// Better if items always have a label
-			this.__labelUndefined__ = `It is better if all ${this.__kind__}s on menu have the class selector "power-label", now assuming the label is the element innerText with the class selector ${this.__kind__}`;
 		}
 		if (throwError) {
 			window.console.error(error, this.element);
@@ -101,19 +97,19 @@ class _PowerBasicElement {
 
 class PowerMenuHeading extends _PowerBasicElement {
 	constructor(element) {
-		super(element, 'power-heading');
+		super(element);
 	}
 }
 
 class PowerMenuItem extends _PowerBasicElement {
 	constructor(element) {
-		super(element, 'power-item');
+		super(element);
 	}
 }
 
 class PowerMenuBrand extends _PowerBasicElement {
 	constructor(element) {
-		super(element, 'power-brand');
+		super(element);
 	}
 }
 
