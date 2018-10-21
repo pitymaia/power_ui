@@ -34,9 +34,12 @@ Event.index = {}; // storage for all named events
 
 class PowerUi {
 	constructor() {
-		this.menus = new PowerMenus();
+		this.menus = this.newPowerMenus();
 		this.ui = {};
 		this.truth = {};
+	}
+	newPowerMenus() {
+		return new PowerMenus();
 	}
 }
 
@@ -106,9 +109,14 @@ class PowerMenu {
 
 		const itemsElements = menu.getElementsByClassName('power-item');
 		for (const menuItem of itemsElements) {
-			this.items.push(new PowerMenuItem(menuItem));
+			this.items.push(this.newPowerMenuItem(menuItem));
 		}
 	}
+
+	newPowerMenuItem(menuItem) {
+		return new PowerMenuItem(menuItem);
+	}
+
 	get id() {
 		return _getId(this);
 	}
@@ -139,8 +147,11 @@ class PowerMenus {
 
 		const menus = document.getElementsByClassName('power-menu');
 		for (const menu of menus) {
-			this.menus.push(new PowerMenu(menu));
+			this.menus.push(this.newPowerMenu(menu));
 		}
+	}
+	newPowerMenu(menu) {
+		return new PowerMenu(menu);
 	}
 	menuById(id) {
 		return this.menus.find(menu => menu.id === id);
@@ -167,10 +178,42 @@ class PowerMenus {
 }
 
 
-let app = new PowerUi();
+
+class TesteMenu extends PowerMenu {
+	constructor(menu, info) {
+		super(menu);
+		this.testMenu = true;
+		this.descri = info.descri;
+	}
+}
+
+class TesteMenus extends PowerMenus {
+	constructor() {
+		super();
+		this.testMenus = true;
+		this.descri = 'Esse é o menu de testes';
+	}
+
+	newPowerMenu(menu) {
+		const info = {descri: 'Descrição do menu'};
+		return new TesteMenu(menu, info);
+	}
+}
+class TesteUi extends PowerUi {
+	constructor() {
+		super();
+		this.fake = {};
+	}
+	newPowerMenus() {
+		return new TesteMenus();
+	}
+}
+
+let app = new TesteUi();
+// let app = new PowerUi();
 
 function changeMenu() {
-	var item = app.menus.menuItemById('louco') || app.menus.menuItemById('novidades');
+	var item = app.menus.menuItemById('sports') || app.menus.menuItemById('novidades');
 	item.label = 'Novidades';
 	item.id = 'novidades';
 	window.console.log('click label ' + item.label, app);
@@ -178,7 +221,7 @@ function changeMenu() {
 }
 
 function showMenuLabel() {
-	var item = app.menus.menuItemById('louco') || app.menus.menuItemById('novidades');
+	var item = app.menus.menuItemById('sports') || app.menus.menuItemById('novidades');
 	window.console.log('click label ' + item.label);
 	window.console.log('click id ' + item.id);
 }
