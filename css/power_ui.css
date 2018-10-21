@@ -1,18 +1,18 @@
 /* Menu */
-.power-menu-item {
+.power-item.pw-design {
     list-style-type: none;
 }
 
-.power-menu-item, .power-menu-list {
+.power-item.pw-design, .power-list.pw-design {
     padding:0px;
     margin:0px;
 }
 
-.power-menu-item, .power-menu-list {
+.power-menu.pw-horizontal .power-item, .pw-horizontal > * {
     display: inline;
 }
 
-.power-menu-link {
+.power-link.pw-design {
     text-decoration: underline;
     cursor: pointer;
 }

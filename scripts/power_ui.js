@@ -104,7 +104,7 @@ class PowerMenu {
 		this.items = [];
 		this._brand = this.brand;
 
-		const itemsElements = menu.getElementsByClassName('power-menu-item');
+		const itemsElements = menu.getElementsByClassName('power-item');
 		for (const menuItem of itemsElements) {
 			this.items.push(new PowerMenuItem(menuItem));
 		}
