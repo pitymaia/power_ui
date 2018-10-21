@@ -1,9 +1,9 @@
 /* Menu */
-.power-item.pw-design {
+.pw-design .power-item, .power-item.pw-design {
     list-style-type: none;
 }
 
-.power-item.pw-design, .power-list.pw-design {
+.pw-design .power-item, .pw-design .power-list, .pw-design.power-item, .pw-design.power-list {
     padding:0px;
     margin:0px;
 }
@@ -12,8 +12,7 @@
     display: inline;
 }
 
-.power-link.pw-design {
-    text-decoration: underline;
+.pw-design .power-item {
     cursor: pointer;
 }
 /* Menu end*/
