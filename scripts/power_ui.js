@@ -63,6 +63,18 @@ class _PowerBasicElement {
 		}
 	}
 
+	get images() {
+		return this.element.getElementsByTagName('IMG');
+	}
+
+	get anchors() {
+		return this.element.getElementsByTagName('A');
+	}
+
+	get icons() {
+		return this.element.getElementsByClassName('power-icon');
+	}
+
 	get label() {
 		const labelElements = this.element.getElementsByClassName('power-label');
 		this._validateLabelClassSelectors(labelElements);
@@ -246,6 +258,9 @@ function showMenuLabel() {
 	var item = app.menus.menuItemById('sports') || app.menus.menuItemById('novidades');
 	window.console.log('click label ' + item.label);
 	window.console.log('click id ' + item.id);
+	window.console.log('item img: ', item.images);
+	window.console.log('item anchors: ', item.anchors);
+	window.console.log('item icons: ', item.icons);
 }
 
 window.console.log('power', app);
