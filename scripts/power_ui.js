@@ -75,6 +75,10 @@ class _PowerBasicElement {
 		return this.element.getElementsByClassName('power-icon');
 	}
 
+	get status() {
+		return this.element.getElementsByClassName('power-status')[0] || null;
+	}
+
 	get label() {
 		const labelElements = this.element.getElementsByClassName('power-label');
 		this._validateLabelClassSelectors(labelElements);
@@ -265,15 +269,22 @@ function showMenuLabel() {
 
 window.console.log('power', app);
 
-app.menus.menuItemElById('news').addEventListener('click', function() {
-	window.console.log('Click news', app);
+app.menus.menuItemElById('mais').addEventListener('click', function() {
+	const menuItem = app.menus.menuItemById('mais');
+	window.console.log('label', menuItem.label);
+	window.console.log('id', menuItem.id);
+	window.console.log('anchors', menuItem.anchors);
+	window.console.log('images', menuItem.images);
+	window.console.log('icons', menuItem.icons);
+	window.console.log('status', menuItem.status);
+	window.console.log('status class list', menuItem.status.classList);
 });
-app.menus.menuItemElById('news').addEventListener('mouseover', function() {
-	window.console.log('Hover ', this.innerText);
+app.menus.menuItemElById('menos').addEventListener('mouseover', function() {
+	window.console.log('Hover menos', this.innerText);
 });
-app.menus.menuItemElById('esporte').addEventListener('click', function() {
-	window.console.log('Click esporte', app);
+app.menus.menuItemElById('muito').addEventListener('click', function() {
+	window.console.log('Click muito', app);
 });
-app.menus.menuItemElById('outro').addEventListener('click', function() {
-	window.console.log('Click outro', app.menus);
+app.menus.menuItemElById('pouco').addEventListener('click', function() {
+	window.console.log('Click pouco', app.menus);
 });
