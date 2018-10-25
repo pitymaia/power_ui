@@ -24,12 +24,15 @@ class Event {
 		this.observers = [];
 		if (name)  Event.index[name] = this;
 	}
+
 	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
 		this.observers.push({fn, ctx});
 	}
+
 	unsubscribe(fn) {
 		this.observers = this.observers.filter((x) => x !== fn);
 	}
+
 	broadcast() { // Accepts arguments.
 		for (const o of this.observers) {
 			o.fn.apply(o.ctx, arguments);
@@ -45,6 +48,7 @@ class PowerUi {
 		this.ui = {};
 		this.truth = {};
 	}
+
 	newPowerMenus() {
 		return new PowerMenus();
 	}
@@ -155,16 +159,26 @@ class PowerMenu {
 		this.items = [];
 		this.headings = [];
 
+		// Call newPowerMenuItem allows any extended class implement it on
+		// custom PowerMenuItem
 		const itemsElements = menu.getElementsByClassName('power-item');
 		for (const menuItem of itemsElements) {
 			this.items.push(this.newPowerMenuItem(menuItem));
 		}
 
+		// Call newPowerMenuHeading allows any extended class implement it on
+		// custom PowerMenuHeading
 		const headingsElements = this.element.getElementsByClassName('power-heading');
 		for (const menuHeading of headingsElements) {
 			this.headings.push(this.newPowerMenuHeading(menuHeading));
 		}
 
+		// Call newPowerMenuBrand allows any extended class implement it on
+		// custom PowerMenuBrand
+		this.newPowerMenuBrand();
+	}
+
+	newPowerMenuBrand() {
 		const elements = this.element.getElementsByClassName('power-brand');
 		this._validateSingleClassSelectors(elements);
 		this.brand =  elements[0] ? new PowerMenuBrand(elements[0]) : null;
@@ -197,17 +211,22 @@ class PowerMenus {
 	constructor() {
 		this.menus = [];
 
+		// Call newPowerMenu allows any extended class implement it on
+		// custom PowerMenu
 		const menus = document.getElementsByClassName('power-menu');
 		for (const menu of menus) {
 			this.menus.push(this.newPowerMenu(menu));
 		}
 	}
+
 	newPowerMenu(menu) {
 		return new PowerMenu(menu);
 	}
+
 	menuById(id) {
 		return this.menus.find(menu => menu.id === id);
 	}
+
 	menuItemById(id) {
 		for (const menu of this.menus) {
 			const menuItem = menu.items.find(item => item.id === id); // jshint ignore:line
@@ -216,9 +235,11 @@ class PowerMenus {
 			}
 		}
 	}
+
 	menuElById(id) {
 		return this.menus.find(menu => menu.id === id).element;
 	}
+
 	menuItemElById(id) {
 		for (const menu of this.menus) {
 			const menuItem = menu.items.find(item => item.id === id); // jshint ignore:line
