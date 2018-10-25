@@ -47,6 +47,8 @@ class PowerUi {
 class _PowerBasicElement {
 	constructor(element) {
 		this.element = element;
+		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
+		this._validateStatusClassSelectors(this.element.getElementsByClassName('power-status'));
 	}
 
 	_validateLabelClassSelectors(labelElements) {
@@ -60,6 +62,13 @@ class _PowerBasicElement {
 		if (throwError) {
 			window.console.error(error, this.element);
 			throw 'power-label Error';
+		}
+	}
+	_validateStatusClassSelectors(elements) {
+		const error = 'ERROR: The menu item have more than one element with the class selector "power-status", so we can not know with one is the real one:';
+		if (elements.length > 1) {
+			window.console.error(error, this.element);
+			throw 'power-status Error';
 		}
 	}
 
@@ -76,7 +85,9 @@ class _PowerBasicElement {
 	}
 
 	get status() {
-		return this.element.getElementsByClassName('power-status')[0] || null;
+		const elements = this.element.getElementsByClassName('power-status');
+		this._validateStatusClassSelectors(elements);
+		return elements[0] || null;
 	}
 
 	get label() {
