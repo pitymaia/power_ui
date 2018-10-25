@@ -10,6 +10,14 @@ function _setId(ctx, id) {
 	ctx.element.setAttribute('id', id);
 }
 
+function _validateSingleClassSelectors(elements, selector, ctx) {
+	const error = `ERROR: This element can not have more than one class selector "${selector}":`;
+	if (elements.length > 1) {
+		window.console.error(error, ctx.element);
+		throw `${selector} Error`;
+	}
+}
+
 
 class Event {
 	constructor(name) {
@@ -48,7 +56,6 @@ class _PowerBasicElement {
 	constructor(element) {
 		this.element = element;
 		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
-		this._validateStatusClassSelectors(this.element.getElementsByClassName('power-status'));
 	}
 
 	_validateLabelClassSelectors(labelElements) {
@@ -64,13 +71,6 @@ class _PowerBasicElement {
 			throw 'power-label Error';
 		}
 	}
-	_validateStatusClassSelectors(elements) {
-		const error = 'ERROR: The menu item have more than one element with the class selector "power-status", so we can not know with one is the real one:';
-		if (elements.length > 1) {
-			window.console.error(error, this.element);
-			throw 'power-status Error';
-		}
-	}
 
 	get images() {
 		return this.element.getElementsByTagName('IMG');
@@ -82,12 +82,6 @@ class _PowerBasicElement {
 
 	get icons() {
 		return this.element.getElementsByClassName('power-icon');
-	}
-
-	get status() {
-		const elements = this.element.getElementsByClassName('power-status');
-		this._validateStatusClassSelectors(elements);
-		return elements[0] || null;
 	}
 
 	get label() {
@@ -128,11 +122,25 @@ class PowerMenuHeading extends _PowerBasicElement {
 	}
 }
 
+
 class PowerMenuItem extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
+		this._validateSingleClassSelectors(this.element.getElementsByClassName('power-status'));
+	}
+
+	// Call validation function to check if has only one 'power-status' per item
+	_validateSingleClassSelectors(elements) {
+		_validateSingleClassSelectors(elements, 'power-status', this);
+	}
+
+	get status() {
+		const elements = this.element.getElementsByClassName('power-status');
+		this._validateSingleClassSelectors(elements);
+		return elements[0] || null;
 	}
 }
+
 
 class PowerMenuBrand extends _PowerBasicElement {
 	constructor(element) {
@@ -157,10 +165,6 @@ class PowerMenu {
 			this.headings.push(this.newPowerMenuHeading(menuHeading));
 		}
 
-		this.newPowerMenuBrand();
-	}
-
-	newPowerMenuBrand() {
 		const elements = this.element.getElementsByClassName('power-brand');
 		this._validateSingleClassSelectors(elements);
 		this.brand =  elements[0] ? new PowerMenuBrand(elements[0]) : null;
@@ -182,12 +186,9 @@ class PowerMenu {
 		_setId(this, id);
 	}
 
-	_validateSingleClassSelectors(elements, selector) {
-		const error = `ERROR: The menu can not have more than one class selector "${selector}":`;
-		if (elements.length > 1) {
-			window.console.error(error, this.element);
-			throw `${selector} Error`;
-		}
+	// Call validation function to check if has only one 'power-brand' per item
+	_validateSingleClassSelectors(elements) {
+		_validateSingleClassSelectors(elements, 'power-brand', this);
 	}
 }
 
