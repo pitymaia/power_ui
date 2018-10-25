@@ -117,6 +117,10 @@ class _PowerBasicElement {
 	set id(id) {
 		_setId(this, id);
 	}
+
+	addEventListener(event, callback) {
+		this.element.addEventListener(event, callback.bind(this, this));
+	}
 }
 
 
@@ -149,6 +153,16 @@ class PowerMenuItem extends _PowerBasicElement {
 class PowerMenuBrand extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
+	}
+
+	get src() {
+		return this.images[0] ? this.images[0].src : null;
+	}
+
+	set src(src) {
+		if (this.images[0]) {
+			this.images[0].src = src;
+		}
 	}
 }
 
@@ -204,6 +218,10 @@ class PowerMenu {
 	_validateSingleClassSelectors(elements) {
 		_validateSingleClassSelectors(elements, 'power-brand', this);
 	}
+
+	addEventListener(event, callback) {
+		this.element.addEventListener(event, callback.bind(this, this));
+	}
 }
 
 
@@ -247,6 +265,10 @@ class PowerMenus {
 				return menuItem.element;
 			}
 		}
+	}
+
+	addEventListener(event, callback) {
+		this.element.addEventListener(event, callback.bind(this, this));
 	}
 }
 
@@ -320,4 +342,8 @@ app.menus.menuItemElById('muito').addEventListener('click', function() {
 });
 app.menus.menuItemElById('pouco').addEventListener('click', function() {
 	window.console.log('Click pouco', app.menus);
+});
+app.menus.menus[0].brand.addEventListener('click', function(brand) {
+	window.console.log('Click BRAND', brand);
+	brand.src = 'https://image.flaticon.com/icons/png/128/174/174848.png';
 });
