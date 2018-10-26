@@ -155,13 +155,20 @@ class PowerMenuBrand extends _PowerBasicElement {
 		super(element);
 	}
 
+	get image() {
+		const image = this.images[0];
+		return image ? image : null;
+	}
+
 	get src() {
-		return this.images[0] ? this.images[0].src : null;
+		const image = this.image;
+		return image ? image.src : null;
 	}
 
 	set src(src) {
-		if (this.images[0]) {
-			this.images[0].src = src;
+		const image = this.image;
+		if (image) {
+			image.src = src;
 		}
 	}
 }
@@ -344,6 +351,10 @@ app.menus.menuItemElById('pouco').addEventListener('click', function() {
 	window.console.log('Click pouco', app.menus);
 });
 app.menus.menus[0].brand.addEventListener('click', function(brand) {
-	window.console.log('Click BRAND', brand);
-	brand.src = 'https://image.flaticon.com/icons/png/128/174/174848.png';
+	window.console.log('Click BRAND', brand.image.width);
+	if (brand.src === 'https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif') {
+		brand.src = 'https://image.flaticon.com/icons/png/128/174/174848.png';
+	} else {
+		brand.src = 'https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif';
+	}
 });
