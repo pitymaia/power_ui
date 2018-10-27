@@ -12,7 +12,7 @@ function _setId(ctx, id) {
 
 function _validateSingleClassSelectors(elements, selector, ctx) {
 	const error = `ERROR: This element can not have more than one class selector "${selector}":`;
-	if (elements.length > 1) {
+	if (elements.length > 1 || (elements.length && ctx.element.className.includes(selector))) {
 		window.console.error(error, ctx.element);
 		throw `${selector} Error`;
 	}
@@ -124,35 +124,18 @@ class _PowerBasicElement {
 }
 
 
-class PowerMenuHeading extends _PowerBasicElement {
+class PowerHeading extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
 	}
 }
 
 
-class PowerMenuItem extends _PowerBasicElement {
+class _PowerLinkElement extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
-		this._validateSingleClassSelectors(this.element.getElementsByClassName('power-status'));
-	}
-
-	// Call validation function to check if has only one 'power-status' per item
-	_validateSingleClassSelectors(elements) {
-		_validateSingleClassSelectors(elements, 'power-status', this);
-	}
-
-	get status() {
-		const elements = this.element.getElementsByClassName('power-status');
-		this._validateSingleClassSelectors(elements);
-		return elements[0] || null;
-	}
-}
-
-
-class PowerMenuBrand extends _PowerBasicElement {
-	constructor(element) {
-		super(element);
+		const linkSelector = 'power-link';
+		_validateSingleClassSelectors(this.element.getElementsByClassName(linkSelector), linkSelector, this);
 	}
 
 	get image() {
@@ -171,6 +154,41 @@ class PowerMenuBrand extends _PowerBasicElement {
 			image.src = src;
 		}
 	}
+
+	get link() {
+		const selector = 'power-link';
+		const links = this.element.getElementsByClassName(selector);
+		_validateSingleClassSelectors(links, selector, this);
+		let link = links[0] ? links[0] : null;
+		// Maybe the power-link class is in the element it self
+		if (!link && this.element.className.includes(selector)) {
+			link = this.element;
+		}
+		return link;
+	}
+}
+
+
+class PowerItem extends _PowerLinkElement {
+	constructor(element) {
+		super(element);
+		const statusSelector = 'power-status';
+		_validateSingleClassSelectors(this.element.getElementsByClassName(statusSelector), statusSelector, this);
+	}
+
+	get status() {
+		const selector = 'power-status';
+		const elements = this.element.getElementsByClassName(selector);
+		_validateSingleClassSelectors(elements, selector, this);
+		return elements[0] || null;
+	}
+}
+
+
+class PowerBrand extends _PowerLinkElement {
+	constructor(element) {
+		super(element);
+	}
 }
 
 
@@ -180,37 +198,38 @@ class PowerMenu {
 		this.items = [];
 		this.headings = [];
 
-		// Call newPowerMenuItem allows any extended class implement it on
-		// custom PowerMenuItem
+		// Call newPowerItem allows any extended class implement it on
+		// custom PowerItem
 		const itemsElements = menu.getElementsByClassName('power-item');
 		for (const menuItem of itemsElements) {
-			this.items.push(this.newPowerMenuItem(menuItem));
+			this.items.push(this.newPowerItem(menuItem));
 		}
 
-		// Call newPowerMenuHeading allows any extended class implement it on
-		// custom PowerMenuHeading
+		// Call newPowerHeading allows any extended class implement it on
+		// custom PowerHeading
 		const headingsElements = this.element.getElementsByClassName('power-heading');
 		for (const menuHeading of headingsElements) {
-			this.headings.push(this.newPowerMenuHeading(menuHeading));
+			this.headings.push(this.newPowerHeading(menuHeading));
 		}
 
-		// Call newPowerMenuBrand allows any extended class implement it on
-		// custom PowerMenuBrand
-		this.newPowerMenuBrand();
+		// Call newPowerBrand allows any extended class implement it on
+		// custom PowerBrand
+		this.newPowerBrand();
 	}
 
-	newPowerMenuBrand() {
-		const elements = this.element.getElementsByClassName('power-brand');
-		this._validateSingleClassSelectors(elements);
-		this.brand =  elements[0] ? new PowerMenuBrand(elements[0]) : null;
+	newPowerBrand() {
+		const selector = 'power-brand';
+		const elements = this.element.getElementsByClassName(selector);
+		_validateSingleClassSelectors(elements, selector, this);
+		this.brand =  elements[0] ? new PowerBrand(elements[0]) : null;
 	}
 
-	newPowerMenuHeading(menuHeading) {
-		return new PowerMenuHeading(menuHeading);
+	newPowerHeading(menuHeading) {
+		return new PowerHeading(menuHeading);
 	}
 
-	newPowerMenuItem(menuItem) {
-		return new PowerMenuItem(menuItem);
+	newPowerItem(menuItem) {
+		return new PowerItem(menuItem);
 	}
 
 	get id() {
@@ -219,11 +238,6 @@ class PowerMenu {
 
 	set id(id) {
 		_setId(this, id);
-	}
-
-	// Call validation function to check if has only one 'power-brand' per item
-	_validateSingleClassSelectors(elements) {
-		_validateSingleClassSelectors(elements, 'power-brand', this);
 	}
 
 	addEventListener(event, callback) {
@@ -318,6 +332,7 @@ function changeMenu() {
 	item.id = 'novidades';
 	window.console.log('click label ' + item.label, app);
 	window.console.log('click id ' + item.id, app);
+	item.link.href = 'https://google.com';
 }
 
 function showMenuLabel() {
@@ -327,6 +342,7 @@ function showMenuLabel() {
 	window.console.log('item img: ', item.images);
 	window.console.log('item anchors: ', item.anchors);
 	window.console.log('item icons: ', item.icons);
+	window.console.log('sports link', item.link);
 }
 
 window.console.log('power', app);
@@ -351,7 +367,7 @@ app.menus.menuItemElById('pouco').addEventListener('click', function() {
 	window.console.log('Click pouco', app.menus);
 });
 app.menus.menus[0].brand.addEventListener('click', function(brand) {
-	window.console.log('Click BRAND', brand.image.width);
+	window.console.log('Click BRAND', brand);
 	if (brand.src === 'https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif') {
 		brand.src = 'https://image.flaticon.com/icons/png/128/174/174848.png';
 	} else {
