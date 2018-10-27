@@ -57,7 +57,7 @@ class PowerUi {
 
 // Abstract class to create menu elements
 class _PowerBasicElement {
-	constructor(element) {
+	constructor(element, main) {
 		this.element = element;
 		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
 	}
@@ -125,17 +125,48 @@ class _PowerBasicElement {
 
 
 class PowerHeading extends _PowerBasicElement {
-	constructor(element) {
-		super(element);
+	constructor(element, main) {
+		super(element, main);
 	}
 }
 
 
 class _PowerLinkElement extends _PowerBasicElement {
-	constructor(element) {
-		super(element);
+	constructor(element, main) {
+		super(element, main);
+		this.hover = false;
+		const ctx = this;
 		const linkSelector = 'power-link';
 		_validateSingleClassSelectors(this.element.getElementsByClassName(linkSelector), linkSelector, this);
+
+		// Add pw-default attribute and addEventListener if there is pw-hover
+		if (this.src) {
+			this.image.setAttribute('data-pw-default', this.src);
+			if (this.image.getAttribute('data-pw-hover')) {
+				this.addEventListener("mouseover", function() {
+					ctx.image.src = ctx.image.getAttribute('data-pw-hover');
+					ctx.hover = true;
+				}, false);
+				this.addEventListener("mouseout", function() {
+					ctx.image.src = ctx.image.getAttribute('data-pw-default');
+					ctx.hover = false;
+				}, false);
+			}
+			// Add addEventListener if there is main and pw-main-id
+			if (main && this.image.getAttribute('data-pw-main-hover')) {
+				main.addEventListener("mouseover", function() {
+					if (ctx.hover === false) {
+						ctx.image.src = ctx.image.getAttribute('data-pw-main-hover');
+					}
+				}, false);
+				main.addEventListener("mouseout", function() {
+					if (ctx.hover === false) {
+						ctx.image.src = ctx.image.getAttribute('data-pw-default');
+					}
+				}, false);
+			}
+		}
+
 	}
 
 	get image() {
@@ -170,8 +201,8 @@ class _PowerLinkElement extends _PowerBasicElement {
 
 
 class PowerItem extends _PowerLinkElement {
-	constructor(element) {
-		super(element);
+	constructor(element, main) {
+		super(element, main);
 		const statusSelector = 'power-status';
 		_validateSingleClassSelectors(this.element.getElementsByClassName(statusSelector), statusSelector, this);
 	}
@@ -186,8 +217,8 @@ class PowerItem extends _PowerLinkElement {
 
 
 class PowerBrand extends _PowerLinkElement {
-	constructor(element) {
-		super(element);
+	constructor(element, main) {
+		super(element, main);
 	}
 }
 
@@ -221,15 +252,15 @@ class PowerMenu {
 		const selector = 'power-brand';
 		const elements = this.element.getElementsByClassName(selector);
 		_validateSingleClassSelectors(elements, selector, this);
-		this.brand =  elements[0] ? new PowerBrand(elements[0]) : null;
+		this.brand =  elements[0] ? new PowerBrand(elements[0], this) : null;
 	}
 
 	newPowerHeading(menuHeading) {
-		return new PowerHeading(menuHeading);
+		return new PowerHeading(menuHeading, this);
 	}
 
 	newPowerItem(menuItem) {
-		return new PowerItem(menuItem);
+		return new PowerItem(menuItem, this);
 	}
 
 	get id() {
@@ -362,9 +393,6 @@ app.menus.menuItemElById('menos').addEventListener('mouseover', function() {
 });
 app.menus.menuItemElById('muito').addEventListener('click', function() {
 	window.console.log('Click muito', app);
-});
-app.menus.menuItemElById('pouco').addEventListener('click', function() {
-	window.console.log('Click pouco', app.menus);
 });
 app.menus.menus[0].brand.addEventListener('click', function(brand) {
 	window.console.log('Click BRAND', brand);
