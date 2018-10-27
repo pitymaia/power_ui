@@ -18,6 +18,17 @@ function _validateSingleClassSelectors(elements, selector, ctx) {
 	}
 }
 
+function _menuBlockById(id, menu) {
+	let menuBlock = menu.items.find(item => item.id === id); // jshint ignore:line
+	if (!menuBlock) {
+		menuBlock = menu.brand.id === id ? menu.brand : null;
+	}
+	if (!menuBlock) {
+		menuBlock = menu.headings.find(header => header.id === id); // jshint ignore:line
+	}
+	return menuBlock;
+}
+
 
 class Event {
 	constructor(name) {
@@ -134,7 +145,7 @@ class PowerHeading extends _PowerBasicElement {
 class _PowerLinkElement extends _PowerBasicElement {
 	constructor(element, main) {
 		super(element, main);
-		this.hover = false;
+		this._hover = false;
 		const ctx = this;
 		const linkSelector = 'power-link';
 		_validateSingleClassSelectors(this.element.getElementsByClassName(linkSelector), linkSelector, this);
@@ -145,22 +156,22 @@ class _PowerLinkElement extends _PowerBasicElement {
 			if (this.image.getAttribute('data-pw-hover')) {
 				this.addEventListener("mouseover", function() {
 					ctx.image.src = ctx.image.getAttribute('data-pw-hover');
-					ctx.hover = true;
+					ctx._hover = true;
 				}, false);
 				this.addEventListener("mouseout", function() {
 					ctx.image.src = ctx.image.getAttribute('data-pw-default');
-					ctx.hover = false;
+					ctx._hover = false;
 				}, false);
 			}
 			// Add addEventListener if there is main and pw-main-id
 			if (main && this.image.getAttribute('data-pw-main-hover')) {
 				main.addEventListener("mouseover", function() {
-					if (ctx.hover === false) {
+					if (ctx._hover === false) {
 						ctx.image.src = ctx.image.getAttribute('data-pw-main-hover');
 					}
 				}, false);
 				main.addEventListener("mouseout", function() {
-					if (ctx.hover === false) {
+					if (ctx._hover === false) {
 						ctx.image.src = ctx.image.getAttribute('data-pw-default');
 					}
 				}, false);
@@ -274,18 +285,22 @@ class PowerMenu {
 	addEventListener(event, callback) {
 		this.element.addEventListener(event, callback.bind(this, this));
 	}
+
+	blockById(id) {
+		return _menuBlockById(id, this);
+	}
 }
 
 
 class PowerMenus {
 	constructor() {
-		this.menus = [];
-
+		this.menusIds = [];
 		// Call newPowerMenu allows any extended class implement it on
 		// custom PowerMenu
 		const menus = document.getElementsByClassName('power-menu');
 		for (const menu of menus) {
-			this.menus.push(this.newPowerMenu(menu));
+			this[menu.getAttribute('id')] = this.newPowerMenu(menu);
+			this.menusIds.push(menu.getAttribute('id'));
 		}
 	}
 
@@ -294,27 +309,15 @@ class PowerMenus {
 	}
 
 	menuById(id) {
-		return this.menus.find(menu => menu.id === id);
+		return this[id];
 	}
 
-	menuItemById(id) {
-		for (const menu of this.menus) {
-			const menuItem = menu.items.find(item => item.id === id); // jshint ignore:line
-			if (menuItem) {
-				return menuItem;
-			}
-		}
-	}
-
-	menuElById(id) {
-		return this.menus.find(menu => menu.id === id).element;
-	}
-
-	menuItemElById(id) {
-		for (const menu of this.menus) {
-			const menuItem = menu.items.find(item => item.id === id); // jshint ignore:line
-			if (menuItem) {
-				return menuItem.element;
+	// Search for a menu block in all menus
+	blockById(id) {
+		for (const menuId of this.menusIds) {
+			const menuBlock = _menuBlockById(id, this[menuId]);
+			if (menuBlock) {
+				return menuBlock;
 			}
 		}
 	}
@@ -323,7 +326,6 @@ class PowerMenus {
 		this.element.addEventListener(event, callback.bind(this, this));
 	}
 }
-
 
 // class TesteMenu extends PowerMenu {
 // 	constructor(menu, info) {
@@ -358,7 +360,7 @@ class PowerMenus {
 let app = new PowerUi();
 
 function changeMenu() {
-	var item = app.menus.menuItemById('sports') || app.menus.menuItemById('novidades');
+	var item = app.menus.blockById('sports') || app.menus.blockById('novidades');
 	item.label = 'Novidades';
 	item.id = 'novidades';
 	window.console.log('click label ' + item.label, app);
@@ -367,19 +369,21 @@ function changeMenu() {
 }
 
 function showMenuLabel() {
-	var item = app.menus.menuItemById('sports') || app.menus.menuItemById('novidades');
+	var item = app.menus.blockById('sports') || app.menus.blockById('novidades');
 	window.console.log('click label ' + item.label);
 	window.console.log('click id ' + item.id);
 	window.console.log('item img: ', item.images);
 	window.console.log('item anchors: ', item.anchors);
 	window.console.log('item icons: ', item.icons);
 	window.console.log('sports link', item.link);
+	window.console.log('brand', app.menus.blockById('first-brand'));
+	window.console.log('news', app.menus.top.blockById('news'));
 }
 
 window.console.log('power', app);
 
-app.menus.menuItemElById('mais').addEventListener('click', function() {
-	const menuItem = app.menus.menuItemById('mais');
+app.menus.blockById('mais').addEventListener('click', function() {
+	const menuItem = app.menus.blockById('mais');
 	window.console.log('label', menuItem.label);
 	window.console.log('id', menuItem.id);
 	window.console.log('anchors', menuItem.anchors);
@@ -388,13 +392,13 @@ app.menus.menuItemElById('mais').addEventListener('click', function() {
 	window.console.log('status', menuItem.status);
 	window.console.log('status class list', menuItem.status.classList);
 });
-app.menus.menuItemElById('menos').addEventListener('mouseover', function() {
+app.menus.blockById('menos').addEventListener('mouseover', function() {
 	window.console.log('Hover menos', this.innerText);
 });
-app.menus.menuItemElById('muito').addEventListener('click', function() {
+app.menus.blockById('muito').addEventListener('click', function() {
 	window.console.log('Click muito', app);
 });
-app.menus.menus[0].brand.addEventListener('click', function(brand) {
+app.menus.top.brand.addEventListener('click', function(brand) {
 	window.console.log('Click BRAND', brand);
 	if (brand.src === 'https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif') {
 		brand.src = 'https://image.flaticon.com/icons/png/128/174/174848.png';
