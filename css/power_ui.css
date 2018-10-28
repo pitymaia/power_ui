@@ -17,3 +17,24 @@
 }
 /* Menu end*/
 
+/*TEMP*/
+
+.temp-blue * {
+    color: blue;
+}
+
+.temp-yellow * {
+    color: yellow;
+}
+
+.temp-red * {
+    color: red;
+}
+
+.temp-orange * {
+    color: orange;
+}
+
+.temp-green * {
+    color: green;
+}

@@ -71,37 +71,74 @@ class _PowerBasicElement {
 	constructor(element, main) {
 		this.element = element;
 		this._hover = false;
-		const ctx = this;
 		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
 
-		// Add pw-default attribute and addEventListener if there is pw-hover-src
-		if (this.element.querySelectorAll('[data-pw-hover-src]').length) {
-			this.addEventListener("mouseover", function() {
-				ctx._changeNodes('data-pw-hover-src', 'src');
+		// Set data-pw-default-src if data-pw-hover or data-pw-main-hover
+		for (const image of this.images) {
+			if (image.getAttribute('data-pw-main-hover-src') || image.getAttribute('data-pw-hover-src'))
+			image.setAttribute('data-pw-default-src', image.src);
+		}
+		// Set data-pw-default if have data-pw-hover
+		for (const element of this.element.querySelectorAll('[data-pw-hover]')) {
+			element.setAttribute('data-pw-default', element.className);
+		}
+		// Set data-pw-default if have data-pw-main-hover
+		for (const element of this.element.querySelectorAll('[data-pw-main-hover]')) {
+			element.setAttribute('data-pw-default', element.className);
+		}
+		// if the selector is in the element it self, not in children
+		if (this.element.getAttribute('data-pw-main-hover') || this.element.getAttribute('data-pw-hover')) {
+			this.element.setAttribute('data-pw-default', this.element.className);
+		}
+
+		// The list of attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
+		const powerAttributes = [
+			{context: 'this', defaultSelector: 'data-pw-default-src', selector: 'data-pw-hover-src', attribute: 'src'},
+			{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
+			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
+			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover', attribute: 'className'},
+		];
+
+		for (const config of powerAttributes) {
+			if (config.context === 'main') {
+				this._addPowerBlockMainPwHoverListners(config, main, this);
+			} else {
+				this._addPowerBlockPwHoverListners(config, this);
+			}
+		}
+	}
+
+	// THIS
+	// Add pw-default attribute and addEventListener if there is pw hover selector like data-pw-hover-src
+	_addPowerBlockPwHoverListners(config, ctx) {
+		// Check if children have elements with the pw-selector, or it the element it self has it
+		if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
+			ctx.addEventListener("mouseover", function() {
+				ctx._changeNodes(config.selector, config.attribute);
 				ctx._hover = true;
 			}, false);
-			this.addEventListener("mouseout", function() {
-				ctx._changeNodes('data-pw-default-src', 'src');
+			ctx.addEventListener("mouseout", function() {
+				ctx._changeNodes(config.defaultSelector, config.attribute);
 				ctx._hover = false;
 			}, false);
 		}
-		// Add addEventListener if there is main and data-pw-main-hover-src
-		if (main && this.element.querySelectorAll('[data-pw-main-hover-src]').length) {
+	}
+
+	// MAIN
+	// Add addEventListener if there is main and pw hover selector like data-pw-main-hover-src
+	_addPowerBlockMainPwHoverListners(config, main, ctx) {
+		// Get only elements with the pw-selector
+		if (main && ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
 			main.addEventListener("mouseover", function() {
 				if (ctx._hover === false) {
-					ctx._changeNodes('data-pw-main-hover-src', 'src');
+					ctx._changeNodes(config.selector, config.attribute);
 				}
 			}, false);
 			main.addEventListener("mouseout", function() {
 				if (ctx._hover === false) {
-					ctx._changeNodes('data-pw-default-src', 'src');
+					ctx._changeNodes(config.defaultSelector, config.attribute);
 				}
 			}, false);
-		}
-		// Set data-pw-default-src if don't have it
-		for (const image of this.images) {
-			if (image.getAttribute('data-pw-main-hover-src') || image.getAttribute('data-pw-hover-src'))
-			image.setAttribute('data-pw-default-src', image.src);
 		}
 	}
 
@@ -121,7 +158,13 @@ class _PowerBasicElement {
 
 	// If have pw-selectors it replaces the default values with the data in the pw-selector
 	_changeNodes(selector, attribute) {
-		// const images = this.images;
+		// Change the element it self if have the selector
+		const elementSelectorValue = this.element.getAttribute(selector);
+		if (elementSelectorValue) {
+			// Replace the attribute value with the data in the selector
+			this.element[attribute] = elementSelectorValue;
+		}
+		// Change any children node
 		const nodes = this.element.querySelectorAll(`[${selector}]`);
 		if (nodes.length > 0) {
 			for (let index = 0; nodes.length != index; index++) {
