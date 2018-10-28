@@ -70,7 +70,39 @@ class PowerUi {
 class _PowerBasicElement {
 	constructor(element, main) {
 		this.element = element;
+		this._hover = false;
+		const ctx = this;
 		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
+
+		// Add pw-default attribute and addEventListener if there is pw-hover-src
+		if (this.element.querySelectorAll('[data-pw-hover-src]').length) {
+			this.addEventListener("mouseover", function() {
+				ctx._changeNodes('data-pw-hover-src', 'src');
+				ctx._hover = true;
+			}, false);
+			this.addEventListener("mouseout", function() {
+				ctx._changeNodes('data-pw-default-src', 'src');
+				ctx._hover = false;
+			}, false);
+		}
+		// Add addEventListener if there is main and data-pw-main-hover-src
+		if (main && this.element.querySelectorAll('[data-pw-main-hover-src]').length) {
+			main.addEventListener("mouseover", function() {
+				if (ctx._hover === false) {
+					ctx._changeNodes('data-pw-main-hover-src', 'src');
+				}
+			}, false);
+			main.addEventListener("mouseout", function() {
+				if (ctx._hover === false) {
+					ctx._changeNodes('data-pw-default-src', 'src');
+				}
+			}, false);
+		}
+		// Set data-pw-default-src if don't have it
+		for (const image of this.images) {
+			if (image.getAttribute('data-pw-main-hover-src') || image.getAttribute('data-pw-hover-src'))
+			image.setAttribute('data-pw-default-src', image.src);
+		}
 	}
 
 	_validateLabelClassSelectors(labelElements) {
@@ -84,6 +116,21 @@ class _PowerBasicElement {
 		if (throwError) {
 			window.console.error(error, this.element);
 			throw 'power-label Error';
+		}
+	}
+
+	// If have pw-selectors it replaces the default values with the data in the pw-selector
+	_changeNodes(selector, attribute) {
+		// const images = this.images;
+		const nodes = this.element.querySelectorAll(`[${selector}]`);
+		if (nodes.length > 0) {
+			for (let index = 0; nodes.length != index; index++) {
+				const selectorValue = nodes[index].getAttribute(selector);
+				if (selectorValue) {
+					// Replace the attribute value with the data in the selector
+					nodes[index][attribute] = selectorValue;
+				}
+			}
 		}
 	}
 
@@ -145,41 +192,11 @@ class PowerHeading extends _PowerBasicElement {
 class _PowerLinkElement extends _PowerBasicElement {
 	constructor(element, main) {
 		super(element, main);
-		this._hover = false;
-		const ctx = this;
 		const linkSelector = 'power-link';
 		_validateSingleClassSelectors(this.element.getElementsByClassName(linkSelector), linkSelector, this);
-
-		// Add pw-default attribute and addEventListener if there is pw-hover
-		if (this.src) {
-			this.image.setAttribute('data-pw-default', this.src);
-			if (this.image.getAttribute('data-pw-hover')) {
-				this.addEventListener("mouseover", function() {
-					ctx.image.src = ctx.image.getAttribute('data-pw-hover');
-					ctx._hover = true;
-				}, false);
-				this.addEventListener("mouseout", function() {
-					ctx.image.src = ctx.image.getAttribute('data-pw-default');
-					ctx._hover = false;
-				}, false);
-			}
-			// Add addEventListener if there is main and pw-main-id
-			if (main && this.image.getAttribute('data-pw-main-hover')) {
-				main.addEventListener("mouseover", function() {
-					if (ctx._hover === false) {
-						ctx.image.src = ctx.image.getAttribute('data-pw-main-hover');
-					}
-				}, false);
-				main.addEventListener("mouseout", function() {
-					if (ctx._hover === false) {
-						ctx.image.src = ctx.image.getAttribute('data-pw-default');
-					}
-				}, false);
-			}
-		}
-
 	}
 
+	// getter for default _PowerLinkElement IMG
 	get image() {
 		const image = this.images[0];
 		return image ? image : null;
@@ -393,7 +410,7 @@ app.menus.blockById('mais').addEventListener('click', function() {
 	window.console.log('status class list', menuItem.status.classList);
 });
 app.menus.blockById('menos').addEventListener('mouseover', function() {
-	window.console.log('Hover menos', this.innerText);
+	window.console.log('Hover menos', this.label);
 });
 app.menus.blockById('muito').addEventListener('click', function() {
 	window.console.log('Click muito', app);
