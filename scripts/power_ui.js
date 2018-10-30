@@ -86,10 +86,37 @@ class _PowerBasicElement {
 		for (const element of this.element.querySelectorAll('[data-pw-main-hover]')) {
 			element.setAttribute('data-pw-default', element.className);
 		}
+		// Set data-pw-default if have data-pw-hover-add
+		for (const element of this.element.querySelectorAll('[data-pw-hover-add]')) {
+			element.setAttribute('data-pw-default', element.className);
+		}
+		// Set data-pw-default if have data-pw-main-hover-add
+		for (const element of this.element.querySelectorAll('[data-pw-main-hover-add]')) {
+			element.setAttribute('data-pw-default', element.className);
+		}
+		// Set data-pw-default if have data-pw-hover-remove
+		for (const element of this.element.querySelectorAll('[data-pw-hover-remove]')) {
+			element.setAttribute('data-pw-default', element.className);
+		}
+		// Set data-pw-default if have data-pw-main-hover-remove
+		for (const element of this.element.querySelectorAll('[data-pw-main-hover-remove]')) {
+			element.setAttribute('data-pw-default', element.className);
+		}
 		// if the selector is in the element it self, not in children
-		if (this.element.getAttribute('data-pw-main-hover') || this.element.getAttribute('data-pw-hover')) {
+		if (this.element.getAttribute('data-pw-main-hover') || this.element.getAttribute('data-pw-hover') || this.element.getAttribute('data-pw-hover-add') || this.element.getAttribute('data-pw-main-hover-add') || this.element.getAttribute('data-pw-hover-remove') || this.element.getAttribute('data-pw-main-hover-remove')) {
 			this.element.setAttribute('data-pw-default', this.element.className);
 		}
+
+		const addCssCallBack = function (element, selectorValue) {
+			return `${element.className} ${selectorValue}`;
+		};
+
+		const removeCssCallBack = function (element, selectorValue) {
+			for (const className of selectorValue.split(' ')) {
+				element.classList.remove(className);
+			}
+			return element.className;
+		};
 
 		// The list of attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
 		const powerAttributes = [
@@ -97,6 +124,10 @@ class _PowerBasicElement {
 			{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
 			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
 			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover', attribute: 'className'},
+			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-add', attribute: 'className', callback: addCssCallBack},
+			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-add', attribute: 'className', callback: addCssCallBack},
+			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-remove', attribute: 'className', callback: removeCssCallBack},
+			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-remove', attribute: 'className', callback: removeCssCallBack},
 		];
 
 		for (const config of powerAttributes) {
@@ -114,7 +145,7 @@ class _PowerBasicElement {
 		// Check if children have elements with the pw-selector, or it the element it self has it
 		if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
 			ctx.addEventListener("mouseover", function() {
-				ctx._changeNodes(config.selector, config.attribute);
+				ctx._changeNodes(config.selector, config.attribute, config.callback || null);
 				ctx._hover = true;
 			}, false);
 			ctx.addEventListener("mouseout", function() {
@@ -131,7 +162,7 @@ class _PowerBasicElement {
 		if (main && ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
 			main.addEventListener("mouseover", function() {
 				if (ctx._hover === false) {
-					ctx._changeNodes(config.selector, config.attribute);
+					ctx._changeNodes(config.selector, config.attribute, config.callback || null);
 				}
 			}, false);
 			main.addEventListener("mouseout", function() {
@@ -157,12 +188,12 @@ class _PowerBasicElement {
 	}
 
 	// If have pw-selectors it replaces the default values with the data in the pw-selector
-	_changeNodes(selector, attribute) {
+	_changeNodes(selector, attribute, callback) {
 		// Change the element it self if have the selector
-		const elementSelectorValue = this.element.getAttribute(selector);
-		if (elementSelectorValue) {
+		const selectorValue = this.element.getAttribute(selector);
+		if (selectorValue) {
 			// Replace the attribute value with the data in the selector
-			this.element[attribute] = elementSelectorValue;
+			this.element[attribute] = callback ? callback(this.element, selectorValue) : selectorValue;
 		}
 		// Change any children node
 		const nodes = this.element.querySelectorAll(`[${selector}]`);
@@ -171,7 +202,7 @@ class _PowerBasicElement {
 				const selectorValue = nodes[index].getAttribute(selector);
 				if (selectorValue) {
 					// Replace the attribute value with the data in the selector
-					nodes[index][attribute] = selectorValue;
+					nodes[index][attribute] = callback ? callback(nodes[index], selectorValue) : selectorValue;
 				}
 			}
 		}
