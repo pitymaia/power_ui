@@ -85,7 +85,7 @@ class _PowerBasicElement {
 		};
 
 		// The list of attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
-		const powerAttributes = [
+		const powerAttributesConfig = [
 			{context: 'this', defaultSelector: 'data-pw-default-src', selector: 'data-pw-hover-src', attribute: 'src'},
 			{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
 			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
@@ -102,8 +102,8 @@ class _PowerBasicElement {
 			image.setAttribute('data-pw-default-src', image.src);
 		}
 
-		// Set data-pw-default for all other powerAttributes
-		for (const item of powerAttributes.filter(a => a.attribute === 'className')) {
+		// Set data-pw-default for all other powerAttributesConfig
+		for (const item of powerAttributesConfig.filter(a => a.attribute === 'className')) {
 			// Set data-pw-default if have data-pw-hover
 			for (const element of this.element.querySelectorAll(`[${item.selector}]`)) {
 				element.setAttribute('data-pw-default', element.className);
@@ -116,7 +116,7 @@ class _PowerBasicElement {
 		}
 
 		// Add all the listners
-		for (const config of powerAttributes) {
+		for (const config of powerAttributesConfig) {
 			if (config.context === 'main') {
 				this._addPowerBlockMainPwHoverListners(config, main, this);
 			} else {
