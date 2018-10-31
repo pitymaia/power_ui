@@ -1,6 +1,6 @@
 // Layout, design and user interface framework in ES6
-
 'use strict';
+
 
 function _getId(ctx) {
 	return ctx.element.getAttribute('id') || null;
@@ -28,6 +28,29 @@ function _menuBlockById(id, menu) {
 	}
 	return menuBlock;
 }
+
+function _addCssCallBack(element, selectorValue) {
+	return `${element.className} ${selectorValue}`;
+}
+
+function _removeCssCallBack(element, selectorValue) {
+	for (const className of selectorValue.split(' ')) {
+		element.classList.remove(className);
+	}
+	return element.className;
+}
+
+// The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
+const _powerAttributesConfig = [
+	{context: 'this', defaultSelector: 'data-pw-default-src', selector: 'data-pw-hover-src', attribute: 'src'},
+	{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
+	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
+	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover', attribute: 'className'},
+	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+];
 
 
 class Event {
@@ -58,6 +81,16 @@ class PowerUi {
 		this.menus = this.newPowerMenus();
 		this.ui = {};
 		this.truth = {};
+
+		// Set data-pw-default for all _powerAttributesConfig
+		for (const item of _powerAttributesConfig) {
+			// Set data-pw-default if have some data-pw-selector
+			for (const element of document.querySelectorAll(`[${item.selector}]`)) {
+				if (!element.getAttribute(`${item.defaultSelector}`)) {
+					element.setAttribute(item.defaultSelector, element[item.attribute]);
+				}
+			}
+		}
 	}
 
 	newPowerMenus() {
@@ -73,50 +106,8 @@ class _PowerBasicElement {
 		this._hover = false;
 		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
 
-		const addCssCallBack = function (element, selectorValue) {
-			return `${element.className} ${selectorValue}`;
-		};
-
-		const removeCssCallBack = function (element, selectorValue) {
-			for (const className of selectorValue.split(' ')) {
-				element.classList.remove(className);
-			}
-			return element.className;
-		};
-
-		// The list of attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
-		const powerAttributesConfig = [
-			{context: 'this', defaultSelector: 'data-pw-default-src', selector: 'data-pw-hover-src', attribute: 'src'},
-			{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
-			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
-			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover', attribute: 'className'},
-			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-add', attribute: 'className', callback: addCssCallBack},
-			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-add', attribute: 'className', callback: addCssCallBack},
-			{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-remove', attribute: 'className', callback: removeCssCallBack},
-			{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-remove', attribute: 'className', callback: removeCssCallBack},
-		];
-
-		// Set data-pw-default-src if data-pw-hover or data-pw-main-hover
-		for (const image of this.images) {
-			if (image.getAttribute('data-pw-main-hover-src') || image.getAttribute('data-pw-hover-src'))
-			image.setAttribute('data-pw-default-src', image.src);
-		}
-
-		// Set data-pw-default for all other powerAttributesConfig
-		for (const item of powerAttributesConfig.filter(a => a.attribute === 'className')) {
-			// Set data-pw-default if have data-pw-hover
-			for (const element of this.element.querySelectorAll(`[${item.selector}]`)) {
-				element.setAttribute('data-pw-default', element.className);
-			}
-
-			// if the selector is in the element it self, not in children
-			if (this.element.getAttribute(`${item.selector}`)) {
-				this.element.setAttribute('data-pw-default', this.element.className);
-			}
-		}
-
 		// Add all the listners
-		for (const config of powerAttributesConfig) {
+		for (const config of _powerAttributesConfig) {
 			if (config.context === 'main') {
 				this._addPowerBlockMainPwHoverListners(config, main, this);
 			} else {
