@@ -276,6 +276,11 @@ class _PowerLinkElement extends _PowerBasicElement {
 		}
 		return link;
 	}
+
+	get href() {
+		const href = this.link.querySelectorAll('[href]');
+		return href[0] ? href[0].getAttribute('href') : null;
+	}
 }
 
 
@@ -306,20 +311,30 @@ class PowerMenu {
 	constructor(menu) {
 		this.element = menu;
 		this.items = [];
+		this.itemsById = {};
 		this.headings = [];
+		this.headingsById = {};
 
 		// Call newPowerItem allows any extended class implement it on
 		// custom PowerItem
 		const itemsElements = menu.getElementsByClassName('power-item');
 		for (const menuItem of itemsElements) {
-			this.items.push(this.newPowerItem(menuItem));
+			const newItem = this.newPowerItem(menuItem);
+			if (newItem.id) {
+				this.itemsById[newItem.id] = newItem;
+			}
+			this.items.push(newItem);
 		}
 
 		// Call newPowerHeading allows any extended class implement it on
 		// custom PowerHeading
 		const headingsElements = this.element.getElementsByClassName('power-heading');
 		for (const menuHeading of headingsElements) {
-			this.headings.push(this.newPowerHeading(menuHeading));
+			const newHeading = this.newPowerHeading(menuHeading);
+			if (newHeading.id) {
+				this.headingsById[newHeading.id] = newHeading;
+			}
+			this.headings.push(newHeading);
 		}
 
 		// Call newPowerBrand allows any extended class implement it on
@@ -434,6 +449,8 @@ function changeMenu() {
 	window.console.log('click label ' + item.label, app);
 	window.console.log('click id ' + item.id, app);
 	item.link.href = 'https://google.com';
+
+	app.menus.another.itemsById.mais.label = 'Nossa';
 }
 
 function showMenuLabel() {
@@ -443,9 +460,13 @@ function showMenuLabel() {
 	window.console.log('item img: ', item.images);
 	window.console.log('item anchors: ', item.anchors);
 	window.console.log('item icons: ', item.icons);
-	window.console.log('sports link', item.link);
+	window.console.log(item.label + ' link', item.link);
+	window.console.log(item.label + ' href', item.href);
 	window.console.log('brand', app.menus.blockById('first-brand'));
 	window.console.log('news', app.menus.top.blockById('news'));
+
+	window.console.log('mais by id', app.menus.another.itemsById.mais.label);
+	window.console.log('mais by index', app.menus.another.items[0].label);
 }
 
 window.console.log('power', app);
