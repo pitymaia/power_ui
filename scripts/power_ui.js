@@ -30,10 +30,12 @@ function _menuBlockById(id, menu) {
 }
 
 function _addCssCallBack(element, selectorValue) {
+	console.log('_addCssCallBack', selectorValue);
 	return `${element.className} ${selectorValue}`;
 }
 
 function _removeCssCallBack(element, selectorValue) {
+	console.log('_removeCssCallBack', selectorValue);
 	for (const className of selectorValue.split(' ')) {
 		element.classList.remove(className);
 	}
@@ -122,12 +124,16 @@ class _PowerBasicElement {
 		// Check if children have elements with the pw-selector, or it the element it self has it
 		if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
 			ctx.addEventListener("mouseover", function() {
-				ctx._changeNodes(config.selector, config.attribute, config.callback || null);
-				ctx._hover = true;
+				if (!ctx._hover) {
+					ctx._changeNodes(config.selector, config.attribute, config.callback || null);
+					ctx._hover = true;
+				}
 			}, false);
 			ctx.addEventListener("mouseout", function() {
-				ctx._changeNodes(config.defaultSelector, config.attribute);
-				ctx._hover = false;
+				if (ctx._hover) {
+					ctx._changeNodes(config.defaultSelector, config.attribute);
+					ctx._hover = false;
+				}
 			}, false);
 		}
 	}
