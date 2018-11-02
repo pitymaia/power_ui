@@ -19,22 +19,22 @@
 
 /*TEMP*/
 
-.pw-blue * {
+.pw-blue, .pw-blue * {
     color: blue;
 }
 
-.pw-yellow * {
+.pw-yellow, .pw-yellow * {
     color: yellow;
 }
 
-.pw-red * {
+.pw-red, .pw-red * {
     color: red;
 }
 
-.pw-orange * {
+.pw-orange, .pw-orange * {
     color: orange;
 }
 
-.pw-green * {
+.pw-green, .pw-green * {
     color: green;
 }
