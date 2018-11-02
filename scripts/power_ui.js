@@ -10,14 +10,6 @@ function _setId(ctx, id) {
 	ctx.element.setAttribute('id', id);
 }
 
-function _validateSingleClassSelectors(elements, selector, ctx) {
-	const error = `ERROR: This element can not have more than one class selector "${selector}":`;
-	if (elements.length > 1 || (elements.length && ctx.element.className.includes(selector))) {
-		window.console.error(error, ctx.element);
-		throw `${selector} Error`;
-	}
-}
-
 function _menuBlockById(id, menu) {
 	let menuBlock = menu.items.find(item => item.id === id); // jshint ignore:line
 	if (!menuBlock) {
@@ -30,12 +22,10 @@ function _menuBlockById(id, menu) {
 }
 
 function _addCssCallBack(element, selectorValue) {
-	console.log('_addCssCallBack', selectorValue);
 	return `${element.className} ${selectorValue}`;
 }
 
 function _removeCssCallBack(element, selectorValue) {
-	console.log('_removeCssCallBack', selectorValue);
 	for (const className of selectorValue.split(' ')) {
 		element.classList.remove(className);
 	}
@@ -106,7 +96,6 @@ class _PowerBasicElement {
 	constructor(element, main) {
 		this.element = element;
 		this._hover = false;
-		this._validateLabelClassSelectors(this.element.getElementsByClassName('power-label'));
 
 		// Add all the listners
 		for (const config of _powerAttributesConfig) {
@@ -156,20 +145,6 @@ class _PowerBasicElement {
 		}
 	}
 
-	_validateLabelClassSelectors(labelElements) {
-		let error = 'ERROR: The menu item have more than one element with the class selector "power-label", so we can not know with one is the real label:';
-		let throwError = false;
-		if (labelElements.length > 1) {
-			throwError = true;
-		} else if (this.element.className.includes('power-label') && labelElements.length) {
-			throwError = true;
-		}
-		if (throwError) {
-			window.console.error(error, this.element);
-			throw 'power-label Error';
-		}
-	}
-
 	// If have pw-selectors it replaces the default values with the data in the pw-selector
 	_changeNodes(selector, attribute, callback) {
 		// Change the element it self if have the selector
@@ -205,7 +180,6 @@ class _PowerBasicElement {
 
 	get label() {
 		const labelElements = this.element.getElementsByClassName('power-label');
-		this._validateLabelClassSelectors(labelElements);
 		// the label is the innerText of the menu item or
 		// children element with 'power-label' class selector
 		// If there is no 'power-label' class, assume the label is this.element.innerText
@@ -215,7 +189,6 @@ class _PowerBasicElement {
 
 	set label(label) {
 		const labelElements = this.element.getElementsByClassName('power-label');
-		this._validateLabelClassSelectors(labelElements);
 		if (this.element.className.includes('power-label')) {
 			this.element.innerText = label;
 		} else if (labelElements[0]) {
@@ -250,7 +223,6 @@ class _PowerLinkElement extends _PowerBasicElement {
 	constructor(element, main) {
 		super(element, main);
 		const linkSelector = 'power-link';
-		_validateSingleClassSelectors(this.element.getElementsByClassName(linkSelector), linkSelector, this);
 	}
 
 	// getter for default _PowerLinkElement IMG
@@ -274,7 +246,6 @@ class _PowerLinkElement extends _PowerBasicElement {
 	get link() {
 		const selector = 'power-link';
 		const links = this.element.getElementsByClassName(selector);
-		_validateSingleClassSelectors(links, selector, this);
 		let link = links[0] ? links[0] : null;
 		// Maybe the power-link class is in the element it self
 		if (!link && this.element.className.includes(selector)) {
@@ -294,13 +265,11 @@ class PowerItem extends _PowerLinkElement {
 	constructor(element, main) {
 		super(element, main);
 		const statusSelector = 'power-status';
-		_validateSingleClassSelectors(this.element.getElementsByClassName(statusSelector), statusSelector, this);
 	}
 
 	get status() {
 		const selector = 'power-status';
 		const elements = this.element.getElementsByClassName(selector);
-		_validateSingleClassSelectors(elements, selector, this);
 		return elements[0] || null;
 	}
 }
@@ -351,7 +320,6 @@ class PowerMenu {
 	newPowerBrand() {
 		const selector = 'power-brand';
 		const elements = this.element.getElementsByClassName(selector);
-		_validateSingleClassSelectors(elements, selector, this);
 		this.brand =  elements[0] ? new PowerBrand(elements[0], this) : null;
 	}
 
