@@ -56,7 +56,7 @@ const _powerSelectorsConfig = [
 ];
 
 
-class PowerTree {
+class PowerDOM {
 	constructor() {
 		this.powerSelectors = {};
 		this.powAttributes = {};
@@ -147,7 +147,7 @@ Event.index = {}; // storage for all named events
 
 class PowerUi {
 	constructor() {
-		this.powerTree = new PowerTree();
+		this.powerDOM = new PowerDOM();
 		this.menus = this.newPowerMenus();
 		this.ui = {};
 		this.truth = {};
