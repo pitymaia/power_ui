@@ -33,7 +33,7 @@ function _removeCssCallBack(element, selectorValue) {
 }
 
 // The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
-const _powerAttributesConfig = [
+const _pwAttributesConfig = [
 	{context: 'this', defaultSelector: 'data-pw-default-src', selector: 'data-pw-hover-src', attribute: 'src'},
 	{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
 	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
@@ -43,6 +43,63 @@ const _powerAttributesConfig = [
 	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 ];
+
+const _powerSelectors = [
+	'power-menu',
+	'power-brand',
+	'power-heading',
+	'power-item',
+	'power-link',
+	'power-status',
+	'power-icon',
+	'power-main'
+];
+
+function sweepDOM(entryNode, attributes) {
+	const isNode = !!entryNode && !!entryNode.nodeType;
+	const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
+
+	if (isNode && hasChildren) {
+		const nodes = entryNode.childNodes;
+		for (let i=0; i < nodes.length; i++) {
+			const node = nodes[i];
+			const currentNodeHasChindren = !!node.childNodes && !!node.childNodes.length;
+
+			// Check if has the custom data-pwc attribute
+			if (node.attributes) {
+				for (const attr of node.attributes) {
+					const hasPwc = attr.name.includes('data-pwc-');
+					if (hasPwc) {
+						if (!attributes[attr.name]) {
+							attributes[attr.name] = [];
+						}
+						attributes[attr.name].push(node);
+					}
+				}
+			}
+			if(currentNodeHasChindren) {
+				// Recursively sweep through child node
+				sweepDOM(node, attributes);
+			}
+		}
+	}
+}
+
+
+class PowerTree {
+	constructor() {
+		this.pwAttributes = {};
+		this.powerSelectors = {};
+		this.pwcAttributes = {};
+		for (const pwAtrribute of _pwAttributesConfig) {
+			this.pwAttributes[pwAtrribute.selector] = document.querySelectorAll(`[${pwAtrribute.selector}]`);
+		}
+		for (const selector of _powerSelectors) {
+			this.powerSelectors[selector] = document.getElementsByClassName(selector);
+		}
+		sweepDOM(document, this.pwcAttributes);
+	}
+}
 
 
 class Event {
@@ -70,12 +127,13 @@ Event.index = {}; // storage for all named events
 
 class PowerUi {
 	constructor() {
+		this.powerTree = new PowerTree();
 		this.menus = this.newPowerMenus();
 		this.ui = {};
 		this.truth = {};
 
-		// Set data-pw-default for all _powerAttributesConfig
-		for (const item of _powerAttributesConfig) {
+		// Set data-pw-default for all _pwAttributesConfig
+		for (const item of _pwAttributesConfig) {
 			// Set data-pw-default if have some data-pw-selector
 			for (const element of document.querySelectorAll(`[${item.selector}]`)) {
 				if (!element.getAttribute(`${item.defaultSelector}`)) {
@@ -98,7 +156,7 @@ class _PowerBasicElement {
 		this._hover = false;
 
 		// Add all the listners
-		for (const config of _powerAttributesConfig) {
+		for (const config of _pwAttributesConfig) {
 			if (config.context === 'main') {
 				this._addPowerBlockMainPwHoverListners(config, main, this);
 			} else {
@@ -278,6 +336,11 @@ class PowerItem extends _PowerLinkElement {
 class PowerBrand extends _PowerLinkElement {
 	constructor(element, main) {
 		super(element, main);
+		this.id = this.element.getAttribute('id');
+		const self = this;
+		main._mouseover.subscribe(function (ctx) {
+			console.log('Ouvindo', self.id, ctx.id);
+		});
 	}
 }
 
@@ -289,6 +352,17 @@ class PowerMenu {
 		this.itemsById = {};
 		this.headings = [];
 		this.headingsById = {};
+		this.id = this.element.getAttribute('id');
+		this._mouseover = new Event(this.id);
+
+		const ctx = this;
+		this.addEventListener('mouseover', function() {
+			ctx._mouseover.broadcast(ctx);
+		}, false);
+
+		this._mouseover.subscribe(function (ctx) {
+			console.log('aaa', ctx.id, ctx.id);
+		});
 
 		// Call newPowerItem allows any extended class implement it on
 		// custom PowerItem
@@ -436,11 +510,26 @@ function showMenuLabel() {
 	window.console.log('item icons: ', item.icons);
 	window.console.log(item.label + ' link', item.link);
 	window.console.log(item.label + ' href', item.href);
-	window.console.log('brand', app.menus.blockById('first-brand'));
-	window.console.log('news', app.menus.top.blockById('news'));
-
-	window.console.log('mais by id', app.menus.another.itemsById.mais.label);
-	window.console.log('mais by index', app.menus.another.items[0].label);
+	const brand = app.menus.blockById('first-brand').element;
+	window.console.log('brand', brand);
+	window.console.log('brand p1', brand.parentElement);
+	window.console.log('brand p2', brand.parentElement.parentElement);
+	window.console.log('document', document.getElementsByClassName('power-p')[0]);
+	const originalElement = document.getElementsByClassName('power-p')[0];
+	let element = originalElement.parentElement;
+	let found = false;
+	while (!found) {
+		if (element.className.includes('power-main')) {
+			console.log('Main is: ', element);
+			found = true;
+		} else {
+			element = element.parentElement;
+			if (!element) {
+				console.log('The element has no Main: ', originalElement);
+				found = true;
+			}
+		}
+	}
 }
 
 window.console.log('power', app);

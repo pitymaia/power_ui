@@ -8,117 +8,119 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   </head>
-  <body>
-    <!-- Menu -->
-    <div id="top" class="power-menu navbar navbar-expand-lg navbar-light bg-light">
-        <a class="power-heading power-brand navbar-brand" id="first-brand"><span class="power-label">BRAND</span>
-            <img data-pw-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Australia-Flag-icon.png"
-                 data-pw-main-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Argentina-Flag-icon.png"
-                 src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Brazil-Flag-icon.png"
-                 width="25"
-                 height="25" />
-        </a>
-        <ul class="power-list navbar-nav">
-            <li class="power-item nav-item" id="news">
-                <a class="nav-link power-link">
-                    <span class="power-icon fa fa-android"
-                          data-pw-main-hover="fa fa-blind"
-                          data-pw-hover="fa fa-bitcoin">
-                    </span>
-                <span class="power-label">01News</span> <span class="power-status fa fa-angle-right" data-pw-main-hover="power-icon fa fa-arrow-right"></span>
-                </a>
-            </li>
-            <li class="power-item nav-item power-link" id="sports">
-                <a class="nav-link" href="http://libertyweb.net"
-                   data-pw-main-hover-add="pw-blue"
-                   target="_blank">
-                    <span class="power-icon fa fa-blind"> </span>
-                    <span class="power-label">02Sports
-                    </span>
-                    <img
-                    src="https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif"
-                    data-pw-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Australia-Flag-icon.png"
-                    data-pw-main-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Argentina-Flag-icon.png"
-                    width="25"
-                    height="25" />
-                    <img
-                    src="http://icons.iconarchive.com/icons/goescat/macaron/128/atom-icon.png"
-                    data-pw-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Brazil-Flag-icon.png"
-                    data-pw-main-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Argentina-Flag-icon.png"
-                    width="25"
-                    height="25" />
-                    <span class="power-status fa fa-angle-right">
-                </a>
-            </li>
-            <li class="power-item nav-item pw-orange"
-                data-pw-main-hover-remove="pw-orange"
-                data-pw-main-hover-add="pw-blue"
-                data-pw-hover-remove="pw-orange"
-                id="finance">
-                <a class="nav-link power-link"><span class="power-icon fa fa-car"> </span> <span class="power-label">03Finance</span>
-                 <span class="power-status fa fa-angle-right"></span>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Menu end -->
-    <h1>Hello, Power UI!</h1>
-    <p>Algum conteúdo</p>
-
-    <div id="bottom" class="power-menu pw-horizontal pw-design">
-        <span class="power-heading power-brand" data-pw-hover-add="pw-orange">MEIO</span>
-        <ul class="power-list pw-design">
-            <li class="power-item power-link power-label" data-pw-hover-add="pw-orange">04Noticias</li>
-            <li class="power-item power-link power-label" data-pw-main-hover-add="pw-blue" id="esporte">05Esporte</li>
-            <li class="power-item power-link" id="algum-id-maluco"><a class="power-label" href="#">06Finanças</a></li>
-        </ul>
-    </div>
-    <nav id="another" class="power-menu pw-horizontal pw-design">
-        <span class="power-heading power-brand" id="outro">OUTRO</span>
-        <a class="power-item power-link"
-           data-pw-main-hover="pw-blue power-item power-link"
-           data-pw-hover="pw-green power-item power-link"
-           id="mais">
-            <i class="power-icon icon-small fa fa-car"></i>
-            <span class="power-label">Mais</span>
-             <span class="power-status fa fa-angle-right">
-        </a>
-        <a class="power-item power-link"
-           data-pw-main-hover="pw-red power-item power-link"
-           data-pw-hover="pw-green power-item power-link"
-           id="menos">
-            <i class="power-icon icon-small fa fa-car"></i>
-            <span class="power-label">Menos</span>
-             <span class="power-status fa fa-angle-right">
-        </a>
-        <a class="power-item power-link"
-           data-pw-main-hover="pw-yellow power-item power-link"
-           data-pw-hover="pw-green power-item power-link"
-           id="muito">
-            <i class="power-icon icon-small fa fa-car"></i>
-            <span class="power-label">Muito</span>
-             <span class="power-status fa fa-angle-right">
-        </a>
-        <a class="power-item power-link"
-           data-pw-main-hover="pw-orange power-item power-link"
-           data-pw-hover="pw-green power-item power-link"
-           id="pouco">
-            <img data-pw-hover-src="http://icons.iconarchive.com/icons/goescat/macaron/128/atom-icon.png"
-                 data-pw-main-hover-src="http://icons.iconarchive.com/icons/goescat/macaron/128/deluge-icon.png"
-                 src="http://icons.iconarchive.com/icons/goescat/macaron/128/gimp-icon.png"
-                 width="25"
-                 height="25" />
-            <span class="power-label">Pouco</span>
-             <span class="power-status fa fa-angle-right">
-        </a>
-    </nav>
-    <br />
+  <body class="some-class power-main">
     <div>
-        <button onclick="changeMenu()">Change</button>
-        <button onclick="showMenuLabel()">Show</button>
-    </div>
+        <!-- Menu -->
+        <div id="top" class="power-menu navbar navbar-expand-lg navbar-light bg-light" data-pwc-teste="remova isso">
+            <a class="power-heading power-brand navbar-brand" id="first-brand"><span class="power-label">BRAND</span>
+                <img data-pw-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Australia-Flag-icon.png"
+                     data-pw-main-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Argentina-Flag-icon.png"
+                     data-pwc-teste="remova isso tambem"
+                     src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Brazil-Flag-icon.png"
+                     width="25"
+                     height="25" />
+            </a>
+            <ul class="power-list navbar-nav">
+                <li class="power-item nav-item" id="news">
+                    <a class="nav-link power-link">
+                        <span class="power-icon fa fa-android"
+                              data-pw-main-hover="fa fa-blind"
+                              data-pw-hover="fa fa-bitcoin">
+                        </span>
+                    <span class="power-label">01News</span> <span class="power-status fa fa-angle-right" data-pw-main-hover="power-icon fa fa-arrow-right"></span>
+                    </a>
+                </li>
+                <li class="power-item nav-item power-link" id="sports">
+                    <a class="nav-link" href="http://libertyweb.net"
+                       data-pw-main-hover-add="pw-blue"
+                       target="_blank">
+                        <span class="power-icon fa fa-blind"> </span>
+                        <span class="power-label">02Sports
+                        </span>
+                        <img
+                        src="https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif"
+                        data-pw-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Australia-Flag-icon.png"
+                        data-pw-main-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Argentina-Flag-icon.png"
+                        width="25"
+                        height="25" />
+                        <img
+                        src="http://icons.iconarchive.com/icons/goescat/macaron/128/atom-icon.png"
+                        data-pw-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Brazil-Flag-icon.png"
+                        data-pw-main-hover-src="http://icons.iconarchive.com/icons/hopstarter/square-flags/128/Argentina-Flag-icon.png"
+                        width="25"
+                        height="25" />
+                        <span class="power-status fa fa-angle-right"></span>
+                    </a>
+                </li>
+                <li class="power-item nav-item pw-orange"
+                    data-pw-main-hover-remove="pw-orange"
+                    data-pw-main-hover-add="pw-blue"
+                    data-pw-hover-remove="pw-orange"
+                    id="finance">
+                    <a class="nav-link power-link"><span class="power-icon fa fa-car"> </span> <span class="power-label">03Finance</span>
+                     <span class="power-status fa fa-angle-right"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
+        <!-- Menu end -->
+        <h1 data-pwc-title-hover="fake">Hello, Power UI!<span data-pwc-title-hover="bold">testinho</span></h1>
+        <p data-pwc-down-hover="fake" data-pw-main-hover="pw-blue" data-pw-hover="pw-orange">Algum conteúdo</p>
+
+        <div id="bottom" class="power-menu pw-horizontal pw-design">
+            <span class="power-heading power-brand" data-pw-hover-add="pw-orange">MEIO</span>
+            <ul class="power-list pw-design">
+                <li class="power-item power-link power-label" data-pw-hover-add="pw-orange">04Noticias</li>
+                <li class="power-item power-link power-label" data-pw-main-hover-add="pw-blue" id="esporte">05Esporte</li>
+                <li class="power-item power-link" id="algum-id-maluco"><a class="power-label" href="#">06Finanças</a></li>
+            </ul>
+        </div>
+        <nav id="another" class="power-menu pw-horizontal pw-design">
+            <span class="power-heading power-brand" id="outro">OUTRO</span>
+            <a class="power-item power-link"
+               data-pw-main-hover="pw-blue power-item power-link"
+               data-pw-hover="pw-green power-item power-link"
+               id="mais">
+                <i class="power-icon icon-small fa fa-car"></i>
+                <span class="power-label">Mais</span>
+                 <span class="power-status fa fa-angle-right"></span>
+            </a>
+            <a class="power-item power-link"
+               data-pw-main-hover="pw-red power-item power-link"
+               data-pw-hover="pw-green power-item power-link"
+               id="menos">
+                <i class="power-icon icon-small fa fa-car"></i>
+                <span class="power-label">Menos</span>
+                 <span class="power-status fa fa-angle-right"></span>
+            </a>
+            <a class="power-item power-link"
+               data-pw-main-hover="pw-yellow power-item power-link"
+               data-pw-hover="pw-green power-item power-link"
+               id="muito">
+                <i class="power-icon icon-small fa fa-car"></i>
+                <span class="power-label">Muito</span>
+                 <span class="power-status fa fa-angle-right"></span>
+            </a>
+            <a class="power-item power-link"
+               data-pw-main-hover="pw-orange power-item power-link"
+               data-pw-hover="pw-green power-item power-link"
+               id="pouco">
+                <img data-pw-hover-src="http://icons.iconarchive.com/icons/goescat/macaron/128/atom-icon.png"
+                     data-pw-main-hover-src="http://icons.iconarchive.com/icons/goescat/macaron/128/deluge-icon.png"
+                     src="http://icons.iconarchive.com/icons/goescat/macaron/128/gimp-icon.png"
+                     width="25"
+                     height="25" />
+                <span class="power-label">Pouco</span>
+                 <span class="power-status fa fa-angle-right"></span>
+            </a>
+        </nav>
+        <br />
+        <div>
+            <button onclick="changeMenu()">Change</button>
+            <button onclick="showMenuLabel()">Show</button>
+        </div>
+    </div>
     <script src="scripts/power_ui.js"></script>
   </body>
 </html>
