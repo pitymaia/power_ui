@@ -34,70 +34,90 @@ function _removeCssCallBack(element, selectorValue) {
 
 // The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
 const _pwAttributesConfig = [
-	{context: 'this', defaultSelector: 'data-pw-default-src', selector: 'data-pw-hover-src', attribute: 'src'},
-	{context: 'main', defaultSelector: 'data-pw-default-src', selector: 'data-pw-main-hover-src', attribute: 'src'},
-	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover', attribute: 'className'},
-	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover', attribute: 'className'},
-	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-add', attribute: 'className', callback: _addCssCallBack},
-	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-add', attribute: 'className', callback: _addCssCallBack},
-	{context: 'this', defaultSelector: 'data-pw-default', selector: 'data-pw-hover-remove', attribute: 'className', callback: _removeCssCallBack},
-	{context: 'main', defaultSelector: 'data-pw-default', selector: 'data-pw-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+	{context: 'this', defaultSelector: 'data-pow-default-src', selector: 'data-pow-hover-src', attribute: 'src'},
+	{context: 'main', defaultSelector: 'data-pow-default-src', selector: 'data-pow-main-hover-src', attribute: 'src'},
+	{context: 'this', defaultSelector: 'data-pow-default', selector: 'data-pow-hover', attribute: 'className'},
+	{context: 'main', defaultSelector: 'data-pow-default', selector: 'data-pow-main-hover', attribute: 'className'},
+	{context: 'this', defaultSelector: 'data-pow-default', selector: 'data-pow-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'main', defaultSelector: 'data-pow-default', selector: 'data-pow-main-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'this', defaultSelector: 'data-pow-default', selector: 'data-pow-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+	{context: 'main', defaultSelector: 'data-pow-default', selector: 'data-pow-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 ];
 
-const _powerSelectors = [
-	'power-menu',
-	'power-brand',
-	'power-heading',
-	'power-item',
-	'power-link',
-	'power-status',
-	'power-icon',
-	'power-main'
+const _powerSelectorsConfig = [
+	{name: 'power-menu', camelCase: 'powerMenu'},
+	{name: 'power-brand', camelCase: 'powerBrand'},
+	{name: 'power-heading', camelCase: 'powerHeading'},
+	{name: 'power-item', camelCase: 'powerItem'},
+	{name: 'power-link', camelCase: 'powerLink'},
+	{name: 'power-status', camelCase: 'powerStatus'},
+	{name: 'power-icon', camelCase: 'powerIcon'},
+	{name: 'power-main', camelCase: 'powerMain'}
 ];
-
-function sweepDOM(entryNode, attributes) {
-	const isNode = !!entryNode && !!entryNode.nodeType;
-	const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
-
-	if (isNode && hasChildren) {
-		const nodes = entryNode.childNodes;
-		for (let i=0; i < nodes.length; i++) {
-			const node = nodes[i];
-			const currentNodeHasChindren = !!node.childNodes && !!node.childNodes.length;
-
-			// Check if has the custom data-pwc attribute
-			if (node.attributes) {
-				for (const attr of node.attributes) {
-					const hasPwc = attr.name.includes('data-pwc-');
-					if (hasPwc) {
-						if (!attributes[attr.name]) {
-							attributes[attr.name] = [];
-						}
-						attributes[attr.name].push(node);
-					}
-				}
-			}
-			if(currentNodeHasChindren) {
-				// Recursively sweep through child node
-				sweepDOM(node, attributes);
-			}
-		}
-	}
-}
 
 
 class PowerTree {
 	constructor() {
-		this.pwAttributes = {};
 		this.powerSelectors = {};
+		this.powAttributes = {};
 		this.pwcAttributes = {};
-		for (const pwAtrribute of _pwAttributesConfig) {
-			this.pwAttributes[pwAtrribute.selector] = document.querySelectorAll(`[${pwAtrribute.selector}]`);
+
+		this.sweepDOM(document, this, this._buildPorwerSelectors);
+	}
+
+	_buildPorwerSelectors(currentNode, ctx) {
+		// Check if has the custom data-pwc and data-pow attributes
+		if (currentNode.dataset) {
+			for (const data in currentNode.dataset) {
+				const hasPwc = data.startsWith('pwc');
+				const hasPow = data.startsWith('pow');
+				if (hasPwc) {
+					if (!ctx.pwcAttributes[data]) {
+						ctx.pwcAttributes[data] = [];
+					}
+					ctx.pwcAttributes[data].push(currentNode);
+				}
+				if (hasPow) {
+					if (!ctx.powAttributes[data]) {
+						ctx.powAttributes[data] = [];
+					}
+					ctx.powAttributes[data].push(currentNode);
+				}
+			}
 		}
-		for (const selector of _powerSelectors) {
-			this.powerSelectors[selector] = document.getElementsByClassName(selector);
+		// Check for power css class selectors
+		if (currentNode.className && currentNode.className.includes('power-')) {
+			for (const selector of _powerSelectorsConfig) {
+				if (currentNode.className.includes(selector.name)) {
+					if (!ctx.powerSelectors[selector.camelCase]) {
+						ctx.powerSelectors[selector.camelCase] = [];
+					}
+					ctx.powerSelectors[selector.camelCase].push(currentNode);
+				}
+			}
 		}
-		sweepDOM(document, this.pwcAttributes);
+	}
+
+	// Sweep through each node and pass the node to the callback
+	sweepDOM(entryNode, ctx, callback) {
+		const isNode = !!entryNode && !!entryNode.nodeType;
+		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
+
+		if (isNode && hasChildren) {
+			const nodes = entryNode.childNodes;
+			for (let i=0; i < nodes.length; i++) {
+				const currentNode = nodes[i];
+				const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+
+				// Call back with the condition to apply any condition
+				callback(currentNode, ctx);
+
+				if(currentNodeHasChindren) {
+					// Recursively sweep through currentNode children
+					this.sweepDOM(currentNode, ctx, callback);
+				}
+			}
+		}
 	}
 }
 
@@ -132,9 +152,9 @@ class PowerUi {
 		this.ui = {};
 		this.truth = {};
 
-		// Set data-pw-default for all _pwAttributesConfig
+		// Set data-pow-default for all _pwAttributesConfig
 		for (const item of _pwAttributesConfig) {
-			// Set data-pw-default if have some data-pw-selector
+			// Set data-pow-default if have some data-pow-selector
 			for (const element of document.querySelectorAll(`[${item.selector}]`)) {
 				if (!element.getAttribute(`${item.defaultSelector}`)) {
 					element.setAttribute(item.defaultSelector, element[item.attribute]);
@@ -166,7 +186,7 @@ class _PowerBasicElement {
 	}
 
 	// THIS
-	// Add pw-default attribute and addEventListener if there is pw hover selector like data-pw-hover-src
+	// Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-hover-src
 	_addPowerBlockPwHoverListners(config, ctx) {
 		// Check if children have elements with the pw-selector, or it the element it self has it
 		if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
@@ -186,7 +206,7 @@ class _PowerBasicElement {
 	}
 
 	// MAIN
-	// Add addEventListener if there is main and pw hover selector like data-pw-main-hover-src
+	// Add addEventListener if there is main and pw hover selector like data-pow-main-hover-src
 	_addPowerBlockMainPwHoverListners(config, main, ctx) {
 		// Get only elements with the pw-selector
 		if (main && ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
@@ -211,7 +231,7 @@ class _PowerBasicElement {
 			// Replace the attribute value with the data in the selector
 			this.element[attribute] = callback ? callback(this.element, selectorValue) : selectorValue;
 		}
-		// Change any children node
+		// Change any children currentNode
 		const nodes = this.element.querySelectorAll(`[${selector}]`);
 		if (nodes.length > 0) {
 			for (let index = 0; nodes.length != index; index++) {
