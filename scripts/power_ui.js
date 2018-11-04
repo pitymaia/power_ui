@@ -57,6 +57,13 @@ function asDataSet(selector) {
 	return newstring;
 }
 
+class PwcPity {
+	constructor(element) {
+		this.element = element;
+		console.log('pwcPity is live!', element);
+	}
+}
+
 // The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
 const _powAttrsConfig = [
 	{context: 'this', defaultSelector: 'data-pow-src-default', name: 'data-pow-src-hover', attribute: 'src'},
@@ -83,25 +90,10 @@ const _powerCssConfig = [
 	{name: 'power-icon'},
 ];
 
-function _createObjcsFromElements(ctx, attribute, selector, tempSelectors) {
-	for (const id in tempSelectors[attribute][asDataSet(selector.name)]) {
-		if (!ctx[attribute][asDataSet(selector.name)]) {
-			ctx[attribute][asDataSet(selector.name)] = {};
-		}
-
-		const es6Class = !!ctx[`_${asDataSet(selector.name)}`] ? `_${asDataSet(selector.name)}` : '_powerBasicElement';
-		console.log('es6Class', es6Class);
-		// Call the method for create objects like _powerMenu with the node elements in tempSelectors
-		// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this'
-		// E.G. 1, this[attribute].powerMenu.topmenu = this._powerMenu(topmenuElement);
-		// E.G. 2, this[attribute].powerMenu.topmenu = this._powerMenu(tempSelectors[attribute].powerMenu.topmenu);
-		// E.G. 3, this[attribute][powerMenu][topmenu] = this[_powerMenu](tempSelectors[attribute][powerMenu][topmenu]);
-		ctx[attribute][asDataSet(selector.name)][id] = ctx[es6Class](tempSelectors[attribute][asDataSet(selector.name)][id]);
-	}
-}
 
 class PowerDOM {
-	constructor() {
+	constructor(_main) {
+		this._main = _main;
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
@@ -117,57 +109,39 @@ class PowerDOM {
 		// Create the power-css object elements
 		for (const attribute in tempSelectors) {
 			for (const selector of _powerCssConfig) {
-				_createObjcsFromElements(this, attribute, selector, tempSelectors);
+				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
 			for (const selector of _powAttrsConfig) {
-				_createObjcsFromElements(this, attribute, selector, tempSelectors);
+				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
 			for (const selector of _pwcAttrsConfig) {
-				_createObjcsFromElements(this, attribute, selector, tempSelectors);
+				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 		}
 
-		window.console.log('Unique', Unique.domID());
 		window.console.log('tempSelectors', tempSelectors);
 		window.console.log('PowerDOM', this);
 	}
 
-	_powerMenu(element) {
-		return new PowerMenu(element);
-	}
+	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
+		for (const id in tempSelectors[attribute][asDataSet(selector.name)]) {
+			if (!ctx[attribute][asDataSet(selector.name)]) {
+				ctx[attribute][asDataSet(selector.name)] = {};
+			}
 
-	_powerMain(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
-	}
+			// If there is a class with the pw-attribute name use it, if not, use the _powerBasicElement as the element class
+			const es6Class = !!ctx._main[`_${asDataSet(selector.name)}`] ? `_${asDataSet(selector.name)}` : '_powerBasicElement';
 
-	_powerBrand(element) {
-		return new PowerBrand(element);
-	}
-
-	_powerHeading(element) {
-		return new PowerHeading(element);
-	}
-
-	_powerItem(element) {
-		return new PowerItem(element);
-	}
-
-	_powerLink(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
-	}
-
-	_powerStatus(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
-	}
-
-	_powerIcon(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
-	}
-
-	_powerBasicElement(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
+			// Call the method for create objects like _powerMenu with the node elements in tempSelectors
+			// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this'
+			// E.G. 1, this.powerCss.powerMenu.topmenu = this._powerMenu(topmenuElement);
+			// E.G. 2, this[attribute].powerMenu.topmenu = this._powerMenu(tempSelectors.powerCss.powerMenu.topmenu);
+			// E.G. 3, this[attribute].powerMenu.topmenu = this._powerMenu(tempSelectors[attribute].powerMenu.topmenu);
+			// E.G. 4, this[attribute][powerMenu][topmenu] = this[_powerMenu](tempSelectors[attribute][powerMenu][topmenu]);
+			ctx[attribute][asDataSet(selector.name)][id] = ctx._main[es6Class](tempSelectors[attribute][asDataSet(selector.name)][id]);
+		}
 	}
 
 	_buildTempPorwerTree(currentNode, ctx) {
@@ -256,25 +230,70 @@ Event.index = {}; // storage for all named events
 
 
 class PowerUi {
-	constructor() {
-		this.powerDOM = new PowerDOM();
-		this.menus = this.newPowerMenus();
+	constructor(inject) {
+		for (const item of inject) {
+			console.log('inject', item);
+			this.injectPwc(item, this);
+		}
+
+		this.powerDOM = new PowerDOM(this);
+		// this.menus = this.newPowerMenus();
 		this.ui = {};
 		this.truth = {};
 
-		// Set data-pow-css-default for all _powAttrsConfig
-		for (const item of _powAttrsConfig) {
-			// Set data-pow-css-default if have some data-pow-selector
-			for (const element of document.querySelectorAll(`[${item.name}]`)) {
-				if (!element.getAttribute(`${item.defaultSelector}`)) {
-					element.setAttribute(item.defaultSelector, element[item.attribute]);
-				}
-			}
-		}
+
+		// // Set data-pow-css-default for all _powAttrsConfig
+		// for (const item of _powAttrsConfig) {
+		// 	// Set data-pow-css-default if have some data-pow-selector
+		// 	for (const element of document.querySelectorAll(`[${item.name}]`)) {
+		// 		if (!element.getAttribute(`${item.defaultSelector}`)) {
+		// 			element.setAttribute(item.defaultSelector, element[item.attribute]);
+		// 		}
+		// 	}
+		// }
+
 	}
 
-	newPowerMenus() {
-		return new PowerMenus();
+	injectPwc(item, ctx) {
+		_pwcAttrsConfig.push(item);
+		ctx[`_${asDataSet(item.name)}`] = function (element) {
+			return new item.obj(element);
+		};
+	}
+	_powerMenu(element) {
+		return new PowerMenu(element);
+	}
+
+	_powerMain(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerBrand(element) {
+		return new PowerBrand(element);
+	}
+
+	_powerHeading(element) {
+		return new PowerHeading(element);
+	}
+
+	_powerItem(element) {
+		return new PowerItem(element);
+	}
+
+	_powerLink(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerStatus(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerIcon(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerBasicElement(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
 	}
 }
 
@@ -547,9 +566,9 @@ class PowerMenu {
 		this.element.addEventListener(event, callback.bind(this, this));
 	}
 
-	blockById(id) {
-		return _menuBlockById(id, this);
-	}
+	// blockById(id) {
+	// 	return _menuBlockById(id, this);
+	// }
 }
 
 
@@ -573,15 +592,15 @@ class PowerMenus {
 		return this[id];
 	}
 
-	// Search for a menu block in all menus
-	blockById(id) {
-		for (const menuId of this.menusIds) {
-			const menuBlock = _menuBlockById(id, this[menuId]);
-			if (menuBlock) {
-				return menuBlock;
-			}
-		}
-	}
+	// // Search for a menu block in all menus
+	// blockById(id) {
+	// 	for (const menuId of this.menusIds) {
+	// 		const menuBlock = _menuBlockById(id, this[menuId]);
+	// 		if (menuBlock) {
+	// 			return menuBlock;
+	// 		}
+	// 	}
+	// }
 
 	addEventListener(event, callback) {
 		this.element.addEventListener(event, callback.bind(this, this));
@@ -617,74 +636,15 @@ class PowerMenus {
 // 	}
 // }
 // let app = new TesteUi();
-
-let app = new PowerUi();
+const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
+let app = new PowerUi(inject);
 
 function changeMenu() {
-	var item = app.menus.blockById('sports') || app.menus.blockById('novidades');
-	item.label = 'Novidades';
-	item.id = 'novidades';
-	window.console.log('click label ' + item.label, app);
-	window.console.log('click id ' + item.id, app);
-	item.link.href = 'https://google.com';
 
-	app.menus.another.itemsById.mais.label = 'Nossa';
 }
 
 function showMenuLabel() {
-	var item = app.menus.blockById('sports') || app.menus.blockById('novidades');
-	window.console.log('click label ' + item.label);
-	window.console.log('click id ' + item.id);
-	window.console.log('item img: ', item.images);
-	window.console.log('item anchors: ', item.anchors);
-	window.console.log('item icons: ', item.icons);
-	window.console.log(item.label + ' link', item.link);
-	window.console.log(item.label + ' href', item.href);
-	const brand = app.menus.blockById('first-brand').element;
-	window.console.log('brand', brand);
-	window.console.log('brand p1', brand.parentElement);
-	window.console.log('brand p2', brand.parentElement.parentElement);
-	window.console.log('document', document.getElementsByClassName('power-p')[0]);
-	const originalElement = document.getElementsByClassName('power-p')[0];
-	let element = originalElement.parentElement;
-	let found = false;
-	while (!found) {
-		if (element.className.includes('power-main')) {
-			console.log('Main is: ', element);
-			found = true;
-		} else {
-			element = element.parentElement;
-			if (!element) {
-				console.log('The element has no Main: ', originalElement);
-				found = true;
-			}
-		}
-	}
+
 }
 
 window.console.log('power', app);
-
-app.menus.blockById('mais').addEventListener('click', function() {
-	const menuItem = app.menus.blockById('mais');
-	window.console.log('label', menuItem.label);
-	window.console.log('id', menuItem.id);
-	window.console.log('anchors', menuItem.anchors);
-	window.console.log('images', menuItem.images);
-	window.console.log('icons', menuItem.icons);
-	window.console.log('status', menuItem.status);
-	window.console.log('status class list', menuItem.status.classList);
-});
-app.menus.blockById('menos').addEventListener('mouseover', function() {
-	window.console.log('Hover menos', this.label);
-});
-app.menus.blockById('muito').addEventListener('click', function() {
-	window.console.log('Click muito', app);
-});
-app.menus.top.brand.addEventListener('click', function(brand) {
-	window.console.log('Click BRAND', brand);
-	if (brand.src === 'https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif') {
-		brand.src = 'https://image.flaticon.com/icons/png/128/174/174848.png';
-	} else {
-		brand.src = 'https://66.media.tumblr.com/b5a21282d1c97ba91134764d1e219694/tumblr_inline_nl8y67Q95H1t90c7j.gif';
-	}
-});
