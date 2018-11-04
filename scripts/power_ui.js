@@ -41,54 +41,88 @@ function getIdAndCreateIfDontHave(currentNode) {
 	return currentId;
 }
 
+// Dataset converts "data-something-nice" formats to camel case without data,
+// the result is like "somethingNice"
+function asDataSet(selector) {
+	// Get the parts without the 'data' part
+	const originalParts = selector.split('-').filter(part => part != 'data');
+	let newstring = '';
+	for (let count = 0; count < originalParts.length; count++) {
+		if (count === 0) {
+			newstring = newstring + originalParts[count];
+		} else {
+			newstring = newstring + originalParts[count].replace(/\b\w/g, l => l.toUpperCase());
+		}
+	}
+	return newstring;
+}
+
 // The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
-const _pwAttributesConfig = [
-	{context: 'this', defaultSelector: 'data-pow-src-default', selector: 'data-pow-hover-src', attribute: 'src'},
-	{context: 'main', defaultSelector: 'data-pow-src-default', selector: 'data-pow-main-hover-src', attribute: 'src'},
-	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-hover', attribute: 'className'},
-	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover', attribute: 'className'},
-	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-hover-add', attribute: 'className', callback: _addCssCallBack},
-	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover-add', attribute: 'className', callback: _addCssCallBack},
-	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-hover-remove', attribute: 'className', callback: _removeCssCallBack},
-	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+const _pwAttrsConfig = [
+	{context: 'this', defaultSelector: 'data-pow-src-default', selector: 'data-pow-src-hover', attribute: 'src'},
+	{context: 'main', defaultSelector: 'data-pow-src-default', selector: 'data-pow-main-src-hover', attribute: 'src'},
+	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-css-hover', attribute: 'className'},
+	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-css-hover', attribute: 'className'},
+	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-css-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-css-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-css-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-css-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 ];
 
 // The list of power-css-selectors with the config to create the objetc
-const _powerSelectorsConfig = [
-	{name: 'power-main', camelCase: 'powerMain', isMain: true, createObjFn: 'newBasicElement'},
-	{name: 'power-menu', camelCase: 'powerMenu', isMain: true, createObjFn: 'newPowerMenu'},
-	{name: 'power-brand', camelCase: 'powerBrand',},
-	{name: 'power-heading', camelCase: 'powerHeading',},
-	{name: 'power-item', camelCase: 'powerItem',},
-	{name: 'power-link', camelCase: 'powerLink',},
-	{name: 'power-status', camelCase: 'powerStatus',},
-	{name: 'power-icon', camelCase: 'powerIcon',},
+const _powerCssConfig = [
+	{name: 'power-main', isMain: true},
+	{name: 'power-menu', isMain: true},
+	{name: 'power-brand'},
+	{name: 'power-heading'},
+	{name: 'power-item'},
+	{name: 'power-link'},
+	{name: 'power-status'},
+	{name: 'power-icon'},
 ];
 
 
 class PowerDOM {
 	constructor() {
-		this.powerSelectors = {};
-		this.powAttributes = {};
-		this.pwcAttributes = {};
+		this.powerCss = {};
+		this.powAttrs = {};
+		this.pwcAttrs = {};
 
 		const tempSelectors = {
-			powerSelectors: {},
-			powAttributes: {},
-			pwcAttributes: {},
+			powerCss: {},
+			powAttrs: {},
+			pwcAttrs: {},
 		};
-		const tempHoldObj = {};
-		const alreadyExists = [];
 
 		this.sweepDOM(document, tempSelectors, this._buildPorwerSelectors);
 
-		// Create the main object elements
-		for (const selector of _powerSelectorsConfig.filter(item => item.isMain)) {
-			for (const id in tempSelectors.powerSelectors[selector.camelCase]) {
-				if (!this.powerSelectors[selector.camelCase]) {
-					this.powerSelectors[selector.camelCase] = {};
+		// Create the power-css object elements
+		for (const selector of _powerCssConfig) {
+			for (const id in tempSelectors.powerCss[asDataSet(selector.name)]) {
+				if (!this.powerCss[asDataSet(selector.name)]) {
+					this.powerCss[asDataSet(selector.name)] = {};
 				}
-				this.powerSelectors[selector.camelCase][id] = this[selector.createObjFn](tempSelectors.powerSelectors[selector.camelCase][id]);
+				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
+				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this'
+				// E.G. 1, this.powerCss.powerMenu.topmenu = this._powerMenu(topmenuElement);
+				// E.G. 2, this.powerCss.powerMenu.topmenu = this._powerMenu(tempSelectors.powerCss.powerMenu.topmenu);
+				// E.G. 3, this.powerCss[powerMenu][topmenu] = this[_powerMenu](tempSelectors.powerCss[powerMenu][topmenu]);
+				this.powerCss[asDataSet(selector.name)][id] = this[`_${asDataSet(selector.name)}`](tempSelectors.powerCss[asDataSet(selector.name)][id]);
+			}
+		}
+
+		// Create the pow-attrs object elements
+		for (const selector of _powerCssConfig) {
+			for (const id in tempSelectors.powerCss[asDataSet(selector.name)]) {
+				if (!this.powerCss[asDataSet(selector.name)]) {
+					this.powerCss[asDataSet(selector.name)] = {};
+				}
+				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
+				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this'
+				// E.G. 1, this.powerCss.powerMenu.topmenu = this._powerMenu(topmenuElement);
+				// E.G. 2, this.powerCss.powerMenu.topmenu = this._powerMenu(tempSelectors.powerCss.powerMenu.topmenu);
+				// E.G. 3, this.powerCss[powerMenu][topmenu] = this[_powerMenu](tempSelectors.powerCss[powerMenu][topmenu]);
+				this.powerCss[asDataSet(selector.name)][id] = this[`_${asDataSet(selector.name)}`](tempSelectors.powerCss[asDataSet(selector.name)][id]);
 			}
 		}
 
@@ -97,11 +131,35 @@ class PowerDOM {
 		window.console.log('PowerDOM', this);
 	}
 
-	newPowerMenu(menu) {
-		return new PowerMenu(menu);
+	_powerMenu(element) {
+		return new PowerMenu(element);
 	}
 
-	newBasicElement(element) {
+	_powerMain(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerBrand(element) {
+		return new PowerBrand(element);
+	}
+
+	_powerHeading(element) {
+		return new PowerHeading(element);
+	}
+
+	_powerItem(element) {
+		return new PowerItem(element);
+	}
+
+	_powerLink(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerStatus(element) { // TODO need classes?
+		return new _PowerBasicElement(element);
+	}
+
+	_powerIcon(element) { // TODO need classes?
 		return new _PowerBasicElement(element);
 	}
 
@@ -112,7 +170,7 @@ class PowerDOM {
 				for(const prefixe of ['pwc', 'pow']) {
 					const hasPrefixe = data.startsWith(prefixe);
 					if (hasPrefixe) {
-						const attributeName = `${prefixe}Attributes`; // pwcAttributes or powAttributes
+						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
 						const currentId = getIdAndCreateIfDontHave(currentNode);
 						if (!ctx[attributeName][data]) {
 							ctx[attributeName][data] = {};
@@ -124,13 +182,13 @@ class PowerDOM {
 		}
 		// Check for power css class selectors
 		if (currentNode.className && currentNode.className.includes('power-')) {
-			for (const selector of _powerSelectorsConfig) {
+			for (const selector of _powerCssConfig) {
 				if (currentNode.className.includes(selector.name)) {
 					const currentId = getIdAndCreateIfDontHave(currentNode);
-					if (!ctx.powerSelectors[selector.camelCase]) {
-						ctx.powerSelectors[selector.camelCase] = {};
+					if (!ctx.powerCss[asDataSet(selector.name)]) {
+						ctx.powerCss[asDataSet(selector.name)] = {};
 					}
-					ctx.powerSelectors[selector.camelCase][currentId] = currentNode;
+					ctx.powerCss[asDataSet(selector.name)][currentId] = currentNode;
 				}
 			}
 		}
@@ -197,8 +255,8 @@ class PowerUi {
 		this.ui = {};
 		this.truth = {};
 
-		// Set data-pow-css-default for all _pwAttributesConfig
-		for (const item of _pwAttributesConfig) {
+		// Set data-pow-css-default for all _pwAttrsConfig
+		for (const item of _pwAttrsConfig) {
 			// Set data-pow-css-default if have some data-pow-selector
 			for (const element of document.querySelectorAll(`[${item.selector}]`)) {
 				if (!element.getAttribute(`${item.defaultSelector}`)) {
@@ -221,7 +279,7 @@ class _PowerBasicElement {
 		this._hover = false;
 
 		// // Add all the listners
-		// for (const config of _pwAttributesConfig) {
+		// for (const config of _pwAttrsConfig) {
 		// 	if (config.context === 'main') {
 		// 		this._addPowerBlockMainPwHoverListners(config, main, this);
 		// 	} else {
@@ -231,7 +289,7 @@ class _PowerBasicElement {
 	}
 
 	// // THIS
-	// // Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-hover-src
+	// // Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-src-hover
 	// _addPowerBlockPwHoverListners(config, ctx) {
 	// 	// Check if children have elements with the pw-selector, or it the element it self has it
 	// 	if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
@@ -251,7 +309,7 @@ class _PowerBasicElement {
 	// }
 
 	// // MAIN
-	// // Add addEventListener if there is main and pw hover selector like data-pow-main-hover-src
+	// // Add addEventListener if there is main and pw hover selector like data-pow-main-src-hover
 	// _addPowerBlockMainPwHoverListners(config, main, ctx) {
 	// 	// Get only elements with the pw-selector
 	// 	if (main && ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
@@ -403,9 +461,9 @@ class PowerBrand extends _PowerLinkElement {
 		super(element, main);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		main._mouseover.subscribe(function (ctx) {
-			console.log('Ouvindo', self.id, ctx.id);
-		});
+		// main._mouseover.subscribe(function (ctx) {
+		// 	console.log('Ouvindo', self.id, ctx.id);
+		// });
 	}
 }
 
