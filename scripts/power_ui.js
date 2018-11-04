@@ -32,27 +32,37 @@ function _removeCssCallBack(element, selectorValue) {
 	return element.className;
 }
 
+function getIdAndCreateIfDontHave(currentNode) {
+	let currentId = currentNode.getAttribute('id');
+	if (!currentId) {
+		currentId = Unique.domID(currentNode.tagName.toLowerCase());
+	}
+	currentNode.setAttribute('id', currentId);
+	return currentId;
+}
+
 // The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
 const _pwAttributesConfig = [
-	{context: 'this', defaultSelector: 'data-pow-default-src', selector: 'data-pow-hover-src', attribute: 'src'},
-	{context: 'main', defaultSelector: 'data-pow-default-src', selector: 'data-pow-main-hover-src', attribute: 'src'},
-	{context: 'this', defaultSelector: 'data-pow-default', selector: 'data-pow-hover', attribute: 'className'},
-	{context: 'main', defaultSelector: 'data-pow-default', selector: 'data-pow-main-hover', attribute: 'className'},
-	{context: 'this', defaultSelector: 'data-pow-default', selector: 'data-pow-hover-add', attribute: 'className', callback: _addCssCallBack},
-	{context: 'main', defaultSelector: 'data-pow-default', selector: 'data-pow-main-hover-add', attribute: 'className', callback: _addCssCallBack},
-	{context: 'this', defaultSelector: 'data-pow-default', selector: 'data-pow-hover-remove', attribute: 'className', callback: _removeCssCallBack},
-	{context: 'main', defaultSelector: 'data-pow-default', selector: 'data-pow-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+	{context: 'this', defaultSelector: 'data-pow-src-default', selector: 'data-pow-hover-src', attribute: 'src'},
+	{context: 'main', defaultSelector: 'data-pow-src-default', selector: 'data-pow-main-hover-src', attribute: 'src'},
+	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-hover', attribute: 'className'},
+	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover', attribute: 'className'},
+	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover-add', attribute: 'className', callback: _addCssCallBack},
+	{context: 'this', defaultSelector: 'data-pow-css-default', selector: 'data-pow-hover-remove', attribute: 'className', callback: _removeCssCallBack},
+	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 ];
 
+// The list of power-css-selectors with the config
 const _powerSelectorsConfig = [
-	{name: 'power-menu', camelCase: 'powerMenu'},
-	{name: 'power-brand', camelCase: 'powerBrand'},
-	{name: 'power-heading', camelCase: 'powerHeading'},
-	{name: 'power-item', camelCase: 'powerItem'},
-	{name: 'power-link', camelCase: 'powerLink'},
-	{name: 'power-status', camelCase: 'powerStatus'},
-	{name: 'power-icon', camelCase: 'powerIcon'},
-	{name: 'power-main', camelCase: 'powerMain'}
+	{name: 'power-main', camelCase: 'powerMain', isMain: true},
+	{name: 'power-menu', camelCase: 'powerMenu', isMain: true},
+	{name: 'power-brand', camelCase: 'powerBrand',},
+	{name: 'power-heading', camelCase: 'powerHeading',},
+	{name: 'power-item', camelCase: 'powerItem',},
+	{name: 'power-link', camelCase: 'powerLink',},
+	{name: 'power-status', camelCase: 'powerStatus',},
+	{name: 'power-icon', camelCase: 'powerIcon',},
 ];
 
 
@@ -62,26 +72,32 @@ class PowerDOM {
 		this.powAttributes = {};
 		this.pwcAttributes = {};
 
-		this.sweepDOM(document, this, this._buildPorwerSelectors);
+		let tempSelectors = {
+			powerSelectors: {},
+			powAttributes: {},
+			pwcAttributes: {},
+		};
+
+		this.sweepDOM(document, tempSelectors, this._buildPorwerSelectors);
+
+		window.console.log('Unique', Unique.domID());
+		window.console.log('tempSelectors', tempSelectors);
 	}
 
 	_buildPorwerSelectors(currentNode, ctx) {
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
 			for (const data in currentNode.dataset) {
-				const hasPwc = data.startsWith('pwc');
-				const hasPow = data.startsWith('pow');
-				if (hasPwc) {
-					if (!ctx.pwcAttributes[data]) {
-						ctx.pwcAttributes[data] = [];
+				for(const prefixe of ['pwc', 'pow']) {
+					const hasPrefixe = data.startsWith(prefixe);
+					if (hasPrefixe) {
+						const attributeName = `${prefixe}Attributes`; // pwcAttributes or powAttributes
+						const currentId = getIdAndCreateIfDontHave(currentNode);
+						if (!ctx[attributeName][data]) {
+							ctx[attributeName][data] = {};
+						}
+						ctx[attributeName][data][currentId] = currentNode;
 					}
-					ctx.pwcAttributes[data].push(currentNode);
-				}
-				if (hasPow) {
-					if (!ctx.powAttributes[data]) {
-						ctx.powAttributes[data] = [];
-					}
-					ctx.powAttributes[data].push(currentNode);
 				}
 			}
 		}
@@ -89,10 +105,11 @@ class PowerDOM {
 		if (currentNode.className && currentNode.className.includes('power-')) {
 			for (const selector of _powerSelectorsConfig) {
 				if (currentNode.className.includes(selector.name)) {
+					const currentId = getIdAndCreateIfDontHave(currentNode);
 					if (!ctx.powerSelectors[selector.camelCase]) {
-						ctx.powerSelectors[selector.camelCase] = [];
+						ctx.powerSelectors[selector.camelCase] = {};
 					}
-					ctx.powerSelectors[selector.camelCase].push(currentNode);
+					ctx.powerSelectors[selector.camelCase][currentId] = currentNode;
 				}
 			}
 		}
@@ -120,6 +137,13 @@ class PowerDOM {
 		}
 	}
 }
+
+
+const Unique = { // produce unique IDs
+	n: 0,
+	next: () => ++Unique.n,
+	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${Unique.next()}`,
+};
 
 
 class Event {
@@ -152,9 +176,9 @@ class PowerUi {
 		this.ui = {};
 		this.truth = {};
 
-		// Set data-pow-default for all _pwAttributesConfig
+		// Set data-pow-css-default for all _pwAttributesConfig
 		for (const item of _pwAttributesConfig) {
-			// Set data-pow-default if have some data-pow-selector
+			// Set data-pow-css-default if have some data-pow-selector
 			for (const element of document.querySelectorAll(`[${item.selector}]`)) {
 				if (!element.getAttribute(`${item.defaultSelector}`)) {
 					element.setAttribute(item.defaultSelector, element[item.attribute]);
@@ -175,74 +199,74 @@ class _PowerBasicElement {
 		this.element = element;
 		this._hover = false;
 
-		// Add all the listners
-		for (const config of _pwAttributesConfig) {
-			if (config.context === 'main') {
-				this._addPowerBlockMainPwHoverListners(config, main, this);
-			} else {
-				this._addPowerBlockPwHoverListners(config, this);
-			}
-		}
+		// // Add all the listners
+		// for (const config of _pwAttributesConfig) {
+		// 	if (config.context === 'main') {
+		// 		this._addPowerBlockMainPwHoverListners(config, main, this);
+		// 	} else {
+		// 		this._addPowerBlockPwHoverListners(config, this);
+		// 	}
+		// }
 	}
 
-	// THIS
-	// Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-hover-src
-	_addPowerBlockPwHoverListners(config, ctx) {
-		// Check if children have elements with the pw-selector, or it the element it self has it
-		if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
-			ctx.addEventListener("mouseover", function() {
-				if (!ctx._hover) {
-					ctx._changeNodes(config.selector, config.attribute, config.callback || null);
-					ctx._hover = true;
-				}
-			}, false);
-			ctx.addEventListener("mouseout", function() {
-				if (ctx._hover) {
-					ctx._changeNodes(config.defaultSelector, config.attribute);
-					ctx._hover = false;
-				}
-			}, false);
-		}
-	}
+	// // THIS
+	// // Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-hover-src
+	// _addPowerBlockPwHoverListners(config, ctx) {
+	// 	// Check if children have elements with the pw-selector, or it the element it self has it
+	// 	if (ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
+	// 		ctx.addEventListener("mouseover", function() {
+	// 			if (!ctx._hover) {
+	// 				ctx._changeNodes(config.selector, config.attribute, config.callback || null);
+	// 				ctx._hover = true;
+	// 			}
+	// 		}, false);
+	// 		ctx.addEventListener("mouseout", function() {
+	// 			if (ctx._hover) {
+	// 				ctx._changeNodes(config.defaultSelector, config.attribute);
+	// 				ctx._hover = false;
+	// 			}
+	// 		}, false);
+	// 	}
+	// }
 
-	// MAIN
-	// Add addEventListener if there is main and pw hover selector like data-pow-main-hover-src
-	_addPowerBlockMainPwHoverListners(config, main, ctx) {
-		// Get only elements with the pw-selector
-		if (main && ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
-			main.addEventListener("mouseover", function() {
-				if (ctx._hover === false) {
-					ctx._changeNodes(config.selector, config.attribute, config.callback || null);
-				}
-			}, false);
-			main.addEventListener("mouseout", function() {
-				if (ctx._hover === false) {
-					ctx._changeNodes(config.defaultSelector, config.attribute);
-				}
-			}, false);
-		}
-	}
+	// // MAIN
+	// // Add addEventListener if there is main and pw hover selector like data-pow-main-hover-src
+	// _addPowerBlockMainPwHoverListners(config, main, ctx) {
+	// 	// Get only elements with the pw-selector
+	// 	if (main && ctx.element.querySelectorAll(`[${config.selector}]`).length || ctx.element.getAttribute(config.selector)) {
+	// 		main.addEventListener("mouseover", function() {
+	// 			if (ctx._hover === false) {
+	// 				ctx._changeNodes(config.selector, config.attribute, config.callback || null);
+	// 			}
+	// 		}, false);
+	// 		main.addEventListener("mouseout", function() {
+	// 			if (ctx._hover === false) {
+	// 				ctx._changeNodes(config.defaultSelector, config.attribute);
+	// 			}
+	// 		}, false);
+	// 	}
+	// }
 
-	// If have pw-selectors it replaces the default values with the data in the pw-selector
-	_changeNodes(selector, attribute, callback) {
-		// Change the element it self if have the selector
-		const selectorValue = this.element.getAttribute(selector);
-		if (selectorValue) {
-			// Replace the attribute value with the data in the selector
-			this.element[attribute] = callback ? callback(this.element, selectorValue) : selectorValue;
-		}
-		// Change any children currentNode
-		const nodes = this.element.querySelectorAll(`[${selector}]`);
-		if (nodes.length > 0) {
-			for (let index = 0; nodes.length != index; index++) {
-				const selectorValue = nodes[index].getAttribute(selector);
-				if (selectorValue) {
-					// Replace the attribute value with the data in the selector
-					nodes[index][attribute] = callback ? callback(nodes[index], selectorValue) : selectorValue;
-				}
-			}
-		}
-	}
+	// // If have pw-selectors it replaces the default values with the data in the pw-selector
+	// _changeNodes(selector, attribute, callback) {
+	// 	// Change the element it self if have the selector
+	// 	const selectorValue = this.element.getAttribute(selector);
+	// 	if (selectorValue) {
+	// 		// Replace the attribute value with the data in the selector
+	// 		this.element[attribute] = callback ? callback(this.element, selectorValue) : selectorValue;
+	// 	}
+	// 	// Change any children currentNode
+	// 	const nodes = this.element.querySelectorAll(`[${selector}]`);
+	// 	if (nodes.length > 0) {
+	// 		for (let index = 0; nodes.length != index; index++) {
+	// 			const selectorValue = nodes[index].getAttribute(selector);
+	// 			if (selectorValue) {
+	// 				// Replace the attribute value with the data in the selector
+	// 				nodes[index][attribute] = callback ? callback(nodes[index], selectorValue) : selectorValue;
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	get images() {
 		return this.element.getElementsByTagName('IMG');
