@@ -53,10 +53,10 @@ const _pwAttributesConfig = [
 	{context: 'main', defaultSelector: 'data-pow-css-default', selector: 'data-pow-main-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 ];
 
-// The list of power-css-selectors with the config
+// The list of power-css-selectors with the config to create the objetc
 const _powerSelectorsConfig = [
-	{name: 'power-main', camelCase: 'powerMain', isMain: true},
-	{name: 'power-menu', camelCase: 'powerMenu', isMain: true},
+	{name: 'power-main', camelCase: 'powerMain', isMain: true, createObjFn: 'newBasicElement'},
+	{name: 'power-menu', camelCase: 'powerMenu', isMain: true, createObjFn: 'newPowerMenu'},
 	{name: 'power-brand', camelCase: 'powerBrand',},
 	{name: 'power-heading', camelCase: 'powerHeading',},
 	{name: 'power-item', camelCase: 'powerItem',},
@@ -72,16 +72,37 @@ class PowerDOM {
 		this.powAttributes = {};
 		this.pwcAttributes = {};
 
-		let tempSelectors = {
+		const tempSelectors = {
 			powerSelectors: {},
 			powAttributes: {},
 			pwcAttributes: {},
 		};
+		const tempHoldObj = {};
+		const alreadyExists = [];
 
 		this.sweepDOM(document, tempSelectors, this._buildPorwerSelectors);
 
+		// Create the main object elements
+		for (const selector of _powerSelectorsConfig.filter(item => item.isMain)) {
+			for (const id in tempSelectors.powerSelectors[selector.camelCase]) {
+				if (!this.powerSelectors[selector.camelCase]) {
+					this.powerSelectors[selector.camelCase] = {};
+				}
+				this.powerSelectors[selector.camelCase][id] = this[selector.createObjFn](tempSelectors.powerSelectors[selector.camelCase][id]);
+			}
+		}
+
 		window.console.log('Unique', Unique.domID());
 		window.console.log('tempSelectors', tempSelectors);
+		window.console.log('PowerDOM', this);
+	}
+
+	newPowerMenu(menu) {
+		return new PowerMenu(menu);
+	}
+
+	newBasicElement(element) {
+		return new _PowerBasicElement(element);
 	}
 
 	_buildPorwerSelectors(currentNode, ctx) {
