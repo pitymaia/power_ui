@@ -43,19 +43,22 @@ function getIdAndCreateIfDontHave(currentNode) {
 
 function findMainElementIfHave(originalElement) {
 	let element = originalElement.parentElement;
-	let found = false;
-	while (!found) {
+	let stop = false;
+	while (!stop) {
 		if (element && element.className) {
 			for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
 				if (element.className.includes(cssSelector.name)) {
-					found = true;
+					stop = true;
 				}
 			}
 		}
-		if (element && !found) {
+		// Don't let go to parentElement if already found and heve the variable 'stop' as true
+		// Only select the parentElement if has element but don't found the main class selector
+		if (element && !stop) {
 			element = element.parentElement;
 		} else {
-			found = true;
+			// If there is no more element set stop
+			stop = true;
 		}
 	}
 	return element || null;
@@ -146,7 +149,6 @@ class PowerDOM {
 
 		this._linkMainClassAndPowAttrs();
 
-		window.console.log('tempSelectors', tempSelectors);
 		window.console.log('PowerDOM', this);
 	}
 
@@ -292,7 +294,6 @@ Event.index = {}; // storage for all named events
 class PowerUi {
 	constructor(inject) {
 		for (const item of inject) {
-			console.log('inject', item);
 			this.injectPwc(item, this);
 		}
 
