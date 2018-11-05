@@ -41,6 +41,26 @@ function getIdAndCreateIfDontHave(currentNode) {
 	return currentId;
 }
 
+function findMainElementIfHave(originalElement) {
+	let element = originalElement.parentElement;
+	let found = false;
+	while (!found) {
+		if (element && element.className) {
+			for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
+				if (element.className.includes(cssSelector.name)) {
+					found = true;
+				}
+			}
+		}
+		if (element && !found) {
+			element = element.parentElement;
+		} else {
+			found = true;
+		}
+	}
+	return element || null;
+}
+
 // Dataset converts "data-something-nice" formats to camel case without data,
 // the result is like "somethingNice"
 function asDataSet(selector) {
@@ -64,7 +84,7 @@ class PwcPity {
 	}
 }
 
-// The list of pw-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
+// The list of pow-attributes with the config for _addPowerBlockMainPwHoverListners and _addPowerBlockPwHoverListners
 const _powAttrsConfig = [
 	{context: 'this', defaultSelector: 'data-pow-src-default', name: 'data-pow-src-hover', attribute: 'src'},
 	{context: 'main', defaultSelector: 'data-pow-src-default', name: 'data-pow-main-src-hover', attribute: 'src'},
@@ -76,12 +96,14 @@ const _powAttrsConfig = [
 	{context: 'main', defaultSelector: 'data-pow-css-default', name: 'data-pow-main-css-hover-remove', attribute: 'className', callback: _removeCssCallBack},
 ];
 
+// The list for user custom pwc-attributes
 const _pwcAttrsConfig = [];
 
 // The list of power-css-selectors with the config to create the objetc
+// The order here is important, keep it on an array
 const _powerCssConfig = [
-	{name: 'power-main', isMain: true},
 	{name: 'power-menu', isMain: true},
+	{name: 'power-main', isMain: true},
 	{name: 'power-brand'},
 	{name: 'power-heading'},
 	{name: 'power-item'},
@@ -92,8 +114,8 @@ const _powerCssConfig = [
 
 
 class PowerDOM {
-	constructor(_main) {
-		this._main = _main;
+	constructor(main) {
+		this.main = main;
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
@@ -121,8 +143,46 @@ class PowerDOM {
 			}
 		}
 
+
+		this._linkMainClassAndPowAttrs();
+
 		window.console.log('tempSelectors', tempSelectors);
 		window.console.log('PowerDOM', this);
+	}
+
+	_linkMainClassAndPowAttrs() {
+		// Loop through the list of possible attributes like data-pow-main-src-hover
+		for (const item of _powAttrsConfig.filter(a => a.context === 'main')) {
+			const powAttrsList = this.powAttrs[asDataSet(item.name)];
+			// Loop through the list of existing powAttrs in dataset format like powMainSrcHover
+			// Every element it found is the powerElement it needs find the correspondent main object
+			for (const id in powAttrsList) {
+				const currentPowElement = powAttrsList[id];
+				// Get the simple DOM node main element  of the current powerElement object
+				const mainElementCssSelector = this.main.getMainElementFromChildElement(id, currentPowElement.element);
+				if (mainElementCssSelector) {
+					// Loop through the list of possible main CSS class selectors like power-menu or power-main
+					// With this we will find the main powerElement that holds the simple DOM node main element we have
+					for (const cssSelector of _powerCssConfig.filter(a => a.isMain === true)) {
+						if (this.powerCss[asDataSet(cssSelector.name)]) {
+							// Get the powerElement using the simple DOM node main element (mainElementCssSelector)
+							const mainPowerCssObj = this.powerCss[asDataSet(cssSelector.name)][mainElementCssSelector.getAttribute('id')];
+							// If we found it let's go to associate the main with the child
+							if(mainPowerCssObj) {
+								// Add the main object into the child object
+								currentPowElement.main = mainPowerCssObj;
+								// create the obj to hold the children of dont have it
+								if (mainPowerCssObj.childrenPowAttrs === undefined) {
+									mainPowerCssObj.childrenPowAttrs = [];
+								}
+								// Add the child object into the main object
+								mainPowerCssObj.childrenPowAttrs.push(currentPowElement);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
@@ -132,7 +192,7 @@ class PowerDOM {
 			}
 
 			// If there is a class with the pw-attribute name use it, if not, use the _powerBasicElement as the element class
-			const es6Class = !!ctx._main[`_${asDataSet(selector.name)}`] ? `_${asDataSet(selector.name)}` : '_powerBasicElement';
+			const es6Class = !!ctx.main[`_${asDataSet(selector.name)}`] ? `_${asDataSet(selector.name)}` : '_powerBasicElement';
 
 			// Call the method for create objects like _powerMenu with the node elements in tempSelectors
 			// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this'
@@ -140,7 +200,7 @@ class PowerDOM {
 			// E.G. 2, this[attribute].powerMenu.topmenu = this._powerMenu(tempSelectors.powerCss.powerMenu.topmenu);
 			// E.G. 3, this[attribute].powerMenu.topmenu = this._powerMenu(tempSelectors[attribute].powerMenu.topmenu);
 			// E.G. 4, this[attribute][powerMenu][topmenu] = this[_powerMenu](tempSelectors[attribute][powerMenu][topmenu]);
-			ctx[attribute][asDataSet(selector.name)][id] = ctx._main[es6Class](tempSelectors[attribute][asDataSet(selector.name)][id]);
+			ctx[attribute][asDataSet(selector.name)][id] = ctx.main[es6Class](tempSelectors[attribute][asDataSet(selector.name)][id]);
 		}
 	}
 
@@ -240,18 +300,13 @@ class PowerUi {
 		// this.menus = this.newPowerMenus();
 		this.ui = {};
 		this.truth = {};
+	}
 
-
-		// // Set data-pow-css-default for all _powAttrsConfig
-		// for (const item of _powAttrsConfig) {
-		// 	// Set data-pow-css-default if have some data-pow-selector
-		// 	for (const element of document.querySelectorAll(`[${item.name}]`)) {
-		// 		if (!element.getAttribute(`${item.defaultSelector}`)) {
-		// 			element.setAttribute(item.defaultSelector, element[item.attribute]);
-		// 		}
-		// 	}
-		// }
-
+	getMainElementFromChildElement(id, childElement) {
+		let mainElement  = findMainElementIfHave(childElement);
+		if (mainElement) {
+			return mainElement;
+		}
 	}
 
 	injectPwc(item, ctx) {
@@ -260,6 +315,7 @@ class PowerUi {
 			return new item.obj(element);
 		};
 	}
+
 	_powerMenu(element) {
 		return new PowerMenu(element);
 	}
