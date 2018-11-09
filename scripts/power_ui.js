@@ -80,13 +80,6 @@ function asDataSet(selector) {
 	return newstring;
 }
 
-class PwcPity {
-	constructor(element) {
-		this.element = element;
-		console.log('pwcPity is live!', element);
-	}
-}
-
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
 	{defaultSelector: 'data-pow-src-default',
@@ -141,11 +134,12 @@ const _powerCssConfig = [
 
 
 class PowerDOM {
-	constructor(main) {
-		this.main = main;
+	constructor($pwMain) {
+		this.$pwMain = $pwMain;
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
+		this.pwElementsById = {};
 
 		const tempSelectors = {
 			powerCss: {},
@@ -172,8 +166,40 @@ class PowerDOM {
 
 
 		this._linkMainClassAndPowAttrs();
+		this._siblingsAndInit();
 
 		window.console.log('PowerDOM', this);
+	}
+
+	// Register siblings elements and call init()
+	_siblingsAndInit() {
+		for (const id in this.pwElementsById) {
+			// if Object.keys(obj).length add the siblings for each objects
+			// Also call init(if true or else)
+			if (Object.keys(this.pwElementsById[id]).length > 1) {
+				for (const attr in this.pwElementsById[id]) {
+					if (!this.pwElementsById[id][attr].siblings) {
+						this.pwElementsById[id][attr].siblings = {};
+					}
+					// To avoid add this element as a sibling of it self we need iterate over attrs again
+					for (const siblingAttr in this.pwElementsById[id]) {
+						if (siblingAttr !== attr) {
+							this.pwElementsById[id][attr].siblings[siblingAttr] = this.pwElementsById[id][siblingAttr];
+						}
+					}
+					if (this.pwElementsById[id][attr].init) {
+						this.pwElementsById[id][attr].init();
+					}
+				}
+			} else {
+				// Call init for all others
+				for (const attr in this.pwElementsById[id]) {
+					if (this.pwElementsById[id][attr].init) {
+						this.pwElementsById[id][attr].init();
+					}
+				}
+			}
+		}
 	}
 
 	_linkMainClassAndPowAttrs() {
@@ -185,7 +211,7 @@ class PowerDOM {
 			for (const id in powAttrsList) {
 				const currentPowElement = powAttrsList[id];
 				// Get the simple DOM node main element  of the current powerElement object
-				const mainElementCssSelector = this.main._getMainElementFromChildElement(id, currentPowElement.element);
+				const mainElementCssSelector = this.$pwMain._getMainElementFromChildElement(id, currentPowElement.element);
 				if (mainElementCssSelector) {
 					// Loop through the list of possible main CSS class selectors like power-menu or power-main
 					// With this we will find the main powerElement that holds the simple DOM node main element we have
@@ -196,7 +222,7 @@ class PowerDOM {
 							// If we found it let's go to associate the main with the child
 							if(mainPowerCssObj) {
 								// Add the main object into the child object
-								currentPowElement.main = mainPowerCssObj;
+								currentPowElement.$pwMain = mainPowerCssObj;
 								// create the obj to hold the children of dont have it
 								if (mainPowerCssObj.childrenPowAttrs === undefined) {
 									mainPowerCssObj.childrenPowAttrs = [];
@@ -212,26 +238,30 @@ class PowerDOM {
 	}
 
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
-		for (const id in tempSelectors[attribute][asDataSet(selector.name)]) {
-			if (!ctx[attribute][asDataSet(selector.name)]) {
-				ctx[attribute][asDataSet(selector.name)] = {};
+		const datasetKey = asDataSet(selector.name);
+		const selectorsSubSet = tempSelectors[attribute][datasetKey];
+		for (const id in selectorsSubSet) {
+			if (!ctx[attribute][datasetKey]) {
+				ctx[attribute][datasetKey] = {};
 			}
 
 			// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
 			// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-			const es6Class = !!ctx.main[`_${asDataSet(selector.name)}`] ? `_${asDataSet(selector.name)}` : 'powerAttrs';
-
+			const es6Class = !!ctx.$pwMain[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
 			if (es6Class === 'powerAttrs') {
-				ctx[attribute][asDataSet(selector.name)][id] = selector.callback(tempSelectors[attribute][asDataSet(selector.name)][id]);
+				// Add into a list ordered by attribute name
+				ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
 			} else {
 				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
-				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this'
-				// Step. 1, this.powerCss.powerMenu.topmenu = this.main._powerMenu(topmenuElement);
-				// Step. 2, this[attribute].powerMenu.topmenu = this.main._powerMenu(tempSelectors.powerCss.powerMenu.topmenu);
-				// Step. 3, this[attribute].powerMenu.topmenu = this.main._powerMenu(tempSelectors[attribute].powerMenu.topmenu);
-				// Step. 4, this[attribute][powerMenu][topmenu] = this.main[_powerMenu](tempSelectors[attribute][powerMenu][topmenu]);
-				ctx[attribute][asDataSet(selector.name)][id] = ctx.main[es6Class](tempSelectors[attribute][asDataSet(selector.name)][id]);
+				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
+				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$pwMain._powerMenu(topmenuElement);
+				ctx[attribute][datasetKey][id] = ctx.$pwMain[es6Class](selectorsSubSet[id]);
 			}
+			// Add the same element into a list ordered by id
+			if (!ctx.pwElementsById[id]) {
+				ctx.pwElementsById[id] = {};
+			}
+			ctx.pwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
 		}
 	}
 
@@ -391,12 +421,12 @@ class PowerUi {
 class _PowerBasicElement {
 	constructor(element) {
 		this.element = element;
-		this._hover = false;
+		this._$pwHover = false;
 
 		// // Add all the listners
 		// for (const config of _powAttrsConfig) {
 		// 	if (config.isMain === true) {
-		// 		this._addPowerBlockMainPwHoverListners(config, main, this);
+		// 		this._addPowerBlockMainPwHoverListners(config, $pwMain, this);
 		// 	} else {
 		// 		this._addPowerBlockPwHoverListners(config, this);
 		// 	}
@@ -409,15 +439,15 @@ class _PowerBasicElement {
 	// 	// Check if children have elements with the pw-selector, or it the element it self has it
 	// 	if (ctx.element.querySelectorAll(`[${config.name}]`).length || ctx.element.getAttribute(config.name)) {
 	// 		ctx.addEventListener("mouseover", function() {
-	// 			if (!ctx._hover) {
+	// 			if (!ctx._$pwHover) {
 	// 				ctx._changeNodes(config.name, config.attribute, config.callback || null);
-	// 				ctx._hover = true;
+	// 				ctx._$pwHover = true;
 	// 			}
 	// 		}, false);
 	// 		ctx.addEventListener("mouseout", function() {
-	// 			if (ctx._hover) {
+	// 			if (ctx._$pwHover) {
 	// 				ctx._changeNodes(config.defaultSelector, config.attribute);
-	// 				ctx._hover = false;
+	// 				ctx._$pwHover = false;
 	// 			}
 	// 		}, false);
 	// 	}
@@ -425,16 +455,16 @@ class _PowerBasicElement {
 
 	// // MAIN
 	// // Add addEventListener if there is main and pw hover selector like data-pow-main-src-hover
-	// _addPowerBlockMainPwHoverListners(config, main, ctx) {
+	// _addPowerBlockMainPwHoverListners(config, $pwMain, ctx) {
 	// 	// Get only elements with the pw-selector
-	// 	if (main && ctx.element.querySelectorAll(`[${config.name}]`).length || ctx.element.getAttribute(config.name)) {
-	// 		main.addEventListener("mouseover", function() {
-	// 			if (ctx._hover === false) {
+	// 	if ($pwMain && ctx.element.querySelectorAll(`[${config.name}]`).length || ctx.element.getAttribute(config.name)) {
+	// 		$pwMain.addEventListener("mouseover", function() {
+	// 			if (ctx._$pwHover === false) {
 	// 				ctx._changeNodes(config.name, config.attribute, config.callback || null);
 	// 			}
 	// 		}, false);
-	// 		main.addEventListener("mouseout", function() {
-	// 			if (ctx._hover === false) {
+	// 		$pwMain.addEventListener("mouseout", function() {
+	// 			if (ctx._$pwHover === false) {
 	// 				ctx._changeNodes(config.defaultSelector, config.attribute);
 	// 			}
 	// 		}, false);
@@ -511,32 +541,32 @@ class _PowerBasicElement {
 class PowCssHover extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
-		this._hover = false;
+		this.$_pwAttrName = 'data-pow-css-hover';
+		this._$pwHover = false;
 		console.log('EU EXISTO!');
-		this.init();
 	}
 
 	init() {
 		const ctx = this;
 
-		if (!this.defaultValue) {
-			this.defaultValue =  this.element.className;
+		if (!this.$_pwDefaultValue) {
+			this.$_pwDefaultValue =  this.element.className;
 		}
-		if (!this.hoverValue) {
-			this.hoverValue = this.element.getAttribute('data-pow-css-hover');
+		if (!this.$_pwHoverValue) {
+			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
 		}
 		// Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-src-hover
 		this.addEventListener("mouseover", function() {
-			if (!ctx._hover) {
-				this.element.className = ctx.hoverValue;
-				ctx._hover = true;
+			if (!ctx._$pwHover) {
+				this.element.className = ctx.$_pwHoverValue;
+				console.log('hover ', ctx.$_pwHoverValue);
+				ctx._$pwHover = true;
 			}
 		}, false);
 		this.addEventListener("mouseout", function() {
-			if (ctx._hover) {
-				console.log('out');
-				this.element.className = ctx.defaultValue;
-				ctx._hover = false;
+			if (ctx._$pwHover) {
+				this.element.className = ctx.$_pwDefaultValue || '';
+				ctx._$pwHover = false;
 			}
 		}, false);
 	}
@@ -565,15 +595,15 @@ class PowCssHover extends _PowerBasicElement {
 
 
 class PowerHeading extends _PowerBasicElement {
-	constructor(element, main) {
-		super(element, main);
+	constructor(element, $pwMain) {
+		super(element, $pwMain);
 	}
 }
 
 
 class _PowerLinkElement extends _PowerBasicElement {
-	constructor(element, main) {
-		super(element, main);
+	constructor(element, $pwMain) {
+		super(element, $pwMain);
 		const linkSelector = 'power-link';
 	}
 
@@ -614,8 +644,8 @@ class _PowerLinkElement extends _PowerBasicElement {
 
 
 class PowerItem extends _PowerLinkElement {
-	constructor(element, main) {
-		super(element, main);
+	constructor(element, $pwMain) {
+		super(element, $pwMain);
 		const statusSelector = 'power-status';
 	}
 
@@ -628,11 +658,11 @@ class PowerItem extends _PowerLinkElement {
 
 
 class PowerBrand extends _PowerLinkElement {
-	constructor(element, main) {
-		super(element, main);
+	constructor(element, $pwMain) {
+		super(element, $pwMain);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		// main._mouseover.subscribe(function (ctx) {
+		// $pwMain._mouseover.subscribe(function (ctx) {
 		// 	console.log('Ouvindo', self.id, ctx.id);
 		// });
 	}
@@ -752,6 +782,15 @@ class PowerMenus {
 	}
 }
 
+
+class PwcPity extends PowCssHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pwc-pity';
+		this.element = element;
+		console.log('pwcPity is live!', this.$_pwAttrName);
+	}
+}
 // class TesteMenu extends PowerMenu {
 // 	constructor(menu, info) {
 // 		super(menu);
