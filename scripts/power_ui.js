@@ -35,6 +35,10 @@ function asDataSet(selector) {
 	return newstring;
 }
 
+function powerClassAsCamelCase(className) {
+	return `${className.split('-')[0]}${className.split('-')[1].charAt(0).toUpperCase()}${className.split('-')[1].slice(1)}`;
+}
+
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
 	{defaultSelector: 'data-pow-src-default',
@@ -120,7 +124,7 @@ class PowerDOM {
 		}
 
 		this._linkMainClassAndPowAttrs();
-		this._siblingsAndInit();
+		this._addSiblings();
 	}
 
 	// Sweep through each node and pass the node to the callback
@@ -175,8 +179,19 @@ class PowerDOM {
 		return element || null;
 	}
 
+	_callInit() {
+		for (const id in this.allPwElementsById) {
+			// Call init for all elements
+			for (const attr in this.allPwElementsById[id]) {
+				if (this.allPwElementsById[id][attr].init) {
+					this.allPwElementsById[id][attr].init();
+				}
+			}
+		}
+	}
+
 	// Register siblings elements and call init()
-	_siblingsAndInit() {
+	_addSiblings() {
 		for (const id in this.allPwElementsById) {
 			// if Object.keys(obj).length add the siblings for each objects
 			// Also call init(if true or else)
@@ -190,16 +205,6 @@ class PowerDOM {
 						if (siblingAttr !== attr) {
 							this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
 						}
-					}
-					if (this.allPwElementsById[id][attr].init) {
-						this.allPwElementsById[id][attr].init();
-					}
-				}
-			} else {
-				// Call init for all others
-				for (const attr in this.allPwElementsById[id]) {
-					if (this.allPwElementsById[id][attr].init) {
-						this.allPwElementsById[id][attr].init();
 					}
 				}
 			}
@@ -277,6 +282,9 @@ class PowerDOM {
 				ctx.allPwElementsById[id] = {};
 			}
 			ctx.allPwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
+			// Add to any element some desired variables
+			ctx.allPwElementsById[id][datasetKey]._id = id;
+			ctx.allPwElementsById[id][datasetKey].$_pwDatasetName = datasetKey;
 		}
 	}
 
@@ -351,6 +359,7 @@ class PowerUi {
 		}
 
 		this.powerDOM = new PowerDOM(this);
+		this.powerDOM._callInit();
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
 		this.truth = {};
@@ -364,39 +373,39 @@ class PowerUi {
 	}
 
 	_powerMenu(element) {
-		return new PowerMenu(element);
+		return new PowerMenu(element, this);
 	}
 
 	_powerMain(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
+		return new _PowerBasicElement(element, this);
 	}
 
 	_powerBrand(element) {
-		return new PowerBrand(element);
+		return new PowerBrand(element, this);
 	}
 
 	_powerHeading(element) {
-		return new PowerHeading(element);
+		return new PowerHeading(element, this);
 	}
 
 	_powerItem(element) {
-		return new PowerItem(element);
+		return new PowerItem(element, this);
 	}
 
 	_powerLink(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
+		return new _PowerBasicElement(element, this);
 	}
 
 	_powerStatus(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
+		return new _PowerBasicElement(element, this);
 	}
 
 	_powerIcon(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
+		return new _PowerBasicElement(element, this);
 	}
 
 	_powerBasicElement(element) { // TODO need classes?
-		return new _PowerBasicElement(element);
+		return new _PowerBasicElement(element, this);
 	}
 
 	_powerAttrs(element) {
@@ -534,10 +543,9 @@ class PowerBrand extends _PowerLinkElement {
 
 
 class PowerMenu {
-	constructor(menu) {
+	constructor(menu, $pwRoot) {
+		this.$pwRoot = $pwRoot;
 		this.element = menu;
-		this.items = {};
-		this.headings = {};
 		this._id = this.element.getAttribute('id');
 		this._events = {};
 		// this._events.mouseover = new Event(this.id);
@@ -556,16 +564,30 @@ class PowerMenu {
 		// }
 	}
 
+	init() {
+		for (const config of _powerCssConfig.filter(x => !x.isMain)) {
+			const className = config.name;
+			// power-brand
+			for (const element of this.element.getElementsByClassName(className)) {
+				let keyName = className.split('-')[1];
+				// Find the apropriate key plural (statuses)
+				keyName = (keyName === 'status') ? `${keyName}es` : `${keyName}s`;
+				if (!this[keyName]) {
+					this[keyName] = {};
+				}
+				// find the camelCase name of the className
+				const camelCaseName = powerClassAsCamelCase(className);
+				this[keyName][element.id] = this.$pwRoot.powerDOM.powerCss[camelCaseName][element.id];
+			}
+		}
+	}
+
 	get id() {
 		return _getId(this);
 	}
 
 	set id(id) {
 		_setId(this, id);
-	}
-
-	addEventListener(event, callback) {
-		this.element.addEventListener(event, callback.bind(this, this));
 	}
 
 	// blockById(id) {
