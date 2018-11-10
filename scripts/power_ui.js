@@ -10,58 +10,13 @@ function _setId(ctx, id) {
 	ctx.element.setAttribute('id', id);
 }
 
-function _menuBlockById(id, menu) {
-	let menuBlock = menu.items.find(item => item.id === id); // jshint ignore:line
-	if (!menuBlock) {
-		menuBlock = menu.brand.id === id ? menu.brand : null;
-	}
-	if (!menuBlock) {
-		menuBlock = menu.headings.find(header => header.id === id); // jshint ignore:line
-	}
-	return menuBlock;
-}
-
-function _addCssCallBack(element, selectorValue) {
-	return `${element.className} ${selectorValue}`;
-}
-
-function _removeCssCallBack(element, selectorValue) {
-	for (const className of selectorValue.split(' ')) {
-		element.classList.remove(className);
-	}
-	return element.className;
-}
-
 function getIdAndCreateIfDontHave(currentNode) {
 	let currentId = currentNode.getAttribute('id');
 	if (!currentId) {
-		currentId = Unique.domID(currentNode.tagName.toLowerCase());
+		currentId = _Unique.domID(currentNode.tagName.toLowerCase());
 	}
 	currentNode.setAttribute('id', currentId);
 	return currentId;
-}
-
-function findMainElementIfHave(originalElement) {
-	let element = originalElement.parentElement;
-	let stop = false;
-	while (!stop) {
-		if (element && element.className) {
-			for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
-				if (element.className.includes(cssSelector.name)) {
-					stop = true;
-				}
-			}
-		}
-		// Don't let go to parentElement if already found and heve the variable 'stop' as true
-		// Only select the parentElement if has element but don't found the main class selector
-		if (element && !stop) {
-			element = element.parentElement;
-		} else {
-			// If there is no more element set stop
-			stop = true;
-		}
-	}
-	return element || null;
 }
 
 // Dataset converts "data-something-nice" formats to camel case without data,
@@ -139,7 +94,7 @@ class PowerDOM {
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
-		this.pwElementsById = {};
+		this.allPwElementsById = {};
 
 		const tempSelectors = {
 			powerCss: {},
@@ -147,7 +102,7 @@ class PowerDOM {
 			pwcAttrs: {},
 		};
 
-		this.sweepDOM(document, tempSelectors, this._buildTempPorwerTree);
+		this.sweepDOM(document, tempSelectors, this._buildTempPowerTree);
 
 		// Create the power-css object elements
 		for (const attribute in tempSelectors) {
@@ -164,38 +119,87 @@ class PowerDOM {
 			}
 		}
 
-
 		this._linkMainClassAndPowAttrs();
 		this._siblingsAndInit();
+	}
 
-		window.console.log('PowerDOM', this);
+	// Sweep through each node and pass the node to the callback
+	sweepDOM(entryNode, ctx, callback) {
+		const isNode = !!entryNode && !!entryNode.nodeType;
+		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
+
+		if (isNode && hasChildren) {
+			const nodes = entryNode.childNodes;
+			for (let i=0; i < nodes.length; i++) {
+				const currentNode = nodes[i];
+				const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+
+				// Call back with the condition to apply any condition
+				callback(currentNode, ctx);
+
+				if(currentNodeHasChindren) {
+					// Recursively sweep through currentNode children
+					this.sweepDOM(currentNode, ctx, callback);
+				}
+			}
+		}
+	}
+
+	_getMainElementFromChildElement(id, childElement) {
+		let mainElement  = this._findMainElementIfHave(childElement);
+		if (mainElement) {
+			return mainElement;
+		}
+	}
+
+	_findMainElementIfHave(originalElement) {
+		let element = originalElement.parentElement;
+		let stop = false;
+		while (!stop) {
+			if (element && element.className) {
+				for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
+					if (element.className.includes(cssSelector.name)) {
+						stop = true;
+					}
+				}
+			}
+			// Don't let go to parentElement if already found and heve the variable 'stop' as true
+			// Only select the parentElement if has element but don't found the main class selector
+			if (element && !stop) {
+				element = element.parentElement;
+			} else {
+				// If there is no more element set stop
+				stop = true;
+			}
+		}
+		return element || null;
 	}
 
 	// Register siblings elements and call init()
 	_siblingsAndInit() {
-		for (const id in this.pwElementsById) {
+		for (const id in this.allPwElementsById) {
 			// if Object.keys(obj).length add the siblings for each objects
 			// Also call init(if true or else)
-			if (Object.keys(this.pwElementsById[id]).length > 1) {
-				for (const attr in this.pwElementsById[id]) {
-					if (!this.pwElementsById[id][attr].siblings) {
-						this.pwElementsById[id][attr].siblings = {};
+			if (Object.keys(this.allPwElementsById[id]).length > 1) {
+				for (const attr in this.allPwElementsById[id]) {
+					if (!this.allPwElementsById[id][attr].siblings) {
+						this.allPwElementsById[id][attr].siblings = {};
 					}
 					// To avoid add this element as a sibling of it self we need iterate over attrs again
-					for (const siblingAttr in this.pwElementsById[id]) {
+					for (const siblingAttr in this.allPwElementsById[id]) {
 						if (siblingAttr !== attr) {
-							this.pwElementsById[id][attr].siblings[siblingAttr] = this.pwElementsById[id][siblingAttr];
+							this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
 						}
 					}
-					if (this.pwElementsById[id][attr].init) {
-						this.pwElementsById[id][attr].init();
+					if (this.allPwElementsById[id][attr].init) {
+						this.allPwElementsById[id][attr].init();
 					}
 				}
 			} else {
 				// Call init for all others
-				for (const attr in this.pwElementsById[id]) {
-					if (this.pwElementsById[id][attr].init) {
-						this.pwElementsById[id][attr].init();
+				for (const attr in this.allPwElementsById[id]) {
+					if (this.allPwElementsById[id][attr].init) {
+						this.allPwElementsById[id][attr].init();
 					}
 				}
 			}
@@ -211,7 +215,7 @@ class PowerDOM {
 			for (const id in powAttrsList) {
 				const currentPowElement = powAttrsList[id];
 				// Get the simple DOM node main element  of the current powerElement object
-				const mainElementCssSelector = this.$pwMain._getMainElementFromChildElement(id, currentPowElement.element);
+				const mainElementCssSelector = this._getMainElementFromChildElement(id, currentPowElement.element);
 				if (mainElementCssSelector) {
 					// Loop through the list of possible main CSS class selectors like power-menu or power-main
 					// With this we will find the main powerElement that holds the simple DOM node main element we have
@@ -225,10 +229,19 @@ class PowerDOM {
 								currentPowElement.$pwMain = mainPowerCssObj;
 								// create the obj to hold the children of dont have it
 								if (mainPowerCssObj.childrenPowAttrs === undefined) {
-									mainPowerCssObj.childrenPowAttrs = [];
+									mainPowerCssObj.childrenPowAttrs = {};
 								}
 								// Add the child object into the main object
-								mainPowerCssObj.childrenPowAttrs.push(currentPowElement);
+								// Organize it by attribute dataset name
+								const datasetAttrName = asDataSet(currentPowElement.$_pwAttrName);
+								if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName]) {
+									mainPowerCssObj.childrenPowAttrs[datasetAttrName] = {};
+								}
+								// Organize it by id inside attribute dataset name
+								if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id]) {
+									mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = {};
+								}
+								mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
 							}
 						}
 					}
@@ -237,6 +250,8 @@ class PowerDOM {
 		}
 	}
 
+	// This creates the powerDOM tree with all the objects attached to the DOM
+	// It uses the simple elements of _buildTempPowerTree to get only the power elements
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
 		const datasetKey = asDataSet(selector.name);
 		const selectorsSubSet = tempSelectors[attribute][datasetKey];
@@ -258,14 +273,15 @@ class PowerDOM {
 				ctx[attribute][datasetKey][id] = ctx.$pwMain[es6Class](selectorsSubSet[id]);
 			}
 			// Add the same element into a list ordered by id
-			if (!ctx.pwElementsById[id]) {
-				ctx.pwElementsById[id] = {};
+			if (!ctx.allPwElementsById[id]) {
+				ctx.allPwElementsById[id] = {};
 			}
-			ctx.pwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
+			ctx.allPwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
 		}
 	}
 
-	_buildTempPorwerTree(currentNode, ctx) {
+	// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
+	_buildTempPowerTree(currentNode, ctx) {
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
 			for (const data in currentNode.dataset) {
@@ -295,35 +311,13 @@ class PowerDOM {
 			}
 		}
 	}
-
-	// Sweep through each node and pass the node to the callback
-	sweepDOM(entryNode, ctx, callback) {
-		const isNode = !!entryNode && !!entryNode.nodeType;
-		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
-
-		if (isNode && hasChildren) {
-			const nodes = entryNode.childNodes;
-			for (let i=0; i < nodes.length; i++) {
-				const currentNode = nodes[i];
-				const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
-
-				// Call back with the condition to apply any condition
-				callback(currentNode, ctx);
-
-				if(currentNodeHasChindren) {
-					// Recursively sweep through currentNode children
-					this.sweepDOM(currentNode, ctx, callback);
-				}
-			}
-		}
-	}
 }
 
 
-const Unique = { // produce unique IDs
+const _Unique = { // produce unique IDs
 	n: 0,
-	next: () => ++Unique.n,
-	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${Unique.next()}`,
+	next: () => ++_Unique.n,
+	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
 };
 
 
@@ -357,15 +351,9 @@ class PowerUi {
 		}
 
 		this.powerDOM = new PowerDOM(this);
-		this.ui = {};
+		this.menus = this.powerDOM.powerCss.powerMenu;
+		this.mains = this.powerDOM.powerCss.powerMain;
 		this.truth = {};
-	}
-
-	_getMainElementFromChildElement(id, childElement) {
-		let mainElement  = findMainElementIfHave(childElement);
-		if (mainElement) {
-			return mainElement;
-		}
 	}
 
 	injectPwc(item, ctx) {
@@ -417,111 +405,11 @@ class PowerUi {
 }
 
 
-// Abstract class to create menu elements
+// Abstract class to create any power elements
 class _PowerBasicElement {
 	constructor(element) {
 		this.element = element;
 		this._$pwHover = false;
-
-		// // Add all the listners
-		// for (const config of _powAttrsConfig) {
-		// 	if (config.isMain === true) {
-		// 		this._addPowerBlockMainPwHoverListners(config, $pwMain, this);
-		// 	} else {
-		// 		this._addPowerBlockPwHoverListners(config, this);
-		// 	}
-		// }
-	}
-
-	// // THIS
-	// // Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-src-hover
-	// _addPowerBlockPwHoverListners(config, ctx) {
-	// 	// Check if children have elements with the pw-selector, or it the element it self has it
-	// 	if (ctx.element.querySelectorAll(`[${config.name}]`).length || ctx.element.getAttribute(config.name)) {
-	// 		ctx.addEventListener("mouseover", function() {
-	// 			if (!ctx._$pwHover) {
-	// 				ctx._changeNodes(config.name, config.attribute, config.callback || null);
-	// 				ctx._$pwHover = true;
-	// 			}
-	// 		}, false);
-	// 		ctx.addEventListener("mouseout", function() {
-	// 			if (ctx._$pwHover) {
-	// 				ctx._changeNodes(config.defaultSelector, config.attribute);
-	// 				ctx._$pwHover = false;
-	// 			}
-	// 		}, false);
-	// 	}
-	// }
-
-	// // MAIN
-	// // Add addEventListener if there is main and pw hover selector like data-pow-main-src-hover
-	// _addPowerBlockMainPwHoverListners(config, $pwMain, ctx) {
-	// 	// Get only elements with the pw-selector
-	// 	if ($pwMain && ctx.element.querySelectorAll(`[${config.name}]`).length || ctx.element.getAttribute(config.name)) {
-	// 		$pwMain.addEventListener("mouseover", function() {
-	// 			if (ctx._$pwHover === false) {
-	// 				ctx._changeNodes(config.name, config.attribute, config.callback || null);
-	// 			}
-	// 		}, false);
-	// 		$pwMain.addEventListener("mouseout", function() {
-	// 			if (ctx._$pwHover === false) {
-	// 				ctx._changeNodes(config.defaultSelector, config.attribute);
-	// 			}
-	// 		}, false);
-	// 	}
-	// }
-
-	// // If have pw-selectors it replaces the default values with the data in the pw-selector
-	// _changeNodes(selector, attribute, callback) {
-	// 	// Change the element it self if have the selector
-	// 	const selectorValue = this.element.getAttribute(selector);
-	// 	if (selectorValue) {
-	// 		// Replace the attribute value with the data in the selector
-	// 		this.element[attribute] = callback ? callback(this.element, selectorValue) : selectorValue;
-	// 	}
-	// 	// Change any children currentNode
-	// 	const nodes = this.element.querySelectorAll(`[${selector}]`);
-	// 	if (nodes.length > 0) {
-	// 		for (let index = 0; nodes.length != index; index++) {
-	// 			const selectorValue = nodes[index].getAttribute(selector);
-	// 			if (selectorValue) {
-	// 				// Replace the attribute value with the data in the selector
-	// 				nodes[index][attribute] = callback ? callback(nodes[index], selectorValue) : selectorValue;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	get images() {
-		return this.element.getElementsByTagName('IMG');
-	}
-
-	get anchors() {
-		return this.element.getElementsByTagName('A');
-	}
-
-	get icons() {
-		return this.element.getElementsByClassName('power-icon');
-	}
-
-	get label() {
-		const labelElements = this.element.getElementsByClassName('power-label');
-		// the label is the innerText of the menu item or
-		// children element with 'power-label' class selector
-		// If there is no 'power-label' class, assume the label is this.element.innerText
-		return this.element.className.includes('power-label') ?
-			this.element.innerText : (labelElements[0] ? labelElements[0].innerText : this.element.innerText);
-	}
-
-	set label(label) {
-		const labelElements = this.element.getElementsByClassName('power-label');
-		if (this.element.className.includes('power-label')) {
-			this.element.innerText = label;
-		} else if (labelElements[0]) {
-			labelElements[0].innerText = label;
-		} else {
-			this.element.innerText = label;
-		}
 	}
 
 	get id() {
@@ -543,7 +431,6 @@ class PowCssHover extends _PowerBasicElement {
 		super(element);
 		this.$_pwAttrName = 'data-pow-css-hover';
 		this._$pwHover = false;
-		console.log('EU EXISTO!');
 	}
 
 	init() {
@@ -570,41 +457,19 @@ class PowCssHover extends _PowerBasicElement {
 			}
 		}, false);
 	}
-
-	// If have pw-selectors it replaces the default values with the data in the pw-selector
-	_changeNodes(selector, attribute, callback) {
-		// Change the element it self if have the selector
-		const selectorValue = this.element.getAttribute(selector);
-		if (selectorValue) {
-			// Replace the attribute value with the data in the selector
-			this.element[attribute] = callback ? callback(this.element, selectorValue) : selectorValue;
-		}
-		// Change any children currentNode
-		const nodes = this.element.querySelectorAll(`[${selector}]`);
-		if (nodes.length > 0) {
-			for (let index = 0; nodes.length != index; index++) {
-				const selectorValue = nodes[index].getAttribute(selector);
-				if (selectorValue) {
-					// Replace the attribute value with the data in the selector
-					nodes[index][attribute] = callback ? callback(nodes[index], selectorValue) : selectorValue;
-				}
-			}
-		}
-	}
 }
 
 
 class PowerHeading extends _PowerBasicElement {
-	constructor(element, $pwMain) {
-		super(element, $pwMain);
+	constructor(element) {
+		super(element);
 	}
 }
 
 
 class _PowerLinkElement extends _PowerBasicElement {
-	constructor(element, $pwMain) {
-		super(element, $pwMain);
-		const linkSelector = 'power-link';
+	constructor(element) {
+		super(element);
 	}
 
 	// getter for default _PowerLinkElement IMG
@@ -644,9 +509,8 @@ class _PowerLinkElement extends _PowerBasicElement {
 
 
 class PowerItem extends _PowerLinkElement {
-	constructor(element, $pwMain) {
-		super(element, $pwMain);
-		const statusSelector = 'power-status';
+	constructor(element) {
+		super(element);
 	}
 
 	get status() {
@@ -658,8 +522,8 @@ class PowerItem extends _PowerLinkElement {
 
 
 class PowerBrand extends _PowerLinkElement {
-	constructor(element, $pwMain) {
-		super(element, $pwMain);
+	constructor(element) {
+		super(element);
 		this.id = this.element.getAttribute('id');
 		const self = this;
 		// $pwMain._mouseover.subscribe(function (ctx) {
@@ -672,14 +536,13 @@ class PowerBrand extends _PowerLinkElement {
 class PowerMenu {
 	constructor(menu) {
 		this.element = menu;
-		this.items = [];
-		this.itemsById = {};
-		this.headings = [];
-		this.headingsById = {};
-		this.id = this.element.getAttribute('id');
-		this._mouseover = new Event(this.id);
+		this.items = {};
+		this.headings = {};
+		this._id = this.element.getAttribute('id');
+		this._events = {};
+		// this._events.mouseover = new Event(this.id);
 
-		const ctx = this;
+		// const ctx = this;
 		// this.addEventListener('mouseover', function() {
 		// 	ctx._mouseover.broadcast(ctx);
 		// }, false);
@@ -688,45 +551,9 @@ class PowerMenu {
 		// 	console.log('aaa', ctx.id, ctx.id);
 		// });
 
-		// Call newPowerItem allows any extended class implement it on
-		// custom PowerItem
-		const itemsElements = menu.getElementsByClassName('power-item');
-		for (const menuItem of itemsElements) {
-			const newItem = this.newPowerItem(menuItem);
-			if (newItem.id) {
-				this.itemsById[newItem.id] = newItem;
-			}
-			this.items.push(newItem);
-		}
-
-		// Call newPowerHeading allows any extended class implement it on
-		// custom PowerHeading
-		const headingsElements = this.element.getElementsByClassName('power-heading');
-		for (const menuHeading of headingsElements) {
-			const newHeading = this.newPowerHeading(menuHeading);
-			if (newHeading.id) {
-				this.headingsById[newHeading.id] = newHeading;
-			}
-			this.headings.push(newHeading);
-		}
-
-		// Call newPowerBrand allows any extended class implement it on
-		// custom PowerBrand
-		this.newPowerBrand();
-	}
-
-	newPowerBrand() {
-		const selector = 'power-brand';
-		const elements = this.element.getElementsByClassName(selector);
-		this.brand =  elements[0] ? new PowerBrand(elements[0], this) : null;
-	}
-
-	newPowerHeading(menuHeading) {
-		return new PowerHeading(menuHeading, this);
-	}
-
-	newPowerItem(menuItem) {
-		return new PowerItem(menuItem, this);
+		// addEventListener(event, callback) {
+		// 	this.element.addEventListener(event, callback.bind(this, this));
+		// }
 	}
 
 	get id() {
@@ -747,42 +574,6 @@ class PowerMenu {
 }
 
 
-class PowerMenus {
-	constructor() {
-		this.menusIds = [];
-		// Call newPowerMenu allows any extended class implement it on
-		// custom PowerMenu
-		const menus = document.getElementsByClassName('power-menu');
-		for (const menu of menus) {
-			this[menu.getAttribute('id')] = this.newPowerMenu(menu);
-			this.menusIds.push(menu.getAttribute('id'));
-		}
-	}
-
-	newPowerMenu(menu) {
-		return new PowerMenu(menu);
-	}
-
-	menuById(id) {
-		return this[id];
-	}
-
-	// // Search for a menu block in all menus
-	// blockById(id) {
-	// 	for (const menuId of this.menusIds) {
-	// 		const menuBlock = _menuBlockById(id, this[menuId]);
-	// 		if (menuBlock) {
-	// 			return menuBlock;
-	// 		}
-	// 	}
-	// }
-
-	addEventListener(event, callback) {
-		this.element.addEventListener(event, callback.bind(this, this));
-	}
-}
-
-
 class PwcPity extends PowCssHover {
 	constructor(element) {
 		super(element);
@@ -791,36 +582,29 @@ class PwcPity extends PowCssHover {
 		console.log('pwcPity is live!', this.$_pwAttrName);
 	}
 }
-// class TesteMenu extends PowerMenu {
+const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
+// TODO: testeExtendName is to find a way to modularize multiple exstensions
+// Make a way to this works as links of a chain
+// const testeExtendName = function () {return PowerMenu;};
+// class TesteMenu extends testeExtendName {
 // 	constructor(menu, info) {
 // 		super(menu);
 // 		this.testMenu = true;
 // 		this.descri = info.descri;
 // 	}
 // }
-// class TesteMenus extends PowerMenus {
-// 	constructor() {
-// 		super();
-// 		this.testMenus = true;
-// 		this.descri = 'Esse é o menu de testes';
-// 	}
 
+// class TesteUi extends PowerUi {
+// 	constructor() {
+// 		super(inject);
+// 		this.fake = {};
+// 	}
 // 	newPowerMenu(menu) {
 // 		const info = {descri: 'Descrição do menu'};
 // 		return new TesteMenu(menu, info);
 // 	}
 // }
-// class TesteUi extends PowerUi {
-// 	constructor() {
-// 		super();
-// 		this.fake = {};
-// 	}
-// 	newPowerMenus() {
-// 		return new TesteMenus();
-// 	}
-// }
-// let app = new TesteUi();
-const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
+// let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
 function changeMenu() {
