@@ -54,10 +54,6 @@ class _PowerBasicElement {
 	set id(id) {
 		_setId(this, id);
 	}
-
-	addEventListener(event, callback) {
-		this.element.addEventListener(event, callback.bind(this, this));
-	}
 }
 
 
@@ -87,16 +83,14 @@ class _PwBasicEvents extends _PowerBasicElement {
 
 
 class _basicPwHover extends _PwBasicEvents {
-	constructor(element, target, pwAttrName) {
+	constructor(element) {
 		super(element);
 		this._$pwActive = false;
-		this.$_pwAttrName = pwAttrName;
-		this._target = target;
 	}
 
 	init() {
 		if (!this.$_pwDefaultValue) {
-			this.$_pwDefaultValue =  this.element[this._target];
+			this.$_pwDefaultValue =  this.element[this.$_target];
 		}
 		if (!this.$_pwHoverValue) {
 			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
@@ -108,60 +102,107 @@ class _basicPwHover extends _PwBasicEvents {
 
 	mouseover() {
 		if (!this._$pwActive) {
-			this.element[this._target] = this.$_pwHoverValue;
+			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
-			this.element[this._target] = this.$_pwDefaultValue || '';
+			this.element[this.$_target] = this.$_pwDefaultValue || '';
 			this._$pwActive = false;
 		}
+	}
+}
 
+
+class _basicPwMainHover extends _PwBasicEvents {
+	constructor(element, target, pwAttrName) {
+		super(element, target, pwAttrName);
+	}
+
+	init() {
+		if (!this.$_pwDefaultValue) {
+			this.$_pwDefaultValue =  this.element[this.$_target];
+		}
+		if (!this.$_pwHoverValue) {
+			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
+		}
+
+		this.subscribe({event: 'mouseover', fn: this.mouseover});
+		this.subscribe({event: 'mouseout', fn: this.mouseout});
+	}
+
+	// Atach the listner to que main element
+	addEventListener(event, callback, useCapture) {
+		this.$pwMain.element.addEventListener(event, callback, useCapture);
+	}
+	mouseover() {
+		if (!this._$pwActive) {
+			this.element[this.$_target] = this.$_pwHoverValue;
+			this._$pwActive = true;
+		}
+	}
+
+	mouseout() {
+		if (this._$pwActive) {
+			this.element[this.$_target] = this.$_pwDefaultValue || '';
+			this._$pwActive = false;
+		}
+	}
+}
+
+
+class PowMainCssHover extends _basicPwMainHover {
+	constructor(element) {
+		console.log('main attr');
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-css-hover';
+		this.$_target = 'className';
 	}
 }
 
 
 class PowCssHover extends _basicPwHover {
 	constructor(element) {
-		super(element, 'className', 'data-pow-css-hover');
+		super(element);
+		this.$_pwAttrName = 'data-pow-css-hover';
+		this.$_target = 'className';
 	}
 }
 
+class PowSrcHover extends _basicPwHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-src-hover';
+		this.$_target = 'src';
+	}
+}
 
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
-	{defaultSelector: 'data-pow-src-default',
-		name: 'data-pow-src-hover', attribute: 'src',
+	{name: 'data-pow-src-hover', attribute: 'src',
+		callback: function(element) {return new PowSrcHover(element);} // TODO
+	},
+	{name: 'data-pow-main-src-hover', attribute: 'src', isMain: true,
 		callback: function(element) {return new PowCssHover(element);} // TODO
 	},
-	{defaultSelector: 'data-pow-src-default',
-		name: 'data-pow-main-src-hover', attribute: 'src', isMain: true,
-		callback: function(element) {return new PowCssHover(element);} // TODO
-	},
-	{defaultSelector: 'data-pow-css-default',
-		name: 'data-pow-css-hover', attribute: 'className',
+	{name: 'data-pow-css-hover', attribute: 'className',
 		callback: function(element) {return new PowCssHover(element);}
 	},
-	{defaultSelector: 'data-pow-css-default',
-		name: 'data-pow-main-css-hover', attribute: 'className', isMain: true,
+	{name: 'data-pow-main-css-hover', attribute: 'className', isMain: true,
+		callback: function(element) {return new PowMainCssHover(element);} // TODO
+	},
+	{name: 'data-pow-css-hover-add', attribute: 'className',
 		callback: function(element) {return new PowCssHover(element);} // TODO
 	},
-	{defaultSelector: 'data-pow-css-default',
-		name: 'data-pow-css-hover-add', attribute: 'className',
+	{name: 'data-pow-main-css-hover-add', attribute: 'className', isMain: true,
 		callback: function(element) {return new PowCssHover(element);} // TODO
 	},
-	{defaultSelector: 'data-pow-css-default',
-		name: 'data-pow-main-css-hover-add', attribute: 'className', isMain: true,
+	{name: 'data-pow-css-hover-remove', attribute: 'className',
 		callback: function(element) {return new PowCssHover(element);} // TODO
 	},
-	{defaultSelector: 'data-pow-css-default',
-		name: 'data-pow-css-hover-remove', attribute: 'className',
-		callback: function(element) {return new PowCssHover(element);} // TODO
-	},
-	{defaultSelector: 'data-pow-css-default',
-		name: 'data-pow-main-css-hover-remove', attribute: 'className', isMain: true,
+	{name: 'data-pow-main-css-hover-remove', attribute: 'className', isMain: true,
 		callback: function(element) {return new PowCssHover(element);} // TODO
 	},
 ];
@@ -583,21 +624,6 @@ class PowerMenu {
 		this.$pwRoot = $pwRoot;
 		this.element = menu;
 		this._id = this.element.getAttribute('id');
-		this._events = {};
-		// this._events.mouseover = new Event(this.id);
-
-		// const ctx = this;
-		// this.addEventListener('mouseover', function() {
-		// 	ctx._mouseover.broadcast(ctx);
-		// }, false);
-
-		// this._mouseover.subscribe(function (ctx) {
-		// 	console.log('aaa', ctx.id, ctx.id);
-		// });
-
-		// addEventListener(event, callback) {
-		// 	this.element.addEventListener(event, callback.bind(this, this));
-		// }
 	}
 
 	init() {
