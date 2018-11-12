@@ -39,6 +39,97 @@ function powerClassAsCamelCase(className) {
 	return `${className.split('-')[0]}${className.split('-')[1].charAt(0).toUpperCase()}${className.split('-')[1].slice(1)}`;
 }
 
+
+// Abstract class to create any power elements
+class _PowerBasicElement {
+	constructor(element) {
+		this.element = element;
+		this._$pwHover = false;
+	}
+
+	get id() {
+		return _getId(this);
+	}
+
+	set id(id) {
+		_setId(this, id);
+	}
+
+	addEventListener(event, callback) {
+		this.element.addEventListener(event, callback.bind(this, this));
+	}
+}
+
+
+class _PwBasicEvents extends _PowerBasicElement {
+	constructor(element) {
+		super(element);
+		this._events = {};
+
+	}
+
+	subscribe({event, fn, useCapture=false, ...params}) {
+		const ctx = this;
+		if (!this._events[event]) {
+			this._events[event] = new Event(this.id);
+			this.addEventListener(event, function(domEvent) {
+				ctx._events[event].broadcast(ctx, domEvent, params);
+			}, useCapture || false);
+		}
+
+		this._events[event].subscribe(fn, ctx, params);
+	}
+
+	addEventListener(event, callback, useCapture) {
+		this.element.addEventListener(event, callback, useCapture);
+	}
+}
+
+
+class _basicPwHover extends _PwBasicEvents {
+	constructor(element, target, pwAttrName) {
+		super(element);
+		this._$pwActive = false;
+		this.$_pwAttrName = pwAttrName;
+		this._target = target;
+	}
+
+	init() {
+		if (!this.$_pwDefaultValue) {
+			this.$_pwDefaultValue =  this.element[this._target];
+		}
+		if (!this.$_pwHoverValue) {
+			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
+		}
+
+		this.subscribe({event: 'mouseover', fn: this.mouseover});
+		this.subscribe({event: 'mouseout', fn: this.mouseout});
+	}
+
+	mouseover() {
+		if (!this._$pwActive) {
+			this.element[this._target] = this.$_pwHoverValue;
+			this._$pwActive = true;
+		}
+	}
+
+	mouseout() {
+		if (this._$pwActive) {
+			this.element[this._target] = this.$_pwDefaultValue || '';
+			this._$pwActive = false;
+		}
+
+	}
+}
+
+
+class PowCssHover extends _basicPwHover {
+	constructor(element) {
+		super(element, 'className', 'data-pow-css-hover');
+	}
+}
+
+
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
 	{defaultSelector: 'data-pow-src-default',
@@ -410,61 +501,6 @@ class PowerUi {
 
 	_powerAttrs(element) {
 		return new []
-	}
-}
-
-
-// Abstract class to create any power elements
-class _PowerBasicElement {
-	constructor(element) {
-		this.element = element;
-		this._$pwHover = false;
-	}
-
-	get id() {
-		return _getId(this);
-	}
-
-	set id(id) {
-		_setId(this, id);
-	}
-
-	addEventListener(event, callback) {
-		this.element.addEventListener(event, callback.bind(this, this));
-	}
-}
-
-
-class PowCssHover extends _PowerBasicElement {
-	constructor(element) {
-		super(element);
-		this.$_pwAttrName = 'data-pow-css-hover';
-		this._$pwHover = false;
-	}
-
-	init() {
-		const ctx = this;
-
-		if (!this.$_pwDefaultValue) {
-			this.$_pwDefaultValue =  this.element.className;
-		}
-		if (!this.$_pwHoverValue) {
-			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
-		}
-		// Add pw-default attribute and addEventListener if there is pw hover selector like data-pow-src-hover
-		this.addEventListener("mouseover", function() {
-			if (!ctx._$pwHover) {
-				this.element.className = ctx.$_pwHoverValue;
-				console.log('hover ', ctx.$_pwHoverValue);
-				ctx._$pwHover = true;
-			}
-		}, false);
-		this.addEventListener("mouseout", function() {
-			if (ctx._$pwHover) {
-				this.element.className = ctx.$_pwDefaultValue || '';
-				ctx._$pwHover = false;
-			}
-		}, false);
 	}
 }
 
