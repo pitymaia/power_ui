@@ -1,17 +1,8 @@
 // Layout, design and user interface framework in ES6
 'use strict';
 
-
-function _getId(ctx) {
-	return ctx.element.getAttribute('id') || null;
-}
-
-function _setId(ctx, id) {
-	ctx.element.setAttribute('id', id);
-}
-
 function getIdAndCreateIfDontHave(currentNode) {
-	let currentId = currentNode.getAttribute('id');
+	let currentId = currentNode.id;
 	if (!currentId) {
 		currentId = _Unique.domID(currentNode.tagName.toLowerCase());
 	}
@@ -44,35 +35,38 @@ function powerClassAsCamelCase(className) {
 class _PowerBasicElement {
 	constructor(element) {
 		this.element = element;
-		this._$pwHover = false;
+		this._$pwActive = false;
 	}
 
 	get id() {
-		return _getId(this);
+		return this.element.id || null;
 	}
 
 	set id(id) {
-		_setId(this, id);
+		this.element.id = id;
 	}
 }
 
 
-class _PwBasicEvents extends _PowerBasicElement {
+class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
 		this._events = {};
 
 	}
 
+	// If the event doesn't exists create it and subscribe
+	// If it already exists just subscribe
 	subscribe({event, fn, useCapture=false, ...params}) {
 		const ctx = this;
+		// Create the event
 		if (!this._events[event]) {
 			this._events[event] = new Event(this.id);
 			this.addEventListener(event, function(domEvent) {
 				ctx._events[event].broadcast(ctx, domEvent, params);
 			}, useCapture || false);
 		}
-
+		// Subscribe to the
 		this._events[event].subscribe(fn, ctx, params);
 	}
 
@@ -82,7 +76,7 @@ class _PwBasicEvents extends _PowerBasicElement {
 }
 
 
-class _basicPwHover extends _PwBasicEvents {
+class _pwBasicHover extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 		this._$pwActive = false;
@@ -116,54 +110,44 @@ class _basicPwHover extends _PwBasicEvents {
 }
 
 
-class _basicPwMainHover extends _PwBasicEvents {
+class _pwMainBasicHover extends _pwBasicHover {
 	constructor(element, target, pwAttrName) {
 		super(element, target, pwAttrName);
 	}
 
-	init() {
-		if (!this.$_pwDefaultValue) {
-			this.$_pwDefaultValue =  this.element[this.$_target];
-		}
-		if (!this.$_pwHoverValue) {
-			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
-		}
-
-		this.subscribe({event: 'mouseover', fn: this.mouseover});
-		this.subscribe({event: 'mouseout', fn: this.mouseout});
-	}
-
-	// Atach the listner to que main element
+	// Atach the listner/Event to que main element
 	addEventListener(event, callback, useCapture) {
 		this.$pwMain.element.addEventListener(event, callback, useCapture);
 	}
+}
+
+
+class PowMainCssHover extends _pwMainBasicHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-css-hover';
+		this.$_target = 'className';
+	}
+
 	mouseover() {
-		if (!this._$pwActive) {
+		if (!this._$pwActive && !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
 		}
 	}
 
 	mouseout() {
-		if (this._$pwActive) {
+		if (this._$pwActive && !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
+		}
+		if (this._$pwActive) {
 			this._$pwActive = false;
 		}
 	}
 }
 
 
-class PowMainCssHover extends _basicPwMainHover {
-	constructor(element) {
-		console.log('main attr');
-		super(element);
-		this.$_pwAttrName = 'data-pow-main-css-hover';
-		this.$_target = 'className';
-	}
-}
-
-
-class PowCssHover extends _basicPwHover {
+class PowCssHover extends _pwBasicHover {
 	constructor(element) {
 		super(element);
 		this.$_pwAttrName = 'data-pow-css-hover';
@@ -171,7 +155,7 @@ class PowCssHover extends _basicPwHover {
 	}
 }
 
-class PowSrcHover extends _basicPwHover {
+class PowSrcHover extends _pwBasicHover {
 	constructor(element) {
 		super(element);
 		this.$_pwAttrName = 'data-pow-src-hover';
