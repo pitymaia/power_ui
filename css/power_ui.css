@@ -38,3 +38,11 @@
 .pw-green, .pw-green * {
     color: green;
 }
+
+.pw-font-big {
+    font-size: 1.5em;
+}
+
+.pw-underlined {
+    text-decoration: underline;
+}

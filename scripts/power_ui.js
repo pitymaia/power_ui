@@ -130,14 +130,14 @@ class PowMainCssHover extends _pwMainBasicHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+		if (!this._$pwActive && !this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
 		}
 	}
 
 	mouseout() {
-		if (this._$pwActive && !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+		if (this._$pwActive && (!this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive)) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
 		}
 		if (this._$pwActive) {
@@ -163,6 +163,78 @@ class PowSrcHover extends _pwBasicHover {
 	}
 }
 
+class PowCssHoverAdd extends PowCssHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-css-hover-add';
+		this.$_target = 'className';
+	}
+
+	mouseover() {
+		if (!this._$pwActive) {
+			const cssSelectors = this.$_pwHoverValue.split(' ');
+			for (const css of cssSelectors) {
+				this.element.classList.add(css);
+			}
+			this._$pwActive = true;
+		}
+	}
+}
+
+class PowMainCssHoverAdd extends PowMainCssHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-css-hover-add';
+		this.$_target = 'className';
+	}
+
+	mouseover() {
+		if (!this._$pwActive || !this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+			const cssSelectors = this.$_pwHoverValue.split(' ');
+			for (const css of cssSelectors) {
+				this.element.classList.add(css);
+			}
+			this._$pwActive = true;
+		}
+	}
+}
+
+class PowCssHoverRemove extends PowCssHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-css-hover-remove';
+		this.$_target = 'className';
+	}
+
+	mouseover() {
+		if (!this._$pwActive) {
+			const cssSelectors = this.$_pwHoverValue.split(' ');
+			for (const css of cssSelectors) {
+				this.element.classList.remove(css);
+			}
+			this._$pwActive = true;
+		}
+	}
+}
+
+class PowMainCssHoverRemove extends PowMainCssHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-css-hover-remove';
+		this.$_target = 'className';
+	}
+
+	mouseover() {
+		if (!this._$pwActive || !this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+			const cssSelectors = this.$_pwHoverValue.split(' ');
+			for (const css of cssSelectors) {
+				this.element.classList.remove(css);
+			}
+			this._$pwActive = true;
+		}
+	}
+}
+
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
 	{name: 'data-pow-src-hover', attribute: 'src',
@@ -178,16 +250,16 @@ const _powAttrsConfig = [
 		callback: function(element) {return new PowMainCssHover(element);} // TODO
 	},
 	{name: 'data-pow-css-hover-add', attribute: 'className',
-		callback: function(element) {return new PowCssHover(element);} // TODO
+		callback: function(element) {return new PowCssHoverAdd(element);} // TODO
 	},
 	{name: 'data-pow-main-css-hover-add', attribute: 'className', isMain: true,
-		callback: function(element) {return new PowCssHover(element);} // TODO
+		callback: function(element) {return new PowMainCssHoverAdd(element);} // TODO
 	},
 	{name: 'data-pow-css-hover-remove', attribute: 'className',
-		callback: function(element) {return new PowCssHover(element);} // TODO
+		callback: function(element) {return new PowCssHoverRemove(element);} // TODO
 	},
 	{name: 'data-pow-main-css-hover-remove', attribute: 'className', isMain: true,
-		callback: function(element) {return new PowCssHover(element);} // TODO
+		callback: function(element) {return new PowMainCssHoverRemove(element);} // TODO
 	},
 ];
 
@@ -422,7 +494,7 @@ class PowerDOM {
 				}
 			}
 		}
-		// Check for power css class selectors
+		// Check for power css class selectors like "power-menu" or "power-label"
 		if (currentNode.className && currentNode.className.includes('power-')) {
 			for (const selector of _powerCssConfig) {
 				if (currentNode.className.includes(selector.name)) {
