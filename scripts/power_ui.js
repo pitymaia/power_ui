@@ -95,9 +95,10 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 	}
 
 	mouseover() {
-		if (!this._$pwActive) {
+		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
+			this.$pwRoot._priorityPwEnabled[this.id] = true;
 		}
 	}
 
@@ -105,6 +106,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
 			this._$pwActive = false;
+			this.$pwRoot._priorityPwEnabled[this.id] = false;
 		}
 	}
 }
@@ -130,18 +132,18 @@ class PowMainCssHover extends _pwMainBasicHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
+			this.$pwRoot._priorityPwEnabled[this.id] = true;
 		}
 	}
 
 	mouseout() {
-		if (this._$pwActive && (!this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive)) {
-			this.element[this.$_target] = this.$_pwDefaultValue || '';
-		}
 		if (this._$pwActive) {
 			this._$pwActive = false;
+			this.$pwRoot._priorityPwEnabled[this.id] = false;
+			this.element[this.$_target] = this.$_pwDefaultValue || '';
 		}
 	}
 }
@@ -177,6 +179,7 @@ class PowCssHoverAdd extends PowCssHover {
 				this.element.classList.add(css);
 			}
 			this._$pwActive = true;
+			this.$pwRoot._priorityPwEnabled[this.id] = true;
 		}
 	}
 }
@@ -189,7 +192,7 @@ class PowMainCssHoverAdd extends PowMainCssHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive || !this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
 			const cssSelectors = this.$_pwHoverValue.split(' ');
 			for (const css of cssSelectors) {
 				this.element.classList.add(css);
@@ -213,6 +216,7 @@ class PowCssHoverRemove extends PowCssHover {
 				this.element.classList.remove(css);
 			}
 			this._$pwActive = true;
+			this.$pwRoot._priorityPwEnabled[this.id] = true;
 		}
 	}
 }
@@ -225,7 +229,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive || !this.siblings || !this.siblings.powCssHover || !this.siblings.powCssHover._$pwActive) {
+		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
 			const cssSelectors = this.$_pwHoverValue.split(' ');
 			for (const css of cssSelectors) {
 				this.element.classList.remove(css);
@@ -281,8 +285,8 @@ const _powerCssConfig = [
 
 
 class PowerDOM {
-	constructor($pwMain) {
-		this.$pwMain = $pwMain;
+	constructor($pwRoot) {
+		this.$pwRoot = $pwRoot;
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
@@ -455,15 +459,15 @@ class PowerDOM {
 
 			// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
 			// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-			const es6Class = !!ctx.$pwMain[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+			const es6Class = !!ctx.$pwRoot[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
 			if (es6Class === 'powerAttrs') {
 				// Add into a list ordered by attribute name
 				ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
 			} else {
 				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
 				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
-				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$pwMain._powerMenu(topmenuElement);
-				ctx[attribute][datasetKey][id] = ctx.$pwMain[es6Class](selectorsSubSet[id]);
+				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$pwRoot._powerMenu(topmenuElement);
+				ctx[attribute][datasetKey][id] = ctx.$pwRoot[es6Class](selectorsSubSet[id]);
 			}
 			// Add the same element into a list ordered by id
 			if (!ctx.allPwElementsById[id]) {
@@ -473,6 +477,7 @@ class PowerDOM {
 			// Add to any element some desired variables
 			ctx.allPwElementsById[id][datasetKey]._id = id;
 			ctx.allPwElementsById[id][datasetKey].$_pwDatasetName = datasetKey;
+			ctx.allPwElementsById[id][datasetKey].$pwRoot = ctx.$pwRoot;
 		}
 	}
 
@@ -551,6 +556,7 @@ class PowerUi {
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
 		this.truth = {};
+		this._priorityPwEnabled = {};
 	}
 
 	injectPwc(item, ctx) {
