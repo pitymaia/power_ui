@@ -89,16 +89,16 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 		if (!this.$_pwHoverValue) {
 			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
 		}
-
 		this.subscribe({event: 'mouseover', fn: this.mouseover});
 		this.subscribe({event: 'mouseout', fn: this.mouseout});
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
-			this.$pwRoot._priorityPwEnabled[this.id] = true;
+			// This flag allows hover attrs have priority over attrs like the main attrs
+			this.$shared._priorityActive = true;
 		}
 	}
 
@@ -106,7 +106,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
 			this._$pwActive = false;
-			this.$pwRoot._priorityPwEnabled[this.id] = false;
+			this.$shared._priorityActive = false;
 		}
 	}
 }
@@ -132,17 +132,17 @@ class PowMainCssHover extends _pwMainBasicHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
-			this.$pwRoot._priorityPwEnabled[this.id] = true;
+			this.$shared._priorityActive = true;
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
 			this._$pwActive = false;
-			this.$pwRoot._priorityPwEnabled[this.id] = false;
+			this.$shared._priorityActive = false;
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
 		}
 	}
@@ -165,6 +165,14 @@ class PowSrcHover extends _pwBasicHover {
 	}
 }
 
+class PowMainSrcHover extends _pwMainBasicHover {
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-src-hover';
+		this.$_target = 'src';
+	}
+}
+
 class PowCssHoverAdd extends PowCssHover {
 	constructor(element) {
 		super(element);
@@ -179,7 +187,7 @@ class PowCssHoverAdd extends PowCssHover {
 				this.element.classList.add(css);
 			}
 			this._$pwActive = true;
-			this.$pwRoot._priorityPwEnabled[this.id] = true;
+			this.$shared._priorityActive = true;
 		}
 	}
 }
@@ -192,7 +200,7 @@ class PowMainCssHoverAdd extends PowMainCssHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
 			const cssSelectors = this.$_pwHoverValue.split(' ');
 			for (const css of cssSelectors) {
 				this.element.classList.add(css);
@@ -216,7 +224,7 @@ class PowCssHoverRemove extends PowCssHover {
 				this.element.classList.remove(css);
 			}
 			this._$pwActive = true;
-			this.$pwRoot._priorityPwEnabled[this.id] = true;
+			this.$shared._priorityActive = true;
 		}
 	}
 }
@@ -229,7 +237,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.$pwRoot._priorityPwEnabled[this.id]) {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
 			const cssSelectors = this.$_pwHoverValue.split(' ');
 			for (const css of cssSelectors) {
 				this.element.classList.remove(css);
@@ -241,29 +249,29 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
-	{name: 'data-pow-src-hover', attribute: 'src',
-		callback: function(element) {return new PowSrcHover(element);} // TODO
+	{name: 'data-pow-src-hover',
+		callback: function(element) {return new PowSrcHover(element);}
 	},
-	{name: 'data-pow-main-src-hover', attribute: 'src', isMain: true,
-		callback: function(element) {return new PowCssHover(element);} // TODO
+	{name: 'data-pow-main-src-hover', isMain: true,
+		callback: function(element) {return new PowMainSrcHover(element);}
 	},
-	{name: 'data-pow-css-hover', attribute: 'className',
+	{name: 'data-pow-css-hover',
 		callback: function(element) {return new PowCssHover(element);}
 	},
-	{name: 'data-pow-main-css-hover', attribute: 'className', isMain: true,
-		callback: function(element) {return new PowMainCssHover(element);} // TODO
+	{name: 'data-pow-main-css-hover', isMain: true,
+		callback: function(element) {return new PowMainCssHover(element);}
 	},
-	{name: 'data-pow-css-hover-add', attribute: 'className',
-		callback: function(element) {return new PowCssHoverAdd(element);} // TODO
+	{name: 'data-pow-css-hover-add',
+		callback: function(element) {return new PowCssHoverAdd(element);}
 	},
-	{name: 'data-pow-main-css-hover-add', attribute: 'className', isMain: true,
-		callback: function(element) {return new PowMainCssHoverAdd(element);} // TODO
+	{name: 'data-pow-main-css-hover-add', isMain: true,
+		callback: function(element) {return new PowMainCssHoverAdd(element);}
 	},
-	{name: 'data-pow-css-hover-remove', attribute: 'className',
-		callback: function(element) {return new PowCssHoverRemove(element);} // TODO
+	{name: 'data-pow-css-hover-remove',
+		callback: function(element) {return new PowCssHoverRemove(element);}
 	},
-	{name: 'data-pow-main-css-hover-remove', attribute: 'className', isMain: true,
-		callback: function(element) {return new PowMainCssHoverRemove(element);} // TODO
+	{name: 'data-pow-main-css-hover-remove', isMain: true,
+		callback: function(element) {return new PowMainCssHoverRemove(element);}
 	},
 ];
 
@@ -285,8 +293,8 @@ const _powerCssConfig = [
 
 
 class PowerDOM {
-	constructor($pwRoot) {
-		this.$pwRoot = $pwRoot;
+	constructor($powerUi) {
+		this.$powerUi = $powerUi;
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
@@ -389,13 +397,17 @@ class PowerDOM {
 			// Also call init(if true or else)
 			if (Object.keys(this.allPwElementsById[id]).length > 1) {
 				for (const attr in this.allPwElementsById[id]) {
-					if (!this.allPwElementsById[id][attr].siblings) {
-						this.allPwElementsById[id][attr].siblings = {};
-					}
-					// To avoid add this element as a sibling of it self we need iterate over attrs again
-					for (const siblingAttr in this.allPwElementsById[id]) {
-						if (siblingAttr !== attr) {
-							this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
+					// Don't add siblings to $shared
+					if (attr != '$shared') {
+						if (!this.allPwElementsById[id][attr].siblings) {
+							this.allPwElementsById[id][attr].siblings = {};
+						}
+						// To avoid add this element as a sibling of it self we need iterate over attrs again
+						for (const siblingAttr in this.allPwElementsById[id]) {
+							// Also don't add $shared siblings
+							if (siblingAttr !== attr && siblingAttr != '$shared') {
+								this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
+							}
 						}
 					}
 				}
@@ -459,15 +471,15 @@ class PowerDOM {
 
 			// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
 			// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-			const es6Class = !!ctx.$pwRoot[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+			const es6Class = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
 			if (es6Class === 'powerAttrs') {
 				// Add into a list ordered by attribute name
 				ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
 			} else {
 				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
 				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
-				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$pwRoot._powerMenu(topmenuElement);
-				ctx[attribute][datasetKey][id] = ctx.$pwRoot[es6Class](selectorsSubSet[id]);
+				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
+				ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
 			}
 			// Add the same element into a list ordered by id
 			if (!ctx.allPwElementsById[id]) {
@@ -477,7 +489,13 @@ class PowerDOM {
 			// Add to any element some desired variables
 			ctx.allPwElementsById[id][datasetKey]._id = id;
 			ctx.allPwElementsById[id][datasetKey].$_pwDatasetName = datasetKey;
-			ctx.allPwElementsById[id][datasetKey].$pwRoot = ctx.$pwRoot;
+			ctx.allPwElementsById[id][datasetKey].$powerUi = ctx.$powerUi;
+			// Create a $shared scope for each element
+			if (!ctx.allPwElementsById[id].$shared) {
+				ctx.allPwElementsById[id].$shared = {};
+			}
+			// add the shered scope to all elements
+			ctx.allPwElementsById[id][datasetKey].$shared = ctx.allPwElementsById[id].$shared;
 		}
 	}
 
@@ -556,7 +574,6 @@ class PowerUi {
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
 		this.truth = {};
-		this._priorityPwEnabled = {};
 	}
 
 	injectPwc(item, ctx) {
@@ -682,8 +699,8 @@ class PowerBrand extends _PowerLinkElement {
 
 
 class PowerMenu {
-	constructor(menu, $pwRoot) {
-		this.$pwRoot = $pwRoot;
+	constructor(menu, $powerUi) {
+		this.$powerUi = $powerUi;
 		this.element = menu;
 		this._id = this.element.getAttribute('id');
 	}
@@ -701,7 +718,7 @@ class PowerMenu {
 				}
 				// find the camelCase name of the className
 				const camelCaseName = powerClassAsCamelCase(className);
-				this[keyName][element.id] = this.$pwRoot.powerDOM.powerCss[camelCaseName][element.id];
+				this[keyName][element.id] = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
 			}
 		}
 	}
