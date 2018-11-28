@@ -1,6 +1,45 @@
 // Layout, design and user interface framework in ES6
 'use strict';
 
+function splitStringWithUrl(string) {
+	const expression = new RegExp(/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\b[.:][a-z0-9@:%_\+.~#?&//=]{2,256}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi);
+	// Hold all the matched URLs
+	const urls = string.match(expression) || [];
+	const finalUrls = [];
+	// The final parts to return
+	const stringParts = [];
+	if (urls.length) {
+		// Create the url list of dicts with the href with http://
+		for (let count = 0; count < urls.length; count++) {
+			let newUrl = urls[count];
+			if (!newUrl.includes('http://') && !newUrl.includes('https://')) {
+				newUrl = `http:\/\/${newUrl}`;
+			}
+			finalUrls.push({string: urls[count], href: newUrl});
+
+			string = string.replace(urls[count], '«url»');
+		}
+		// Hold all string parts without URLs
+		const splitedString = string.split('«url»');
+		// Create the final array with all url parts with the flag isUrl = true
+		for (let count = 0; count < splitedString.length; count++) {
+			// If item is undefined replace it with the URL
+			if (splitedString[count]) {
+				stringParts.push({string: splitedString[count]});
+			}
+
+			if (finalUrls[0]) {
+				stringParts.push(finalUrls[0]);
+				// Remove this url from array
+				finalUrls.shift();
+			}
+		}
+		return stringParts;
+	} else {
+		return [{string: string}];
+	}
+}
+
 function getIdAndCreateIfDontHave(currentNode) {
 	let currentId = currentNode.id;
 	if (!currentId) {
