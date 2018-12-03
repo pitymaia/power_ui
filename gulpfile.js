@@ -33,7 +33,12 @@ gulp.task('build', function (done) {
 		'before': '<!-- Porwer UI demo -->$',
 		'lineBefore': doNotEditThisFile
 	})).pipe(gulp.dest('app/'));
-	gulp.src('source/scripts/*.js').pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
+	gulp.src([
+		'source/scripts/power_core.js', // Order who goes first
+		'source/scripts/pow_attrs.js',
+		'source/scripts/power_ui.js',
+		'source/scripts/*.js'
+	]).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
 	gulp.src('source/css/*.css').pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
 
 	reloadTask(done);
