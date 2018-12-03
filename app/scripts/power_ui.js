@@ -527,7 +527,7 @@ class PowerDOM {
 			ctx.allPwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
 			// Add to any element some desired variables
 			ctx.allPwElementsById[id][datasetKey]._id = id;
-			ctx.allPwElementsById[id][datasetKey].$_pwDatasetName = datasetKey;
+			ctx.allPwElementsById[id][datasetKey].$_pwName = datasetKey;
 			ctx.allPwElementsById[id][datasetKey].$powerUi = ctx.$powerUi;
 			// Create a $shared scope for each element
 			if (!ctx.allPwElementsById[id].$shared) {
@@ -769,10 +769,6 @@ class PowerMenu {
 	set id(id) {
 		_setId(this, id);
 	}
-
-	// blockById(id) {
-	// 	return _menuBlockById(id, this);
-	// }
 }
 
 
