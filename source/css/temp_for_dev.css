@@ -1,0 +1,53 @@
+/*TEMP*/
+
+.pw-blue, .pw-blue * {
+    color: blue;
+}
+
+.pw-yellow, .pw-yellow * {
+    color: yellow;
+}
+
+.pw-red, .pw-red * {
+    color: red;
+}
+
+.pw-orange, .pw-orange * {
+    color: orange;
+}
+
+.pw-green, .pw-green * {
+    color: green;
+}
+
+.pw-font-big {
+    font-size: 1.5em;
+}
+
+.pw-underlined {
+    text-decoration: underline;
+}
+
+.color1 {
+    color: yellow !important;
+    text-shadow: 2px 2px 10px blue;
+}
+.color2 {
+    color: orange !important;
+    text-shadow: 2px 2px 10px yellow;
+}
+
+#another {
+    padding: .5em;
+    max-width: 30em;
+    border: 5px double orange;
+    border-radius: 0 20px 0 20px;
+    box-shadow: 5px 5px 20px 0 blue;
+    background: #f8f9f0;
+}
+body {
+    background-image: url(/images/tile.jpg);
+    background-repeat: no-repeat;
+    background-position: 90% 90%;
+    background-attachment: fixed;
+}

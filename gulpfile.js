@@ -53,10 +53,12 @@ gulp.task('browser-sync', function() {
         startPath: '/',
     });
 
-    gulp.watch("source/scripts/*.js").on('change', browserSync.reload);
-    gulp.watch("source/css/*.css").on('change', browserSync.reload);
-    gulp.watch("source/templates/*.*").on('change', browserSync.reload);
-    // Reload 'build' on html change
+    // gulp.watch("source/scripts/*.js").on('change', browserSync.reload);
+    // gulp.watch("source/css/*.css").on('change', browserSync.reload);
+    // gulp.watch("source/templates/*.*").on('change', browserSync.reload);
+    // Reload 'build' on files change
+    gulp.watch("source/scripts/*.js", ['build']);
+    gulp.watch("source/css/*.css", ['build']);
     gulp.watch("source/templates/*.*", ['build']);
 });
 
