@@ -43,7 +43,7 @@
     border: 5px double orange;
     border-radius: 0 20px 0 20px;
     box-shadow: 5px 5px 20px 0 blue;
-    background: #f8f9f0;
+    background: linear-gradient(to left, white 5%, #ADD8E6 30%, white 40%, #ADD8E6 50%, white 70%, #ADD8E6 90%, white 95%);
 }
 body {
     background-image: url(/images/tile.jpg);
