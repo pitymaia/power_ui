@@ -7,8 +7,8 @@
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
   </head>
-  <body class="some-class power-main">
-    <div>
+  <body class="power-main">
+    <div class="back">
         <!-- Menu -->
         <div id="top" class="power-menu navbar navbar-expand-lg navbar-light bg-light" data-pwc-teste="remova isso">
             <a class="power-heading power-brand navbar-brand" id="first-brand"><span class="power-label">BRAND</span>
@@ -20,19 +20,26 @@
                      height="25" />
             </a>
             <ul class="power-list navbar-nav">
-                <li class="power-item nav-item" id="news">
-                    <a class="nav-link power-link">
+                <li class="power-item nav-item dropdown" id="news">
+                    <a class="nav-link power-link dropdown-toggle" data-toggle="dropdown">
                         <span class="power-icon fa fa-android"
                               data-pow-main-css-hover="fa fa-blind"
                               data-pow-css-hover="fa fa-bitcoin">
                         </span>
-                    <span class="power-label">01News</span> <span class="power-status fa fa-angle-right" data-pow-main-css-hover="power-icon fa fa-arrow-right"></span>
+                        <span class="power-label">01News</span> <span class="power-status fa fa-angle-right" data-pow-main-css-hover="power-icon fa fa-arrow-right"></span>
                     </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Link 1</a>
+                        <a class="dropdown-item" href="#">Link 2</a>
+                        <a class="dropdown-item" href="#">Link 3</a>
+                    </div>
                 </li>
-                <li class="power-item nav-item power-link" id="sports">
-                    <a class="nav-link" href="http://libertyweb.net"
+                <li class="power-item nav-item power-link dropdown" id="sports">
+                    <a class="nav-link dropdown-toggle"
                        data-pow-main-css-hover-add="pw-blue"
-                       target="_blank">
+                       target="_blank"
+                       data-toggle="dropdown"
+                       >
                         <span class="power-icon fa fa-blind"> </span>
                         <span class="power-label">02Sports
                         </span>
@@ -50,17 +57,29 @@
                         height="25" />
                         <span class="power-status fa fa-angle-right"></span>
                     </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Link 1</a>
+                        <a class="dropdown-item" href="#">Link 2</a>
+                        <a class="dropdown-item" href="#">Link 3</a>
+                    </div>
                 </li>
                 <!-- data-pow-main-css-hover-remove="pw-orange" -->
-                <li class="power-item nav-item pw-orange pw-underlined"
-                    data-pow-main-css-hover-remove="pw-orange pw-underlined"
-                    data-pow-main-css-hover-add="pw-blue"
-                    data-pow-css-hover-remove="pw-orange"
-                    data-pow-css-hover-add="pw-yellow pw-font-big"
+                <li class="power-item nav-item pw-orange pw-underlined dropdown"
                     id="finance">
-                    <a class="nav-link power-link"><span class="power-icon fa fa-car"> </span> <span class="power-label">03Finance</span>
-                     <span class="power-status fa fa-angle-right"></span>
+                    <a class="nav-link power-link dropdown-toggle" data-toggle="dropdown"
+                        data-pow-main-css-hover-remove="pw-orange pw-underlined"
+                        data-pow-main-css-hover-add="pw-blue"
+                        data-pow-css-hover-remove="pw-orange"
+                        data-pow-css-hover-add="pw-yellow pw-font-big"
+                    >
+                        <span class="power-icon fa fa-car"> </span> <span class="power-label">03Finance</span>
+                        <span class="power-status fa fa-angle-right"></span>
                     </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Link 1</a>
+                        <a class="dropdown-item" href="#">Link 2</a>
+                        <a class="dropdown-item" href="#">Link 3</a>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -118,12 +137,34 @@
         </nav>
         <br />
         <div class="power-main">
-            <div data-pwc-pity="pw-orange" data-pow-main-css-hover="pw-blue" data-pwc-teste="um teste">Botões</div>
+            <div data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões</div>
             <button onclick="changeMenu()">Change</button>
             <button onclick="showMenuLabel()">Show</button>
         </div>
     </div>
-    <div class="pw-red" data-pwc-pity="pw-yellow">Eu sou mais bonito que o Brad...</div>
+    <section>
+        <header>
+            Aqui temos o topo do layout
+        </header>
+        <aside class="asidea" data-pow-css-hover-add="pw-yellow">
+            Eu sou mais bonito que o Brad...
+        </aside>
+        <article>
+            <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
+            <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
+            <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
+            <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
+        </article>
+        <aside class="asideb" data-pow-css-hover-add="pw-yellow">
+            Eu sou mais bonito que o Brad...
+        </aside>
+        <footer>
+            Esse aqui é footer.
+        </footer>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script type="text/javascript" src="scripts/power_ui.js"></script>
   </body>
 </html>
