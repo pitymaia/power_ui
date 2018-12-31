@@ -1,3 +1,53 @@
+// Replace a value form an attribute on mouseover some element and undo on mouseout
+class _pwBasicHover extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+    }
+
+    init() {
+        if (!this.$_pwDefaultValue) {
+            this.$_pwDefaultValue =  this.element[this.$_target];
+        }
+        if (!this.$_pwHoverValue) {
+            this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
+        }
+        this.subscribe({event: 'mouseover', fn: this.mouseover});
+        this.subscribe({event: 'mouseout', fn: this.mouseout});
+    }
+
+    mouseover() {
+        if (!this._$pwActive && !this.$shared._priorityActive) {
+            this.element[this.$_target] = this.$_pwHoverValue;
+            this._$pwActive = true;
+            // This flag allows hover attrs have priority over attrs like the main attrs
+            this.$shared._priorityActive = true;
+        }
+    }
+
+    mouseout() {
+        if (this._$pwActive) {
+            this.element[this.$_target] = this.$_pwDefaultValue || '';
+            this._$pwActive = false;
+            this.$shared._priorityActive = false;
+        }
+    }
+}
+
+
+// Replace a value form an attribute on mouseover some MAIN element and undo on mouseout
+class _pwMainBasicHover extends _pwBasicHover {
+    constructor(element, target, pwAttrName) {
+        super(element, target, pwAttrName);
+    }
+
+    // Atach the listner/Event to que main element
+    addEventListener(event, callback, useCapture) {
+        this.$pwMain.element.addEventListener(event, callback, useCapture);
+    }
+}
+
+
 // Add a list of CSS classes selectors on mouseover some element and remove it on mouseout
 class _pwBasicCssHover extends _PowerBasicElementWithEvents {
     constructor(element) {
@@ -38,7 +88,7 @@ class _pwBasicCssHover extends _PowerBasicElementWithEvents {
 }
 
 // Add to some element a list of CSS classes selectors on mouseover some MAIN element and remove it on mouseout
-class _pwMainBasicHover extends _pwBasicCssHover {
+class _pwMainBasicCssHover extends _pwBasicCssHover {
     constructor(element, target, pwAttrName) {
         super(element, target, pwAttrName);
     }
@@ -50,7 +100,7 @@ class _pwMainBasicHover extends _pwBasicCssHover {
 }
 
 
-class PowMainCssHover extends _pwMainBasicHover {
+class PowMainCssHover extends _pwMainBasicCssHover {
     constructor(element) {
         super(element);
         this.$_pwAttrName = 'data-pow-main-css-hover';
@@ -88,7 +138,7 @@ class PowCssHover extends _pwBasicCssHover {
 }
 
 
-class PowSrcHover extends _pwBasicCssHover {
+class PowSrcHover extends _pwBasicHover {
     constructor(element) {
         super(element);
         this.$_pwAttrName = 'data-pow-src-hover';
