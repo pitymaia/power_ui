@@ -566,6 +566,7 @@ class PowSrcHover extends _pwBasicHover {
     constructor(element) {
         super(element);
         this.$_pwAttrName = 'data-pow-src-hover';
+        this.$_target = 'src';
     }
 }
 
@@ -574,6 +575,7 @@ class PowMainSrcHover extends _pwMainBasicHover {
     constructor(element) {
         super(element);
         this.$_pwAttrName = 'data-pow-main-src-hover';
+        this.$_target = 'src';
     }
 }
 
