@@ -472,11 +472,12 @@ class _pwMainBasicHover extends _pwBasicHover {
 }
 
 
-// Add a list of CSS classes selectors on mouseover some element and remove it on mouseout
-class _pwBasicCssHover extends _PowerBasicElementWithEvents {
+// Add to some element a list of CSS classes selectors on mouseover some element and remove it on mouseout
+class PowCssHover extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
         this._$pwActive = false;
+        this.$_pwAttrName = 'data-pow-css-hover';
     }
 
     init() {
@@ -511,20 +512,9 @@ class _pwBasicCssHover extends _PowerBasicElementWithEvents {
     }
 }
 
+
 // Add to some element a list of CSS classes selectors on mouseover some MAIN element and remove it on mouseout
-class _pwMainBasicCssHover extends _pwBasicCssHover {
-    constructor(element, target, pwAttrName) {
-        super(element, target, pwAttrName);
-    }
-
-    // Atach the listner/Event to que main element
-    addEventListener(event, callback, useCapture) {
-        this.$pwMain.element.addEventListener(event, callback, useCapture);
-    }
-}
-
-
-class PowMainCssHover extends _pwMainBasicCssHover {
+class PowMainCssHover extends PowCssHover {
     constructor(element) {
         super(element);
         this.$_pwAttrName = 'data-pow-main-css-hover';
@@ -551,13 +541,10 @@ class PowMainCssHover extends _pwMainBasicCssHover {
             }
         }
     }
-}
 
-
-class PowCssHover extends _pwBasicCssHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pow-css-hover';
+    // Atach the listner/Event to que main element
+    addEventListener(event, callback, useCapture) {
+        this.$pwMain.element.addEventListener(event, callback, useCapture);
     }
 }
 
@@ -595,6 +582,15 @@ class PowCssHoverRemove extends PowCssHover {
             this.$shared._priorityActive = true;
         }
     }
+    mouseout() {
+        if (!this._$pwActive) {
+            for (const css of this.$_pwHoverValues) {
+                this.element.classList.add(css);
+            }
+            this._$pwActive = false;
+            this.$shared._priorityActive = false;
+        }
+    }
 }
 
 
@@ -610,6 +606,14 @@ class PowMainCssHoverRemove extends PowMainCssHover {
                 this.element.classList.remove(css);
             }
             this._$pwActive = true;
+        }
+    }
+    mouseout() {
+        if (!this._$pwActive && !this.$shared._priorityActive) {
+            for (const css of this.$_pwHoverValues) {
+                this.element.classList.add(css);
+            }
+            this._$pwActive = false;
         }
     }
 }
