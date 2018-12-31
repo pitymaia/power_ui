@@ -160,12 +160,6 @@ const _powAttrsConfig = [
     {name: 'data-pow-main-css-hover', isMain: true,
         callback: function(element) {return new PowMainCssHover(element);}
     },
-    {name: 'data-pow-css-hover-add',
-        callback: function(element) {return new PowCssHoverAdd(element);}
-    },
-    {name: 'data-pow-main-css-hover-add', isMain: true,
-        callback: function(element) {return new PowMainCssHoverAdd(element);}
-    },
     {name: 'data-pow-css-hover-remove',
         callback: function(element) {return new PowCssHoverRemove(element);}
     },
