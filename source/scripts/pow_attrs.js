@@ -1,4 +1,4 @@
-// Replace a value form an attribute on mouseover some element and undo on mouseout
+// Replace a value form an attribute when is mouseover some element and undo on mouseout
 class _pwBasicHover extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
@@ -35,7 +35,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 }
 
 
-// Replace a value form an attribute on mouseover some MAIN element and undo on mouseout
+// Replace a value form an attribute when is mouseover some MAIN element and undo on mouseout
 class _pwMainBasicHover extends _pwBasicHover {
     constructor(element, target, pwAttrName) {
         super(element, target, pwAttrName);
@@ -48,7 +48,7 @@ class _pwMainBasicHover extends _pwBasicHover {
 }
 
 
-// Add to some element a list of CSS classes selectors on mouseover some element and remove it on mouseout
+// Add to some element a list of CSS classes selectors when is mouseover some element and remove it on mouseout
 class PowCssHover extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
@@ -89,7 +89,7 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 }
 
 
-// Add to some element a list of CSS classes selectors on mouseover some MAIN element and remove it on mouseout
+// Add to some element a list of CSS classes selectors when is mouseover some MAIN element and remove it on mouseout
 class PowMainCssHover extends PowCssHover {
     constructor(element) {
         super(element);
@@ -125,6 +125,7 @@ class PowMainCssHover extends PowCssHover {
 }
 
 
+// Replace the value of 'src' attribute when is mouseover some element and undo on mouseout
 class PowSrcHover extends _pwBasicHover {
     constructor(element) {
         super(element);
@@ -134,6 +135,7 @@ class PowSrcHover extends _pwBasicHover {
 }
 
 
+// Replace the value of 'src' attribute when is mouseover some MAIN element and undo on mouseout
 class PowMainSrcHover extends _pwMainBasicHover {
     constructor(element) {
         super(element);
@@ -143,6 +145,7 @@ class PowMainSrcHover extends _pwMainBasicHover {
 }
 
 
+// Remove the a CSS list when mouseover some element and undo on mouseout
 class PowCssHoverRemove extends PowCssHover {
     constructor(element) {
         super(element);
@@ -170,6 +173,7 @@ class PowCssHoverRemove extends PowCssHover {
 }
 
 
+// Remove the a CSS list when mouseover some MAIN element and undo on mouseout
 class PowMainCssHoverRemove extends PowMainCssHover {
     constructor(element) {
         super(element);
