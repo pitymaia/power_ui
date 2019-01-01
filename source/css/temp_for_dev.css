@@ -13,11 +13,11 @@
 }
 
 .pw-orange, .pw-orange * {
-    color: orange;
+    color: orange !important;
 }
 
 .pw-green, .pw-green * {
-    color: green;
+    color: green !important;
 }
 
 .pw-font-big {

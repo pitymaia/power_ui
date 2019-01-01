@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="css/power_ui.css" />
     <link rel="stylesheet" type="text/css" href="vendors/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="vendors/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="vendors/pure-min.css" />
   </head>
   <body class="power-main">
     <div class="back">
@@ -87,12 +88,27 @@
         <h1 class="color1" data-pow-css-hover="color2">Hello, Power UI!</h1>
         <p data-pwc-down-hover="fake" data-pow-main-css-hover="pw-blue" data-pow-css-hover="pw-orange">Algum conteúdo</p>
 
-        <div id="bottom" class="power-menu pw-horizontal pw-design">
-            <span class="power-heading power-brand" data-pow-css-hover="pw-orange">MEIO</span>
-            <ul class="power-list pw-design">
-                <li class="power-item power-link power-label" data-pow-css-hover="pw-orange">04Noticias</li>
-                <li class="power-item power-link power-label" data-pow-main-css-hover="pw-blue" id="esporte">05Esporte</li>
-                <li class="power-item power-link" id="algum-id-maluco"><a class="power-label" href="#">06Finanças</a></li>
+        <div id="meio" class="power-menu pure-menu pure-menu-horizontal">
+            <a href="#" class="pure-menu-heading pure-menu-link" data-pow-main-css-hover="pw-yellow" data-pow-css-hover="pw-orange">PURE</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item" data-pow-css-hover="pw-orange"><a href="#" class="pure-menu-link">04Noticias</a></li>
+                <li class="pure-menu-item" data-pow-main-css-hover="pw-blue" id="esporte"><a href="#" class="pure-menu-link">05Esporte</a></li>
+                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover" id="algum-id-maluco">
+                  <a href="#" id="menuLink1" class="pure-menu-link">Contact</a>
+                    <ul class="pure-menu-children">
+                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Email</a></li>
+                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Twitter</a></li>
+                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Tumblr Blog</a></li>
+                        <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                          <a href="#" id="menuLink2" class="pure-menu-link">More</a>
+                            <ul class="pure-menu-children">
+                                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Foo</a></li>
+                                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Bar</a></li>
+                                <li class="pure-menu-item"><a href="#" class="pure-menu-link">I'm Batman</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <nav id="another" class="power-menu pw-horizontal pw-design">
@@ -161,9 +177,10 @@
             Esse aqui é footer.
         </footer>
     </section>
-    <script src="vendors/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="vendors/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="vendors/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="vendors/jquery-3.2.1.slim.min.js"></script>
+    <script src="vendors/popper.min.js"></script>
+    <script src="vendors/bootstrap.min.js"></script>
+    <script src="vendors/pure-menus.js"></script>
     <script type="text/javascript" src="scripts/power_ui.js"></script>
   </body>
 </html>
