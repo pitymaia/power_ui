@@ -11,7 +11,7 @@
   <body class="power-main">
     <div class="back">
         <!-- Menu -->
-        <div id="top" class="power-menu navbar navbar-expand-lg navbar-light bg-light" data-pwc-teste="remova isso">
+        <div id="bootstrap" class="power-menu navbar navbar-expand-lg navbar-light bg-light" data-pwc-teste="remova isso">
             <a class="power-heading power-brand navbar-brand" id="first-brand"><span class="power-label">BRAND</span>
                 <img data-pow-src-hover="vendors/imgs/Australia-Flag-icon.png"
                      data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
@@ -88,7 +88,7 @@
         <h1 class="color1" data-pow-css-hover="color2">Hello, Power UI!</h1>
         <p data-pwc-down-hover="fake" data-pow-main-css-hover="pw-blue" data-pow-css-hover="pw-orange">Algum conteúdo</p>
 
-        <div id="meio" class="power-menu pure-menu pure-menu-horizontal">
+        <div id="purecss" class="power-menu pure-menu pure-menu-horizontal">
             <a href="#" class="pure-menu-heading pure-menu-link" data-pow-main-css-hover="pw-yellow" data-pow-css-hover="pw-orange">PURE</a>
             <ul class="pure-menu-list">
                 <li class="pure-menu-item" data-pow-css-hover="pw-orange"><a href="#" class="pure-menu-link">04Noticias</a></li>
@@ -111,7 +111,7 @@
                 </li>
             </ul>
         </div>
-        <nav id="another" class="power-menu pw-horizontal pw-design">
+        <nav id="powerui" class="power-menu pw-horizontal pw-design">
             <span class="power-heading power-brand" id="outro">OUTRO</span>
             <a class="power-item power-link"
                data-pow-main-css-hover="pw-blue power-item power-link"
@@ -129,7 +129,7 @@
                 <span class="power-label">Menos</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
-            <a class="power-item power-link"
+            <a class="power-item"
                data-pow-main-css-hover="pw-yellow power-item power-link"
                data-pow-css-hover="pw-green power-item power-link"
                id="muito">
@@ -137,18 +137,28 @@
                 <span class="power-label">Muito</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
-            <a class="power-item power-link"
-               data-pow-main-css-hover="pw-orange power-item power-link"
-               data-pow-css-hover="pw-green power-item power-link"
-               id="pouco">
-                <img data-pow-src-hover="vendors/imgs/atom-icon.png"
-                     data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
-                     src="vendors/imgs/gimp-icon.png"
-                     width="25"
-                     height="25" />
+            <nav id="pouco"
+                 class="power-dropdown"
+                 data-pow-main-css-hover="pw-orange power-item power-link"
+                 data-pow-css-hover="pw-green power-item power-link">
+               <img class="power-label"
+                    data-pow-src-hover="vendors/imgs/atom-icon.png"
+                    data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
+                    src="vendors/imgs/gimp-icon.png"
+                    width="25"
+                    height="25" />
                 <span class="power-label">Pouco</span>
-                 <span class="power-status fa fa-angle-right"></span>
-            </a>
+                <span class="power-status fa fa-angle-right"></span>
+                <a href="#" class="power-item">Email</a>
+                <a href="#" class="power-item">Twitter</a>
+                <a href="#" class="power-item">Tumblr Blog</a>
+                <nav id="more" class="power-dropdown">
+                    <a href="#" class="power-label">More</a>
+                    <a href="#" class="power-item">Foo</a>
+                    <a href="#" class="power-item">Bar</a>
+                    <a href="#" class="power-item">I'm Batman</a>
+                </nav>
+            </nav>
         </nav>
         <br />
         <div class="power-main">

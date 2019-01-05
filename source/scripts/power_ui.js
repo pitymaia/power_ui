@@ -38,6 +38,10 @@ class PowerUi {
 		return new PowerItem(element, this);
 	}
 
+	_powerDropdown(element) {
+		return new PowerItem(element, this);
+	}
+
 	_powerLink(element) { // TODO need classes?
 		return new _PowerBasicElement(element, this);
 	}

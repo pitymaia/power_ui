@@ -176,6 +176,7 @@ const _powerCssConfig = [
     {name: 'power-brand'},
     {name: 'power-heading'},
     {name: 'power-item'},
+    {name: 'power-dropdown'},
     {name: 'power-link'},
     {name: 'power-status'},
     {name: 'power-icon'},
@@ -326,7 +327,7 @@ class PowerDOM {
                             if(mainPowerCssObj) {
                                 // Add the main object into the child object
                                 currentPowElement.$pwMain = mainPowerCssObj;
-                                // create the obj to hold the children of dont have it
+                                // create the obj to hold the children if dont have it
                                 if (mainPowerCssObj.childrenPowAttrs === undefined) {
                                     mainPowerCssObj.childrenPowAttrs = {};
                                 }
