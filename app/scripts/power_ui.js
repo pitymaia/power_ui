@@ -777,6 +777,8 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 		}
 	}
 
+	// The toggle "this" is the label element "this"
+	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
 		if (this.dropdown.element.classList.contains('power-hide')) {
 			this.dropdown.element.classList.remove('power-hide');
