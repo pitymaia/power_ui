@@ -89,49 +89,49 @@
         <p data-pwc-down-hover="fake" data-pow-main-css-hover="pw-blue" data-pow-css-hover="pw-orange">Algum conteúdo</p>
 
         <div id="purecss" class="power-menu pure-menu pure-menu-horizontal">
-            <a href="#" class="pure-menu-heading pure-menu-link" data-pow-main-css-hover="pw-yellow" data-pow-css-hover="pw-orange">PURE</a>
+            <a class="pure-menu-heading pure-menu-link" data-pow-main-css-hover="pw-yellow" data-pow-css-hover="pw-orange">PURE</a>
             <ul class="pure-menu-list">
-                <li class="pure-menu-item" data-pow-css-hover="pw-orange"><a href="#" class="pure-menu-link">04Noticias</a></li>
-                <li class="pure-menu-item" data-pow-main-css-hover="pw-blue" id="esporte"><a href="#" class="pure-menu-link">05Esporte</a></li>
+                <li class="pure-menu-item" data-pow-css-hover="pw-orange"><a class="pure-menu-link">04Noticias</a></li>
+                <li class="pure-menu-item" data-pow-main-css-hover="pw-blue" id="esporte"><a class="pure-menu-link">05Esporte</a></li>
                 <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover" id="algum-id-maluco">
-                  <a href="#" id="menuLink1" class="pure-menu-link">Contact</a>
+                  <a id="menuLink1" class="pure-menu-link">Contact</a>
                     <ul class="pure-menu-children">
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Email</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Twitter</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Tumblr Blog</a></li>
+                        <li class="pure-menu-item"><a class="pure-menu-link">Email</a></li>
+                        <li class="pure-menu-item"><a class="pure-menu-link">Twitter</a></li>
+                        <li class="pure-menu-item"><a class="pure-menu-link">Tumblr Blog</a></li>
                         <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-                          <a href="#" id="menuLink2" class="pure-menu-link">More</a>
+                          <a id="menuLink2" class="pure-menu-link">More</a>
                             <ul class="pure-menu-children">
-                                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Foo</a></li>
-                                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Bar</a></li>
-                                <li class="pure-menu-item"><a href="#" class="pure-menu-link">I'm Batman</a></li>
+                                <li class="pure-menu-item"><a class="pure-menu-link">Foo</a></li>
+                                <li class="pure-menu-item"><a class="pure-menu-link">Bar</a></li>
+                                <li class="pure-menu-item"><a class="pure-menu-link">I'm Batman</a></li>
                             </ul>
                         </li>
                     </ul>
                 </li>
             </ul>
         </div>
-        <nav id="powerui" class="power-menu pw-horizontal pw-design">
+        <nav id="powerui" class="power-menu pow-horizontal pow-design another">
             <span class="power-heading power-brand" id="outro">OUTRO</span>
             <a class="power-item power-link"
-               data-pow-main-css-hover="pw-blue power-item power-link"
-               data-pow-css-hover="pw-green power-item power-link"
+               data-pow-main-css-hover="pw-blue"
+               data-pow-css-hover="pw-green"
                id="mais">
                 <i class="power-icon icon-small fa fa-car"></i>
                 <span class="power-label">Mais</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
             <a class="power-item power-link"
-               data-pow-main-css-hover="pw-red power-item power-link"
-               data-pow-css-hover="pw-green power-item power-link"
+               data-pow-main-css-hover="pw-red"
+               data-pow-css-hover="pw-green"
                id="menos">
                 <i class="power-icon icon-small fa fa-car"></i>
                 <span class="power-label">Menos</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
             <a class="power-item"
-               data-pow-main-css-hover="pw-yellow power-item power-link"
-               data-pow-css-hover="pw-green power-item power-link"
+               data-pow-main-css-hover="pw-yellow"
+               data-pow-css-hover="pw-green"
                id="muito">
                 <i class="power-icon icon-small fa fa-car"></i>
                 <span class="power-label">Muito</span>
@@ -139,25 +139,33 @@
             </a>
             <nav id="pouco"
                  class="power-dropdown"
-                 data-pow-main-css-hover="pw-orange power-item power-link"
-                 data-pow-css-hover="pw-green power-item power-link">
-               <img class="power-label"
+                 data-pow-main-css-hover="pw-orange"
+                 data-pow-css-hover="pw-green">
+                <img class="power-label" id="pouco_img"
                     data-pow-src-hover="vendors/imgs/atom-icon.png"
                     data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
                     src="vendors/imgs/gimp-icon.png"
                     width="25"
                     height="25" />
-                <span class="power-label">Pouco</span>
-                <span class="power-status fa fa-angle-right"></span>
-                <a href="#" class="power-item">Email</a>
-                <a href="#" class="power-item">Twitter</a>
-                <a href="#" class="power-item">Tumblr Blog</a>
+                <span class="power-label" id="pouco_label">Pouco</span>
+                <span class="power-status power-label fa fa-angle-right"></span>
+                <a class="power-item">Email</a>
+                <a class="power-item">Twitter</a>
+                <a class="power-item">Tumblr Blog</a>
                 <nav id="more" class="power-dropdown">
-                    <a href="#" class="power-label">More</a>
-                    <a href="#" class="power-item">Foo</a>
-                    <a href="#" class="power-item">Bar</a>
-                    <a href="#" class="power-item">I'm Batman</a>
+                    <a class="power-label"><i class="power-icon icon-small fa fa-car"></i> More</a>
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                    <nav id="final" class="power-dropdown">
+                        <a class="power-label"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
+                        <a class="power-item">Foo</a>
+                        <a class="power-item">Bar</a>
+                        <a class="power-item">I'm Batman</a>
+                    </nav>
                 </nav>
+                <a class="power-item">Other Blog</a>
+                <a class="power-item">News</a>
             </nav>
         </nav>
         <br />

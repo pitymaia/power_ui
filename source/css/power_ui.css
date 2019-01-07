@@ -12,7 +12,32 @@
     display: inline;
 }
 
-.pw-design .power-item {
+.power-label, .power-item {
     cursor: pointer;
 }
 /* Menu end*/
+
+.power-dropdown.power-hide > .power-item,  .power-dropdown.power-hide > .power-dropdown {
+    display: none !important;
+}
+
+.power-dropdown.power-show > .power-item, .power-dropdown.power-show > .power-dropdown {
+    display: block !important;
+    white-space:nowrap;
+}
+
+.power-dropdown.power-show {
+    border-style: solid;
+    border-width: 1px;
+    position: absolute;
+    background-color: white;
+}
+
+.power-dropdown > .power-dropdown {
+    margin-left: 4em;
+}
+
+.power-item, .power-dropdown {
+    display: inline-block !important;
+    padding: .5em !important;
+}

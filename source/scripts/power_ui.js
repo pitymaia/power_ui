@@ -38,8 +38,12 @@ class PowerUi {
 		return new PowerItem(element, this);
 	}
 
+	_powerLabel(element) {
+		return new PowerLabel(element, this);
+	}
+
 	_powerDropdown(element) {
-		return new PowerItem(element, this);
+		return new PowerDropdown(element, this);
 	}
 
 	_powerLink(element) { // TODO need classes?
@@ -111,6 +115,50 @@ class _PowerLinkElement extends _PowerBasicElement {
 class PowerItem extends _PowerLinkElement {
 	constructor(element) {
 		super(element);
+	}
+}
+
+
+class PowerLabel extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+	}
+}
+
+
+class PowerDropdown extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		this.element.classList.add('power-hide');
+		const children = this.element.children;
+		const labels = [];
+		for (const child of children) {
+			if (child.classList.contains('power-label')) {
+				if (!this.labels) this.labels = {};
+				if (child.id) {
+					const label = this.$powerUi.powerDOM.allPwElementsById[child.id].powerLabel;
+					// Add the dropdown to the label
+					label.dropdown = this;
+					// Add the label to the dropdown
+					this.labels[child.id] = label;
+					// Subscribe click event on label element
+					label.subscribe({event: 'click', fn: this.toggle});
+				}
+			}
+		}
+	}
+
+	toggle() {
+		if (this.dropdown.element.classList.contains('power-hide')) {
+			this.dropdown.element.classList.remove('power-hide');
+			this.dropdown.element.classList.add('power-show');
+		} else {
+			this.dropdown.element.classList.remove('power-show');
+			this.dropdown.element.classList.add('power-hide');
+		}
 	}
 
 	get status() {

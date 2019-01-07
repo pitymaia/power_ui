@@ -176,6 +176,7 @@ const _powerCssConfig = [
     {name: 'power-brand'},
     {name: 'power-heading'},
     {name: 'power-item'},
+    {name: 'power-label'},
     {name: 'power-dropdown'},
     {name: 'power-link'},
     {name: 'power-status'},
