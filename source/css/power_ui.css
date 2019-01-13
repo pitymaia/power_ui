@@ -33,7 +33,7 @@
     background-color: white;
 }
 
-.power-dropdown > .power-dropdown {
+.power-dropdown > .power-dropdown.power-show {
     margin-left: 4em;
 }
 

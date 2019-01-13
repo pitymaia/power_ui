@@ -151,15 +151,39 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 		}
 	}
 
-	// The toggle "this" is the label element "this"
+	clickOutside(event) {
+		const targetElement = document.getElementById(this.dropdown.id);
+		let clickedElement = event.target; // clicked element
+
+		do {
+			if (clickedElement == targetElement) {
+				// This is a click inside. Do nothing, just return
+				return;
+			}
+			// Go up the DOM
+			clickedElement = clickedElement.parentNode;
+		} while (clickedElement);
+
+		// This is a click outside, so close the dropdown
+		// Before call the toggle function we need pass the label element "this"
+		const toggle = this.dropdown.toggle.bind(this);
+		toggle();
+	}
+
+	// The toggle "this" is in reality the "this" of the label element
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
 		if (this.dropdown.element.classList.contains('power-hide')) {
 			this.dropdown.element.classList.remove('power-hide');
 			this.dropdown.element.classList.add('power-show');
+			// Add the listener to capture when click outside and register the function to allow remove it
+			this.dropdown._clickOutside = this.dropdown.clickOutside.bind(this);
+			document.addEventListener("click", this.dropdown._clickOutside);
 		} else {
 			this.dropdown.element.classList.remove('power-show');
 			this.dropdown.element.classList.add('power-hide');
+			// Remove the listener to detect if click outside
+			document.removeEventListener("click", this.dropdown._clickOutside);
 		}
 	}
 
