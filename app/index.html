@@ -121,14 +121,30 @@
                 <span class="power-label">Mais</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
-            <a class="power-item power-link"
-               data-pow-main-css-hover="pw-red"
-               data-pow-css-hover="pw-green"
-               id="menos">
-                <i class="power-icon icon-small fa fa-car"></i>
-                <span class="power-label">Menos</span>
-                 <span class="power-status fa fa-angle-right"></span>
-            </a>
+            <nav id="menos"
+                 class="power-dropdown"
+                 data-pow-main-css-hover="pw-red"
+                 data-pow-css-hover="pw-green">
+                <span class="power-label" id="novo">Menos</span>
+                <span class="power-status power-label fa fa-angle-right"></span>
+                <a class="power-item">Email</a>
+                <a class="power-item">Twitter</a>
+                <a class="power-item">Tumblr Blog</a>
+                <nav id="mores" class="power-dropdown">
+                    <a class="power-label"><i class="power-icon icon-small fa fa-car"></i> More</a>
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                    <nav id="finales" class="power-dropdown">
+                        <a class="power-label"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
+                        <a class="power-item">Foo</a>
+                        <a class="power-item">Bar</a>
+                        <a class="power-item">I'm Batman</a>
+                    </nav>
+                </nav>
+                <a class="power-item">Other Blog</a>
+                <a class="power-item">News</a>
+            </nav>
             <a class="power-item"
                data-pow-main-css-hover="pw-yellow"
                data-pow-css-hover="pw-green"
