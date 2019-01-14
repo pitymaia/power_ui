@@ -123,6 +123,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 
     }
 
+    // This is the normal subscribe for custom events
     // If the event doesn't exists create it and subscribe
     // If it already exists just subscribe
     subscribe({event, fn, useCapture=false, ...params}) {
@@ -130,15 +131,29 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
         // Create the event
         if (!this._events[event]) {
             this._events[event] = new Event(this.id);
-            this.addEventListener(event, function(domEvent) {
-                ctx._events[event].broadcast(ctx, domEvent, params);
-            }, useCapture || false);
         }
-        // Subscribe to the
+        // Subscribe to the element
         this._events[event].subscribe(fn, ctx, params);
     }
 
-    addEventListener(event, callback, useCapture) {
+    // This is a subscribe for native envents that broadcast when the event is dispached
+    // If the event doesn't exists create it and subscribe
+    // If it already exists just subscribe
+    nativeSubscribe({event, fn, useCapture=false, ...params}) {
+        const ctx = this;
+        // Create the event
+        if (!this._events[event]) {
+            this._events[event] = new Event(this.id);
+            // This is the listener/broadcast for the native events
+            this.addEventListener(event, function(domEvent) {
+                ctx._events[event].broadcast(ctx, domEvent, params);
+            }, useCapture);
+        }
+        // Subscribe to the element
+        this._events[event].subscribe(fn, ctx, params);
+    }
+
+    addEventListener(event, callback, useCapture=false) {
         this.element.addEventListener(event, callback, useCapture);
     }
 }
@@ -438,8 +453,8 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
         if (!this.$_pwHoverValue) {
             this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
         }
-        this.subscribe({event: 'mouseover', fn: this.mouseover});
-        this.subscribe({event: 'mouseout', fn: this.mouseout});
+        this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
+        this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
     }
 
     mouseover() {
@@ -486,8 +501,8 @@ class PowCssHover extends _PowerBasicElementWithEvents {
         if (!this.$_pwHoverValues) {
             this.$_pwHoverValues = this.element.getAttribute(this.$_pwAttrName).split(' ') || [];
         }
-        this.subscribe({event: 'mouseover', fn: this.mouseover});
-        this.subscribe({event: 'mouseout', fn: this.mouseout});
+        this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
+        this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
     }
 
     mouseover() {
@@ -770,8 +785,8 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 					label.dropdown = this;
 					// Add the label to the dropdown
 					this.labels[child.id] = label;
-					// Subscribe click event on label element
-					label.subscribe({event: 'click', fn: this.toggle});
+					// nativeSubscribe click event on label element
+					label.nativeSubscribe({event: 'click', fn: this.toggle});
 				}
 			}
 		}
@@ -826,7 +841,7 @@ class PowerBrand extends _PowerLinkElement {
 		super(element);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		// $pwMain._mouseover.subscribe(function (ctx) {
+		// $pwMain._mouseover.nativeSubscribe(function (ctx) {
 		// 	console.log('Ouvindo', self.id, ctx.id);
 		// });
 	}
@@ -900,12 +915,14 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-function changeMenu() {
-
+function clickMenos(ctx, event, params) {
+	console.log(`Clicou no menos e tudo ${params.teste} senhor ${params.pity}.`);
 }
+app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: clickMenos, pity: "Pity o bom", teste: 'funciona'});
 
-function showMenuLabel() {
-
+function showMenuLabel(ctx) {
+	console.log("Essa é a label:", ctx);
 }
+app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: showMenuLabel});
 
 window.console.log('power', app);

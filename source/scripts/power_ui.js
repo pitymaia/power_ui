@@ -144,8 +144,8 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 					label.dropdown = this;
 					// Add the label to the dropdown
 					this.labels[child.id] = label;
-					// Subscribe click event on label element
-					label.subscribe({event: 'click', fn: this.toggle});
+					// nativeSubscribe click event on label element
+					label.nativeSubscribe({event: 'click', fn: this.toggle});
 				}
 			}
 		}
@@ -200,7 +200,7 @@ class PowerBrand extends _PowerLinkElement {
 		super(element);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		// $pwMain._mouseover.subscribe(function (ctx) {
+		// $pwMain._mouseover.nativeSubscribe(function (ctx) {
 		// 	console.log('Ouvindo', self.id, ctx.id);
 		// });
 	}

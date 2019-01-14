@@ -31,12 +31,14 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-function changeMenu() {
-
+function clickMenos(ctx, event, params) {
+	console.log(`Clicou no menos e tudo ${params.teste} senhor ${params.pity}.`);
 }
+app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: clickMenos, pity: "Pity o bom", teste: 'funciona'});
 
-function showMenuLabel() {
-
+function showMenuLabel(ctx) {
+	console.log("Essa é a label:", ctx);
 }
+app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: showMenuLabel});
 
 window.console.log('power', app);

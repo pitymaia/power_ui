@@ -12,8 +12,8 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
         if (!this.$_pwHoverValue) {
             this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
         }
-        this.subscribe({event: 'mouseover', fn: this.mouseover});
-        this.subscribe({event: 'mouseout', fn: this.mouseout});
+        this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
+        this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
     }
 
     mouseover() {
@@ -60,8 +60,8 @@ class PowCssHover extends _PowerBasicElementWithEvents {
         if (!this.$_pwHoverValues) {
             this.$_pwHoverValues = this.element.getAttribute(this.$_pwAttrName).split(' ') || [];
         }
-        this.subscribe({event: 'mouseover', fn: this.mouseover});
-        this.subscribe({event: 'mouseout', fn: this.mouseout});
+        this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
+        this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
     }
 
     mouseover() {

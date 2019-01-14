@@ -123,6 +123,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 
     }
 
+    // This is the normal subscribe for custom events
     // If the event doesn't exists create it and subscribe
     // If it already exists just subscribe
     subscribe({event, fn, useCapture=false, ...params}) {
@@ -130,15 +131,29 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
         // Create the event
         if (!this._events[event]) {
             this._events[event] = new Event(this.id);
-            this.addEventListener(event, function(domEvent) {
-                ctx._events[event].broadcast(ctx, domEvent, params);
-            }, useCapture || false);
         }
-        // Subscribe to the
+        // Subscribe to the element
         this._events[event].subscribe(fn, ctx, params);
     }
 
-    addEventListener(event, callback, useCapture) {
+    // This is a subscribe for native envents that broadcast when the event is dispached
+    // If the event doesn't exists create it and subscribe
+    // If it already exists just subscribe
+    nativeSubscribe({event, fn, useCapture=false, ...params}) {
+        const ctx = this;
+        // Create the event
+        if (!this._events[event]) {
+            this._events[event] = new Event(this.id);
+            // This is the listener/broadcast for the native events
+            this.addEventListener(event, function(domEvent) {
+                ctx._events[event].broadcast(ctx, domEvent, params);
+            }, useCapture);
+        }
+        // Subscribe to the element
+        this._events[event].subscribe(fn, ctx, params);
+    }
+
+    addEventListener(event, callback, useCapture=false) {
         this.element.addEventListener(event, callback, useCapture);
     }
 }
