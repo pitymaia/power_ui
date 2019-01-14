@@ -31,8 +31,4 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-function clickMenos(ctx, event, params) {
-	console.log(`Clicou no menos e tudo ${params.teste} senhor ${params.pity}.`);
-}
-
 window.console.log('power', app);

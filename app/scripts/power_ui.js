@@ -835,6 +835,11 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this.powerDropdown._clickOutside);
 		} else {
+			if (this.powerDropdown.element.classList.contains('main-power-dropdown')) {
+				const left = this.element.getBoundingClientRect().left;
+				this.powerDropdown.element.style.left = left + 'px';
+			}
+
 			this.powerDropdown._$pwActive = true;
 			this.powerDropdown.element.classList.add('power-show');
 			// Add the listener to capture when click outside and register the function to allow remove it
@@ -871,6 +876,7 @@ class PowerMenu {
 	}
 
 	init() {
+		// Add elements do menu
 		for (const config of _powerCssConfig.filter(x => !x.isMain)) {
 			const className = config.name;
 			// power-brand
@@ -884,6 +890,13 @@ class PowerMenu {
 				// find the camelCase name of the className
 				const camelCaseName = powerClassAsCamelCase(className);
 				this[keyName][element.id] = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
+			}
+		}
+		// Mark any dropdown directly children of menu as main-power-dropdown to allow fix position
+		const children = this.element.children;
+		for (const child of children) {
+			if (child.classList.contains('power-dropdown')) {
+				child.classList.add('main-power-dropdown');
 			}
 		}
 	}
@@ -929,9 +942,5 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // }
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
-
-function clickMenos(ctx, event, params) {
-	console.log(`Clicou no menos e tudo ${params.teste} senhor ${params.pity}.`);
-}
 
 window.console.log('power', app);

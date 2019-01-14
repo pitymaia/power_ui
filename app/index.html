@@ -121,12 +121,9 @@
                 <span class="power-label">Mais</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
-            <span class="power-action" id="novo_menos" data-power-target="menos"><i class="fa fa-car"></i> Menos</span>
+            <span class="power-action" id="novo_menos" data-power-target="menos" data-pow-main-css-hover="pw-red" data-pow-css-hover="pw-green"><i class="fa fa-car"></i> Menos</span>
             <span class="power-status power-label fa fa-angle-right"></span>
-            <nav id="menos"
-                 class="power-dropdown"
-                 data-pow-main-css-hover="pw-red"
-                 data-pow-css-hover="pw-green">
+            <nav id="menos" class="power-dropdown">
                 <a class="power-item">Email</a>
                 <a class="power-item">Twitter</a>
                 <a class="power-item">Tumblr Blog</a>
@@ -141,6 +138,7 @@
                         <a class="power-item">Bar</a>
                         <a class="power-item">I'm Batman</a>
                     </nav>
+                    <a class="power-item">I'm Robin</a>
                 </nav>
                 <a class="power-item">Other Blog</a>
                 <a class="power-item">News</a>
@@ -153,32 +151,35 @@
                 <span class="power-label">Muito</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
-            <nav id="pouco"
-                 class="power-dropdown"
-                 data-pow-main-css-hover="pw-orange"
-                 data-pow-css-hover="pw-green">
+            <span class="power-action" data-power-target="pouco" id="pouco_label">
                 <img class="power-label" id="pouco_img"
                     data-pow-src-hover="vendors/imgs/atom-icon.png"
                     data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
                     src="vendors/imgs/gimp-icon.png"
                     width="25"
                     height="25" />
-                <span class="power-label" id="pouco_label">Pouco</span>
-                <span class="power-status power-label fa fa-angle-right"></span>
+                Pouco
+                <span class="power-status fa fa-angle-right"></span>
+            </span>
+            <nav id="pouco"
+                 class="power-dropdown"
+                 data-pow-main-css-hover="pw-orange"
+                 data-pow-css-hover="pw-green">
                 <a class="power-item">Email</a>
                 <a class="power-item">Twitter</a>
                 <a class="power-item">Tumblr Blog</a>
+                <a class="power-action" data-power-target="more"><i class="power-icon icon-small fa fa-car"></i> More</a>
                 <nav id="more" class="power-dropdown">
-                    <a class="power-label"><i class="power-icon icon-small fa fa-car"></i> More</a>
                     <a class="power-item">Foo</a>
                     <a class="power-item">Bar</a>
                     <a class="power-item">I'm Batman</a>
+                    <a class="power-action" data-power-target="final"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
                     <nav id="final" class="power-dropdown">
-                        <a class="power-label"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
                         <a class="power-item">Foo</a>
                         <a class="power-item">Bar</a>
                         <a class="power-item">I'm Batman</a>
                     </nav>
+                    <a class="power-item">I'm Coringa</a>
                 </nav>
                 <a class="power-item">Other Blog</a>
                 <a class="power-item">News</a>
