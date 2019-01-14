@@ -17,11 +17,11 @@
 }
 /* Menu end*/
 
-.power-dropdown.power-hide > .power-item,  .power-dropdown.power-hide > .power-dropdown {
+.power-dropdown > .power-item,  .power-dropdown > .power-dropdown, .power-dropdown > .power-action {
     display: none !important;
 }
 
-.power-dropdown.power-show > .power-item, .power-dropdown.power-show > .power-dropdown {
+.power-dropdown.power-show > .power-item, .power-dropdown.power-show > .power-dropdown, .power-dropdown.power-show > .power-action {
     display: block !important;
     white-space:nowrap;
 }

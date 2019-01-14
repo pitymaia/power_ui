@@ -2,641 +2,650 @@
 'use strict';
 
 function splitStringWithUrl(string) {
-    const expression = new RegExp(/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\b[.:][a-z0-9@:%_\+.~#?&//=]{2,256}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi);
-    // Hold all the matched URLs
-    const urls = string.match(expression) || [];
-    const finalUrls = [];
-    // The final parts to return
-    const stringParts = [];
-    if (urls.length) {
-        // Create the url list of dicts with the href with http://
-        for (let count = 0; count < urls.length; count++) {
-            let newUrl = urls[count];
-            if (!newUrl.includes('http://') && !newUrl.includes('https://')) {
-                newUrl = `http:\/\/${newUrl}`;
-            }
-            finalUrls.push({string: urls[count], href: newUrl});
+	const expression = new RegExp(/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\b[.:][a-z0-9@:%_\+.~#?&//=]{2,256}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi);
+	// Hold all the matched URLs
+	const urls = string.match(expression) || [];
+	const finalUrls = [];
+	// The final parts to return
+	const stringParts = [];
+	if (urls.length) {
+		// Create the url list of dicts with the href with http://
+		for (let count = 0; count < urls.length; count++) {
+			let newUrl = urls[count];
+			if (!newUrl.includes('http://') && !newUrl.includes('https://')) {
+				newUrl = `http:\/\/${newUrl}`;
+			}
+			finalUrls.push({string: urls[count], href: newUrl});
 
-            string = string.replace(urls[count], '«url»');
-        }
-        // Hold all string parts without URLs
-        const splitedString = string.split('«url»');
-        // Create the final array with all url parts with the flag isUrl = true
-        for (let count = 0; count < splitedString.length; count++) {
-            // If item is undefined replace it with the URL
-            if (splitedString[count]) {
-                stringParts.push({string: splitedString[count]});
-            }
+			string = string.replace(urls[count], '«url»');
+		}
+		// Hold all string parts without URLs
+		const splitedString = string.split('«url»');
+		// Create the final array with all url parts with the flag isUrl = true
+		for (let count = 0; count < splitedString.length; count++) {
+			// If item is undefined replace it with the URL
+			if (splitedString[count]) {
+				stringParts.push({string: splitedString[count]});
+			}
 
-            if (finalUrls[0]) {
-                stringParts.push(finalUrls[0]);
-                // Remove this url from array
-                finalUrls.shift();
-            }
-        }
-        return stringParts;
-    } else {
-        return [{string: string}];
-    }
+			if (finalUrls[0]) {
+				stringParts.push(finalUrls[0]);
+				// Remove this url from array
+				finalUrls.shift();
+			}
+		}
+		return stringParts;
+	} else {
+		return [{string: string}];
+	}
 }
 
 function getIdAndCreateIfDontHave(currentNode) {
-    let currentId = currentNode.id;
-    if (!currentId) {
-        currentId = _Unique.domID(currentNode.tagName.toLowerCase());
-    }
-    currentNode.setAttribute('id', currentId);
-    return currentId;
+	let currentId = currentNode.id;
+	if (!currentId) {
+		currentId = _Unique.domID(currentNode.tagName.toLowerCase());
+	}
+	currentNode.setAttribute('id', currentId);
+	return currentId;
 }
 
 // Dataset converts "data-something-nice" formats to camel case without data,
 // the result is like "somethingNice"
 function asDataSet(selector) {
-    // Get the parts without the 'data' part
-    const originalParts = selector.split('-').filter(part => part != 'data');
-    let newstring = '';
-    for (let count = 0; count < originalParts.length; count++) {
-        if (count === 0) {
-            newstring = newstring + originalParts[count];
-        } else {
-            newstring = newstring + originalParts[count].replace(/\b\w/g, l => l.toUpperCase());
-        }
-    }
-    return newstring;
+	// Get the parts without the 'data' part
+	const originalParts = selector.split('-').filter(part => part != 'data');
+	let newstring = '';
+	for (let count = 0; count < originalParts.length; count++) {
+		if (count === 0) {
+			newstring = newstring + originalParts[count];
+		} else {
+			newstring = newstring + originalParts[count].replace(/\b\w/g, l => l.toUpperCase());
+		}
+	}
+	return newstring;
 }
 
 function powerClassAsCamelCase(className) {
-    return `${className.split('-')[0]}${className.split('-')[1].charAt(0).toUpperCase()}${className.split('-')[1].slice(1)}`;
+	return `${className.split('-')[0]}${className.split('-')[1].charAt(0).toUpperCase()}${className.split('-')[1].slice(1)}`;
 }
 
 const _Unique = { // produce unique IDs
-    n: 0,
-    next: () => ++_Unique.n,
-    domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
+	n: 0,
+	next: () => ++_Unique.n,
+	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
 };
 
 
 class Event {
-    constructor(name) {
-        this.observers = [];
-        if (name)  Event.index[name] = this;
-    }
+	constructor(name) {
+		this.observers = [];
+		if (name)  Event.index[name] = this;
+	}
 
-    subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
-        this.observers.push({fn, ctx});
-    }
+	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
+		this.observers.push({fn, ctx});
+	}
 
-    unsubscribe(fn) {
-        this.observers = this.observers.filter((x) => x !== fn);
-    }
+	unsubscribe(fn) {
+		this.observers = this.observers.filter((x) => x !== fn);
+	}
 
-    broadcast() { // Accepts arguments.
-        for (const o of this.observers) {
-            o.fn.apply(o.ctx, arguments);
-        }
-    }
+	broadcast() { // Accepts arguments.
+		for (const o of this.observers) {
+			o.fn.apply(o.ctx, arguments);
+		}
+	}
 }
 Event.index = {}; // storage for all named events
 
 
 // Abstract class to create any power elements
 class _PowerBasicElement {
-    constructor(element) {
-        this.element = element;
-        this._$pwActive = false;
-    }
+	constructor(element) {
+		this.element = element;
+		this._$pwActive = false;
+	}
 
-    get id() {
-        return this.element.id || null;
-    }
+	get id() {
+		return this.element.id || null;
+	}
 
-    set id(id) {
-        this.element.id = id;
-    }
+	set id(id) {
+		this.element.id = id;
+	}
 }
 
 
 class _PowerBasicElementWithEvents extends _PowerBasicElement {
-    constructor(element) {
-        super(element);
-        this._events = {};
+	constructor(element) {
+		super(element);
+		this._events = {};
 
-    }
+	}
 
-    // This is the normal subscribe for custom events
-    // If the event doesn't exists create it and subscribe
-    // If it already exists just subscribe
-    subscribe({event, fn, useCapture=false, ...params}) {
-        const ctx = this;
-        // Create the event
-        if (!this._events[event]) {
-            this._events[event] = new Event(this.id);
-        }
-        // Subscribe to the element
-        this._events[event].subscribe(fn, ctx, params);
-    }
+	// This is the normal subscribe for custom events
+	// If the event doesn't exists create it and subscribe
+	// If it already exists just subscribe
+	subscribe({event, fn, useCapture=false, ...params}) {
+		const ctx = this;
+		// Create the event
+		if (!this._events[event]) {
+			this._events[event] = new Event(this.id);
+		}
+		// Subscribe to the element
+		this._events[event].subscribe(fn, ctx, params);
+	}
 
-    // This is a subscribe for native envents that broadcast when the event is dispached
-    // If the event doesn't exists create it and subscribe
-    // If it already exists just subscribe
-    nativeSubscribe({event, fn, useCapture=false, ...params}) {
-        const ctx = this;
-        // Create the event
-        if (!this._events[event]) {
-            this._events[event] = new Event(this.id);
-            // This is the listener/broadcast for the native events
-            this.addEventListener(event, function(domEvent) {
-                ctx._events[event].broadcast(ctx, domEvent, params);
-            }, useCapture);
-        }
-        // Subscribe to the element
-        this._events[event].subscribe(fn, ctx, params);
-    }
+	// This is a subscribe for native envents that broadcast when the event is dispached
+	// If the event doesn't exists create it and subscribe
+	// If it already exists just subscribe
+	nativeSubscribe({event, fn, useCapture=false, ...params}) {
+		const ctx = this;
+		// Create the event
+		if (!this._events[event]) {
+			this._events[event] = new Event(this.id);
+			// This is the listener/broadcast for the native events
+			this.addEventListener(event, function(domEvent) {
+				ctx._events[event].broadcast(ctx, domEvent, params);
+			}, useCapture);
+		}
+		// Subscribe to the element
+		this._events[event].subscribe(fn, ctx, params);
+	}
 
-    addEventListener(event, callback, useCapture=false) {
-        this.element.addEventListener(event, callback, useCapture);
-    }
+	addEventListener(event, callback, useCapture=false) {
+		this.element.addEventListener(event, callback, useCapture);
+	}
 }
+
 
 // The list for user custom pwc-attributes
 const _pwcAttrsConfig = [];
 
 // The list of pow-attributes with the callback to the classes
 const _powAttrsConfig = [
-    {name: 'data-pow-src-hover',
-        callback: function(element) {return new PowSrcHover(element);}
-    },
-    {name: 'data-pow-main-src-hover', isMain: true,
-        callback: function(element) {return new PowMainSrcHover(element);}
-    },
-    {name: 'data-pow-css-hover',
-        callback: function(element) {return new PowCssHover(element);}
-    },
-    {name: 'data-pow-main-css-hover', isMain: true,
-        callback: function(element) {return new PowMainCssHover(element);}
-    },
-    {name: 'data-pow-css-hover-remove',
-        callback: function(element) {return new PowCssHoverRemove(element);}
-    },
-    {name: 'data-pow-main-css-hover-remove', isMain: true,
-        callback: function(element) {return new PowMainCssHoverRemove(element);}
-    },
+	{name: 'data-pow-src-hover',
+		callback: function(element) {return new PowSrcHover(element);}
+	},
+	{name: 'data-pow-main-src-hover', isMain: true,
+		callback: function(element) {return new PowMainSrcHover(element);}
+	},
+	{name: 'data-pow-css-hover',
+		callback: function(element) {return new PowCssHover(element);}
+	},
+	{name: 'data-pow-main-css-hover', isMain: true,
+		callback: function(element) {return new PowMainCssHover(element);}
+	},
+	{name: 'data-pow-css-hover-remove',
+		callback: function(element) {return new PowCssHoverRemove(element);}
+	},
+	{name: 'data-pow-main-css-hover-remove', isMain: true,
+		callback: function(element) {return new PowMainCssHoverRemove(element);}
+	},
 ];
 
 // The list of power-css-selectors with the config to create the objetc
 // The order here is important, keep it on an array
 const _powerCssConfig = [
-    {name: 'power-menu', isMain: true},
-    {name: 'power-main', isMain: true},
-    {name: 'power-brand'},
-    {name: 'power-heading'},
-    {name: 'power-item'},
-    {name: 'power-label'},
-    {name: 'power-dropdown'},
-    {name: 'power-link'},
-    {name: 'power-status'},
-    {name: 'power-icon'},
+	{name: 'power-menu', isMain: true},
+	{name: 'power-main', isMain: true},
+	{name: 'power-brand'},
+	{name: 'power-heading'},
+	{name: 'power-item'},
+	{name: 'power-label'},
+	{name: 'power-action'},
+	{name: 'power-dropdown'},
+	{name: 'power-link'},
+	{name: 'power-status'},
+	{name: 'power-icon'},
 ];
 
 
 class PowerDOM {
-    constructor($powerUi) {
-        this.$powerUi = $powerUi;
-        this.powerCss = {};
-        this.powAttrs = {};
-        this.pwcAttrs = {};
-        this.allPwElementsById = {};
+	constructor($powerUi) {
+		this.$powerUi = $powerUi;
+		this.powerCss = {};
+		this.powAttrs = {};
+		this.pwcAttrs = {};
+		this.allPwElementsById = {};
 
-        const tempSelectors = {
-            powerCss: {},
-            powAttrs: {},
-            pwcAttrs: {},
-        };
+		const tempSelectors = {
+			powerCss: {},
+			powAttrs: {},
+			pwcAttrs: {},
+		};
 
-        this.sweepDOM(document, tempSelectors, this._buildTempPowerTree);
+		this.sweepDOM(document, tempSelectors, this._buildTempPowerTree);
 
-        // Create the power-css object elements
-        for (const attribute in tempSelectors) {
-            for (const selector of _powerCssConfig) {
-                this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
-            }
+		// Create the power-css object elements
+		for (const attribute in tempSelectors) {
+			for (const selector of _powerCssConfig) {
+				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
+			}
 
-            for (const selector of _powAttrsConfig) {
-                this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
-            }
+			for (const selector of _powAttrsConfig) {
+				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
+			}
 
-            for (const selector of _pwcAttrsConfig) {
-                this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
-            }
-        }
+			for (const selector of _pwcAttrsConfig) {
+				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
+			}
+		}
 
-        this._linkMainClassAndPowAttrs();
-        this._addSiblings();
-    }
+		this._linkMainClassAndPowAttrs();
+		this._addSiblings();
+	}
 
-    // Sweep through each node and pass the node to the callback
-    sweepDOM(entryNode, ctx, callback) {
-        const isNode = !!entryNode && !!entryNode.nodeType;
-        const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
+	// Sweep through each node and pass the node to the callback
+	sweepDOM(entryNode, ctx, callback) {
+		const isNode = !!entryNode && !!entryNode.nodeType;
+		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
 
-        if (isNode && hasChildren) {
-            const nodes = entryNode.childNodes;
-            for (let i=0; i < nodes.length; i++) {
-                const currentNode = nodes[i];
-                const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+		if (isNode && hasChildren) {
+			const nodes = entryNode.childNodes;
+			for (let i=0; i < nodes.length; i++) {
+				const currentNode = nodes[i];
+				const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
 
-                // Call back with the condition to apply any condition
-                callback(currentNode, ctx);
+				// Call back with the condition to apply any condition
+				callback(currentNode, ctx);
 
-                if(currentNodeHasChindren) {
-                    // Recursively sweep through currentNode children
-                    this.sweepDOM(currentNode, ctx, callback);
-                }
-            }
-        }
-    }
+				if(currentNodeHasChindren) {
+					// Recursively sweep through currentNode children
+					this.sweepDOM(currentNode, ctx, callback);
+				}
+			}
+		}
+	}
 
-    _getMainElementFromChildElement(id, childElement) {
-        let mainElement  = this._findMainElementIfHave(childElement);
-        if (mainElement) {
-            return mainElement;
-        }
-    }
+	_getMainElementFromChildElement(id, childElement) {
+		let mainElement  = this._findMainElementIfHave(childElement);
+		if (mainElement) {
+			return mainElement;
+		}
+	}
 
-    _findMainElementIfHave(originalElement) {
-        let element = originalElement.parentElement;
-        let stop = false;
-        while (!stop) {
-            if (element && element.className) {
-                for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
-                    if (element.className.includes(cssSelector.name)) {
-                        stop = true;
-                    }
-                }
-            }
-            // Don't let go to parentElement if already found and heve the variable 'stop' as true
-            // Only select the parentElement if has element but don't found the main class selector
-            if (element && !stop) {
-                element = element.parentElement;
-            } else {
-                // If there is no more element set stop
-                stop = true;
-            }
-        }
-        return element || null;
-    }
+	_findMainElementIfHave(originalElement) {
+		let element = originalElement.parentElement;
+		let stop = false;
+		while (!stop) {
+			if (element && element.className) {
+				for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
+					if (element.className.includes(cssSelector.name)) {
+						stop = true;
+					}
+				}
+			}
+			// Don't let go to parentElement if already found and heve the variable 'stop' as true
+			// Only select the parentElement if has element but don't found the main class selector
+			if (element && !stop) {
+				element = element.parentElement;
+			} else {
+				// If there is no more element set stop
+				stop = true;
+			}
+		}
+		return element || null;
+	}
 
-    _callInit() {
-        for (const id in this.allPwElementsById) {
-            // Call init for all elements
-            for (const attr in this.allPwElementsById[id]) {
-                if (this.allPwElementsById[id][attr].init) {
-                    this.allPwElementsById[id][attr].init();
-                }
-            }
-        }
-    }
+	_callInit() {
+		for (const id in this.allPwElementsById) {
+			// Call init for all elements
+			for (const attr in this.allPwElementsById[id]) {
+				if (this.allPwElementsById[id][attr].init) {
+					this.allPwElementsById[id][attr].init();
+				}
+			}
+		}
+	}
 
-    // Register siblings elements and call init()
-    _addSiblings() {
-        for (const id in this.allPwElementsById) {
-            // if Object.keys(obj).length add the siblings for each objects
-            // Also call init(if true or else)
-            if (Object.keys(this.allPwElementsById[id]).length > 1) {
-                for (const attr in this.allPwElementsById[id]) {
-                    // Don't add siblings to $shared
-                    if (attr != '$shared') {
-                        if (!this.allPwElementsById[id][attr].siblings) {
-                            this.allPwElementsById[id][attr].siblings = {};
-                        }
-                        // To avoid add this element as a sibling of it self we need iterate over attrs again
-                        for (const siblingAttr in this.allPwElementsById[id]) {
-                            // Also don't add $shared siblings
-                            if (siblingAttr !== attr && siblingAttr != '$shared') {
-                                this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+	// Register siblings elements and call init()
+	_addSiblings() {
+		for (const id in this.allPwElementsById) {
+			// if Object.keys(obj).length add the siblings for each objects
+			// Also call init(if true or else)
+			if (Object.keys(this.allPwElementsById[id]).length > 1) {
+				for (const attr in this.allPwElementsById[id]) {
+					// Don't add siblings to $shared
+					if (attr != '$shared') {
+						if (!this.allPwElementsById[id][attr].siblings) {
+							this.allPwElementsById[id][attr].siblings = {};
+						}
+						// To avoid add this element as a sibling of it self we need iterate over attrs again
+						for (const siblingAttr in this.allPwElementsById[id]) {
+							// Also don't add $shared siblings
+							if (siblingAttr !== attr && siblingAttr != '$shared') {
+								this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    _linkMainClassAndPowAttrs() {
-        // Loop through the list of possible attributes like data-pow-main-src-hover
-        for (const item of _powAttrsConfig.filter(a => a.isMain === true)) {
-            const powAttrsList = this.powAttrs[asDataSet(item.name)];
-            // Loop through the list of existing powAttrs in dataset format like powMainSrcHover
-            // Every element it found is the powerElement it needs find the correspondent main object
-            for (const id in powAttrsList) {
-                const currentPowElement = powAttrsList[id];
-                // Get the simple DOM node main element  of the current powerElement object
-                const mainElementCssSelector = this._getMainElementFromChildElement(id, currentPowElement.element);
-                if (mainElementCssSelector) {
-                    // Loop through the list of possible main CSS class selectors like power-menu or power-main
-                    // With this we will find the main powerElement that holds the simple DOM node main element we have
-                    for (const cssSelector of _powerCssConfig.filter(a => a.isMain === true)) {
-                        if (this.powerCss[asDataSet(cssSelector.name)]) {
-                            // Get the powerElement using the simple DOM node main element (mainElementCssSelector)
-                            const mainPowerCssObj = this.powerCss[asDataSet(cssSelector.name)][mainElementCssSelector.getAttribute('id')];
-                            // If we found it let's go to associate the main with the child
-                            if(mainPowerCssObj) {
-                                // Add the main object into the child object
-                                currentPowElement.$pwMain = mainPowerCssObj;
-                                // create the obj to hold the children if dont have it
-                                if (mainPowerCssObj.childrenPowAttrs === undefined) {
-                                    mainPowerCssObj.childrenPowAttrs = {};
-                                }
-                                // Add the child object into the main object
-                                // Organize it by attribute dataset name
-                                const datasetAttrName = asDataSet(currentPowElement.$_pwAttrName);
-                                if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName]) {
-                                    mainPowerCssObj.childrenPowAttrs[datasetAttrName] = {};
-                                }
-                                // Organize it by id inside attribute dataset name
-                                if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id]) {
-                                    mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = {};
-                                }
-                                mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+	_linkMainClassAndPowAttrs() {
+		// Loop through the list of possible attributes like data-pow-main-src-hover
+		for (const item of _powAttrsConfig.filter(a => a.isMain === true)) {
+			const powAttrsList = this.powAttrs[asDataSet(item.name)];
+			// Loop through the list of existing powAttrs in dataset format like powMainSrcHover
+			// Every element it found is the powerElement it needs find the correspondent main object
+			for (const id in powAttrsList) {
+				const currentPowElement = powAttrsList[id];
+				// Get the simple DOM node main element  of the current powerElement object
+				const mainElementCssSelector = this._getMainElementFromChildElement(id, currentPowElement.element);
+				if (mainElementCssSelector) {
+					// Loop through the list of possible main CSS class selectors like power-menu or power-main
+					// With this we will find the main powerElement that holds the simple DOM node main element we have
+					for (const cssSelector of _powerCssConfig.filter(a => a.isMain === true)) {
+						if (this.powerCss[asDataSet(cssSelector.name)]) {
+							// Get the powerElement using the simple DOM node main element (mainElementCssSelector)
+							const mainPowerCssObj = this.powerCss[asDataSet(cssSelector.name)][mainElementCssSelector.getAttribute('id')];
+							// If we found it let's go to associate the main with the child
+							if(mainPowerCssObj) {
+								// Add the main object into the child object
+								currentPowElement.$pwMain = mainPowerCssObj;
+								// create the obj to hold the children if dont have it
+								if (mainPowerCssObj.childrenPowAttrs === undefined) {
+									mainPowerCssObj.childrenPowAttrs = {};
+								}
+								// Add the child object into the main object
+								// Organize it by attribute dataset name
+								const datasetAttrName = asDataSet(currentPowElement.$_pwAttrName);
+								if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName]) {
+									mainPowerCssObj.childrenPowAttrs[datasetAttrName] = {};
+								}
+								// Organize it by id inside attribute dataset name
+								if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id]) {
+									mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = {};
+								}
+								mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    // This creates the powerDOM tree with all the objects attached to the DOM
-    // It uses the simple elements of _buildTempPowerTree to get only the power elements
-    _buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
-        const datasetKey = asDataSet(selector.name);
-        const selectorsSubSet = tempSelectors[attribute][datasetKey];
-        for (const id in selectorsSubSet) {
-            if (!ctx[attribute][datasetKey]) {
-                ctx[attribute][datasetKey] = {};
-            }
+	// This creates the powerDOM tree with all the objects attached to the DOM
+	// It uses the simple elements of _buildTempPowerTree to get only the power elements
+	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
+		const datasetKey = asDataSet(selector.name);
+		const selectorsSubSet = tempSelectors[attribute][datasetKey];
+		for (const id in selectorsSubSet) {
+			if (!ctx[attribute][datasetKey]) {
+				ctx[attribute][datasetKey] = {};
+			}
 
-            // If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
-            // If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-            const es6Class = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
-            if (es6Class === 'powerAttrs') {
-                // Add into a list ordered by attribute name
-                ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
-            } else {
-                // Call the method for create objects like _powerMenu with the node elements in tempSelectors
-                // uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
-                // E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
-                ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
-            }
-            // Add the same element into a list ordered by id
-            if (!ctx.allPwElementsById[id]) {
-                ctx.allPwElementsById[id] = {};
-            }
-            ctx.allPwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
-            // Add to any element some desired variables
-            ctx.allPwElementsById[id][datasetKey]._id = id;
-            ctx.allPwElementsById[id][datasetKey].$_pwName = datasetKey;
-            ctx.allPwElementsById[id][datasetKey].$powerUi = ctx.$powerUi;
-            // Create a $shared scope for each element
-            if (!ctx.allPwElementsById[id].$shared) {
-                ctx.allPwElementsById[id].$shared = {};
-            }
-            // add the shered scope to all elements
-            ctx.allPwElementsById[id][datasetKey].$shared = ctx.allPwElementsById[id].$shared;
-        }
-    }
+			// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
+			// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
+			const es6Class = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+			if (es6Class === 'powerAttrs') {
+				// Add into a list ordered by attribute name
+				ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
+			} else {
+				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
+				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
+				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
+				ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
+			}
+			// Add the same element into a list ordered by id
+			if (!ctx.allPwElementsById[id]) {
+				ctx.allPwElementsById[id] = {};
+			} else {
+				const selectorToTest = document.querySelectorAll(`[id=${id}]`);
+				if (selectorToTest.length > 1) {
+					// Check if there is some duplicated ID
+					console.error('DUPLICATED IDs:', selectorToTest);
+					throw `HTML element can't have duplicated IDs: ${id}`;
+				}
+			}
+			ctx.allPwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
+			// Add to any element some desired variables
+			ctx.allPwElementsById[id][datasetKey]._id = id;
+			ctx.allPwElementsById[id][datasetKey].$_pwName = datasetKey;
+			ctx.allPwElementsById[id][datasetKey].$powerUi = ctx.$powerUi;
+			// Create a $shared scope for each element
+			if (!ctx.allPwElementsById[id].$shared) {
+				ctx.allPwElementsById[id].$shared = {};
+			}
+			// add the shered scope to all elements
+			ctx.allPwElementsById[id][datasetKey].$shared = ctx.allPwElementsById[id].$shared;
+		}
+	}
 
-    // Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-    _buildTempPowerTree(currentNode, ctx) {
-        // Check if has the custom data-pwc and data-pow attributes
-        if (currentNode.dataset) {
-            for (const data in currentNode.dataset) {
-                for(const prefixe of ['pwc', 'pow']) {
-                    const hasPrefixe = data.startsWith(prefixe);
-                    if (hasPrefixe) {
-                        const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
-                        const currentId = getIdAndCreateIfDontHave(currentNode);
-                        if (!ctx[attributeName][data]) {
-                            ctx[attributeName][data] = {};
-                        }
-                        ctx[attributeName][data][currentId] = currentNode;
-                    }
-                }
-            }
-        }
-        // Check for power css class selectors like "power-menu" or "power-label"
-        if (currentNode.className && currentNode.className.includes('power-')) {
-            for (const selector of _powerCssConfig) {
-                if (currentNode.className.includes(selector.name)) {
-                    const currentId = getIdAndCreateIfDontHave(currentNode);
-                    if (!ctx.powerCss[asDataSet(selector.name)]) {
-                        ctx.powerCss[asDataSet(selector.name)] = {};
-                    }
-                    ctx.powerCss[asDataSet(selector.name)][currentId] = currentNode;
-                }
-            }
-        }
-    }
+	// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
+	_buildTempPowerTree(currentNode, ctx) {
+		// Check if has the custom data-pwc and data-pow attributes
+		if (currentNode.dataset) {
+			for (const data in currentNode.dataset) {
+				for(const prefixe of ['pwc', 'pow']) {
+					const hasPrefixe = data.startsWith(prefixe);
+					if (hasPrefixe) {
+						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
+						const currentId = getIdAndCreateIfDontHave(currentNode);
+						if (!ctx[attributeName][data]) {
+							ctx[attributeName][data] = {};
+						}
+						ctx[attributeName][data][currentId] = currentNode;
+					}
+				}
+			}
+		}
+		// Check for power css class selectors like "power-menu" or "power-label"
+		if (currentNode.className && currentNode.className.includes('power-')) {
+			for (const selector of _powerCssConfig) {
+				if (currentNode.className.includes(selector.name)) {
+					const currentId = getIdAndCreateIfDontHave(currentNode);
+					if (!ctx.powerCss[asDataSet(selector.name)]) {
+						ctx.powerCss[asDataSet(selector.name)] = {};
+					}
+					ctx.powerCss[asDataSet(selector.name)][currentId] = currentNode;
+				}
+			}
+		}
+	}
 }
 
 // Replace a value form an attribute when is mouseover some element and undo on mouseout
 class _pwBasicHover extends _PowerBasicElementWithEvents {
-    constructor(element) {
-        super(element);
-        this._$pwActive = false;
-    }
+	constructor(element) {
+		super(element);
+		this._$pwActive = false;
+	}
 
-    init() {
-        if (!this.$_pwDefaultValue) {
-            this.$_pwDefaultValue =  this.element[this.$_target];
-        }
-        if (!this.$_pwHoverValue) {
-            this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
-        }
-        this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
-        this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
-    }
+	init() {
+		if (!this.$_pwDefaultValue) {
+			this.$_pwDefaultValue =  this.element[this.$_target];
+		}
+		if (!this.$_pwHoverValue) {
+			this.$_pwHoverValue = this.element.getAttribute(this.$_pwAttrName) || '';
+		}
+		this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
+		this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
+	}
 
-    mouseover() {
-        if (!this._$pwActive && !this.$shared._priorityActive) {
-            this.element[this.$_target] = this.$_pwHoverValue;
-            this._$pwActive = true;
-            // This flag allows hover attrs have priority over attrs like the main attrs
-            this.$shared._priorityActive = true;
-        }
-    }
+	mouseover() {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
+			this.element[this.$_target] = this.$_pwHoverValue;
+			this._$pwActive = true;
+			// This flag allows hover attrs have priority over attrs like the main attrs
+			this.$shared._priorityActive = true;
+		}
+	}
 
-    mouseout() {
-        if (this._$pwActive) {
-            this.element[this.$_target] = this.$_pwDefaultValue || '';
-            this._$pwActive = false;
-            this.$shared._priorityActive = false;
-        }
-    }
+	mouseout() {
+		if (this._$pwActive) {
+			this.element[this.$_target] = this.$_pwDefaultValue || '';
+			this._$pwActive = false;
+			this.$shared._priorityActive = false;
+		}
+	}
 }
 
 
 // Replace a value form an attribute when is mouseover some MAIN element and undo on mouseout
 class _pwMainBasicHover extends _pwBasicHover {
-    constructor(element, target, pwAttrName) {
-        super(element, target, pwAttrName);
-    }
+	constructor(element, target, pwAttrName) {
+		super(element, target, pwAttrName);
+	}
 
-    // Atach the listner/Event to que main element
-    addEventListener(event, callback, useCapture) {
-        this.$pwMain.element.addEventListener(event, callback, useCapture);
-    }
+	// Atach the listner/Event to que main element
+	addEventListener(event, callback, useCapture) {
+		this.$pwMain.element.addEventListener(event, callback, useCapture);
+	}
 }
 
 
 // Add to some element a list of CSS classes selectors when is mouseover some element and remove it on mouseout
 class PowCssHover extends _PowerBasicElementWithEvents {
-    constructor(element) {
-        super(element);
-        this._$pwActive = false;
-        this.$_pwAttrName = 'data-pow-css-hover';
-    }
+	constructor(element) {
+		super(element);
+		this._$pwActive = false;
+		this.$_pwAttrName = 'data-pow-css-hover';
+	}
 
-    init() {
-        if (!this.$_pwHoverValues) {
-            this.$_pwHoverValues = this.element.getAttribute(this.$_pwAttrName).split(' ') || [];
-        }
-        this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
-        this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
-    }
+	init() {
+		if (!this.$_pwHoverValues) {
+			this.$_pwHoverValues = this.element.getAttribute(this.$_pwAttrName).split(' ') || [];
+		}
+		this.nativeSubscribe({event: 'mouseover', fn: this.mouseover});
+		this.nativeSubscribe({event: 'mouseout', fn: this.mouseout});
+	}
 
-    mouseover() {
-        if (!this._$pwActive && !this.$shared._priorityActive) {
-            // Add all CSS selector on list
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.add(css);
-            }
-            this._$pwActive = true;
-            // This flag allows hover attrs have priority over attrs like the main attrs
-            this.$shared._priorityActive = true;
-        }
-    }
+	mouseover() {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
+			// Add all CSS selector on list
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.add(css);
+			}
+			this._$pwActive = true;
+			// This flag allows hover attrs have priority over attrs like the main attrs
+			this.$shared._priorityActive = true;
+		}
+	}
 
-    mouseout() {
-        if (this._$pwActive) {
-            // Remove the added classes
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.remove(css);
-            }
-            this._$pwActive = false;
-            this.$shared._priorityActive = false;
-        }
-    }
+	mouseout() {
+		if (this._$pwActive) {
+			// Remove the added classes
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.remove(css);
+			}
+			this._$pwActive = false;
+			this.$shared._priorityActive = false;
+		}
+	}
 }
 
 
 // Add to some element a list of CSS classes selectors when is mouseover some MAIN element and remove it on mouseout
 class PowMainCssHover extends PowCssHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pow-main-css-hover';
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-css-hover';
+	}
 
-    mouseover() {
-        if (!this._$pwActive && !this.$shared._priorityActive) {
-            // Add all CSS selector on list
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.add(css);
-            }
-            this._$pwActive = true;
-            this.$shared._priorityActive = true;
-        }
-    }
+	mouseover() {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
+			// Add all CSS selector on list
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.add(css);
+			}
+			this._$pwActive = true;
+			this.$shared._priorityActive = true;
+		}
+	}
 
-    mouseout() {
-        if (this._$pwActive) {
-            this._$pwActive = false;
-            this.$shared._priorityActive = false;
-            // Remove the added classes
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.remove(css);
-            }
-        }
-    }
+	mouseout() {
+		if (this._$pwActive) {
+			this._$pwActive = false;
+			this.$shared._priorityActive = false;
+			// Remove the added classes
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.remove(css);
+			}
+		}
+	}
 
-    // Atach the listner/Event to que main element
-    addEventListener(event, callback, useCapture) {
-        this.$pwMain.element.addEventListener(event, callback, useCapture);
-    }
+	// Atach the listner/Event to que main element
+	addEventListener(event, callback, useCapture) {
+		this.$pwMain.element.addEventListener(event, callback, useCapture);
+	}
 }
 
 
 // Replace the value of 'src' attribute when is mouseover some element and undo on mouseout
 class PowSrcHover extends _pwBasicHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pow-src-hover';
-        this.$_target = 'src';
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-src-hover';
+		this.$_target = 'src';
+	}
 }
 
 
 // Replace the value of 'src' attribute when is mouseover some MAIN element and undo on mouseout
 class PowMainSrcHover extends _pwMainBasicHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pow-main-src-hover';
-        this.$_target = 'src';
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-src-hover';
+		this.$_target = 'src';
+	}
 }
 
 
 // Remove the a CSS list when mouseover some element and undo on mouseout
 class PowCssHoverRemove extends PowCssHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pow-css-hover-remove';
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-css-hover-remove';
+	}
 
-    mouseover() {
-        if (!this._$pwActive) {
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.remove(css);
-            }
-            this._$pwActive = true;
-            this.$shared._priorityActive = true;
-        }
-    }
-    mouseout() {
-        if (!this._$pwActive) {
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.add(css);
-            }
-            this._$pwActive = false;
-            this.$shared._priorityActive = false;
-        }
-    }
+	mouseover() {
+		if (!this._$pwActive) {
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.remove(css);
+			}
+			this._$pwActive = true;
+			this.$shared._priorityActive = true;
+		}
+	}
+	mouseout() {
+		if (!this._$pwActive) {
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.add(css);
+			}
+			this._$pwActive = false;
+			this.$shared._priorityActive = false;
+		}
+	}
 }
 
 
 // Remove the a CSS list when mouseover some MAIN element and undo on mouseout
 class PowMainCssHoverRemove extends PowMainCssHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pow-main-css-hover-remove';
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pow-main-css-hover-remove';
+	}
 
-    mouseover() {
-        if (!this._$pwActive && !this.$shared._priorityActive) {
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.remove(css);
-            }
-            this._$pwActive = true;
-        }
-    }
-    mouseout() {
-        if (!this._$pwActive && !this.$shared._priorityActive) {
-            for (const css of this.$_pwHoverValues) {
-                this.element.classList.add(css);
-            }
-            this._$pwActive = false;
-        }
-    }
+	mouseover() {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.remove(css);
+			}
+			this._$pwActive = true;
+		}
+	}
+	mouseout() {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
+			for (const css of this.$_pwHoverValues) {
+				this.element.classList.add(css);
+			}
+			this._$pwActive = false;
+		}
+	}
 }
 
 class PowerUi {
@@ -681,6 +690,10 @@ class PowerUi {
 
 	_powerLabel(element) {
 		return new PowerLabel(element, this);
+	}
+
+	_powerAction(element) {
+		return new PowerAction(element, this);
 	}
 
 	_powerDropdown(element) {
@@ -767,38 +780,40 @@ class PowerLabel extends _PowerBasicElementWithEvents {
 }
 
 
+class PowerAction extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+
+		this._target = this.element.dataset.powerTarget;
+		if (!this._target) {
+			console.error('power-action selector needs a dropdown target', this.element);
+			throw 'Missing power-action target. Please define it: data-power-target="dropdown_id"';
+		}
+
+	}
+	init() {
+		// Add the dropdown to the action
+		this.powerDropdown = this.$powerUi.powerDOM.allPwElementsById[this._target].powerDropdown;
+		// Add the action to the dropdown
+		this.powerDropdown.powerAction = this;
+		this.nativeSubscribe({event: 'click', fn: this.powerDropdown.toggle});
+	}
+}
+
+
 class PowerDropdown extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 	}
 
-	init() {
-		this.element.classList.add('power-hide');
-		const children = this.element.children;
-		const labels = [];
-		for (const child of children) {
-			if (child.classList.contains('power-label')) {
-				if (!this.labels) this.labels = {};
-				if (child.id) {
-					const label = this.$powerUi.powerDOM.allPwElementsById[child.id].powerLabel;
-					// Add the dropdown to the label
-					label.dropdown = this;
-					// Add the label to the dropdown
-					this.labels[child.id] = label;
-					// nativeSubscribe click event on label element
-					label.nativeSubscribe({event: 'click', fn: this.toggle});
-				}
-			}
-		}
-	}
-
 	clickOutside(event) {
-		const targetElement = document.getElementById(this.dropdown.id);
+		const targetElement = document.getElementById(this.powerDropdown.id);
+		const powerAction = document.getElementById(this.id);
 		let clickedElement = event.target; // clicked element
 
 		do {
-			if (clickedElement == targetElement) {
-				// This is a click inside. Do nothing, just return
+			if (clickedElement === targetElement || clickedElement === powerAction) {
+				// This is a click inside the dropdown or on power action. Do nothing, just return
 				return;
 			}
 			// Go up the DOM
@@ -807,24 +822,24 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 		// This is a click outside, so close the dropdown
 		// Before call the toggle function we need pass the label element "this"
-		const toggle = this.dropdown.toggle.bind(this);
+		const toggle = this.powerDropdown.toggle.bind(this);
 		toggle();
 	}
 
 	// The toggle "this" is in reality the "this" of the label element
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
-		if (this.dropdown.element.classList.contains('power-hide')) {
-			this.dropdown.element.classList.remove('power-hide');
-			this.dropdown.element.classList.add('power-show');
-			// Add the listener to capture when click outside and register the function to allow remove it
-			this.dropdown._clickOutside = this.dropdown.clickOutside.bind(this);
-			document.addEventListener("click", this.dropdown._clickOutside);
-		} else {
-			this.dropdown.element.classList.remove('power-show');
-			this.dropdown.element.classList.add('power-hide');
+		if (this.powerDropdown._$pwActive) {
+			this.powerDropdown._$pwActive = false;
+			this.powerDropdown.element.classList.remove('power-show');
 			// Remove the listener to detect if click outside
-			document.removeEventListener("click", this.dropdown._clickOutside);
+			document.removeEventListener("click", this.powerDropdown._clickOutside);
+		} else {
+			this.powerDropdown._$pwActive = true;
+			this.powerDropdown.element.classList.add('power-show');
+			// Add the listener to capture when click outside and register the function to allow remove it
+			this.powerDropdown._clickOutside = this.powerDropdown.clickOutside.bind(this);
+			document.addEventListener("click", this.powerDropdown._clickOutside);
 		}
 	}
 
@@ -883,12 +898,12 @@ class PowerMenu {
 }
 
 class PwcPity extends PowCssHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pwc-pity';
-        this.element = element;
-        console.log('pwcPity is live!', this.$_pwAttrName);
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pwc-pity';
+		this.element = element;
+		console.log('pwcPity is live!', this.$_pwAttrName);
+	}
 }
 const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // TODO: testeExtendName is to find a way to modularize multiple exstensions
@@ -918,11 +933,5 @@ let app = new PowerUi(inject);
 function clickMenos(ctx, event, params) {
 	console.log(`Clicou no menos e tudo ${params.teste} senhor ${params.pity}.`);
 }
-app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: clickMenos, pity: "Pity o bom", teste: 'funciona'});
-
-function showMenuLabel(ctx) {
-	console.log("Essa é a label:", ctx);
-}
-app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: showMenuLabel});
 
 window.console.log('power', app);

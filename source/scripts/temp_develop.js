@@ -1,10 +1,10 @@
 class PwcPity extends PowCssHover {
-    constructor(element) {
-        super(element);
-        this.$_pwAttrName = 'data-pwc-pity';
-        this.element = element;
-        console.log('pwcPity is live!', this.$_pwAttrName);
-    }
+	constructor(element) {
+		super(element);
+		this.$_pwAttrName = 'data-pwc-pity';
+		this.element = element;
+		console.log('pwcPity is live!', this.$_pwAttrName);
+	}
 }
 const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // TODO: testeExtendName is to find a way to modularize multiple exstensions
@@ -34,11 +34,5 @@ let app = new PowerUi(inject);
 function clickMenos(ctx, event, params) {
 	console.log(`Clicou no menos e tudo ${params.teste} senhor ${params.pity}.`);
 }
-app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: clickMenos, pity: "Pity o bom", teste: 'funciona'});
-
-function showMenuLabel(ctx) {
-	console.log("Essa é a label:", ctx);
-}
-app.menus.powerui.labels.novo_menos.nativeSubscribe({event: 'click', fn: showMenuLabel});
 
 window.console.log('power', app);

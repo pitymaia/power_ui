@@ -42,6 +42,10 @@ class PowerUi {
 		return new PowerLabel(element, this);
 	}
 
+	_powerAction(element) {
+		return new PowerAction(element, this);
+	}
+
 	_powerDropdown(element) {
 		return new PowerDropdown(element, this);
 	}
@@ -126,38 +130,40 @@ class PowerLabel extends _PowerBasicElementWithEvents {
 }
 
 
+class PowerAction extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+
+		this._target = this.element.dataset.powerTarget;
+		if (!this._target) {
+			console.error('power-action selector needs a dropdown target', this.element);
+			throw 'Missing power-action target. Please define it: data-power-target="dropdown_id"';
+		}
+
+	}
+	init() {
+		// Add the dropdown to the action
+		this.powerDropdown = this.$powerUi.powerDOM.allPwElementsById[this._target].powerDropdown;
+		// Add the action to the dropdown
+		this.powerDropdown.powerAction = this;
+		this.nativeSubscribe({event: 'click', fn: this.powerDropdown.toggle});
+	}
+}
+
+
 class PowerDropdown extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 	}
 
-	init() {
-		this.element.classList.add('power-hide');
-		const children = this.element.children;
-		const labels = [];
-		for (const child of children) {
-			if (child.classList.contains('power-label')) {
-				if (!this.labels) this.labels = {};
-				if (child.id) {
-					const label = this.$powerUi.powerDOM.allPwElementsById[child.id].powerLabel;
-					// Add the dropdown to the label
-					label.dropdown = this;
-					// Add the label to the dropdown
-					this.labels[child.id] = label;
-					// nativeSubscribe click event on label element
-					label.nativeSubscribe({event: 'click', fn: this.toggle});
-				}
-			}
-		}
-	}
-
 	clickOutside(event) {
-		const targetElement = document.getElementById(this.dropdown.id);
+		const targetElement = document.getElementById(this.powerDropdown.id);
+		const powerAction = document.getElementById(this.id);
 		let clickedElement = event.target; // clicked element
 
 		do {
-			if (clickedElement == targetElement) {
-				// This is a click inside. Do nothing, just return
+			if (clickedElement === targetElement || clickedElement === powerAction) {
+				// This is a click inside the dropdown or on power action. Do nothing, just return
 				return;
 			}
 			// Go up the DOM
@@ -166,24 +172,24 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 		// This is a click outside, so close the dropdown
 		// Before call the toggle function we need pass the label element "this"
-		const toggle = this.dropdown.toggle.bind(this);
+		const toggle = this.powerDropdown.toggle.bind(this);
 		toggle();
 	}
 
 	// The toggle "this" is in reality the "this" of the label element
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
-		if (this.dropdown.element.classList.contains('power-hide')) {
-			this.dropdown.element.classList.remove('power-hide');
-			this.dropdown.element.classList.add('power-show');
-			// Add the listener to capture when click outside and register the function to allow remove it
-			this.dropdown._clickOutside = this.dropdown.clickOutside.bind(this);
-			document.addEventListener("click", this.dropdown._clickOutside);
-		} else {
-			this.dropdown.element.classList.remove('power-show');
-			this.dropdown.element.classList.add('power-hide');
+		if (this.powerDropdown._$pwActive) {
+			this.powerDropdown._$pwActive = false;
+			this.powerDropdown.element.classList.remove('power-show');
 			// Remove the listener to detect if click outside
-			document.removeEventListener("click", this.dropdown._clickOutside);
+			document.removeEventListener("click", this.powerDropdown._clickOutside);
+		} else {
+			this.powerDropdown._$pwActive = true;
+			this.powerDropdown.element.classList.add('power-show');
+			// Add the listener to capture when click outside and register the function to allow remove it
+			this.powerDropdown._clickOutside = this.powerDropdown.clickOutside.bind(this);
+			document.addEventListener("click", this.powerDropdown._clickOutside);
 		}
 	}
 

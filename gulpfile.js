@@ -46,25 +46,25 @@ gulp.task('build', function (done) {
 
 // Static server
 gulp.task('browser-sync', function() {
-    browserSync.init({
-        server: {
-            baseDir: "./app",
-            routes: {
-                "/": "/app/index.html",
-                // "css/": "/app/css/power_ui.css",
-                // "scripts/": "/app/scripts/power_ui.js",
-            },
-        },
-        startPath: '/',
-    });
+	browserSync.init({
+		server: {
+			baseDir: "./app",
+			routes: {
+				"/": "/app/index.html",
+				// "css/": "/app/css/power_ui.css",
+				// "scripts/": "/app/scripts/power_ui.js",
+			},
+		},
+		startPath: '/',
+	});
 
-    // gulp.watch("source/scripts/*.js").on('change', browserSync.reload);
-    // gulp.watch("source/css/*.css").on('change', browserSync.reload);
-    // gulp.watch("source/templates/*.*").on('change', browserSync.reload);
-    // Reload 'build' on files change
-    gulp.watch("source/scripts/*.js", ['build']);
-    gulp.watch("source/css/*.css", ['build']);
-    gulp.watch("source/templates/*.*", ['build']);
+	// gulp.watch("source/scripts/*.js").on('change', browserSync.reload);
+	// gulp.watch("source/css/*.css").on('change', browserSync.reload);
+	// gulp.watch("source/templates/*.*").on('change', browserSync.reload);
+	// Reload 'build' on files change
+	gulp.watch("source/scripts/*.js", ['build']);
+	gulp.watch("source/css/*.css", ['build']);
+	gulp.watch("source/templates/*.*", ['build']);
 });
 
 gulp.task('default', ['build', 'browser-sync']);
