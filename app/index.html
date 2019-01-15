@@ -189,7 +189,30 @@
         <div class="power-main">
             <div data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões</div>
             <button onclick="changeMenu()">Change</button>
-            <button onclick="showMenuLabel()">Show</button>
+            <button class="power-action" data-power-target="show">Show</button>
+            <nav id="show"
+                 class="power-dropdown"
+                 data-pow-main-css-hover="pw-orange"
+                 data-pow-css-hover="pw-green">
+                <a class="power-item">Email</a>
+                <a class="power-item">Twitter</a>
+                <a class="power-item">Tumblr Blog</a>
+                <a class="power-action" data-power-target="novissimos"><i class="power-icon icon-small fa fa-car"></i> More</a>
+                <nav id="novissimos" class="power-dropdown">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                    <a class="power-action" data-power-target="novissimos2"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
+                    <nav id="novissimos2" class="power-dropdown">
+                        <a class="power-item">Foo</a>
+                        <a class="power-item">Bar</a>
+                        <a class="power-item">I'm Batman</a>
+                    </nav>
+                    <a class="power-item">I'm Coringa</a>
+                </nav>
+                <a class="power-item">Other Blog</a>
+                <a class="power-item">News</a>
+            </nav>
         </div>
     </div>
     <section>
