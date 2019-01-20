@@ -826,6 +826,33 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 		toggle();
 	}
 
+	offsetParentElements(element) {
+		return parseInt(element.left.split('px')[0]) + parseInt(element['margin-left'].split('px')[0]);
+	}
+
+	getLeftPosition(dropdownAction) {
+		const bodyRect = document.body.getBoundingClientRect();
+		const elemRect = dropdownAction.element.getBoundingClientRect();
+		let offset = elemRect.left - bodyRect.left;
+
+		// Select all parent nodes to find the ones positioned as "absolute"
+		let curentNode = dropdownAction.element.parentNode;
+		const allParents = [];
+		while (curentNode && curentNode.tagName !== 'BODY') {
+			allParents.push(curentNode);
+			curentNode = curentNode.parentNode;
+		}
+
+		// Offset all parent "absolute" nodes
+		for (const parent of allParents) {
+			const parentElement = window.getComputedStyle(parent);
+			if (parentElement.position === 'absolute') {
+				offset  = offset - this.offsetParentElements(parentElement);
+			}
+		}
+
+		return Math.round(offset) + 'px';
+	}
 	// The toggle "this" is in reality the "this" of the label element
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
@@ -835,6 +862,12 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this.powerDropdown._clickOutside);
 		} else {
+
+			// console.log('body', findAbsoluteElementsFromList(document.querySelectorAll('div')));
+			// console.log('this.powerDropdown.getLeftPosition(this);', this.powerDropdown.getLeftPosition(this));
+			this.powerDropdown.element.style.left = this.powerDropdown.getLeftPosition(this);
+			console.log('powerDropdown', this.powerDropdown.element.parentNode);
+
 			this.powerDropdown._$pwActive = true;
 			this.powerDropdown.element.classList.add('power-show');
 			// Add the listener to capture when click outside and register the function to allow remove it
