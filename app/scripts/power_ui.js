@@ -927,6 +927,12 @@ class PowerMenu {
 	}
 }
 
+function powerOnly() {
+	window.location.href = 'http://localhost:3000/power_only.html';
+}
+function gotoIndex() {
+	window.location.href = 'http://localhost:3000';
+}
 class PwcPity extends PowCssHover {
 	constructor(element) {
 		super(element);
