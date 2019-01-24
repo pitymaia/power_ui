@@ -1,6 +1,6 @@
 /* Menu */
 .power-menu.power-horizontal > * {
-    /*display: inline-block;*/
+    display: inline-block;
 }
 
 .power-design-snow .power-label, .power-design-snow .power-item, .power-design-snow .power-action {
