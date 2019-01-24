@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="vendors/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="vendors/pure-min.css" />
   </head>
-  <body class="power-main">
+  <body class="power-main power-design-snow">
     <div class="back">
         <!-- Menu -->
         <div id="bootstrap" class="power-menu navbar navbar-expand-lg navbar-light bg-light" data-pwc-teste="remova isso">
@@ -111,7 +111,7 @@
                 </li>
             </ul>
         </div>
-        <nav id="powerui" class="power-default power-menu power-horizontal another">
+        <nav id="powerui" class="power-menu power-horizontal another">
             <span class="power-heading power-brand" id="outro">OUTRO</span>
             <a class="power-item power-link"
                data-pow-main-css-hover="pw-blue"
@@ -217,18 +217,20 @@
     </div>
 
     <!-- Power Vertical menu -->
-    <nav id="poweruiv" class="power-default power-menu another">
-        <span class="power-heading power-brand" id="outrov">OUTRO</span>
-        <a class="power-item power-link"
+    <nav id="poweruiv" class="power-menu another">
+        <div class="power-brand" id="outrov">OUTRO</div>
+        <div class="power-item power-link"
            data-pow-main-css-hover="pw-blue"
            data-pow-css-hover="pw-green"
            id="maisv">
             <i class="power-icon icon-small fa fa-car"></i>
             <span class="power-label">Mais</span>
              <span class="power-status fa fa-angle-right"></span>
-        </a>
-        <span class="power-action" id="novo_menosv" data-power-target="menosv" data-pow-main-css-hover="pw-red" data-pow-css-hover="pw-green"><i class="fa fa-car"></i> Menos</span>
-        <span class="power-status power-label fa fa-angle-right"></span>
+        </div>
+        <div class="power-action" id="novo_menosv" data-power-target="menosv" data-pow-main-css-hover="pw-red" data-pow-css-hover="pw-green"><i class="fa fa-car"></i>
+            <span>Menos</span>
+            <span class="power-status power-label fa fa-angle-right"></span>
+        </div>
         <nav id="menosv" class="power-dropdown">
             <a class="power-item">Email</a>
             <a class="power-item">Twitter</a>
@@ -249,14 +251,14 @@
             <a class="power-item">Other Blog</a>
             <a class="power-item">News</a>
         </nav>
-        <a class="power-item"
+        <div class="power-item"
            data-pow-main-css-hover="pw-yellow"
            data-pow-css-hover="pw-green"
            id="muitov">
             <i class="power-icon icon-small fa fa-car"></i>
             <span class="power-label">Muito</span>
              <span class="power-status fa fa-angle-right"></span>
-        </a>
+        </div>
         <button class="power-action" data-power-target="poucov" id="pouco_labelv">
             <img class="power-label" id="pouco_imgv"
                 data-pow-src-hover="vendors/imgs/atom-icon.png"
