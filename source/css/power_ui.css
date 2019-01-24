@@ -12,7 +12,7 @@
     display: inline;
 }
 
-.power-label, .power-item {
+.power-label, .power-item, .power-action {
     cursor: pointer;
 }
 /* Menu end*/

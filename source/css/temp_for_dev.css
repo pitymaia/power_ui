@@ -89,6 +89,9 @@ section {
     margin: 1em;
 }
 .back {
-    position: absolute;
+    /*position: absolute;*/
     left: 15em;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black;
 }

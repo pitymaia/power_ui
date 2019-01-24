@@ -111,7 +111,7 @@
                 </li>
             </ul>
         </div>
-        <nav id="powerui" class="power-menu pow-horizontal pow-design another">
+        <nav id="powerui" class="power-default power-menu power-horizontal another">
             <span class="power-heading power-brand" id="outro">OUTRO</span>
             <a class="power-item power-link"
                data-pow-main-css-hover="pw-blue"
@@ -151,7 +151,7 @@
                 <span class="power-label">Muito</span>
                  <span class="power-status fa fa-angle-right"></span>
             </a>
-            <span class="power-action" data-power-target="pouco" id="pouco_label">
+            <button class="power-action" data-power-target="pouco" id="pouco_label">
                 <img class="power-label" id="pouco_img"
                     data-pow-src-hover="vendors/imgs/atom-icon.png"
                     data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
@@ -160,7 +160,7 @@
                     height="25" />
                 Pouco
                 <span class="power-status fa fa-angle-right"></span>
-            </span>
+            </button>
             <nav id="pouco"
                  class="power-dropdown"
                  data-pow-main-css-hover="pw-orange"
@@ -189,7 +189,7 @@
         <div class="power-main">
             <div data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões</div>
             <button onclick="changeMenu()">Change</button>
-            <button class="power-action" data-power-target="show">Show</button>
+            <button id='show-button' class="power-action" data-power-target="show">Show</button>
             <nav id="show"
                  class="power-dropdown"
                  data-pow-main-css-hover="pw-orange"
@@ -215,6 +215,112 @@
             </nav>
         </div>
     </div>
+
+    <!-- Power Vertical menu -->
+    <nav id="poweruiv" class="power-default power-menu another">
+        <span class="power-heading power-brand" id="outrov">OUTRO</span>
+        <a class="power-item power-link"
+           data-pow-main-css-hover="pw-blue"
+           data-pow-css-hover="pw-green"
+           id="maisv">
+            <i class="power-icon icon-small fa fa-car"></i>
+            <span class="power-label">Mais</span>
+             <span class="power-status fa fa-angle-right"></span>
+        </a>
+        <span class="power-action" id="novo_menosv" data-power-target="menosv" data-pow-main-css-hover="pw-red" data-pow-css-hover="pw-green"><i class="fa fa-car"></i> Menos</span>
+        <span class="power-status power-label fa fa-angle-right"></span>
+        <nav id="menosv" class="power-dropdown">
+            <a class="power-item">Email</a>
+            <a class="power-item">Twitter</a>
+            <a class="power-item">Tumblr Blog</a>
+            <a class="power-action" data-power-target="moresv"><i class="power-icon icon-small fa fa-car"></i> More</a>
+            <nav id="moresv" class="power-dropdown">
+                <a class="power-item">Foo</a>
+                <a class="power-item">Bar</a>
+                <a class="power-item">I'm Batman</a>
+                <a class="power-action" data-power-target="finalesv"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
+                <nav id="finalesv" class="power-dropdown">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                </nav>
+                <a class="power-item">I'm Robin</a>
+            </nav>
+            <a class="power-item">Other Blog</a>
+            <a class="power-item">News</a>
+        </nav>
+        <a class="power-item"
+           data-pow-main-css-hover="pw-yellow"
+           data-pow-css-hover="pw-green"
+           id="muitov">
+            <i class="power-icon icon-small fa fa-car"></i>
+            <span class="power-label">Muito</span>
+             <span class="power-status fa fa-angle-right"></span>
+        </a>
+        <button class="power-action" data-power-target="poucov" id="pouco_labelv">
+            <img class="power-label" id="pouco_imgv"
+                data-pow-src-hover="vendors/imgs/atom-icon.png"
+                data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
+                src="vendors/imgs/gimp-icon.png"
+                width="25"
+                height="25" />
+            Pouco
+            <span class="power-status fa fa-angle-right"></span>
+        </button>
+        <nav id="poucov"
+             class="power-dropdown"
+             data-pow-main-css-hover="pw-orange"
+             data-pow-css-hover="pw-green">
+            <a class="power-item">Email</a>
+            <a class="power-item">Twitter</a>
+            <a class="power-item">Tumblr Blog</a>
+            <a class="power-action" data-power-target="morev"><i class="power-icon icon-small fa fa-car"></i> More</a>
+            <nav id="morev" class="power-dropdown">
+                <a class="power-item">Foo</a>
+                <a class="power-item">Bar</a>
+                <a class="power-item">I'm Batman</a>
+                <a class="power-action" data-power-target="finalv"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
+                <nav id="finalv" class="power-dropdown">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                </nav>
+                <a class="power-item">I'm Coringa</a>
+            </nav>
+            <a class="power-item">Other Blog</a>
+            <a class="power-item">News</a>
+        </nav>
+    </nav>
+    <br />
+    <div class="power-main">
+        <div data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões</div>
+        <button onclick="changeMenu()">Change</button>
+        <button id="bt-show" class="power-action" data-power-target="showv">Show</button>
+        <nav id="showv"
+             class="power-dropdown"
+             data-pow-main-css-hover="pw-orange"
+             data-pow-css-hover="pw-green">
+            <a class="power-item">Email</a>
+            <a class="power-item">Twitter</a>
+            <a class="power-item">Tumblr Blog</a>
+            <a class="power-action" data-power-target="novissimosv"><i class="power-icon icon-small fa fa-car"></i> More</a>
+            <nav id="novissimosv" class="power-dropdown">
+                <a class="power-item">Foo</a>
+                <a class="power-item">Bar</a>
+                <a class="power-item">I'm Batman</a>
+                <a class="power-action" data-power-target="novissimos2v"><i class="power-icon icon-small fa fa-car"></i> Even More</a>
+                <nav id="novissimos2v" class="power-dropdown">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                </nav>
+                <a class="power-item">I'm Coringa</a>
+            </nav>
+            <a class="power-item">Other Blog</a>
+            <a class="power-item">News</a>
+        </nav>
+    </div>
+
     <section>
         <header>
             Aqui temos o topo do layout

@@ -176,8 +176,9 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 		toggle();
 	}
 
-	offsetParentElements(element) {
-		return parseInt(element.left.split('px')[0]) + parseInt(element['margin-left'].split('px')[0]);
+	// Remove left, margin-left and border width from absolute elements
+	offsetParentAbsoluteElements(element) {
+		return parseInt(element.left.split('px')[0]) + parseInt(element['margin-left'].split('px')[0]) + parseInt(element['border-width'].split('px')[0]);
 	}
 
 	getLeftPosition(dropdownAction) {
@@ -197,7 +198,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 		for (const parent of allParents) {
 			const parentElement = window.getComputedStyle(parent);
 			if (parentElement.position === 'absolute') {
-				offset  = offset - this.offsetParentElements(parentElement);
+				offset  = offset - this.offsetParentAbsoluteElements(parentElement);
 			}
 		}
 
@@ -212,12 +213,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this.powerDropdown._clickOutside);
 		} else {
-
-			// console.log('body', findAbsoluteElementsFromList(document.querySelectorAll('div')));
-			// console.log('this.powerDropdown.getLeftPosition(this);', this.powerDropdown.getLeftPosition(this));
 			this.powerDropdown.element.style.left = this.powerDropdown.getLeftPosition(this);
-			console.log('powerDropdown', this.powerDropdown.element.parentNode);
-
 			this.powerDropdown._$pwActive = true;
 			this.powerDropdown.element.classList.add('power-show');
 			// Add the listener to capture when click outside and register the function to allow remove it
