@@ -1,3 +1,7 @@
+body.power-design-snow {
+    font-family: Verdana, Arial, "Courier New";
+}
+
 /* Menu */
 .power-menu.power-horizontal > * {
     display: inline-block;
@@ -10,6 +14,9 @@
 /* Menu end*/
 
 /* Dropdown */
+.power-design-snow .power-item, .power-design-snow .power-action, .power-design-snow .power-item > * , .power-design-snow .power-action > * {
+    vertical-align: middle;
+}
 .power-design-snow .power-dropdown.power-show, .power-design-snow .power-dropdown.power-show > .power-dropdown.power-show {
     display: block !important;
     white-space:nowrap;
