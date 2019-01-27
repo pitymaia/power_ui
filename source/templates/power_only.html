@@ -9,8 +9,8 @@
   <body class="power-main power-design-snow">
     <div class="back">
         <!-- Menu -->
-        <div id="bootstrap" class="power-menu navbar navbar-expand-lg navbar-light bg-light" data-pwc-teste="remova isso">
-            <a class="power-heading power-brand navbar-brand" id="first-brand"><span class="power-label">BRAND</span>
+        <nav id="top-menu" class="power-menu power-horizontal" data-pwc-teste="remova isso">
+            <a class="power-item power-brand"><span>BRAND</span>
                 <img data-pow-src-hover="vendors/imgs/Australia-Flag-icon.png"
                      data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
                      data-pwc-teste="remova isso tambem"
@@ -18,97 +18,85 @@
                      width="25"
                      height="25" />
             </a>
-            <ul class="power-list navbar-nav">
-                <li class="power-item nav-item dropdown" id="news">
-                    <a class="nav-link power-link dropdown-toggle" data-toggle="dropdown">
-                        <span class="power-icon fa fa-android"
-                              data-pow-main-css-hover="fa-blind"
-                              data-pow-css-hover="fa-bitcoin">
-                        </span>
-                        <span class="power-label">01News</span> <span class="power-status fa fa-angle-right" data-pow-main-css-hover="power-icon fa-arrow-right"></span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Link 1</a>
-                        <a class="dropdown-item" href="#">Link 2</a>
-                        <a class="dropdown-item" href="#">Link 3</a>
-                    </div>
-                </li>
-                <li class="power-item nav-item power-link dropdown" id="sports">
-                    <a class="nav-link dropdown-toggle"
-                       data-pow-main-css-hover="pw-blue"
-                       target="_blank"
-                       data-toggle="dropdown"
-                       >
-                        <span class="power-icon fa fa-blind"> </span>
-                        <span class="power-label">02Sports
-                        </span>
-                        <img
-                        src="vendors/imgs/tumblr_inline_nl8y67Q95H1t90c7j.gif"
-                        data-pow-src-hover="vendors/imgs/Australia-Flag-icon.png"
-                        data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
-                        width="25"
-                        height="25" />
-                        <img
-                        src="vendors/imgs/atom-icon.png"
-                        data-pow-src-hover="vendors/imgs/Brazil-Flag-icon.png"
-                        data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
-                        width="25"
-                        height="25" />
-                        <span class="power-status fa fa-angle-right"></span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Link 1</a>
-                        <a class="dropdown-item" href="#">Link 2</a>
-                        <a class="dropdown-item" href="#">Link 3</a>
-                    </div>
-                </li>
-                <!-- data-pow-main-css-hover-remove="pw-orange" -->
-                <li class="power-item nav-item pw-orange pw-underlined dropdown"
-                  data-pow-main-css-hover-remove="pw-orange pw-underlined"
-                  data-pow-main-css-hover="pw-blue"
-                  data-pow-css-hover-remove="pw-orange"
-                  data-pow-css-hover="pw-yellow pw-font-big"
-                  id="finance">
-                    <a class="nav-link power-link dropdown-toggle" data-toggle="dropdown">
-                        <span class="power-icon fa fa-car"> </span> <span class="power-label">03Finance</span>
-                        <span class="power-status fa fa-angle-right"></span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Link 1</a>
-                        <a class="dropdown-item" href="#">Link 2</a>
-                        <a class="dropdown-item" href="#">Link 3</a>
-                    </div>
-                </li>
-            </ul>
-        </div>
+            <a class="power-action" id="news" data-power-target="drop1">
+                <span class="power-icon fa fa-android"
+                      data-pow-main-css-hover="fa-blind"
+                      data-pow-css-hover="fa-bitcoin">
+                </span>
+                <span class="power-label">01News</span>
+                <span class="power-status fa fa-angle-right" data-pow-main-css-hover="power-icon fa-arrow-right"></span>
+            </a>
+            <nav class="power-dropdown" id="drop1">
+                <a class="power-item">Link 1</a>
+                <a class="power-item">Link 2</a>
+                <a class="power-item">Link 3</a>
+            </nav>
+            <a class="power-action" id="sports" data-power-target="drop2" data-pow-main-css-hover="pw-blue">
+                <span class="fa fa-blind"> </span>
+                <span>02Sports</span>
+                <img
+                src="vendors/imgs/tumblr_inline_nl8y67Q95H1t90c7j.gif"
+                data-pow-src-hover="vendors/imgs/Australia-Flag-icon.png"
+                data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
+                width="25"
+                height="25" />
+                <img
+                src="vendors/imgs/atom-icon.png"
+                data-pow-src-hover="vendors/imgs/Brazil-Flag-icon.png"
+                data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
+                width="25"
+                height="25" />
+                <span class="power-status fa fa-angle-right"></span>
+            </a>
+            <nav class="power-dropdown" id="drop2">
+                <a class="power-item">Mais Link 1</a>
+                <a class="power-action" data-power-target="sub1">
+                    Outro Link 2
+                    <span class="power-status fa fa-angle-right"></span>
+                </a>
+                <nav class="power-dropdown" id="sub1">
+                    <a class="power-item">Mais Link 1</a>
+                    <a class="power-item">Outro Link 2</a>
+                    <a class="power-item">Algum Link 3</a>
+                </nav>
+                <a class="power-item">Algum Link 3</a>
+            </nav>
+            <a class="power-action" data-power-target="drop3"
+              data-pow-main-css-hover-remove="pw-orange pw-underlined"
+              data-pow-main-css-hover="pw-blue"
+              data-pow-css-hover-remove="pw-orange"
+              data-pow-css-hover="pw-yellow pw-font-big"
+              id="finance">
+                <span class="fa fa-car"> </span> <span>03Finance</span>
+                <span class="power-status fa fa-angle-right"></span>
+            </a>
+            <nav class="power-dropdown" id="drop3">
+                <a class="power-item">Link 1</a>
+                <a class="power-item">Link 2</a>
+                <a class="power-item">Link 3</a>
+            </nav>
+        </nav>
 
         <!-- Menu end -->
         <h1 class="color1" data-pow-css-hover="color2">Hello, Power UI only!</h1>
         <p data-pwc-down-hover="fake" data-pow-main-css-hover="pw-blue" data-pow-css-hover="pw-orange">Algum conteúdo</p>
 
-        <div id="purecss" class="power-menu pure-menu pure-menu-horizontal">
-            <a class="pure-menu-heading pure-menu-link" data-pow-main-css-hover="pw-yellow" data-pow-css-hover="pw-orange">PURE</a>
-            <ul class="pure-menu-list">
-                <li class="pure-menu-item" data-pow-css-hover="pw-orange"><a class="pure-menu-link">04Noticias</a></li>
-                <li class="pure-menu-item" data-pow-main-css-hover="pw-blue" id="esporte"><a class="pure-menu-link">05Esporte</a></li>
-                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover" id="algum-id-maluco">
-                  <a id="menuLink1" class="pure-menu-link">Contact</a>
-                    <ul class="pure-menu-children">
-                        <li class="pure-menu-item"><a class="pure-menu-link">Email</a></li>
-                        <li class="pure-menu-item"><a class="pure-menu-link">Twitter</a></li>
-                        <li class="pure-menu-item"><a class="pure-menu-link">Tumblr Blog</a></li>
-                        <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-                          <a id="menuLink2" class="pure-menu-link">More</a>
-                            <ul class="pure-menu-children">
-                                <li class="pure-menu-item"><a class="pure-menu-link">Foo</a></li>
-                                <li class="pure-menu-item"><a class="pure-menu-link">Bar</a></li>
-                                <li class="pure-menu-item"><a class="pure-menu-link">I'm Batman</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+        <nav id="purecss" class="power-menu power-horizontal">
+            <a class="power-item" data-pow-main-css-hover="pw-yellow" data-pow-css-hover="pw-orange">POWER</a>
+            <a class="power-item" data-pow-css-hover="pw-orange">04Noticias</a>
+            <a class="power-item" data-pow-main-css-hover="pw-blue" id="esporte">05Esporte</a>
+            <a id="menuLink1" class="power-action" data-power-target="drop-contact">Contact <span class="power-status fa fa-angle-right"></span></a>
+            <nav class="power-dropdown" id="drop-contact">
+                <a class="power-item">Email</a>
+                <a class="power-item">Twitter</a>
+                <a class="power-action" data-power-target="drop-blog">Tumblr Blog <span class="power-status fa fa-angle-right"></span></a>
+                <nav class="power-dropdown" id="drop-blog">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                </nav>
+            </nav>
+        </nav>
         <nav id="powerui" class="power-menu power-horizontal another">
             <div class="power-heading power-brand" id="outro">OUTRO</div>
             <div class="power-item power-link"
@@ -343,10 +331,6 @@
             Esse aqui é footer.
         </footer>
     </section>
-    <script src="vendors/jquery-3.2.1.slim.min.js"></script>
-    <script src="vendors/popper.min.js"></script>
-    <script src="vendors/bootstrap.min.js"></script>
-    <script src="vendors/pure-menus.js"></script>
     <script type="text/javascript" src="scripts/power_ui.js"></script>
   </body>
 </html>

@@ -1,8 +1,8 @@
 function powerOnly() {
-	window.location.href = 'http://localhost:3000/power_only.html';
+	window.location.href = '/power_only.html';
 }
 function gotoIndex() {
-	window.location.href = 'http://localhost:3000';
+	window.location.href = '/';
 }
 class PwcPity extends PowCssHover {
 	constructor(element) {

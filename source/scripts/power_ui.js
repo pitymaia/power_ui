@@ -177,14 +177,19 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 	}
 
 	// Remove left, margin-left and border width from absolute elements
-	offsetParentAbsoluteElements(element) {
-		return parseInt(element.left.split('px')[0]) + parseInt(element['margin-left'].split('px')[0]) + parseInt(element['border-width'].split('px')[0]);
+	offsetComputedStyles(styles) {
+		return parseInt(styles.left.split('px')[0]) + parseInt(styles['margin-left'].split('px')[0]) + parseInt(styles['border-width'].split('px')[0]);
+	}
+
+	offsetComputedBodyStyles(styles) {
+		return parseInt(styles['margin-left'].split('px')[0]) + parseInt(styles['border-width'].split('px')[0]);
 	}
 
 	getLeftPosition(dropdownAction) {
 		const bodyRect = document.body.getBoundingClientRect();
 		const elemRect = dropdownAction.element.getBoundingClientRect();
 		let offset = elemRect.left - bodyRect.left;
+		offset  = offset + this.offsetComputedBodyStyles(window.getComputedStyle(document.body));
 
 		// Select all parent nodes to find the ones positioned as "absolute"
 		let curentNode = dropdownAction.element.parentNode;
@@ -196,9 +201,9 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 		// Offset all parent "absolute" nodes
 		for (const parent of allParents) {
-			const parentElement = window.getComputedStyle(parent);
-			if (parentElement.position === 'absolute') {
-				offset  = offset - this.offsetParentAbsoluteElements(parentElement);
+			const parentStyles = window.getComputedStyle(parent);
+			if (parentStyles.position === 'absolute') {
+				offset  = offset - this.offsetComputedStyles(parentStyles);
 			}
 		}
 
