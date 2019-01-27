@@ -9,7 +9,7 @@
 }
 
 .pw-red, .pw-red * {
-    color: red;
+    color: red !important;
 }
 
 .pw-orange, .pw-orange * {
@@ -20,21 +20,25 @@
     color: green !important;
 }
 
-.pw-font-big {
-    font-size: 1.5em;
+.pw-font-big * {
+    font-size: 1.5em !important;
 }
 
-.pw-underlined {
-    text-decoration: underline;
+.pw-underlined * {
+    text-decoration: underline !important;
+}
+
+.pw-underlined-none * {
+    text-decoration: none !important;
 }
 
 .color1 {
     color: yellow !important;
-    text-shadow: 2px 2px 10px blue;
+    text-shadow: 2px 2px 10px blue !important;
 }
 .color2 {
     color: orange !important;
-    text-shadow: 2px 2px 10px yellow;
+    text-shadow: 2px 2px 10px yellow !important;
 }
 
 .another {

@@ -103,14 +103,12 @@ class PowMainCssHover extends PowCssHover {
 				this.element.classList.add(css);
 			}
 			this._$pwActive = true;
-			this.$shared._priorityActive = true;
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
 			this._$pwActive = false;
-			this.$shared._priorityActive = false;
 			// Remove the added classes
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
@@ -162,7 +160,7 @@ class PowCssHoverRemove extends PowCssHover {
 		}
 	}
 	mouseout() {
-		if (!this._$pwActive) {
+		if (this._$pwActive) {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
@@ -189,7 +187,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 		}
 	}
 	mouseout() {
-		if (!this._$pwActive && !this.$shared._priorityActive) {
+		if (this._$pwActive && !this.$shared._priorityActive) {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
