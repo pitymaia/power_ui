@@ -123,23 +123,23 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 
 	}
 
-	// This is the normal subscribe for custom events
-	// If the event doesn't exists create it and subscribe
-	// If it already exists just subscribe
-	subscribe({event, fn, useCapture=false, ...params}) {
-		const ctx = this;
-		// Create the event
-		if (!this._events[event]) {
-			this._events[event] = new Event(this.id);
-		}
-		// Subscribe to the element
-		this._events[event].subscribe(fn, ctx, params);
-	}
+	// // This is the normal subscribe for custom events
+	// // If the event doesn't exists create it and subscribe
+	// // If it already exists just subscribe
+	// subscribe({event, fn, useCapture=false, ...params}) {
+	// 	const ctx = this;
+	// 	// Create the event
+	// 	if (!this._events[event]) {
+	// 		this._events[event] = new Event(this.id);
+	// 	}
+	// 	// Subscribe to the element
+	// 	this._events[event].subscribe(fn, ctx, params);
+	// }
 
 	// This is a subscribe for native envents that broadcast when the event is dispached
 	// If the event doesn't exists create it and subscribe
 	// If it already exists just subscribe
-	nativeSubscribe({event, fn, useCapture=false, ...params}) {
+	subscribe({event, fn, useCapture=false, ...params}) {
 		const ctx = this;
 		// Create the event
 		if (!this._events[event]) {
@@ -190,14 +190,10 @@ const _powerCssConfig = [
 	{name: 'power-menu', isMain: true},
 	{name: 'power-main', isMain: true},
 	{name: 'power-brand'},
-	{name: 'power-heading'},
 	{name: 'power-item'},
-	{name: 'power-label'},
 	{name: 'power-action'},
 	{name: 'power-dropdown'},
-	{name: 'power-link'},
 	{name: 'power-status'},
-	{name: 'power-icon'},
 ];
 
 

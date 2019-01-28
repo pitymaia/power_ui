@@ -30,16 +30,8 @@ class PowerUi {
 		return new PowerBrand(element, this);
 	}
 
-	_powerHeading(element) {
-		return new PowerHeading(element, this);
-	}
-
 	_powerItem(element) {
 		return new PowerItem(element, this);
-	}
-
-	_powerLabel(element) {
-		return new PowerLabel(element, this);
 	}
 
 	_powerAction(element) {
@@ -50,15 +42,7 @@ class PowerUi {
 		return new PowerDropdown(element, this);
 	}
 
-	_powerLink(element) { // TODO need classes?
-		return new _PowerBasicElement(element, this);
-	}
-
 	_powerStatus(element) { // TODO need classes?
-		return new _PowerBasicElement(element, this);
-	}
-
-	_powerIcon(element) { // TODO need classes?
 		return new _PowerBasicElement(element, this);
 	}
 
@@ -68,62 +52,7 @@ class PowerUi {
 }
 
 
-class PowerHeading extends _PowerBasicElement {
-	constructor(element) {
-		super(element);
-	}
-}
-
-
-class _PowerLinkElement extends _PowerBasicElement {
-	constructor(element) {
-		super(element);
-	}
-
-	// getter for default _PowerLinkElement IMG
-	get image() {
-		const image = this.images[0];
-		return image ? image : null;
-	}
-
-	get src() {
-		const image = this.image;
-		return image ? image.src : null;
-	}
-
-	set src(src) {
-		const image = this.image;
-		if (image) {
-			image.src = src;
-		}
-	}
-
-	get link() {
-		const selector = 'power-link';
-		const links = this.element.getElementsByClassName(selector);
-		let link = links[0] ? links[0] : null;
-		// Maybe the power-link class is in the element it self
-		if (!link && this.element.className.includes(selector)) {
-			link = this.element;
-		}
-		return link;
-	}
-
-	get href() {
-		const href = this.link.querySelectorAll('[href]');
-		return href[0] ? href[0].getAttribute('href') : null;
-	}
-}
-
-
-class PowerItem extends _PowerLinkElement {
-	constructor(element) {
-		super(element);
-	}
-}
-
-
-class PowerLabel extends _PowerBasicElementWithEvents {
+class PowerItem extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 	}
@@ -146,7 +75,7 @@ class PowerAction extends _PowerBasicElementWithEvents {
 		this.powerDropdown = this.$powerUi.powerDOM.allPwElementsById[this._target].powerDropdown;
 		// Add the action to the dropdown
 		this.powerDropdown.powerAction = this;
-		this.nativeSubscribe({event: 'click', fn: this.powerDropdown.toggle});
+		this.subscribe({event: 'click', fn: this.powerDropdown.toggle});
 	}
 }
 
@@ -235,12 +164,12 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerBrand extends _PowerLinkElement {
+class PowerBrand extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		// $pwMain._mouseover.nativeSubscribe(function (ctx) {
+		// $pwMain._mouseover.subscribe(function (ctx) {
 		// 	console.log('Ouvindo', self.id, ctx.id);
 		// });
 	}
