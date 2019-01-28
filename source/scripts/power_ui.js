@@ -72,7 +72,7 @@ class PowerAction extends _PowerBasicElementWithEvents {
 	}
 	init() {
 		// Add the dropdown to the action
-		this.powerDropdown = this.$powerUi.powerDOM.allPwElementsById[this._target].powerDropdown;
+		this.powerDropdown = this.$powerUi.powerDOM.allPowerObjsById[this._target].powerDropdown;
 		// Add the action to the dropdown
 		this.powerDropdown.powerAction = this;
 		this.subscribe({event: 'click', fn: this.powerDropdown.toggle});
@@ -142,13 +142,15 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
 		if (this.powerDropdown._$pwActive) {
+			this._$pwActive = false; // powerAction
 			this.powerDropdown._$pwActive = false;
 			this.powerDropdown.element.classList.remove('power-show');
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this.powerDropdown._clickOutside);
 		} else {
-			this.powerDropdown.element.style.left = this.powerDropdown.getLeftPosition(this);
+			this._$pwActive = true; // powerAction
 			this.powerDropdown._$pwActive = true;
+			this.powerDropdown.element.style.left = this.powerDropdown.getLeftPosition(this);
 			this.powerDropdown.element.classList.add('power-show');
 			// Add the listener to capture when click outside and register the function to allow remove it
 			this.powerDropdown._clickOutside = this.powerDropdown.clickOutside.bind(this);

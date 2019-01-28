@@ -203,7 +203,7 @@ class PowerDOM {
 		this.powerCss = {};
 		this.powAttrs = {};
 		this.pwcAttrs = {};
-		this.allPwElementsById = {};
+		this.allPowerObjsById = {};
 
 		const tempSelectors = {
 			powerCss: {},
@@ -285,11 +285,11 @@ class PowerDOM {
 	}
 
 	_callInit() {
-		for (const id in this.allPwElementsById) {
+		for (const id in this.allPowerObjsById) {
 			// Call init for all elements
-			for (const attr in this.allPwElementsById[id]) {
-				if (this.allPwElementsById[id][attr].init) {
-					this.allPwElementsById[id][attr].init();
+			for (const attr in this.allPowerObjsById[id]) {
+				if (this.allPowerObjsById[id][attr].init) {
+					this.allPowerObjsById[id][attr].init();
 				}
 			}
 		}
@@ -297,21 +297,21 @@ class PowerDOM {
 
 	// Register siblings elements and call init()
 	_addSiblings() {
-		for (const id in this.allPwElementsById) {
+		for (const id in this.allPowerObjsById) {
 			// if Object.keys(obj).length add the siblings for each objects
 			// Also call init(if true or else)
-			if (Object.keys(this.allPwElementsById[id]).length > 1) {
-				for (const attr in this.allPwElementsById[id]) {
+			if (Object.keys(this.allPowerObjsById[id]).length > 1) {
+				for (const attr in this.allPowerObjsById[id]) {
 					// Don't add siblings to $shared
 					if (attr != '$shared') {
-						if (!this.allPwElementsById[id][attr].siblings) {
-							this.allPwElementsById[id][attr].siblings = {};
+						if (!this.allPowerObjsById[id][attr].siblings) {
+							this.allPowerObjsById[id][attr].siblings = {};
 						}
 						// To avoid add this element as a sibling of it self we need iterate over attrs again
-						for (const siblingAttr in this.allPwElementsById[id]) {
+						for (const siblingAttr in this.allPowerObjsById[id]) {
 							// Also don't add $shared siblings
 							if (siblingAttr !== attr && siblingAttr != '$shared') {
-								this.allPwElementsById[id][attr].siblings[siblingAttr] = this.allPwElementsById[id][siblingAttr];
+								this.allPowerObjsById[id][attr].siblings[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
 							}
 						}
 					}
@@ -387,8 +387,8 @@ class PowerDOM {
 				ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
 			}
 			// Add the same element into a list ordered by id
-			if (!ctx.allPwElementsById[id]) {
-				ctx.allPwElementsById[id] = {};
+			if (!ctx.allPowerObjsById[id]) {
+				ctx.allPowerObjsById[id] = {};
 			} else {
 				const selectorToTest = document.querySelectorAll(`[id=${id}]`);
 				if (selectorToTest.length > 1) {
@@ -397,17 +397,17 @@ class PowerDOM {
 					throw `HTML element can't have duplicated IDs: ${id}`;
 				}
 			}
-			ctx.allPwElementsById[id][datasetKey] = ctx[attribute][datasetKey][id];
+			ctx.allPowerObjsById[id][datasetKey] = ctx[attribute][datasetKey][id];
 			// Add to any element some desired variables
-			ctx.allPwElementsById[id][datasetKey]._id = id;
-			ctx.allPwElementsById[id][datasetKey].$_pwName = datasetKey;
-			ctx.allPwElementsById[id][datasetKey].$powerUi = ctx.$powerUi;
+			ctx.allPowerObjsById[id][datasetKey]._id = id;
+			ctx.allPowerObjsById[id][datasetKey].$_pwName = datasetKey;
+			ctx.allPowerObjsById[id][datasetKey].$powerUi = ctx.$powerUi;
 			// Create a $shared scope for each element
-			if (!ctx.allPwElementsById[id].$shared) {
-				ctx.allPwElementsById[id].$shared = {};
+			if (!ctx.allPowerObjsById[id].$shared) {
+				ctx.allPowerObjsById[id].$shared = {};
 			}
 			// add the shered scope to all elements
-			ctx.allPwElementsById[id][datasetKey].$shared = ctx.allPwElementsById[id].$shared;
+			ctx.allPowerObjsById[id][datasetKey].$shared = ctx.allPowerObjsById[id].$shared;
 		}
 	}
 
