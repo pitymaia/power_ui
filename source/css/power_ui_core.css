@@ -1,0 +1,14 @@
+/* Menu */
+.power-menu.power-horizontal > * {
+    display: inline-block;
+}
+/* Menu end*/
+/* Dropdown */
+.power-show > .power-item, .power-show > .power-action {
+    display: block !important;
+}
+
+.power-dropdown, .power-dropdown.power-show > .power-dropdown {
+    display: none !important;
+}
+/* Dropdown end */

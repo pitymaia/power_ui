@@ -3,11 +3,7 @@ body.power-design-snow {
 }
 
 /* Menu */
-.power-menu.power-horizontal > * {
-    display: inline-block;
-}
-
-.power-design-snow, .power-design-snow .power-item, .power-design-snow .power-action {
+.power-design-snow .power-brand, .power-design-snow .power-item, .power-design-snow .power-action {
     cursor: pointer;
     list-style-type: none;
 }
@@ -26,20 +22,10 @@ body.power-design-snow {
     position: absolute;
     background-color: white;
 }
-
 .power-design-snow .power-dropdown > .power-dropdown.power-show {
     margin-left: 2em;
 }
-
 .power-design-snow .power-item, .power-design-snow .power-action {
     padding: .5em !important;
-}
-
-.power-show > .power-item, .power-show > .power-action {
-    display: block !important;
-}
-
-.power-dropdown, .power-dropdown.power-show > .power-dropdown {
-    display: none !important;
 }
 /* Dropdown end */
