@@ -1,9 +1,25 @@
+/* Dropdown */
+
+.power-dropdown, .power-dropdown.power-show > .power-dropdown {
+    display: none !important;
+}
+@media screen and (max-width: 800px) {
+    .power-dropdown > .power-dropdown.power-show {
+        margin-left: 0 !important;
+        position: relative;
+    }
+}
+/* Dropdown end */
 /* Menu */
 .power-menu.power-horizontal > * {
     display: inline-block;
 }
 
-.power-menu.power-horizontal .power-hamburger {
+.power-show > .power-item, .power-show > .power-action, .power-show > .power-brand {
+    display: block !important;
+}
+
+.power-menu.power-horizontal .power-toggle {
     display: none;
 }
 
@@ -11,22 +27,24 @@
     .power-menu.power-horizontal .power-action, .power-menu.power-horizontal .power-item {
         display: none;
     }
+
     .power-menu.power-horizontal {
         display: flex;
         justify-content: space-between;
     }
-    .power-menu.power-horizontal .power-hamburger {
+
+    .power-menu.power-horizontal.power-show {
+        display: block;
+        justify-content: initial;
+    }
+
+    .power-menu.power-horizontal .power-toggle {
         display: inline-block;
         text-align: right;
     }
+
+    .power-menu.power-horizontal.power-show .power-toggle {
+        display: none;
+    }
 }
 /* Menu end*/
-/* Dropdown */
-.power-show > .power-item, .power-show > .power-action {
-    display: block !important;
-}
-
-.power-dropdown, .power-dropdown.power-show > .power-dropdown {
-    display: none !important;
-}
-/* Dropdown end */
