@@ -80,6 +80,27 @@ class PowerAction extends _PowerBasicElementWithEvents {
 }
 
 
+class PowerBurguer extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+
+		this._target = this.element.dataset.powerTarget;
+		if (!this._target) {
+			console.error('power-action selector needs a dropdown target', this.element);
+			throw 'Missing power-action target. Please define it: data-power-target="menu_id"';
+		}
+
+	}
+	init() {
+		// Add the dropdown to the action
+		this.powerMenu = this.$powerUi.powerDOM.allPowerObjsById[this._target].powerMenu;
+		// Add the action to the dropdown
+		this.powerMenu.powerAction = this;
+		this.subscribe({event: 'click', fn: this.powerMenu.toggle});
+	}
+}
+
+
 class PowerDropdown extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
@@ -107,11 +128,11 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 	// Remove left, margin-left and border width from absolute elements
 	offsetComputedStyles(styles) {
-		return parseInt(styles.left.split('px')[0]) + parseInt(styles['margin-left'].split('px')[0]) + parseInt(styles['border-width'].split('px')[0]);
+		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0) + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 
 	offsetComputedBodyStyles(styles) {
-		return parseInt(styles['margin-left'].split('px')[0]) + parseInt(styles['border-width'].split('px')[0]);
+		return parseInt(styles['margin-left'].split('px')[0] || 0) + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 
 	getLeftPosition(dropdownAction) {
@@ -138,7 +159,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 		return Math.round(offset) + 'px';
 	}
-	// The toggle "this" is in reality the "this" of the label element
+	// The toggle "this" is in reality the "this" of the PowerAction element
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
 		if (this.powerDropdown._$pwActive) {
