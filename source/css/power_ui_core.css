@@ -2,6 +2,24 @@
 .power-menu.power-horizontal > * {
     display: inline-block;
 }
+
+.power-menu.power-horizontal .power-hamburger {
+    display: none;
+}
+
+@media screen and (max-width: 800px) {
+    .power-menu.power-horizontal .power-action, .power-menu.power-horizontal .power-item {
+        display: none;
+    }
+    .power-menu.power-horizontal {
+        display: flex;
+        justify-content: space-between;
+    }
+    .power-menu.power-horizontal .power-hamburger {
+        display: inline-block;
+        text-align: right;
+    }
+}
 /* Menu end*/
 /* Dropdown */
 .power-show > .power-item, .power-show > .power-action {

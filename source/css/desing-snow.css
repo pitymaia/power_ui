@@ -3,17 +3,33 @@ body.power-design-snow {
 }
 
 /* Menu */
-.power-design-snow .power-brand, .power-design-snow .power-item, .power-design-snow .power-action {
+.power-design-snow .power-brand, .power-design-snow .power-item, .power-design-snow .power-action, .power-design-snow .power-hamburger {
     cursor: pointer;
     list-style-type: none;
+}
+
+.power-design-snow .power-menu {
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    border-style: solid;
+    border-width: 1px;
+    background-color: #fff;
+    vertical-align: middle;
+}
+
+.power-design-snow .power-hamburger {
+    border-style: solid;
+    border-width: 1px;
+    padding: 0.3em 0.5em;
 }
 /* Menu end*/
 
 /* Dropdown */
-.power-design-snow .power-item, .power-design-snow .power-action, .power-design-snow .power-item > * , .power-design-snow .power-action > * {
+.power-design-snow .power-item, .power-design-snow .power-action, .power-design-snow .power-item > *, .power-design-snow .power-brand, .power-design-snow .power-action > *, .power-design-snow .power-brand > * {
     vertical-align: middle;
     font-size: 12pt;
 }
+
 .power-design-snow .power-dropdown.power-show, .power-design-snow .power-dropdown.power-show > .power-dropdown.power-show {
     display: block !important;
     white-space:nowrap;
@@ -22,9 +38,11 @@ body.power-design-snow {
     position: absolute;
     background-color: white;
 }
+
 .power-design-snow .power-dropdown > .power-dropdown.power-show {
     margin-left: 2em;
 }
+
 .power-design-snow .power-item, .power-design-snow .power-action {
     padding: .5em !important;
 }
