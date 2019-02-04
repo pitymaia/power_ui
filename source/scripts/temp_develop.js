@@ -38,8 +38,8 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 let app = new PowerUi(inject);
 
 if (app.powerDOM.allPowerObjsById['even-more']) {
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: function () {
-		console.log('Clicou', this);
+	app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
+		console.log('toggle', ctx);
 	}});
 }
 window.console.log('power', app, app.powerDOM.allPowerObjsById['even-more']);

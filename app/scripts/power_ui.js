@@ -119,38 +119,41 @@ class _PowerBasicElement {
 class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	constructor(element) {
 		super(element);
+		// The Events list
 		this._events = {};
-
+		// Hold custom events to dispatch
+		this.customEvents = {};
 	}
 
-	// // This is the normal subscribe for custom events
-	// // If the event doesn't exists create it and subscribe
-	// // If it already exists just subscribe
-	// subscribe({event, fn, useCapture=false, ...params}) {
-	// 	const ctx = this;
-	// 	// Create the event
-	// 	if (!this._events[event]) {
-	// 		this._events[event] = new Event(this.id);
-	// 	}
-	// 	// Subscribe to the element
-	// 	this._events[event].subscribe(fn, ctx, params);
-	// }
-
-	// This is a subscribe for native envents that broadcast when the event is dispached
-	// If the event doesn't exists create it and subscribe
-	// If it already exists just subscribe
+	// This is a subscribe for native and custom envents that broadcast when the event is dispached
+	// If the event doesn't exists create it and subscribe, if it already exists just subscribe
 	subscribe({event, fn, useCapture=false, ...params}) {
 		const ctx = this;
 		// Create the event
 		if (!this._events[event]) {
 			this._events[event] = new Event(this.id);
-			// This is the listener/broadcast for the native events
+			// Check if event is native, if not creates a custom event
+			if (typeof document.body[event] === "undefined") {
+				// Only creates if not exists
+				if (!this.customEvents[event]) {
+					this.customEvents[event] = new CustomEvent(event, {});
+				}
+			}
+			// This is the listener/broadcast for the native and custom events
 			this.addEventListener(event, function(domEvent) {
 				ctx._events[event].broadcast(ctx, domEvent, params);
 			}, useCapture);
 		}
 		// Subscribe to the element
 		this._events[event].subscribe(fn, ctx, params);
+	}
+
+	broadcast(eventName) {
+		if (this.customEvents[eventName]) {
+			this.element.dispatchEvent(this.customEvents[eventName]);
+		} else if (this._events[eventName]) {
+			this._events[eventName].broadcast();
+		}
 	}
 
 	addEventListener(event, callback, useCapture=false) {
@@ -833,6 +836,8 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			this.powerDropdown._clickOutside = this.powerDropdown.clickOutside.bind(this);
 			document.addEventListener("click", this.powerDropdown._clickOutside);
 		}
+		// Broadcast toggle custom event
+		this.broadcast('toggle');
 	}
 }
 
@@ -946,8 +951,8 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 let app = new PowerUi(inject);
 
 if (app.powerDOM.allPowerObjsById['even-more']) {
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: function () {
-		console.log('Clicou', this);
+	app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
+		console.log('toggle', ctx);
 	}});
 }
 window.console.log('power', app, app.powerDOM.allPowerObjsById['even-more']);

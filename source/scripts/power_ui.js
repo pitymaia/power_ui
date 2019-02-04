@@ -188,6 +188,8 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			this.powerDropdown._clickOutside = this.powerDropdown.clickOutside.bind(this);
 			document.addEventListener("click", this.powerDropdown._clickOutside);
 		}
+		// Broadcast toggle custom event
+		this.broadcast('toggle');
 	}
 }
 
