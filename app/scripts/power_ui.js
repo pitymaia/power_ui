@@ -784,7 +784,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 	// Remove left, margin-left and border width from absolute elements
 	offsetComputedStyles(styles) {
-		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0) + parseInt(styles['border-width'].split('px')[0] || 0);
+		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0)  + parseInt(styles['border-left-width'].split('px')[0] || 0);
 	}
 
 	offsetComputedBodyStyles(styles) {
