@@ -4,7 +4,7 @@
 function splitStringWithUrl(string) {
 	const expression = new RegExp(/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\b[.:][a-z0-9@:%_\+.~#?&//=]{2,256}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi);
 	// Hold all the matched URLs
-	const urls = string.match(expression) || [];
+	const urls = string ? string.match(expression) || [] : [];
 	const finalUrls = [];
 	// The final parts to return
 	const stringParts = [];
