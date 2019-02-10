@@ -122,7 +122,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		// The Events list
 		this._events = {};
 		// Hold custom events to dispatch
-		this.customEvents = {};
+		this._DOMEvents = {};
 	}
 
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
@@ -132,13 +132,16 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		// Create the event
 		if (!this._events[event]) {
 			this._events[event] = new Event(this.id);
-			// Check if event is native, if not creates a custom event
-			if (typeof document.body[event] === "undefined") {
-				// Only creates if not exists
-				if (!this.customEvents[event]) {
-					this.customEvents[event] = new CustomEvent(event, {});
+			// The following code only create custom events for not native events,
+			// but now we want it allways create de event to dispatch it on broadcast, so we commented the check on document.body[event]
+			// // Check if event is native, if not creates a custom event
+			// if (typeof document.body[event] === "undefined") {
+			// 	// Only creates if not exists
+				if (!this._DOMEvents[event]) {
+					this._DOMEvents[event] = new CustomEvent(event, {bubbles: useCapture});
 				}
-			}
+			// }
+
 			// This is the listener/broadcast for the native and custom events
 			this.addEventListener(event, function(domEvent) {
 				ctx._events[event].broadcast(ctx, domEvent, params);
@@ -148,11 +151,21 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._events[event].subscribe(fn, ctx, params);
 	}
 
-	broadcast(eventName) {
-		if (this.customEvents[eventName]) {
-			this.element.dispatchEvent(this.customEvents[eventName]);
-		} else if (this._events[eventName]) {
-			this._events[eventName].broadcast();
+	broadcast(eventName, alreadyDispatched) {
+		// If the custom event not already called its method
+		if (typeof document.body[eventName] === "undefined" && !alreadyDispatched) {
+			// If is a custom event with a method, the broadcast call it
+			this.dispatch(eventName);
+		} else if (this._DOMEvents[eventName]) {
+			this.element.dispatchEvent(this._DOMEvents[eventName]);
+		}
+	}
+
+	// Run custom events methods when calls the broadcast
+	dispatch(eventName) {
+		// Only call if a method with the event name exists
+		if (this[eventName]) {
+			this[eventName]();
 		}
 	}
 

@@ -97,9 +97,14 @@ class PowerAction extends _PowerBasicElementWithEvents {
 		this.powerDropdown.powerAction = this;
 		this.subscribe({event: 'click', fn: this.powerDropdown.toggle});
 	}
+
+	// This allow the broadcast of custom event "toggle" call the toggle method
+	dispatch(eventName) {
+		this.powerDropdown[eventName].bind(this)();
+	}
 }
 
-
+// This is the menu hamburger button
 class PowerToggle extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
@@ -112,9 +117,9 @@ class PowerToggle extends _PowerBasicElementWithEvents {
 	}
 
 	init() {
-		// Add the dropdown to the action
+		// Add the powerMenu to the PowerToggle button
 		this.powerMenu = this.$powerUi.powerDOM.allPowerObjsById[this._target].powerMenu;
-		// Add the action to the dropdown
+		// Add the PowerToggle button to the menu
 		this.powerMenu.powerToggle = this;
 		this.subscribe({event: 'click', fn: this.powerMenu.toggle});
 	}
@@ -189,7 +194,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			document.addEventListener("click", this.powerDropdown._clickOutside);
 		}
 		// Broadcast toggle custom event
-		this.broadcast('toggle');
+		this.broadcast('toggle', true);
 	}
 }
 
@@ -199,9 +204,6 @@ class PowerBrand extends _PowerBasicElementWithEvents {
 		super(element);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		// $pwMain._mouseover.subscribe(function (ctx) {
-		// 	console.log('Ouvindo', self.id, ctx.id);
-		// });
 	}
 }
 

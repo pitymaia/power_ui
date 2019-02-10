@@ -37,9 +37,19 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-if (app.powerDOM.allPowerObjsById['even-more']) {
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
-		console.log('toggle', ctx);
+if (app.powerDOM.allPowerObjsById['pouco_label']) {
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
+		console.log('toggle subscribe 1');
 	}});
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
+		console.log('click', ctx);
+	}});
+
+	setTimeout(function () {
+		app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+		// setTimeout(function () {
+		// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+		// }, 500);
+	}, 500);
 }
-window.console.log('power', app, app.powerDOM.allPowerObjsById['even-more']);
+window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);

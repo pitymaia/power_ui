@@ -122,7 +122,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		// The Events list
 		this._events = {};
 		// Hold custom events to dispatch
-		this.customEvents = {};
+		this._DOMEvents = {};
 	}
 
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
@@ -132,13 +132,16 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		// Create the event
 		if (!this._events[event]) {
 			this._events[event] = new Event(this.id);
-			// Check if event is native, if not creates a custom event
-			if (typeof document.body[event] === "undefined") {
-				// Only creates if not exists
-				if (!this.customEvents[event]) {
-					this.customEvents[event] = new CustomEvent(event, {});
+			// The following code only create custom events for not native events,
+			// but now we want it allways create de event to dispatch it on broadcast, so we commented the check on document.body[event]
+			// // Check if event is native, if not creates a custom event
+			// if (typeof document.body[event] === "undefined") {
+			// 	// Only creates if not exists
+				if (!this._DOMEvents[event]) {
+					this._DOMEvents[event] = new CustomEvent(event, {bubbles: useCapture});
 				}
-			}
+			// }
+
 			// This is the listener/broadcast for the native and custom events
 			this.addEventListener(event, function(domEvent) {
 				ctx._events[event].broadcast(ctx, domEvent, params);
@@ -148,11 +151,21 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._events[event].subscribe(fn, ctx, params);
 	}
 
-	broadcast(eventName) {
-		if (this.customEvents[eventName]) {
-			this.element.dispatchEvent(this.customEvents[eventName]);
-		} else if (this._events[eventName]) {
-			this._events[eventName].broadcast();
+	broadcast(eventName, alreadyDispatched) {
+		// If the custom event not already called its method
+		if (typeof document.body[eventName] === "undefined" && !alreadyDispatched) {
+			// If is a custom event with a method, the broadcast call it
+			this.dispatch(eventName);
+		} else if (this._DOMEvents[eventName]) {
+			this.element.dispatchEvent(this._DOMEvents[eventName]);
+		}
+	}
+
+	// Run custom events methods when calls the broadcast
+	dispatch(eventName) {
+		// Only call if a method with the event name exists
+		if (this[eventName]) {
+			this[eventName]();
 		}
 	}
 
@@ -759,9 +772,14 @@ class PowerAction extends _PowerBasicElementWithEvents {
 		this.powerDropdown.powerAction = this;
 		this.subscribe({event: 'click', fn: this.powerDropdown.toggle});
 	}
+
+	// This allow the broadcast of custom event "toggle" call the toggle method
+	dispatch(eventName) {
+		this.powerDropdown[eventName].bind(this)();
+	}
 }
 
-
+// This is the menu hamburger button
 class PowerToggle extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
@@ -774,9 +792,9 @@ class PowerToggle extends _PowerBasicElementWithEvents {
 	}
 
 	init() {
-		// Add the dropdown to the action
+		// Add the powerMenu to the PowerToggle button
 		this.powerMenu = this.$powerUi.powerDOM.allPowerObjsById[this._target].powerMenu;
-		// Add the action to the dropdown
+		// Add the PowerToggle button to the menu
 		this.powerMenu.powerToggle = this;
 		this.subscribe({event: 'click', fn: this.powerMenu.toggle});
 	}
@@ -851,7 +869,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 			document.addEventListener("click", this.powerDropdown._clickOutside);
 		}
 		// Broadcast toggle custom event
-		this.broadcast('toggle');
+		this.broadcast('toggle', true);
 	}
 }
 
@@ -861,9 +879,6 @@ class PowerBrand extends _PowerBasicElementWithEvents {
 		super(element);
 		this.id = this.element.getAttribute('id');
 		const self = this;
-		// $pwMain._mouseover.subscribe(function (ctx) {
-		// 	console.log('Ouvindo', self.id, ctx.id);
-		// });
 	}
 }
 
@@ -964,9 +979,19 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-if (app.powerDOM.allPowerObjsById['even-more']) {
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
-		console.log('toggle', ctx);
+if (app.powerDOM.allPowerObjsById['pouco_label']) {
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
+		console.log('toggle subscribe 1');
 	}});
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
+		console.log('click', ctx);
+	}});
+
+	setTimeout(function () {
+		app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+		// setTimeout(function () {
+		// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+		// }, 500);
+	}, 500);
 }
-window.console.log('power', app, app.powerDOM.allPowerObjsById['even-more']);
+window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);
