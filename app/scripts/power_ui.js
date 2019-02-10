@@ -467,7 +467,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 	}
 
 	mouseover() {
-		if (!this._$pwActive && !this.$shared._priorityActive) {
+		if (!this._$pwActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
 			this._$pwActive = true;
 			// This flag allows hover attrs have priority over attrs like the main attrs
@@ -489,6 +489,20 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 class _pwMainBasicHover extends _pwBasicHover {
 	constructor(element, target, pwAttrName) {
 		super(element, target, pwAttrName);
+	}
+
+	mouseover() {
+		if (!this._$pwActive && !this.$shared._priorityActive) {
+			this.element[this.$_target] = this.$_pwHoverValue;
+			this._$pwActive = true;
+		}
+	}
+
+	mouseout() {
+		if (this._$pwActive) {
+			this.element[this.$_target] = this.$_pwDefaultValue || '';
+			this._$pwActive = false;
+		}
 	}
 
 	// Atach the listner/Event to que main element
