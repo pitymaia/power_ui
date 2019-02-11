@@ -208,7 +208,6 @@ const _powerCssConfig = [
 	{name: 'power-brand'},
 	{name: 'power-item'},
 	{name: 'power-action'},
-	{name: 'power-toggle'},
 	{name: 'power-dropdown'},
 	{name: 'power-status'},
 ];

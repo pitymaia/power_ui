@@ -42,10 +42,6 @@ class PowerUi {
 		return new PowerDropdown(element, this);
 	}
 
-	_powerToggle(element) {
-		return new PowerToggle(element, this);
-	}
-
 	_powerStatus(element) { // TODO need classes?
 		return new _PowerBasicElement(element, this);
 	}
@@ -53,22 +49,6 @@ class PowerUi {
 	_powerBasicElement(element) { // TODO need classes?
 		return new _PowerBasicElement(element, this);
 	}
-}
-
-// Detect click outside from dropdown or menu
-function clickOutside(event, targetElement, clickedElement) {
-	let elementToCheck = event.target; // clicked element
-
-	do {
-		if (elementToCheck === targetElement || elementToCheck === clickedElement) {
-			// This is a click inside the dropdown, menu or on the buttom/trigger element. So, do nothing, just return
-			return false;
-		}
-		// Go up the DOM
-		elementToCheck = elementToCheck.parentNode;
-	} while (elementToCheck);
-
-	return true;
 }
 
 
@@ -91,37 +71,52 @@ class PowerAction extends _PowerBasicElementWithEvents {
 	}
 
 	init() {
-		// Add the dropdown to the action
-		this.powerDropdown = this.$powerUi.powerDOM.allPowerObjsById[this._target].powerDropdown;
-		// Add the action to the dropdown
-		this.powerDropdown.powerAction = this;
-		this.subscribe({event: 'click', fn: this.powerDropdown.toggle});
+		// Add the target Class to the Action
+		// It selects the first element with this id that has a action() method
+		const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById[this._target];
+		for (const index in allPowerObjsById) {
+			if (allPowerObjsById[index].powerTarget) {
+				this.targetObj = allPowerObjsById[index];
+			}
+		}
+		// Add the action to the target Class
+		this.targetObj.powerAction = this;
+		this.subscribe({event: 'click', fn: this.action});
 	}
 
 	// This allow the broadcast of custom event "toggle" call the toggle method
 	dispatch(eventName) {
-		this.powerDropdown[eventName].bind(this)();
+		this.targetObj[eventName].bind(this)();
 	}
-}
 
-// This is the menu hamburger button
-class PowerToggle extends _PowerBasicElementWithEvents {
-	constructor(element) {
-		super(element);
-
-		this._target = this.element.dataset.powerTarget;
-		if (!this._target) {
-			console.error('power-toggle selector needs a dropdown target', this.element);
-			throw 'Missing power-toggle target. Please define it: data-power-target="menu_id"';
+	action() {
+		console.log('this.targetObj: ', this.targetObj);
+		if (this.targetObj.action) this.targetObj.action.bind(this)();
+		if (this.targetObj._$pwActive) {
+			this._$pwActive = false; // powerAction
+			this.targetObj._$pwActive = false;
+			this.targetObj.element.classList.remove('power-active');
+		} else {
+			this._$pwActive = true; // powerAction
+			this.targetObj._$pwActive = true;
+			this.targetObj.element.classList.add('power-active');
 		}
 	}
 
-	init() {
-		// Add the powerMenu to the PowerToggle button
-		this.powerMenu = this.$powerUi.powerDOM.allPowerObjsById[this._target].powerMenu;
-		// Add the PowerToggle button to the menu
-		this.powerMenu.powerToggle = this;
-		this.subscribe({event: 'click', fn: this.powerMenu.toggle});
+	// Detect click outside from dropdown or menu
+	clickOutside(event, targetElement, clickedElement) {
+		let elementToCheck = event.target; // clicked element
+
+		do {
+			if (elementToCheck === targetElement || elementToCheck === clickedElement) {
+				// This is a click inside the dropdown, menu or on the buttom/trigger element. So, do nothing, just return
+				return false;
+			}
+			// Go up the DOM
+			elementToCheck = elementToCheck.parentNode;
+		} while (elementToCheck);
+
+		return true;
 	}
 }
 
@@ -129,16 +124,18 @@ class PowerToggle extends _PowerBasicElementWithEvents {
 class PowerDropdown extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
+		this.powerTarget = true;
 	}
 
 	clickOutside(event) {
-		const targetElement = document.getElementById(this.powerDropdown.id);
+		const targetElement = document.getElementById(this.targetObj.id);
 		const clickedElement = document.getElementById(this.id);
 		// This is a click outside, so close the dropdown
 		// Before call the toggle function we need pass the element "this"
-		if (clickOutside(event, targetElement, clickedElement)) {
-			const toggle = this.powerDropdown.toggle.bind(this);
-			toggle();
+		if (this.clickOutside(event, targetElement, clickedElement)) {
+			// const toggle = this.targetObj.toggle.bind(this);
+			// toggle();
+			this.action();
 		}
 	}
 
@@ -178,23 +175,22 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 	// The toggle "this" is in reality the "this" of the PowerAction element
 	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
-		if (this.powerDropdown._$pwActive) {
-			this._$pwActive = false; // powerAction
-			this.powerDropdown._$pwActive = false;
-			this.powerDropdown.element.classList.remove('power-show');
+		if (this._$pwActive) {
 			// Remove the listener to detect if click outside
-			document.removeEventListener("click", this.powerDropdown._clickOutside);
+			document.removeEventListener("click", this.targetObj._clickOutside);
 		} else {
-			this._$pwActive = true; // powerAction
-			this.powerDropdown._$pwActive = true;
-			this.powerDropdown.element.style.left = this.powerDropdown.getLeftPosition(this);
-			this.powerDropdown.element.classList.add('power-show');
+			this.targetObj.element.style.left = this.targetObj.getLeftPosition(this);
 			// Add the listener to capture when click outside and register the function to allow remove it
-			this.powerDropdown._clickOutside = this.powerDropdown.clickOutside.bind(this);
-			document.addEventListener("click", this.powerDropdown._clickOutside);
+			this.targetObj._clickOutside = this.targetObj.clickOutside.bind(this);
+			document.addEventListener("click", this.targetObj._clickOutside);
 		}
 		// Broadcast toggle custom event
 		this.broadcast('toggle', true);
+	}
+
+	// The toggle "this" is in reality the "this" of the PowerAction
+	action() {
+		this.targetObj.toggle.bind(this)();
 	}
 }
 
@@ -213,6 +209,7 @@ class PowerMenu {
 		this.$powerUi = $powerUi;
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
+		this.powerTarget = true;
 	}
 
 	init() {
@@ -234,31 +231,31 @@ class PowerMenu {
 		}
 	}
 
-	// The toggle "this" is in reality the "this" of the PowerToggle element
+	// The toggle "this" is in reality the "this" of the PowerAction element
 	// That's why we use the "this.powerMenu" to use the dropdown element and not "this.element"
-	toggle() {
-		if (this.powerMenu._$pwActive) {
-			this._$pwActive = false; // powerAction
-			this.powerMenu._$pwActive = false;
-			this.powerMenu.element.classList.remove('power-show');
-			// Remove the listener to detect if click outside
-			document.removeEventListener("click", this.powerMenu._clickOutside);
-		} else {
-			this._$pwActive = true; // powerAction
-			this.powerMenu._$pwActive = true;
-			this.powerMenu.element.classList.add('power-show');
-			// Add the listener to capture when click outside and register the function to allow remove it
-			this.powerMenu._clickOutside = this.powerMenu.clickOutside.bind(this);
-			document.addEventListener("click", this.powerMenu._clickOutside);
-		}
-	}
+	// active() {
+	// 	if (this.powerMenu._$pwActive) {
+	// 		this._$pwActive = false; // powerAction
+	// 		this.powerMenu._$pwActive = false;
+	// 		this.powerMenu.element.classList.remove('power-active');
+	// 		// Remove the listener to detect if click outside
+	// 		document.removeEventListener("click", this.powerMenu._clickOutside);
+	// 	} else {
+	// 		this._$pwActive = true; // powerAction
+	// 		this.powerMenu._$pwActive = true;
+	// 		this.powerMenu.element.classList.add('power-active');
+	// 		// Add the listener to capture when click outside and register the function to allow remove it
+	// 		this.powerMenu._clickOutside = this.powerMenu.clickOutside.bind(this);
+	// 		document.addEventListener("click", this.powerMenu._clickOutside);
+	// 	}
+	// }
 
 	clickOutside(event) {
 		const targetElement = document.getElementById(this.powerMenu.id);
 		const clickedElement = document.getElementById(this.id);
 		// This is a click outside, so close the dropdown
 		// Before call the toggle function we need pass the element "this"
-		if (clickOutside(event, targetElement, clickedElement)) {
+		if (this.clickOutside(event, targetElement, clickedElement)) {
 			const toggle = this.powerMenu.toggle.bind(this);
 			toggle();
 		}

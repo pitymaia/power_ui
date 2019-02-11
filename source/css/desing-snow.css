@@ -30,7 +30,7 @@ body.power-design-snow {
     font-size: 12pt;
 }
 
-.power-design-snow .power-dropdown.power-show, .power-design-snow .power-dropdown.power-show > .power-dropdown.power-show {
+.power-design-snow .power-dropdown.power-active, .power-design-snow .power-dropdown.power-active > .power-dropdown.power-active {
     display: block !important;
     white-space:nowrap;
     border-style: solid;
@@ -39,7 +39,7 @@ body.power-design-snow {
     background-color: white;
 }
 
-.power-design-snow .power-dropdown > .power-dropdown.power-show {
+.power-design-snow .power-dropdown > .power-dropdown.power-active {
     margin-left: 2em;
 }
 

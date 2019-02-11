@@ -45,11 +45,15 @@ if (app.powerDOM.allPowerObjsById['pouco_label']) {
 		console.log('click', ctx);
 	}});
 
-	setTimeout(function () {
-		app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-		// setTimeout(function () {
-		// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-		// }, 500);
-	}, 500);
+	// setTimeout(function () {
+	// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+	// 	setTimeout(function () {
+	// 		app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+	// 		app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+	// 		setTimeout(function () {
+	// 			app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+	// 		}, 2000);
+	// 	}, 2000);
+	// }, 500);
 }
 window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);
