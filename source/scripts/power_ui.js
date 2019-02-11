@@ -82,11 +82,9 @@ class PowerAction extends _PowerBasicElementWithEvents {
 		// Add the action to the target Class
 		this.targetObj.powerAction = this;
 		this.subscribe({event: 'click', fn: this.action});
-	}
 
-	// This allow the broadcast of custom event "toggle" call the toggle method
-	dispatch(eventName) {
-		this.targetObj[eventName].bind(this)();
+		// Allow the target add events to PowerAction dispatch
+		if (this.targetObj.customEventsToDispatch) this.targetObj.customEventsToDispatch();
 	}
 
 	action() {
@@ -136,6 +134,11 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 		this.powerTarget = true;
+	}
+
+	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
+	customEventsToDispatch() {
+		this.powerAction.toggle = this.powerAction.action;
 	}
 
 	// Remove left, margin-left and border width from absolute elements
@@ -239,5 +242,10 @@ class PowerMenu {
 	// The toggle "this" is in reality the "this" of the PowerAction
 	action() {
 		this.targetObj.toggle.bind(this)();
+	}
+
+	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
+	customEventsToDispatch() {
+		this.powerAction.toggle = this.powerAction.action;
 	}
 }

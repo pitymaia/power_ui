@@ -756,11 +756,9 @@ class PowerAction extends _PowerBasicElementWithEvents {
 		// Add the action to the target Class
 		this.targetObj.powerAction = this;
 		this.subscribe({event: 'click', fn: this.action});
-	}
 
-	// This allow the broadcast of custom event "toggle" call the toggle method
-	dispatch(eventName) {
-		this.targetObj[eventName].bind(this)();
+		// Allow the target add events to PowerAction dispatch
+		if (this.targetObj.customEventsToDispatch) this.targetObj.customEventsToDispatch();
 	}
 
 	action() {
@@ -810,6 +808,11 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 		this.powerTarget = true;
+	}
+
+	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
+	customEventsToDispatch() {
+		this.powerAction.toggle = this.powerAction.action;
 	}
 
 	// Remove left, margin-left and border width from absolute elements
@@ -914,6 +917,11 @@ class PowerMenu {
 	action() {
 		this.targetObj.toggle.bind(this)();
 	}
+
+	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
+	customEventsToDispatch() {
+		this.powerAction.toggle = this.powerAction.action;
+	}
 }
 
 function powerOnly() {
@@ -963,15 +971,28 @@ if (app.powerDOM.allPowerObjsById['pouco_label']) {
 		console.log('click', ctx);
 	}});
 
-	// setTimeout(function () {
-	// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-	// 	setTimeout(function () {
-	// 		app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-	// 		app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
-	// 		setTimeout(function () {
-	// 			app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
-	// 		}, 2000);
-	// 	}, 2000);
-	// }, 500);
+
+	setTimeout(function () {
+		app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
+		setTimeout(function () {
+			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
+				app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
+			setTimeout(function () {
+				app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
+				app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+				setTimeout(function () {
+					app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+					setTimeout(function () {
+						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+						app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+						setTimeout(function () {
+							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+							app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+						}, 2000);
+					}, 2000);
+				}, 500);
+			}, 2000);
+		}, 2000);
+	}, 500);
 }
 window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);
