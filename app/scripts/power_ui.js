@@ -762,7 +762,7 @@ class PowerAction extends _PowerBasicElementWithEvents {
 	}
 
 	action() {
-		if (this.targetObj.action) this.targetObj.action.bind(this)();
+		if (this.targetObj.action) this.targetObj.action();
 		if (this.targetObj._$pwActive) {
 			this._$pwActive = false; // powerAction
 			this.targetObj._$pwActive = false;
@@ -824,14 +824,15 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 		return parseInt(styles['margin-left'].split('px')[0] || 0) + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 
-	getLeftPosition(dropdownAction) {
+	// Get the dropdown left positon
+	getLeftPosition(powerAction) {
 		const bodyRect = document.body.getBoundingClientRect();
-		const elemRect = dropdownAction.element.getBoundingClientRect();
+		const elemRect = powerAction.element.getBoundingClientRect();
 		let offset = elemRect.left - bodyRect.left;
 		offset  = offset + this.offsetComputedBodyStyles(window.getComputedStyle(document.body));
 
 		// Select all parent nodes to find the ones positioned as "absolute"
-		let curentNode = dropdownAction.element.parentNode;
+		let curentNode = powerAction.element.parentNode;
 		const allParents = [];
 		while (curentNode && curentNode.tagName !== 'BODY') {
 			allParents.push(curentNode);
@@ -848,22 +849,21 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 
 		return Math.round(offset) + 'px';
 	}
-	// The toggle "this" is in reality the "this" of the PowerAction element
-	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
+	// The toggle base it's position on the powerAction position
 	toggle() {
 		if (!this._$pwActive) {
-			this.targetObj.element.style.left = this.targetObj.getLeftPosition(this);
+			this.element.style.left = this.getLeftPosition(this.powerAction);
 		}
 
 		// PowerAction implements an optional "click out" system to allow toggles to hide
-		this.ifClickOut();
+		this.powerAction.ifClickOut();
 		// Broadcast toggle custom event
-		this.broadcast('toggle', true);
+		this.powerAction.broadcast('toggle', true);
 	}
 
-	// The toggle "this" is in reality the "this" of the PowerAction
+	// The powerAction call this action method
 	action() {
-		this.targetObj.toggle.bind(this)();
+		this.toggle();
 	}
 }
 
@@ -904,18 +904,16 @@ class PowerMenu {
 		}
 	}
 
-	// The toggle "this" is in reality the "this" of the PowerAction element
-	// That's why we use the "this.dropdown" to use the dropdown element and not "this.element"
 	toggle() {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
-		this.ifClickOut();
+		this.powerAction.ifClickOut();
 		// Broadcast toggle custom event
-		this.broadcast('toggle', true);
+		this.powerAction.broadcast('toggle', true);
 	}
 
-	// The toggle "this" is in reality the "this" of the PowerAction
+	// The powerAction call this action method
 	action() {
-		this.targetObj.toggle.bind(this)();
+		this.toggle();
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
