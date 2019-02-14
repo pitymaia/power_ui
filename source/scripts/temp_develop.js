@@ -60,10 +60,18 @@ if (app.powerDOM.allPowerObjsById['pouco_label']) {
 							app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
 							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
 							setTimeout(function () {
-								app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
-								app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
-							}, 2000);
-						}, 2000);
+								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('toggle');
+								setTimeout(function () {
+									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('toggle');
+									setTimeout(function () {
+										app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+										app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('toggle');
+										app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('toggle');
+										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+									}, 2000);
+								}, 1000);
+							}, 1000);
+						}, 1000);
 					}, 500);
 				}, 2000);
 			}, 2000);
