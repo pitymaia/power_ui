@@ -45,28 +45,29 @@ if (app.powerDOM.allPowerObjsById['pouco_label']) {
 		console.log('click', ctx);
 	}});
 
-
-	setTimeout(function () {
-		app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
+	if (app.powerDOM.allPowerObjsById['purecss-action']) {
 		setTimeout(function () {
 			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
-				app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
 			setTimeout(function () {
-				app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
-				app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+				app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
 				setTimeout(function () {
-					app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
 					setTimeout(function () {
 						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-						app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
 						setTimeout(function () {
+							app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
 							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
-							app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+							setTimeout(function () {
+								app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+								app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+							}, 2000);
 						}, 2000);
-					}, 2000);
-				}, 500);
+					}, 500);
+				}, 2000);
 			}, 2000);
-		}, 2000);
-	}, 500);
+		}, 500);
+	}
 }
 window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);
