@@ -127,7 +127,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
 	// If the event doesn't exists create it and subscribe, if it already exists just subscribe
-	subscribe({event, fn, useCapture=false, ...params}) {
+	subscribe({event, fn, useCapture=true, ...params}) {
 		const ctx = this;
 		// Create the event
 		if (!this._events[event]) {
@@ -776,9 +776,11 @@ class PowerAction extends _PowerBasicElementWithEvents {
 
 	ifClickOut() {
 		if (this._$pwActive) {
+			this._$pwActive = false;
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this._clickOutside);
 		} else {
+			this._$pwActive = true;
 			// Add the listener to capture when click outside and register the function to allow remove it
 			this._clickOutside = this.clickOutside.bind(this);
 			document.addEventListener("click", this._clickOutside);
@@ -971,27 +973,21 @@ if (app.powerDOM.allPowerObjsById['pouco_label']) {
 
 	if (app.powerDOM.allPowerObjsById['purecss-action']) {
 		setTimeout(function () {
-			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
+			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('click');
 			setTimeout(function () {
-				app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
-					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('click');
 				setTimeout(function () {
-					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
-					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
 					setTimeout(function () {
-						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('click');
 						setTimeout(function () {
-							app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('click');
 							setTimeout(function () {
-								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('toggle');
+								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('click');
 								setTimeout(function () {
-									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('toggle');
+									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('click');
 									setTimeout(function () {
-										app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
-										app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('toggle');
-										app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('toggle');
-										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
 									}, 2000);
 								}, 1000);
 							}, 1000);

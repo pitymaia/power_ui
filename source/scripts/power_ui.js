@@ -102,9 +102,11 @@ class PowerAction extends _PowerBasicElementWithEvents {
 
 	ifClickOut() {
 		if (this._$pwActive) {
+			this._$pwActive = false;
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this._clickOutside);
 		} else {
+			this._$pwActive = true;
 			// Add the listener to capture when click outside and register the function to allow remove it
 			this._clickOutside = this.clickOutside.bind(this);
 			document.addEventListener("click", this._clickOutside);

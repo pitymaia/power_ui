@@ -127,7 +127,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
 	// If the event doesn't exists create it and subscribe, if it already exists just subscribe
-	subscribe({event, fn, useCapture=false, ...params}) {
+	subscribe({event, fn, useCapture=true, ...params}) {
 		const ctx = this;
 		// Create the event
 		if (!this._events[event]) {

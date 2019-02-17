@@ -47,27 +47,21 @@ if (app.powerDOM.allPowerObjsById['pouco_label']) {
 
 	if (app.powerDOM.allPowerObjsById['purecss-action']) {
 		setTimeout(function () {
-			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
+			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('click');
 			setTimeout(function () {
-				app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('toggle');
-					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('click');
 				setTimeout(function () {
-					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('toggle');
-					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
 					setTimeout(function () {
-						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
+						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('click');
 						setTimeout(function () {
-							app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('toggle');
-							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
+							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('click');
 							setTimeout(function () {
-								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('toggle');
+								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('click');
 								setTimeout(function () {
-									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('toggle');
+									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('click');
 									setTimeout(function () {
-										app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('toggle');
-										app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('toggle');
-										app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('toggle');
-										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('toggle');
+										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
 									}, 2000);
 								}, 1000);
 							}, 1000);
