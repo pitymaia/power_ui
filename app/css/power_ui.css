@@ -81,6 +81,7 @@ body.power-design-snow {
     .power-menu.power-horizontal {
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 
     .power-menu.power-horizontal.power-active {
