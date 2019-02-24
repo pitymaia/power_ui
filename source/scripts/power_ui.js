@@ -252,6 +252,40 @@ class PowerMenu {
 class PowerStatus extends PowerTarget {
 	constructor(element) {
 		super(element);
+		const activeAttr = this.element.getAttribute('data-power-active');
+		const inactiveAttr = this.element.getAttribute('data-power-inactive');
+		this.activeValues = activeAttr ? activeAttr.split(' ') : [];
+		this.inactiveValues = inactiveAttr ? inactiveAttr.split(' ') : [];
+		this.inactive();
+	}
+
+	// Add all CSS selector on active list and remove all css on inactive list
+	active() {
+		for (const css of this.activeValues) {
+			this.element.classList.add(css);
+		}
+		for (const css of this.inactiveValues) {
+			this.element.classList.remove(css);
+		}
+	}
+
+	// Add all CSS selector on inactive list and remove all css on active list
+	inactive() {
+		for (const css of this.inactiveValues) {
+			this.element.classList.add(css);
+		}
+		for (const css of this.activeValues) {
+			this.element.classList.remove(css);
+		}
+	}
+
+	toggle() {
+		this._$pwActive = !this._$pwActive;
+		if (this._$pwActive) {
+			this.active();
+		} else {
+			this.inactive();
+		}
 	}
 
 	init() {
@@ -259,6 +293,6 @@ class PowerStatus extends PowerTarget {
 			if (this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index].powerTarget) {
 				this.targetObj = this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index];
 			}
-		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: function(){console.log('aqui', this)}});
+		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: this.toggle.bind(this)});
 	}
 }
