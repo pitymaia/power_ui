@@ -125,6 +125,12 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._DOMEvents = {};
 	}
 
+	// The toggle base it's position on the powerAction position
+	toggle() {
+		this._$pwActive = !this._$pwActive;
+		this.broadcast('toggle', true);
+	}
+
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
 	// If the event doesn't exists create it and subscribe, if it already exists just subscribe
 	subscribe({event, fn, useCapture=true, ...params}) {
@@ -174,7 +180,12 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 }
 
-
+class PowerTarget extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+		this.powerTarget = true;
+	}
+}
 // The list for user custom pwc-attributes
 const _pwcAttrsConfig = [];
 

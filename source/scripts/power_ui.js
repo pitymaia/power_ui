@@ -42,24 +42,24 @@ class PowerUi {
 		return new PowerDropdown(element, this);
 	}
 
-	_powerStatus(element) { // TODO need classes?
-		return new _PowerBasicElement(element, this);
+	_powerStatus(element) {
+		return new PowerStatus(element, this);
 	}
 
-	_powerBasicElement(element) { // TODO need classes?
+	_powerBasicElement(element) {
 		return new _PowerBasicElement(element, this);
 	}
 }
 
 
-class PowerItem extends _PowerBasicElementWithEvents {
+class PowerItem extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
 }
 
 
-class PowerAction extends _PowerBasicElementWithEvents {
+class PowerAction extends PowerTarget {
 	constructor(element) {
 		super(element);
 
@@ -132,10 +132,9 @@ class PowerAction extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerDropdown extends _PowerBasicElementWithEvents {
+class PowerDropdown extends PowerTarget {
 	constructor(element) {
 		super(element);
-		this.powerTarget = true;
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
@@ -196,7 +195,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerBrand extends _PowerBasicElementWithEvents {
+class PowerBrand extends PowerTarget {
 	constructor(element) {
 		super(element);
 		this.id = this.element.getAttribute('id');
@@ -247,5 +246,19 @@ class PowerMenu {
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
 	customEventsToDispatch() {
 		this.powerAction.toggle = this.powerAction.action;
+	}
+}
+
+class PowerStatus extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		for (const index in this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id])
+			if (this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index].powerTarget) {
+				this.targetObj = this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index];
+			}
+		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: function(){console.log('aqui', this)}});
 	}
 }

@@ -125,6 +125,12 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._DOMEvents = {};
 	}
 
+	// The toggle base it's position on the powerAction position
+	toggle() {
+		this._$pwActive = !this._$pwActive;
+		this.broadcast('toggle', true);
+	}
+
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
 	// If the event doesn't exists create it and subscribe, if it already exists just subscribe
 	subscribe({event, fn, useCapture=true, ...params}) {
@@ -174,7 +180,12 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 }
 
-
+class PowerTarget extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+		this.powerTarget = true;
+	}
+}
 // The list for user custom pwc-attributes
 const _pwcAttrsConfig = [];
 
@@ -481,7 +492,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 	mouseover() {
 		if (!this._$pwActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
-			this._$pwActive = true;
+			this.toggle();
 			// This flag allows hover attrs have priority over attrs like the main attrs
 			this.$shared._priorityActive = true;
 		}
@@ -490,7 +501,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 	mouseout() {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
-			this._$pwActive = false;
+			this.toggle();
 			this.$shared._priorityActive = false;
 		}
 	}
@@ -506,14 +517,14 @@ class _pwMainBasicHover extends _pwBasicHover {
 	mouseover() {
 		if (!this._$pwActive && !this.$shared._priorityActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
-			this._$pwActive = true;
+			this.toggle();
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
-			this._$pwActive = false;
+			this.toggle();
 		}
 	}
 
@@ -546,7 +557,7 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 			// This flag allows hover attrs have priority over attrs like the main attrs
 			this.$shared._priorityActive = true;
 		}
@@ -558,7 +569,7 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
 			}
-			this._$pwActive = false;
+			this.toggle();
 			this.$shared._priorityActive = false;
 		}
 	}
@@ -578,13 +589,13 @@ class PowMainCssHover extends PowCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
-			this._$pwActive = false;
+			this.toggle();
 			// Remove the added classes
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
@@ -631,7 +642,7 @@ class PowCssHoverRemove extends PowCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 			this.$shared._priorityActive = true;
 		}
 	}
@@ -640,7 +651,7 @@ class PowCssHoverRemove extends PowCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = false;
+			this.toggle();
 			this.$shared._priorityActive = false;
 		}
 	}
@@ -659,7 +670,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 		}
 	}
 	mouseout() {
@@ -667,7 +678,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = false;
+			this.toggle();
 		}
 	}
 }
@@ -716,24 +727,24 @@ class PowerUi {
 		return new PowerDropdown(element, this);
 	}
 
-	_powerStatus(element) { // TODO need classes?
-		return new _PowerBasicElement(element, this);
+	_powerStatus(element) {
+		return new PowerStatus(element, this);
 	}
 
-	_powerBasicElement(element) { // TODO need classes?
+	_powerBasicElement(element) {
 		return new _PowerBasicElement(element, this);
 	}
 }
 
 
-class PowerItem extends _PowerBasicElementWithEvents {
+class PowerItem extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
 }
 
 
-class PowerAction extends _PowerBasicElementWithEvents {
+class PowerAction extends PowerTarget {
 	constructor(element) {
 		super(element);
 
@@ -806,10 +817,9 @@ class PowerAction extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerDropdown extends _PowerBasicElementWithEvents {
+class PowerDropdown extends PowerTarget {
 	constructor(element) {
 		super(element);
-		this.powerTarget = true;
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
@@ -870,7 +880,7 @@ class PowerDropdown extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerBrand extends _PowerBasicElementWithEvents {
+class PowerBrand extends PowerTarget {
 	constructor(element) {
 		super(element);
 		this.id = this.element.getAttribute('id');
@@ -921,6 +931,20 @@ class PowerMenu {
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
 	customEventsToDispatch() {
 		this.powerAction.toggle = this.powerAction.action;
+	}
+}
+
+class PowerStatus extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		for (const index in this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id])
+			if (this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index].powerTarget) {
+				this.targetObj = this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index];
+			}
+		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: function(){console.log('aqui', this)}});
 	}
 }
 

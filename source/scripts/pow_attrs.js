@@ -19,7 +19,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 	mouseover() {
 		if (!this._$pwActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
-			this._$pwActive = true;
+			this.toggle();
 			// This flag allows hover attrs have priority over attrs like the main attrs
 			this.$shared._priorityActive = true;
 		}
@@ -28,7 +28,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 	mouseout() {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
-			this._$pwActive = false;
+			this.toggle();
 			this.$shared._priorityActive = false;
 		}
 	}
@@ -44,14 +44,14 @@ class _pwMainBasicHover extends _pwBasicHover {
 	mouseover() {
 		if (!this._$pwActive && !this.$shared._priorityActive) {
 			this.element[this.$_target] = this.$_pwHoverValue;
-			this._$pwActive = true;
+			this.toggle();
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
-			this._$pwActive = false;
+			this.toggle();
 		}
 	}
 
@@ -84,7 +84,7 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 			// This flag allows hover attrs have priority over attrs like the main attrs
 			this.$shared._priorityActive = true;
 		}
@@ -96,7 +96,7 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
 			}
-			this._$pwActive = false;
+			this.toggle();
 			this.$shared._priorityActive = false;
 		}
 	}
@@ -116,13 +116,13 @@ class PowMainCssHover extends PowCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 		}
 	}
 
 	mouseout() {
 		if (this._$pwActive) {
-			this._$pwActive = false;
+			this.toggle();
 			// Remove the added classes
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
@@ -169,7 +169,7 @@ class PowCssHoverRemove extends PowCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 			this.$shared._priorityActive = true;
 		}
 	}
@@ -178,7 +178,7 @@ class PowCssHoverRemove extends PowCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = false;
+			this.toggle();
 			this.$shared._priorityActive = false;
 		}
 	}
@@ -197,7 +197,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.remove(css);
 			}
-			this._$pwActive = true;
+			this.toggle();
 		}
 	}
 	mouseout() {
@@ -205,7 +205,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 			for (const css of this.$_pwHoverValues) {
 				this.element.classList.add(css);
 			}
-			this._$pwActive = false;
+			this.toggle();
 		}
 	}
 }
