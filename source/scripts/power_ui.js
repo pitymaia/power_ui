@@ -119,8 +119,9 @@ class PowerAction extends PowerTarget {
 		let elementToCheck = event.target; // clicked element
 
 		// Close if click some power-item
-		if (elementToCheck.classList.contains('power-item')) {
+		if (elementToCheck.classList.contains('power-item') || elementToCheck.classList.contains('power-brand')) {
 			this.action();
+			return false;
 		}
 
 		do {
