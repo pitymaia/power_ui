@@ -104,19 +104,24 @@ class PowerAction extends PowerTarget {
 		if (this._$pwActive) {
 			this._$pwActive = false;
 			// Remove the listener to detect if click outside
-			document.removeEventListener("click", this._clickOutside);
+			document.removeEventListener("click", this._clickPowerItemOrOutside);
 		} else {
 			this._$pwActive = true;
 			// Add the listener to capture when click outside and register the function to allow remove it
-			this._clickOutside = this.clickOutside.bind(this);
-			document.addEventListener("click", this._clickOutside);
+			this._clickPowerItemOrOutside = this.clickPowerItemOrOutside.bind(this);
+			document.addEventListener("click", this._clickPowerItemOrOutside);
 		}
 	}
 
-	clickOutside(event) {
+	clickPowerItemOrOutside(event) {
 		const targetElement = document.getElementById(this.targetObj.id);
 		const powerActionElement = document.getElementById(this.id);
 		let elementToCheck = event.target; // clicked element
+
+		// Close if click some power-item
+		if (elementToCheck.classList.contains('power-item')) {
+			this.action();
+		}
 
 		do {
 			if (elementToCheck === targetElement || elementToCheck === powerActionElement) {
@@ -127,6 +132,7 @@ class PowerAction extends PowerTarget {
 			elementToCheck = elementToCheck.parentNode;
 		} while (elementToCheck);
 
+		// This is an outside click
 		this.action();
 	}
 }
