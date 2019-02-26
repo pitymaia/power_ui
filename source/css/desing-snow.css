@@ -1,4 +1,4 @@
-body.power-design-snow {
+.power-design-snow {
     font-family: Verdana, Arial, "Courier New";
 }
 
@@ -15,12 +15,25 @@ body.power-design-snow {
     border-width: 1px;
     background-color: #fff;
     vertical-align: middle;
+    z-index: 900;
 }
-
+.power-design-snow .power-dropdown {
+    z-index: 900;
+}
 .power-design-snow .power-toggle {
     border-style: solid;
     border-width: 1px;
     padding: 0.3em 0.5em;
+}
+
+.power-design-snow .power-menu-fixed .power-toggle {
+    margin-right: 1em;
+}
+
+.power-design-snow  .power-menu-fixed {
+    top: -1px;
+    left: -1px;
+    width: 100%;
 }
 /* Menu end*/
 

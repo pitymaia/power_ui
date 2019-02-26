@@ -7,6 +7,97 @@
     <link rel="stylesheet" type="text/css" href="vendors/font-awesome.min.css" />
   </head>
   <body class="power-main power-design-snow">
+    <nav id="powerui-top" class="power-menu power-horizontal power-menu-fixed">
+        <div class="power-brand" id="outro-top">OUTRO</div>
+        <div id="powerui-action-top" class="power-toggle power-action" data-power-target="powerui-top">
+            <i class="fa fa-bars"></i>
+        </div>
+        <div class="power-item power-link"
+           data-pow-main-css-hover="pw-blue"
+           data-pow-css-hover="pw-green"
+           id="mais-top">
+            <i class="power-icon icon-small fa fa-car"></i>
+            <span>Mais</span>
+            <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span>
+        </div>
+        <div class="power-action" id="novo_menos-top" data-power-target="menos-top" data-pow-main-css-hover="pw-red" data-pow-css-hover="pw-green"><i class="fa fa-car"></i>
+            Menos
+            <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span>
+        </div>
+        <nav id="menos-top" class="power-dropdown">
+            <a class="power-item">Email</a>
+            <a class="power-item">Twitter</a>
+            <a class="power-item">Tumblr Blog</a>
+            <a id="esse_more-top" class="power-action" data-power-target="mores-top"><i class="power-icon icon-small fa fa-car"></i> More <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span></a>
+            <nav id="mores-top" class="power-dropdown">
+                <a class="power-item">Foo</a>
+                <a class="power-item">Bar</a>
+                <a class="power-item">I'm Batman</a>
+                <a id="even-more-top" class="power-action" data-power-target="finales-top">
+                    <i class="power-icon icon-small fa fa-car"></i> Esse Even More
+                    <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span>
+                </a>
+                <nav id="finales-top" class="power-dropdown">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                </nav>
+                <a class="power-item">I'm Robin</a>
+            </nav>
+            <a class="power-item">Other Blog</a>
+            <a class="power-item">News</a>
+        </nav>
+        <div class="power-item"
+           data-pow-main-css-hover="pw-yellow"
+           data-pow-css-hover="pw-green"
+           id="muito-top">
+            <i class="power-icon icon-small fa fa-car"></i>
+            <span>Muito</span>
+             <span class="power-status fa fa-angle-right"></span>
+        </div>
+        <div class="power-action" data-power-target="pouco-top" id="pouco_label-top">
+            <img id="pouco_img-top"
+                data-pow-src-hover="vendors/imgs/atom-icon.png"
+                data-pow-main-src-hover="vendors/imgs/deluge-icon.png"
+                src="vendors/imgs/gimp-icon.png"
+                width="25"
+                height="25" />
+            <img data-pow-src-hover="vendors/imgs/Australia-Flag-icon.png"
+                 data-pow-main-src-hover="vendors/imgs/Argentina-Flag-icon.png"
+                 data-pwc-teste="remova isso tambem"
+                 src="vendors/imgs/Brazil-Flag-icon.png"
+                 width="25"
+                 height="25" />
+            <span>Pouco</span>
+            <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span>
+        </div>
+        <nav id="pouco-top"
+             class="power-dropdown"
+             data-pow-main-css-hover="pw-orange"
+             data-pow-css-hover="pw-green">
+            <a class="power-item">Email</a>
+            <a class="power-item">Twitter</a>
+            <a class="power-item">Tumblr Blog</a>
+            <a class="power-action" data-power-target="more-top"><i class="power-icon icon-small fa fa-car"></i> More <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span></a>
+            <nav id="more-top" class="power-dropdown">
+                <a class="power-item">Foo</a>
+                <a class="power-item">Bar</a>
+                <a class="power-item">I'm Batman</a>
+                <a class="power-action" data-power-target="final-top"><i class="power-icon icon-small fa fa-car"></i> Even More <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span></a>
+                <nav id="final-top" class="power-dropdown">
+                    <a class="power-item">Foo</a>
+                    <a class="power-item">Bar</a>
+                    <a class="power-item">I'm Batman</a>
+                </nav>
+                <a class="power-item">I'm Coringa</a>
+            </nav>
+            <a class="power-item">Other Blog</a>
+            <a class="power-item">News</a>
+        </nav>
+    </nav>
+    <br />
+    <br />
+    <br />
     <div class="back">
         <!-- Menu -->
         <nav id="top-menu" class="power-menu power-horizontal" data-pwc-teste="remova isso">

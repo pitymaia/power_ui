@@ -57,4 +57,7 @@
         display: none !important;
     }
 }
+.power-menu-fixed {
+    position: fixed;
+}
 /* Menu end*/
