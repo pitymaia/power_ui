@@ -60,6 +60,28 @@
 }
 /* Dropdown end */
 
+/* Accordion */
+.power-design-snow .power-accordion > .power-action, .power-design-snow .power-accordion > .power-section {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+}
+.power-design-snow .power-accordion > .power-action {
+    background-color: #fff;
+}
+.power-design-snow .power-accordion > .power-section {
+    padding: 0.5em;
+    display: none;
+}
+.power-design-snow .power-accordion > .power-section.power-active {
+    display: block;
+}
+.power-design-snow .power-accordion > .power-action {
+    display: flex;
+    justify-content: space-between;
+}
+/* Accordion */
+
 /* Dropdown */
 
 .power-dropdown, .power-dropdown.power-active > .power-dropdown {
@@ -189,17 +211,17 @@ body {
     box-shadow: 5px 5px 20px 0 purple;
 }
 .asidea {
-    width: 20%;
+    width: 18%;
     height: 200px;
     float: left;
 }
 .asideb {
-    width: 20%;
+    width: 18%;
     height: 200px;
     float: right;
 }
 article {
-    width: 60%;
+    width: 51%;
     height: 200px;
     float: left;
 }
@@ -208,7 +230,7 @@ footer {
 }
 
 header, aside, section, footer, article {
-    border-style: double;
+    border-style: solid;
     border-color: black;
 }
 header, aside, footer, article {

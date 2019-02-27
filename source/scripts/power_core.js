@@ -218,6 +218,7 @@ const _powerCssConfig = [
 	{name: 'power-main', isMain: true},
 	{name: 'power-brand'},
 	{name: 'power-item'},
+	{name: 'power-section'},
 	{name: 'power-action'},
 	{name: 'power-dropdown'},
 	{name: 'power-status'},

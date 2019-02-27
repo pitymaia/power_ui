@@ -218,6 +218,7 @@ const _powerCssConfig = [
 	{name: 'power-main', isMain: true},
 	{name: 'power-brand'},
 	{name: 'power-item'},
+	{name: 'power-section'},
 	{name: 'power-action'},
 	{name: 'power-dropdown'},
 	{name: 'power-status'},
@@ -719,6 +720,10 @@ class PowerUi {
 		return new PowerItem(element, this);
 	}
 
+	_powerSection(element) {
+		return new PowerSection(element, this);
+	}
+
 	_powerAction(element) {
 		return new PowerAction(element, this);
 	}
@@ -744,20 +749,27 @@ class PowerItem extends PowerTarget {
 }
 
 
+class PowerSection extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+}
+
+
 class PowerAction extends PowerTarget {
 	constructor(element) {
 		super(element);
 
 		this._target = this.element.dataset.powerTarget;
 		if (!this._target) {
-			console.error('power-action selector needs a dropdown target', this.element);
-			throw 'Missing power-action target. Please define it: data-power-target="dropdown_id"';
+			console.error('power-action selector needs a power element target', this.element);
+			throw 'Missing power-action target. Please define it: data-power-target="power_element_id"';
 		}
 	}
 
 	init() {
 		// Add the target Class to the Action
-		// It selects the first element with this id that has a action() method
+		// It selects the first element with this id with is has powerTarget
 		const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById[this._target];
 		for (const index in allPowerObjsById) {
 			if (allPowerObjsById[index].powerTarget) {
@@ -766,13 +778,13 @@ class PowerAction extends PowerTarget {
 		}
 		// Add the action to the target Class
 		this.targetObj.powerAction = this;
-		this.subscribe({event: 'click', fn: this.action});
+		this.subscribe({event: 'click', fn: this.toggle});
 
 		// Allow the target add events to PowerAction dispatch
 		if (this.targetObj.customEventsToDispatch) this.targetObj.customEventsToDispatch();
 	}
 
-	action() {
+	toggle() {
 		if (this.targetObj.action) this.targetObj.action();
 		if (this.targetObj._$pwActive) {
 			this._$pwActive = false; // powerAction
@@ -783,6 +795,8 @@ class PowerAction extends PowerTarget {
 			this.targetObj._$pwActive = true;
 			this.targetObj.element.classList.add('power-active');
 		}
+		// Broadcast toggle custom event
+		this.broadcast('toggle', true);
 	}
 
 	ifClickOut() {
@@ -805,7 +819,7 @@ class PowerAction extends PowerTarget {
 
 		// Close if click some power-item
 		if (elementToCheck.classList.contains('power-item') || elementToCheck.classList.contains('power-brand')) {
-			this.action();
+			this.toggle();
 			return false;
 		}
 
@@ -819,7 +833,7 @@ class PowerAction extends PowerTarget {
 		} while (elementToCheck);
 
 		// This is an outside click
-		this.action();
+		this.toggle();
 	}
 }
 
@@ -831,7 +845,7 @@ class PowerDropdown extends PowerTarget {
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
 	customEventsToDispatch() {
-		this.powerAction.toggle = this.powerAction.action;
+		this.powerAction.toggle = this.powerAction.toggle;
 	}
 
 	// Remove left, margin-left and border width from absolute elements
@@ -877,7 +891,7 @@ class PowerDropdown extends PowerTarget {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
 		// Broadcast toggle custom event
-		this.powerAction.broadcast('toggle', true);
+		this.broadcast('toggle', true);
 	}
 
 	// The powerAction call this action method
@@ -937,7 +951,7 @@ class PowerMenu {
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
 	customEventsToDispatch() {
-		this.powerAction.toggle = this.powerAction.action;
+		this.powerAction.toggle = this.powerAction.toggle;
 	}
 }
 
@@ -981,10 +995,26 @@ class PowerStatus extends PowerTarget {
 	}
 
 	init() {
-		for (const index in this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id])
-			if (this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index].powerTarget) {
-				this.targetObj = this.$powerUi.powerDOM.allPowerObjsById[this.element.parentElement.id][index];
+		let stop = false;
+		let element = this.element.parentElement
+		const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById;
+		while (!stop) {
+			if (element) {
+				for (const index in allPowerObjsById[element.id]) {
+					if (allPowerObjsById[element.id][index].powerTarget) {
+						this.targetObj = allPowerObjsById[element.id][index];
+					}
+				}
 			}
+			// Don't let go to parentElement if already found and heve the variable 'stop' as true
+			// Only select the parentElement if has element but don't found the main class selector
+			if (!this.targetObj && !stop) {
+				element = element.parentElement;
+			} else {
+				// If there is no more element set stop
+				stop = true;
+			}
+		}
 		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: this.toggle.bind(this)});
 	}
 }

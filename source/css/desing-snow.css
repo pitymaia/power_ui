@@ -59,3 +59,25 @@
     padding: .5em !important;
 }
 /* Dropdown end */
+
+/* Accordion */
+.power-design-snow .power-accordion > .power-action, .power-design-snow .power-accordion > .power-section {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+}
+.power-design-snow .power-accordion > .power-action {
+    background-color: #fff;
+}
+.power-design-snow .power-accordion > .power-section {
+    padding: 0.5em;
+    display: none;
+}
+.power-design-snow .power-accordion > .power-section.power-active {
+    display: block;
+}
+.power-design-snow .power-accordion > .power-action {
+    display: flex;
+    justify-content: space-between;
+}
+/* Accordion */

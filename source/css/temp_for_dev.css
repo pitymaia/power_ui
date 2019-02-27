@@ -63,17 +63,17 @@ body {
     box-shadow: 5px 5px 20px 0 purple;
 }
 .asidea {
-    width: 20%;
+    width: 18%;
     height: 200px;
     float: left;
 }
 .asideb {
-    width: 20%;
+    width: 18%;
     height: 200px;
     float: right;
 }
 article {
-    width: 60%;
+    width: 51%;
     height: 200px;
     float: left;
 }
@@ -82,7 +82,7 @@ footer {
 }
 
 header, aside, section, footer, article {
-    border-style: double;
+    border-style: solid;
     border-color: black;
 }
 header, aside, footer, article {
