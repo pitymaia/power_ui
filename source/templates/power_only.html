@@ -441,28 +441,44 @@
             Esse aqui é footer.
         </footer>
     </section>
-    <div class="power-accordion">
+    <div class="power-accordion" id="my-accordion" data-multiple-sections-open="false">
+        <div class="power-action" data-power-target="panel-0" id="panel-0-action">
+            Panel 0
+            <span class="power-status fa" data-power-active="fa-chevron-down" data-power-inactive="fa-chevron-right"></span>
+        </div>
+        <div class="power-section" id="panel-0">
+            First panel content
+        </div>
         <div class="power-action" data-power-target="panel-1" id="panel-1-action">
             Panel 1
-            <span class="power-status fa" data-power-active="fa-minus" data-power-inactive="fa-plus"></span>
+            <span class="power-status fa" data-power-active="fa-caret-down" data-power-inactive="fa-caret-right"></span>
         </div>
         <div class="power-section" id="panel-1">
             Panel content
         </div>
         <div class="power-action" data-power-target="panel-2" id="panel-2-action">
             Panel 2
-            <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span>
+            <span class="power-status fa" data-power-active="fa-minus" data-power-inactive="fa-plus"></span>
         </div>
         <div class="power-section" id="panel-2">
             Panel content
         </div>
         <div class="power-action" data-power-target="panel-3" id="panel-3-action">
             <div>
-                <span class="power-status fa" data-power-active="fa-angle-down" data-power-inactive="fa-angle-right"></span>
+                <span class="power-status fa" data-power-active="fa-minus" data-power-inactive="fa-plus"></span>
                 Panel 3
             </div>
         </div>
         <div class="power-section" id="panel-3">
+            Panel content
+        </div>
+        <div class="power-action" data-power-target="panel-4" id="panel-4-action">
+            <div>
+                <span class="power-status fa" data-power-active="fa-minus" data-power-inactive="fa-plus"></span>
+                Panel 4
+            </div>
+        </div>
+        <div class="power-section" id="panel-4">
             Panel content
         </div>
     </div>

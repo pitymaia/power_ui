@@ -218,6 +218,7 @@ const _powerCssConfig = [
 	{name: 'power-main', isMain: true},
 	{name: 'power-brand'},
 	{name: 'power-item'},
+	{name: 'power-accordion'},
 	{name: 'power-section'},
 	{name: 'power-action'},
 	{name: 'power-dropdown'},
@@ -720,6 +721,10 @@ class PowerUi {
 		return new PowerItem(element, this);
 	}
 
+	_powerAccordion(element) {
+		return new PowerAccordion(element, this);
+	}
+
 	_powerSection(element) {
 		return new PowerSection(element, this);
 	}
@@ -749,9 +754,47 @@ class PowerItem extends PowerTarget {
 }
 
 
+class PowerAccordion extends PowerTarget {
+	constructor(element) {
+		super(element);
+		element.getAttribute('data-multiple-sections-open') === 'true' ? this.multipleSectionsOpen = true : this.multipleSectionsOpen = false;
+		this.powerSection = {};
+		this.powerAction = {};
+	}
+	init() {
+		// Add all sections and actions to Power Accordion
+		const powerSections = this.element.getElementsByClassName('power-section');
+		for (const section of powerSections) {
+			this.powerSection[section.id] = this.$powerUi.powerDOM.powerCss.powerSection[section.id];
+			// Add accordion to section
+			this.powerSection[section.id].powerAccordion = this;
+		}
+		const powerActions = this.element.getElementsByClassName('power-action');
+		for (const action of powerActions) {
+			this.powerAction[action.id] = this.$powerUi.powerDOM.powerCss.powerAction[action.id];
+			// Add accordion to action
+			this.powerAction[action.id].powerAccordion = this;
+		}
+	}
+}
+
+
 class PowerSection extends PowerTarget {
 	constructor(element) {
 		super(element);
+	}
+	action() {
+		// If not allow multipleSectionsOpen, close the other sections
+		if (!this.powerAccordion.multipleSectionsOpen) {
+			for (const action in this.powerAccordion.powerAction) {
+				// Only closes if is not this section and if is active
+				const targetAction = this.powerAccordion.powerAction[action];
+				if (targetAction.targetObj.id !== this._id && targetAction._$pwActive) {
+					// This prevent the targetAction.toggle call this action again, so this flag avoid a loop to occurs
+					targetAction.toggle({avoidCallAction: true});
+				}
+			}
+		}
 	}
 }
 
@@ -784,8 +827,11 @@ class PowerAction extends PowerTarget {
 		if (this.targetObj.customEventsToDispatch) this.targetObj.customEventsToDispatch();
 	}
 
-	toggle() {
-		if (this.targetObj.action) this.targetObj.action();
+	// Params allows a flag to "avoidCallAction"
+	// Some times the targetObj.action needs to call the action.toggle, but it the action.toggle also calls the targetObj.action a loop will occurs
+	// The avoidCallAction flag avoid the loop
+	toggle(params={}) {
+		if (this.targetObj.action && !params.avoidCallAction) this.targetObj.action();
 		if (this.targetObj._$pwActive) {
 			this._$pwActive = false; // powerAction
 			this.targetObj._$pwActive = false;
