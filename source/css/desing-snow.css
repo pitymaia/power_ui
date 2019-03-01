@@ -1,36 +1,36 @@
-.power-design-snow {
+.power-design-white-smoke {
     font-family: Verdana, Arial, "Courier New";
 }
 
 /* Menu */
-.power-design-snow .power-brand, .power-design-snow .power-item, .power-design-snow .power-action, .power-design-snow .power-toggle {
+.power-design-white-smoke .power-brand, .power-design-white-smoke .power-item, .power-design-white-smoke .power-action, .power-design-white-smoke .power-toggle {
     cursor: pointer;
     list-style-type: none;
 }
 
-.power-design-snow .power-menu {
+.power-design-white-smoke .power-menu {
     padding: 0.5em;
     margin-bottom: 0.5em;
     border-style: solid;
     border-width: 1px;
-    background-color: #fff;
+    background-color: #F5F5F5;
     vertical-align: middle;
     z-index: 900;
 }
-.power-design-snow .power-dropdown {
+.power-design-white-smoke .power-dropdown {
     z-index: 900;
 }
-.power-design-snow .power-toggle {
+.power-design-white-smoke .power-toggle {
     border-style: solid;
     border-width: 1px;
     padding: 0.3em 0.5em;
 }
 
-.power-design-snow .power-menu-fixed .power-toggle {
+.power-design-white-smoke .power-menu-fixed .power-toggle {
     margin-right: 1em;
 }
 
-.power-design-snow  .power-menu-fixed {
+.power-design-white-smoke  .power-menu-fixed {
     top: -1px;
     left: -1px;
     width: 100%;
@@ -38,46 +38,66 @@
 /* Menu end*/
 
 /* Dropdown */
-.power-design-snow .power-dropdown span.power-action:hover, .power-design-snow .power-dropdown span.power-item:hover, .power-design-snow .power-dropdown a.power-action:hover, .power-design-snow .power-dropdown a.power-item:hover, .power-design-snow .power-dropdown div.power-action:hover, .power-design-snow .power-dropdown div.power-item:hover {
+.power-design-white-smoke .power-dropdown span.power-action:hover, .power-design-white-smoke .power-dropdown span.power-item:hover, .power-design-white-smoke .power-dropdown a.power-action:hover, .power-design-white-smoke .power-dropdown a.power-item:hover, .power-design-white-smoke .power-dropdown div.power-action:hover, .power-design-white-smoke .power-dropdown div.power-item:hover {
     background-color: #00ace6;
-    color: #fff;
+    color: #F5F5F5;
 }
-.power-design-snow .power-menu > span.power-action:hover, .power-design-snow .power-menu > span.power-item:hover, .power-design-snow .power-menu > a.power-action:hover, .power-design-snow .power-menu > a.power-item:hover, .power-design-snow .power-menu > div.power-action:hover, .power-design-snow .power-menu > div.power-item:hover {
+.power-design-white-smoke .power-menu > span.power-action:hover, .power-design-white-smoke .power-menu > span.power-item:hover, .power-design-white-smoke .power-menu > a.power-action:hover, .power-design-white-smoke .power-menu > a.power-item:hover, .power-design-white-smoke .power-menu > div.power-action:hover, .power-design-white-smoke .power-menu > div.power-item:hover {
     font-weight: bold;
     text-shadow: 0px 0px 11px rgb(0, 172, 230);
 }
-.power-design-snow .power-item, .power-design-snow .power-action, .power-design-snow .power-item > *, .power-design-snow .power-brand, .power-design-snow .power-action > *, .power-design-snow .power-brand > * {
+.power-design-white-smoke .power-item, .power-design-white-smoke .power-action, .power-design-white-smoke .power-item > *, .power-design-white-smoke .power-brand, .power-design-white-smoke .power-action > *, .power-design-white-smoke .power-brand > * {
     vertical-align: middle;
     font-size: 12pt;
 }
 
-.power-design-snow .power-dropdown > .power-dropdown.power-active {
+.power-design-white-smoke .power-dropdown > .power-dropdown.power-active {
     margin-left: 2em;
 }
 
-.power-design-snow .power-item, .power-design-snow .power-action {
-    padding: .5em !important;
+.power-design-white-smoke .power-item, .power-design-white-smoke .power-action {
+    padding: 0.5em;
+}
+.power-design-white-smoke .power-dropdown.power-active, .power-design-white-smoke .power-dropdown.power-active > .power-dropdown.power-active {
+    background-color: #F5F5F5;
 }
 /* Dropdown end */
 
 /* Accordion */
-.power-design-snow .power-accordion > .power-action, .power-design-snow .power-accordion > .power-section {
+.power-design-white-smoke .power-accordion > .power-action, .power-design-white-smoke .power-accordion > .power-section {
     border-width: 1px;
     border-style: solid;
     border-color: black;
 }
-.power-design-snow .power-accordion > .power-action {
+.power-design-white-smoke .power-accordion > .power-action {
+    background-color: #F5F5F5;
+}
+.power-design-white-smoke .power-accordion > .power-section {
     background-color: #fff;
 }
-.power-design-snow .power-accordion > .power-section {
+.power-design-white-smoke .power-accordion > .power-section {
     padding: 0.5em;
     display: none;
 }
-.power-design-snow .power-accordion > .power-section.power-active {
+.power-design-white-smoke .power-accordion > .power-section.power-active {
     display: block;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    margin-bottom: 0.2em;
 }
-.power-design-snow .power-accordion > .power-action {
+.power-design-white-smoke .power-accordion > .power-action {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    border-radius: 5px;
+    margin-bottom: 0.2em;
+}
+
+.power-design-white-smoke .power-accordion > .power-action.power-active {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: 0;
+    margin-bottom: 0em;
 }
 /* Accordion */

@@ -53,7 +53,7 @@
     max-width: 100%;
 }
 body {
-    background: linear-gradient(to left, white 5%, #ADD8E6 30%, white 40%, #ADD8E6 50%, white 70%, #ADD8E6 90%, white 95%);
+    background: #fff;
 }
 .back {
     margin: 3em;

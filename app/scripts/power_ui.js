@@ -836,10 +836,12 @@ class PowerAction extends PowerTarget {
 			this._$pwActive = false; // powerAction
 			this.targetObj._$pwActive = false;
 			this.targetObj.element.classList.remove('power-active');
+			this.element.classList.remove('power-active');
 		} else {
 			this._$pwActive = true; // powerAction
 			this.targetObj._$pwActive = true;
 			this.targetObj.element.classList.add('power-active');
+			this.element.classList.add('power-active');
 		}
 		// Broadcast toggle custom event
 		this.broadcast('toggle', true);
