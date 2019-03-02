@@ -72,4 +72,10 @@ let app = new PowerUi(inject);
 // 		}, 500);
 // 	}
 // }
-window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);
+window.console.log('power', app);
+window.console.log('panel-0-action', app.powerDOM.allPowerObjsById['panel-0-action']);
+var teste = function(e) {
+	console.log('chamou', this);
+	this.unsubscribe({event: 'mouseover', fn: teste});
+}
+app.powerDOM.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});

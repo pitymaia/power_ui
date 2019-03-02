@@ -87,7 +87,7 @@ class Event {
 	}
 
 	unsubscribe(fn) {
-		this.observers = this.observers.filter((x) => x !== fn);
+		this.observers = this.observers.filter((x) => x.fn !== fn);
 	}
 
 	broadcast() { // Accepts arguments.
@@ -123,6 +123,8 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._events = {};
 		// Hold custom events to dispatch
 		this._DOMEvents = {};
+		// Hold the function to allow remove listeners with the same funciont signature
+		this._events_fn = {};
 	}
 
 	// The toggle base it's position on the powerAction position
@@ -138,23 +140,30 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		// Create the event
 		if (!this._events[event]) {
 			this._events[event] = new Event(this.id);
-			// The following code only create custom events for not native events,
-			// but now we want it allways create de event to dispatch it on broadcast, so we commented the check on document.body[event]
-			// // Check if event is native, if not creates a custom event
-			// if (typeof document.body[event] === "undefined") {
-			// 	// Only creates if not exists
-				if (!this._DOMEvents[event]) {
-					this._DOMEvents[event] = new CustomEvent(event, {bubbles: useCapture});
-				}
-			// }
 
-			// This is the listener/broadcast for the native and custom events
-			this.addEventListener(event, function(domEvent) {
+		 	// Only creates if not exists
+			if (!this._DOMEvents[event]) {
+				this._DOMEvents[event] = new CustomEvent(event, {bubbles: useCapture});
+			}
+			// Register the function to have the signature to allow remove the listner
+			this._events_fn[event] = function(domEvent) {
 				ctx._events[event].broadcast(ctx, domEvent, params);
-			}, useCapture);
+			}
+			// This is the listener/broadcast for the native and custom events
+			this.addEventListener(event, this._events_fn[event], useCapture);
 		}
 		// Subscribe to the element
 		this._events[event].subscribe(fn, ctx, params);
+	}
+
+	unsubscribe({event, fn, useCapture=true, ...params}) {
+		const ctx = this;
+		if (this._events[event]) {
+			// Unsubscribe the element
+			this._events[event].unsubscribe(fn);
+			// If is the last subscriber remove the event and the listener
+			this.removeEventListener(event, this._events_fn[event], useCapture);
+		}
 	}
 
 	broadcast(eventName, alreadyDispatched) {
@@ -177,6 +186,10 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 
 	addEventListener(event, callback, useCapture=false) {
 		this.element.addEventListener(event, callback, useCapture);
+	}
+
+	removeEventListener(event, callback, useCapture=false) {
+		this.element.removeEventListener(event, callback, useCapture);
 	}
 }
 
@@ -961,9 +974,11 @@ class PowerBrand extends PowerTarget {
 class PowerMenu {
 	constructor(menu, $powerUi) {
 		this.$powerUi = $powerUi;
+		this._$pwActive = false;
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
+		this.activeDropdowns = [];
 	}
 
 	init() {
@@ -983,6 +998,14 @@ class PowerMenu {
 				this[keyName][element.id] = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
 			}
 		}
+
+		// // Menu subscribe to toggle in any action to allow "windows like" behaviour on dropdowns
+		// // When click the first menu item on Windows and Linux, the other dropdowns opens on hover
+		// for (const action in this.actions) {
+		// 	// Add the menu to the action
+		// 	this.actions[action].powerMenu = this;
+		// 	this.actions[action].subscribe({event: 'toggle', fn: this.onTogglection});
+		// }
 	}
 
 	toggle() {
@@ -1141,4 +1164,10 @@ let app = new PowerUi(inject);
 // 		}, 500);
 // 	}
 // }
-window.console.log('power', app, app.powerDOM.allPowerObjsById['pouco_label']);
+window.console.log('power', app);
+window.console.log('panel-0-action', app.powerDOM.allPowerObjsById['panel-0-action']);
+var teste = function(e) {
+	console.log('chamou', this);
+	this.unsubscribe({event: 'mouseover', fn: teste});
+}
+app.powerDOM.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});

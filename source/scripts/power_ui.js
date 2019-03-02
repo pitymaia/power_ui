@@ -274,9 +274,11 @@ class PowerBrand extends PowerTarget {
 class PowerMenu {
 	constructor(menu, $powerUi) {
 		this.$powerUi = $powerUi;
+		this._$pwActive = false;
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
+		this.activeDropdowns = [];
 	}
 
 	init() {
@@ -296,6 +298,14 @@ class PowerMenu {
 				this[keyName][element.id] = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
 			}
 		}
+
+		// // Menu subscribe to toggle in any action to allow "windows like" behaviour on dropdowns
+		// // When click the first menu item on Windows and Linux, the other dropdowns opens on hover
+		// for (const action in this.actions) {
+		// 	// Add the menu to the action
+		// 	this.actions[action].powerMenu = this;
+		// 	this.actions[action].subscribe({event: 'toggle', fn: this.onTogglection});
+		// }
 	}
 
 	toggle() {
