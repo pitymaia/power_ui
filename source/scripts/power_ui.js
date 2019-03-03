@@ -1,3 +1,30 @@
+// Set two objects: The dropdowns first level child elements, and all dropdowns child elements
+function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx) {
+	const allChildElements = ctx.element.getElementsByClassName(targetElement);
+	const allChildDropdowns = ctx.element.getElementsByClassName('power-dropdown');
+	// Hold the id of actions that belongs to children dropdowns
+	const elementsIdsBlackList = [];
+	for (const currentDropdown of allChildDropdowns) {
+		const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
+		for (const currentElement of currentDropdownActions) {
+			// If not already in the black list add it
+			if (!elementsIdsBlackList.includes(currentElement.id)) {
+				elementsIdsBlackList.push(currentElement.id);
+			}
+		}
+	}
+
+	// Only select the power actions not black listed
+	for (const currentElement of allChildElements) {
+		if (!elementsIdsBlackList.includes(currentElement.id)) {
+			firstLevelElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+		} else {
+			// Add all child elements
+			allChildPowerElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+		}
+	}
+}
+
 class PowerUi {
 	constructor(inject) {
 		for (const item of inject) {
@@ -214,35 +241,8 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	init() {
-		this.setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions);
-		this.setAllChildElementsAndFirstLevelChildElements('power-item', 'powerItem', this.firstLevelPowerItems, this.allChildPowerItems);
-	}
-
-	// Set two objects: The dropdowns first level child elements, and all dropdowns child elements
-	setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements) {
-		const allChildElements = this.element.getElementsByClassName(targetElement);
-		const allChildDropdowns = this.element.getElementsByClassName('power-dropdown');
-		// Hold the id of actions that belongs to children dropdowns
-		const elementsIdsBlackList = [];
-		for (const currentDropdown of allChildDropdowns) {
-			const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
-			for (const currentElement of currentDropdownActions) {
-				// If not already in the black list add it
-				if (!elementsIdsBlackList.includes(currentElement.id)) {
-					elementsIdsBlackList.push(currentElement.id);
-				}
-			}
-		}
-
-		// Only select the power actions not black listed
-		for (const currentElement of allChildElements) {
-			if (!elementsIdsBlackList.includes(currentElement.id)) {
-				firstLevelElements.push(this.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
-			} else {
-				// Add all child elements
-				allChildPowerElements.push(this.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
-			}
-		}
+		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
+		setAllChildElementsAndFirstLevelChildElements('power-item', 'powerItem', this.firstLevelPowerItems, this.allChildPowerItems, this);
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
@@ -368,14 +368,17 @@ class PowerBrand extends PowerTarget {
 }
 
 
-class PowerMenu {
+class PowerMenu extends PowerTarget {
 	constructor(menu, $powerUi) {
+		super(menu);
 		this.$powerUi = $powerUi;
 		this._$pwActive = false;
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
 		this.activeDropdowns = [];
+		this.firstLevelPowerActions = [];
+		this.allChildPowerActions = [];
 	}
 
 	init() {
@@ -396,13 +399,63 @@ class PowerMenu {
 			}
 		}
 
-		// // Menu subscribe to toggle in any action to allow "windows like" behaviour on dropdowns
-		// // When click the first menu item on Windows and Linux, the other dropdowns opens on hover
-		// for (const action in this.actions) {
-		// 	// Add the menu to the action
-		// 	this.actions[action].powerMenu = this;
-		// 	this.actions[action].subscribe({event: 'toggle', fn: this.onTogglection});
-		// }
+		// Menu subscribe to any action to allow "windows like" behaviour on dropdowns
+		// When click the first menu item on Windows and Linux, the other dropdowns opens on hover
+		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
+		for (const action of this.firstLevelPowerActions) {
+			// Add the menu to the actions
+			action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
+			action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
+		}
+	}
+
+	hoverModeOn(ctx, event, params) {
+		for (const action of params.menu.firstLevelPowerActions) {
+			action.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
+		}
+	}
+
+	onMouseEnterAction(ctx, event, params) {
+		// Only call toggle if is not active
+		if (!params.action._$pwActive) {
+			params.action.toggle();
+		}
+
+		// Close any child possible active dropdown
+		for (const action of params.menu.allChildPowerActions) {
+			if (action._$pwActive) {
+				action.toggle();
+			}
+		}
+		// Close any first level possible active dropdown if not the current dropdown
+		for (const action of params.menu.firstLevelPowerActions) {
+			if (action._$pwActive && (action._id !== params.action._id)) {
+				action.toggle();
+			}
+		}
+	}
+
+	maySetHoverModeOff(ctx, event, params) {
+		setTimeout(function() {
+			let someDropdownIsOpen = false;
+			// See if there is any firstLevelPowerAction active
+			for (const action of params.menu.firstLevelPowerActions) {
+				if (action._$pwActive) {
+					someDropdownIsOpen = true;
+				}
+			}
+
+			// If there is no active action, set hover mode to off
+			if (someDropdownIsOpen === false) {
+				params.menu.hoverModeOff(ctx, event, params);
+			}
+		}, 333);
+	}
+
+	hoverModeOff(ctx, level, params) {
+		for (const action of params.menu.firstLevelPowerActions) {
+			action.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
+		}
 	}
 
 	toggle() {
