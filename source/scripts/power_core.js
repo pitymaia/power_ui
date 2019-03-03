@@ -82,8 +82,8 @@ class Event {
 		if (name)  Event.index[name] = this;
 	}
 
-	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
-		this.observers.push({fn, ctx});
+	subscribe(fn, ctx, params) { // *ctx* is what *this* will be inside *fn*.
+		this.observers.push({fn, ctx, arguments});
 	}
 
 	unsubscribe(fn) {
@@ -92,7 +92,7 @@ class Event {
 
 	broadcast() { // Accepts arguments.
 		for (const o of this.observers) {
-			o.fn.apply(o.ctx, arguments);
+			o.fn.apply(o.ctx, o.arguments);
 		}
 	}
 }

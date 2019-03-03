@@ -82,8 +82,8 @@ class Event {
 		if (name)  Event.index[name] = this;
 	}
 
-	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
-		this.observers.push({fn, ctx});
+	subscribe(fn, ctx, params) { // *ctx* is what *this* will be inside *fn*.
+		this.observers.push({fn, ctx, arguments});
 	}
 
 	unsubscribe(fn) {
@@ -92,7 +92,7 @@ class Event {
 
 	broadcast() { // Accepts arguments.
 		for (const o of this.observers) {
-			o.fn.apply(o.ctx, arguments);
+			o.fn.apply(o.ctx, o.arguments);
 		}
 	}
 }
@@ -845,15 +845,11 @@ class PowerAction extends PowerTarget {
 	// The avoidCallAction flag avoid the loop
 	toggle(params={}) {
 		if (this.targetObj.action && !params.avoidCallAction) this.targetObj.action();
-		if (this.targetObj._$pwActive) {
+		if (this._$pwActive) {
 			this._$pwActive = false; // powerAction
-			this.targetObj._$pwActive = false;
-			this.targetObj.element.classList.remove('power-active');
 			this.element.classList.remove('power-active');
 		} else {
 			this._$pwActive = true; // powerAction
-			this.targetObj._$pwActive = true;
-			this.targetObj.element.classList.add('power-active');
 			this.element.classList.add('power-active');
 		}
 		// Broadcast toggle custom event
@@ -862,11 +858,11 @@ class PowerAction extends PowerTarget {
 
 	ifClickOut() {
 		if (this._$pwActive) {
-			this._$pwActive = false;
+			// this._$pwActive = false;
 			// Remove the listener to detect if click outside
 			document.removeEventListener("click", this._clickPowerItemOrOutside);
 		} else {
-			this._$pwActive = true;
+			// this._$pwActive = true;
 			// Add the listener to capture when click outside and register the function to allow remove it
 			this._clickPowerItemOrOutside = this.clickPowerItemOrOutside.bind(this);
 			document.addEventListener("click", this._clickPowerItemOrOutside);
@@ -902,6 +898,40 @@ class PowerAction extends PowerTarget {
 class PowerDropdown extends PowerTarget {
 	constructor(element) {
 		super(element);
+		this.firstLevelPowerActions = [];
+		this.firstLevelPowerItems = [];
+		this.activeChildPowerActions = [];
+	}
+
+	init() {
+		this.firstLevelPowerActions = this.getFirstLevelChildElements('power-action', 'powerAction');
+		this.firstLevelPowerItems = this.getFirstLevelChildElements('power-item', 'powerItem');
+	}
+
+	// Return only the dropdowns first level child elements
+	getFirstLevelChildElements(targetElement, powerSelector) {
+		const firstLevelChildElements = [];
+		const allChildElements = this.element.getElementsByClassName(targetElement);
+		const allChildDropdowns = this.element.getElementsByClassName('power-dropdown');
+		// Hold the id of actions that belongs to children dropdowns
+		const elementsIdsBlackList = [];
+		for (const currentDropdown of allChildDropdowns) {
+			const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
+			for (const currentElement of currentDropdownActions) {
+				// If not already in the black list add it
+				if (!elementsIdsBlackList.includes(currentElement.id)) {
+					elementsIdsBlackList.push(currentElement.id);
+				}
+			}
+		}
+
+		// Only select the power actions not black listed
+		for (const currentElement of allChildElements) {
+			if (!elementsIdsBlackList.includes(currentElement.id)) {
+				firstLevelChildElements.push(this.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+			}
+		}
+		return firstLevelChildElements;
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
@@ -943,12 +973,24 @@ class PowerDropdown extends PowerTarget {
 
 		return Math.round(offset) + 'px';
 	}
-	// The toggle base it's position on the powerAction position
-	toggle() {
+
+	open() {
 		if (!this._$pwActive) {
+			this._$pwActive = true;
+			this.element.classList.add('power-active');
+			// The powerDropdown base it's position on the powerAction position
 			this.element.style.left = this.getLeftPosition(this.powerAction);
 		}
+		this.toggle();
+	}
 
+	close() {
+		this._$pwActive = false;
+		this.element.classList.remove('power-active');
+		this.toggle();
+	}
+
+	toggle() {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
 		// Broadcast toggle custom event
@@ -957,7 +999,11 @@ class PowerDropdown extends PowerTarget {
 
 	// The powerAction call this action method
 	action() {
-		this.toggle();
+		if (!this._$pwActive){
+			this.open();
+		} else {
+			this.close();
+		}
 	}
 }
 
