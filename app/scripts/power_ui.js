@@ -161,8 +161,11 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		if (this._events[event]) {
 			// Unsubscribe the element
 			this._events[event].unsubscribe(fn);
-			// If is the last subscriber remove the event and the listener
-			this.removeEventListener(event, this._events_fn[event], useCapture);
+			if (this._events[event].observers.length === 0) {
+				delete this._events[event];
+				// If is the last subscriber remove the event and the listener
+				this.removeEventListener(event, this._events_fn[event], useCapture);
+			}
 		}
 	}
 
@@ -900,7 +903,6 @@ class PowerDropdown extends PowerTarget {
 		super(element);
 		this.firstLevelPowerActions = [];
 		this.firstLevelPowerItems = [];
-		this.activeChildPowerActions = [];
 	}
 
 	init() {
@@ -974,19 +976,56 @@ class PowerDropdown extends PowerTarget {
 		return Math.round(offset) + 'px';
 	}
 
+	hoverModeOn() {
+		for (const action of this.firstLevelPowerActions) {
+			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
+		}
+	}
+
+	onMouseEnterAction(ctx, event, params) {
+		if (params.action._$pwActive) {
+			return;
+		}
+		params.action.toggle();
+		params.dropdown.onMouseEnterItem(ctx, event, params, true);
+		for (const item of params.dropdown.firstLevelPowerItems) {
+			item.subscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown});
+		}
+	}
+
+	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
+		if (!onMouseEnterAction) {
+			params.action.toggle();
+		}
+		for (const item of params.dropdown.firstLevelPowerItems) {
+			item.unsubscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown});
+		}
+	}
+
+	hoverModeOff() {
+		console.log('chamou hoverModeOff', this);
+		for (const action of this.firstLevelPowerActions) {
+			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
+		}
+	}
+
 	open() {
 		if (!this._$pwActive) {
 			this._$pwActive = true;
 			this.element.classList.add('power-active');
 			// The powerDropdown base it's position on the powerAction position
 			this.element.style.left = this.getLeftPosition(this.powerAction);
+			this.hoverModeOn();
 		}
 		this.toggle();
 	}
 
 	close() {
-		this._$pwActive = false;
-		this.element.classList.remove('power-active');
+		if (this._$pwActive) {
+			this._$pwActive = false;
+			this.element.classList.remove('power-active');
+			this.hoverModeOff();
+		}
 		this.toggle();
 	}
 

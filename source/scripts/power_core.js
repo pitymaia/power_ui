@@ -161,8 +161,11 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		if (this._events[event]) {
 			// Unsubscribe the element
 			this._events[event].unsubscribe(fn);
-			// If is the last subscriber remove the event and the listener
-			this.removeEventListener(event, this._events_fn[event], useCapture);
+			if (this._events[event].observers.length === 0) {
+				delete this._events[event];
+				// If is the last subscriber remove the event and the listener
+				this.removeEventListener(event, this._events_fn[event], useCapture);
+			}
 		}
 	}
 
