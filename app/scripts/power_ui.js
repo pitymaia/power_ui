@@ -799,6 +799,7 @@ class PowerSection extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
+
 	action() {
 		// If not allow multipleSectionsOpen, close the other sections
 		if (!this.powerAccordion.multipleSectionsOpen) {
@@ -850,9 +851,13 @@ class PowerAction extends PowerTarget {
 		if (this.targetObj.action && !params.avoidCallAction) this.targetObj.action();
 		if (this._$pwActive) {
 			this._$pwActive = false; // powerAction
+			this.targetObj._$pwActive = false;
+			this.targetObj.element.classList.remove('power-active');
 			this.element.classList.remove('power-active');
 		} else {
 			this._$pwActive = true; // powerAction
+			this.targetObj._$pwActive = true;
+			this.targetObj.element.classList.add('power-active');
 			this.element.classList.add('power-active');
 		}
 		// Broadcast toggle custom event
@@ -1007,15 +1012,15 @@ class PowerDropdown extends PowerTarget {
 			if (params.action._$pwActive) {
 				params.action.toggle();
 			}
-			// Close any child possible active dropdown
-			for (const action of params.dropdown.allChildPowerActions) {
-				if (action._$pwActive) {
-					action.toggle();
-				}
-			}
 
 		}
 
+		// Close any child possible active dropdown
+		for (const action of params.dropdown.allChildPowerActions) {
+			if (action._$pwActive) {
+				action.toggle();
+			}
+		}
 		// Close any first level possible active dropdown if not the current dropdown
 		for (const action of params.dropdown.firstLevelPowerActions) {
 			if (action._$pwActive && (action._id !== params.action._id)) {
@@ -1036,27 +1041,14 @@ class PowerDropdown extends PowerTarget {
 		}
 	}
 
-	open() {
+	toggle() {
 		if (!this._$pwActive) {
-			this._$pwActive = true;
-			this.element.classList.add('power-active');
 			// The powerDropdown base it's position on the powerAction position
 			this.element.style.left = this.getLeftPosition(this.powerAction);
 			this.hoverModeOn();
-		}
-		this.toggle();
-	}
-
-	close() {
-		if (this._$pwActive) {
-			this._$pwActive = false;
-			this.element.classList.remove('power-active');
+		} else {
 			this.hoverModeOff();
 		}
-		this.toggle();
-	}
-
-	toggle() {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
 		// Broadcast toggle custom event
@@ -1065,11 +1057,7 @@ class PowerDropdown extends PowerTarget {
 
 	// The powerAction call this action method
 	action() {
-		if (!this._$pwActive){
-			this.open();
-		} else {
-			this.close();
-		}
+		this.toggle();
 	}
 }
 
