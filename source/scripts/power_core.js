@@ -237,6 +237,7 @@ const _powerCssConfig = [
 	{name: 'power-accordion'},
 	{name: 'power-section'},
 	{name: 'power-action'},
+	{name: 'power-toggle'},
 	{name: 'power-dropdown'},
 	{name: 'power-status'},
 ];

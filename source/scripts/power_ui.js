@@ -73,6 +73,10 @@ class PowerUi {
 		return new PowerAction(element, this);
 	}
 
+	_powerToggle(element) {
+		return new PowerToggle(element, this);
+	}
+
 	_powerDropdown(element) {
 		return new PowerDropdown(element, this);
 	}
@@ -223,6 +227,13 @@ class PowerAction extends PowerTarget {
 
 		// This is an outside click
 		this.toggle();
+	}
+}
+
+
+class PowerToggle extends PowerAction {
+	constructor(element) {
+		super(element);
 	}
 }
 
