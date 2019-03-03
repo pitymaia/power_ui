@@ -901,18 +901,23 @@ class PowerAction extends PowerTarget {
 class PowerDropdown extends PowerTarget {
 	constructor(element) {
 		super(element);
+		// Hold all the power actions in this dropdown, buto not the ones on the internal dropdowns
 		this.firstLevelPowerActions = [];
+		// Hold all the power actions in the internal dropdowns, but not the ones in this dropdown
+		this.allChildPowerActions = [];
+		// Hold all the power items in this dropdown, buto not the ones on the internal dropdowns
 		this.firstLevelPowerItems = [];
+		// Hold all the power items in the internal dropdowns, but not the ones in this dropdown
+		this.allChildPowerItems = [];
 	}
 
 	init() {
-		this.firstLevelPowerActions = this.getFirstLevelChildElements('power-action', 'powerAction');
-		this.firstLevelPowerItems = this.getFirstLevelChildElements('power-item', 'powerItem');
+		this.setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions);
+		this.setAllChildElementsAndFirstLevelChildElements('power-item', 'powerItem', this.firstLevelPowerItems, this.allChildPowerItems);
 	}
 
-	// Return only the dropdowns first level child elements
-	getFirstLevelChildElements(targetElement, powerSelector) {
-		const firstLevelChildElements = [];
+	// Set two objects: The dropdowns first level child elements, and all dropdowns child elements
+	setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements) {
 		const allChildElements = this.element.getElementsByClassName(targetElement);
 		const allChildDropdowns = this.element.getElementsByClassName('power-dropdown');
 		// Hold the id of actions that belongs to children dropdowns
@@ -930,10 +935,12 @@ class PowerDropdown extends PowerTarget {
 		// Only select the power actions not black listed
 		for (const currentElement of allChildElements) {
 			if (!elementsIdsBlackList.includes(currentElement.id)) {
-				firstLevelChildElements.push(this.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+				firstLevelElements.push(this.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+			} else {
+				// Add all child elements
+				allChildPowerElements.push(this.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
 			}
 		}
-		return firstLevelChildElements;
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
@@ -994,16 +1001,36 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
+		// This can be called from inMouseEnterAction and in this case we don't want call the toggle
 		if (!onMouseEnterAction) {
-			params.action.toggle();
+			// Only call toggle if is active
+			if (params.action._$pwActive) {
+				params.action.toggle();
+			}
+			// Close any child possible active dropdown
+			for (const action of params.dropdown.allChildPowerActions) {
+				if (action._$pwActive) {
+					action.toggle();
+				}
+			}
+
 		}
+
+		// Close any first level possible active dropdown if not the current dropdown
+		for (const action of params.dropdown.firstLevelPowerActions) {
+			if (action._$pwActive && (action._id !== params.action._id)) {
+				action.toggle();
+			}
+		}
+
+		// Unsubscribe from all the power items mouseenter
 		for (const item of params.dropdown.firstLevelPowerItems) {
 			item.unsubscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown});
 		}
+
 	}
 
 	hoverModeOff() {
-		console.log('chamou hoverModeOff', this);
 		for (const action of this.firstLevelPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
