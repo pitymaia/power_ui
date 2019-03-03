@@ -740,6 +740,8 @@ class PowerUi {
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
 		this.truth = {};
+		// Detect if is touchdevice (Phones, Ipads, etc)
+		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 	}
 
 	injectPwc(item, ctx) {
@@ -997,7 +999,7 @@ class PowerDropdown extends PowerTarget {
 			}
 		}
 
-		return Math.round(offset) + 'px';
+		return Math.round(offset);
 	}
 
 	hoverModeOn() {
@@ -1056,10 +1058,19 @@ class PowerDropdown extends PowerTarget {
 	toggle() {
 		if (!this._$pwActive) {
 			// The powerDropdown base it's position on the powerAction position
-			this.element.style.left = this.getLeftPosition(this.powerAction);
-			this.hoverModeOn();
+			// this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
+			this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
+			this.element.style.top = this.powerAction.element.offsetTop + 'px';
+			console.log('this.element.offsetWidth', this.powerAction.element.offsetWidth);
+			// Dropdowns only behave like windows if the user is not using touch
+			if (!this.$powerUi.touchdevice) {
+				this.hoverModeOn();
+			}
 		} else {
-			this.hoverModeOff();
+			// Dropdowns only behave like windows if the user is not using touch
+			if (!this.$powerUi.touchdevice) {
+				this.hoverModeOff();
+			}
 		}
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
@@ -1117,10 +1128,12 @@ class PowerMenu extends PowerTarget {
 		// Menu subscribe to any action to allow "windows like" behaviour on dropdowns
 		// When click the first menu item on Windows and Linux, the other dropdowns opens on hover
 		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
-		for (const action of this.firstLevelPowerActions) {
-			// Add the menu to the actions
-			action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
-			action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
+		if (!this.$powerUi.touchdevice) {
+			for (const action of this.firstLevelPowerActions) {
+				// Add the menu to the actions
+				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
+				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
+			}
 		}
 	}
 
