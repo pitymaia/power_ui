@@ -703,12 +703,16 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 }
 
 // Set two objects: The dropdowns first level child elements, and all dropdowns child elements
-function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx) {
+function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx, allDropdowns) {
 	const allChildElements = ctx.element.getElementsByClassName(targetElement);
 	const allChildDropdowns = ctx.element.getElementsByClassName('power-dropdown');
 	// Hold the id of actions that belongs to children dropdowns
 	const elementsIdsBlackList = [];
 	for (const currentDropdown of allChildDropdowns) {
+		// Get all dropdowns if ask for it
+		if (allDropdowns !== undefined) {
+			allDropdowns.push(ctx.$powerUi.powerDOM.powerCss.powerDropdown[currentDropdown.getAttribute('id')]);
+		}
 		const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
 		for (const currentElement of currentDropdownActions) {
 			// If not already in the black list add it
@@ -725,6 +729,44 @@ function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelec
 		} else {
 			// Add all child elements
 			allChildPowerElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+		}
+	}
+}
+
+// Define the powerDropdowns defaultPosition for all the child dropdowns
+// The right-bottom is the standard position
+function defineChildDropdownsPosition(self, powerElement) {
+	if (['right-bottom', 'bottom-right', 'bottom', 'right'].includes(self.defaultPosition)) {
+		powerElement.defaultPosition = 'right-bottom';
+	} else if (['left-bottom', 'bottom-left', 'left'].includes(self.defaultPosition)) {
+		powerElement.defaultPosition = 'left-bottom';
+	} else if (['right-top', 'top-right', 'top',  'right'].includes(self.defaultPosition)) {
+		powerElement.defaultPosition = 'right-top';
+	} else if (['left-top', 'top-left'].includes(self.defaultPosition)) {
+		powerElement.defaultPosition = 'left-top';
+	} else {
+		powerElement.defaultPosition = 'right-bottom'; // Default value;
+	}
+}
+
+// Define the powerDropdowns defaultPosition for the first level dropdowns
+// The right-bottom is the standard position
+function defineFirstLevelDropdownsPosition(self, powerElement) {
+	if (['right-bottom', 'bottom-right', 'right-top', 'top-right'].includes(self.defaultPosition)) {
+		powerElement.defaultPosition = self.defaultPosition;
+	} else if (self.defaultPosition === 'top') {
+		powerElement.defaultPosition = 'top-right';
+	} else if (self.defaultPosition === 'bottom') {
+		powerElement.defaultPosition = 'bottom-right';
+	} else if (self.defaultPosition === 'right') {
+		powerElement.defaultPosition = 'bottom-right';
+	} else if (self.defaultPosition === 'left') {
+		powerElement.defaultPosition = 'bottom-left';
+	} else {
+		if (self.element.classList.contains('power-horizontal')) {
+			self.defaultPosition = 'bottom-right';
+		} else {
+			self.defaultPosition = 'right-bottom';
 		}
 	}
 }
@@ -955,11 +997,61 @@ class PowerDropdown extends PowerTarget {
 		this.firstLevelPowerItems = [];
 		// Hold all the power items in the internal dropdowns, but not the ones in this dropdown
 		this.allChildPowerItems = [];
+		// Hold all child dropdowns
+		this.allChildPowerDropdowns = [];
+		// The position the dropdown will try to appear by default
+		this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
+
+		// Mark the root of the dropdown tree, first element
+		let stop = false;
+		let parentElement = element.parentElement;
+		while (!stop) {
+			if (parentElement.classList.contains('power-dropdown')) {
+				this.isRootElement = false;
+				return;
+			} else if (parentElement.classList.contains('power-menu')) {
+				this.isRootElement = true;
+				this.isMenuElement = true;
+				stop = true;
+			} else {
+				// Don't let go to parentElement if already found and have the variable 'stop' as true
+				// Only select the parentElement if has element but don't found the main class selector
+				parentElement = parentElement.parentElement;
+				if (!parentElement) {
+					// No more parentElements, than this is first level dropdown
+					this.isRootElement = true;
+					// If there is no more element set stop
+					stop = true;
+				}
+			}
+		}
 	}
 
 	init() {
-		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
-		setAllChildElementsAndFirstLevelChildElements('power-item', 'powerItem', this.firstLevelPowerItems, this.allChildPowerItems, this);
+		setAllChildElementsAndFirstLevelChildElements(
+			'power-action',
+			'powerAction',
+			this.firstLevelPowerActions,
+			this.allChildPowerActions,
+			this,
+			this.allChildPowerDropdowns,
+		);
+		setAllChildElementsAndFirstLevelChildElements(
+			'power-item',
+			'powerItem',
+			this.firstLevelPowerItems,
+			this.allChildPowerItems,
+			this
+		);
+
+		// Set the default position only for menus not inside a menu
+		// The default position of menus dropdowns are defined by the menu
+		if (this.isRootElement && !this.isMenuElement) {
+			defineFirstLevelDropdownsPosition(this, this);
+			for (const dropdown of this.allChildPowerDropdowns) {
+				defineChildDropdownsPosition(this, dropdown);
+			}
+		}
 	}
 
 	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
@@ -1055,13 +1147,50 @@ class PowerDropdown extends PowerTarget {
 		}
 	}
 
+	setPositionRightBottom() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop + 'px';
+	}
+
+	setPositionRightTop() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
+	}
+
+	setPositionBottomOnly() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
+	}
+
+	setPositionTopOnly() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
+	}
+
 	toggle() {
+		console.log('this', this);
+		// Hide the element when add to DOM
+		// This allow get the dropdown sizes and position before adjust and show
+		this.element.classList.add('power-hide');
+		const self = this;
 		if (!this._$pwActive) {
-			// The powerDropdown base it's position on the powerAction position
-			// this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
-			this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
-			this.element.style.top = this.powerAction.element.offsetTop + 'px';
-			console.log('this.element.offsetWidth', this.powerAction.element.offsetWidth);
+			setTimeout(function () {
+				// The powerDropdown base it's position on the powerAction position
+				if (self.defaultPosition === 'bottom-right') {
+					self.setPositionBottomOnly();
+				} else if (self.defaultPosition === 'right-bottom') {
+					self.setPositionRightBottom();
+				} else if (self.defaultPosition === 'top-right') {
+					self.setPositionTopOnly();
+				} else if (self.defaultPosition === 'right-top') {
+					self.setPositionRightTop();
+				} else {
+					console.log("else: don't find position");
+					self.setPositionRightBottom();
+				}
+				// After choose the position show the dropdown
+				self.element.classList.remove('power-hide');
+			}, 50);
+
 			// Dropdowns only behave like windows if the user is not using touch
 			if (!this.$powerUi.touchdevice) {
 				this.hoverModeOn();
@@ -1102,16 +1231,26 @@ class PowerMenu extends PowerTarget {
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
-		this.activeDropdowns = [];
 		this.firstLevelPowerActions = [];
 		this.allChildPowerActions = [];
+		this.firstLevelPowerDropdowns = [];
+		// The position the dropdown will try to appear by default
+		this.defaultPosition = this.element.getAttribute('data-power-position');
+		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
+		if (!this.defaultPosition) {
+			if (this.element.classList.contains('power-horizontal')) {
+				this.defaultPosition = 'bottom-right';
+			} else {
+				this.defaultPosition = 'right-bottom';
+			}
+		}
 	}
 
 	init() {
-		// Add elements do menu
+		// Add elements to menu and the menu to the elements
 		for (const config of _powerCssConfig.filter(x => !x.isMain)) {
 			const className = config.name;
-			// power-brand
+			// power-brand, power-item, power-dropdown, etc...
 			for (const element of this.element.getElementsByClassName(className)) {
 				let keyName = className.split('-')[1];
 				// Find the apropriate key plural (statuses)
@@ -1121,16 +1260,28 @@ class PowerMenu extends PowerTarget {
 				}
 				// find the camelCase name of the className
 				const camelCaseName = powerClassAsCamelCase(className);
-				this[keyName][element.id] = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
+				const powerElement = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
+				this[keyName][element.id] = powerElement;
+				// Add the menu on the powerElement
+				powerElement.$powerMenu = this;
+				if (camelCaseName === 'powerDropdown') {
+					if (powerElement.isRootElement) {
+						this.firstLevelPowerDropdowns.push(powerElement);
+						defineFirstLevelDropdownsPosition(this, powerElement);
+					} else {
+						defineChildDropdownsPosition(this, powerElement);
+					}
+				}
 			}
 		}
 
 		// Menu subscribe to any action to allow "windows like" behaviour on dropdowns
 		// When click the first menu item on Windows and Linux, the other dropdowns opens on hover
 		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
-		if (!this.$powerUi.touchdevice) {
-			for (const action of this.firstLevelPowerActions) {
-				// Add the menu to the actions
+
+		for (const action of this.firstLevelPowerActions) {
+			// Only atach the windows like behaviour if not a touchdevice
+			if (!this.$powerUi.touchdevice) {
 				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
 				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
 			}
@@ -1193,7 +1344,7 @@ class PowerMenu extends PowerTarget {
 		this.powerAction.broadcast('toggle', true);
 	}
 
-	// The powerAction call this action method
+	// The powerToggle call this action method
 	action() {
 		this.toggle();
 	}
@@ -1255,7 +1406,7 @@ class PowerStatus extends PowerTarget {
 					}
 				}
 			}
-			// Don't let go to parentElement if already found and heve the variable 'stop' as true
+			// Don't let go to parentElement if already found and have the variable 'stop' as true
 			// Only select the parentElement if has element but don't found the main class selector
 			if (!this.targetObj && !stop) {
 				element = element.parentElement;

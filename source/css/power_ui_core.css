@@ -3,6 +3,10 @@
 .power-dropdown, .power-dropdown.power-active > .power-dropdown {
     display: none !important;
 }
+
+.power-hide {
+    visibility: hidden !important;
+}
 @media screen and (max-width: 800px) {
     .power-dropdown > .power-dropdown.power-active {
         margin-left: 0 !important;
