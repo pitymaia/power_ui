@@ -450,7 +450,7 @@ class PowerDropdown extends PowerTarget {
 
 	setPositionRightTop() {
 		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
-		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
 	}
 
 	setPositionBottomOnly() {
