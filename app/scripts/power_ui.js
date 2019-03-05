@@ -1069,32 +1069,6 @@ class PowerDropdown extends PowerTarget {
 		return parseInt(styles['margin-left'].split('px')[0] || 0) + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 
-	// Get the dropdown left positon
-	getLeftPosition(powerAction) {
-		const bodyRect = document.body.getBoundingClientRect();
-		const elemRect = powerAction.element.getBoundingClientRect();
-		let offset = elemRect.left - bodyRect.left;
-		offset  = offset + this.offsetComputedBodyStyles(window.getComputedStyle(document.body));
-
-		// Select all parent nodes to find the ones positioned as "absolute"
-		let curentNode = powerAction.element.parentNode;
-		const allParents = [];
-		while (curentNode && curentNode.tagName !== 'BODY') {
-			allParents.push(curentNode);
-			curentNode = curentNode.parentNode;
-		}
-
-		// Offset all parent "absolute" nodes
-		for (const parent of allParents) {
-			const parentStyles = window.getComputedStyle(parent);
-			if (parentStyles.position === 'absolute') {
-				offset  = offset - this.offsetComputedStyles(parentStyles);
-			}
-		}
-
-		return Math.round(offset);
-	}
-
 	hoverModeOn() {
 		for (const action of this.firstLevelPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
@@ -1146,6 +1120,32 @@ class PowerDropdown extends PowerTarget {
 		for (const action of this.firstLevelPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
+	}
+
+	// Get the dropdown left positon
+	getLeftPosition(powerAction) {
+		const bodyRect = document.body.getBoundingClientRect();
+		const elemRect = powerAction.element.getBoundingClientRect();
+		let offset = elemRect.left - bodyRect.left;
+		offset  = offset + this.offsetComputedBodyStyles(window.getComputedStyle(document.body));
+
+		// Select all parent nodes to find the ones positioned as "absolute"
+		let curentNode = powerAction.element.parentNode;
+		const allParents = [];
+		while (curentNode && curentNode.tagName !== 'BODY') {
+			allParents.push(curentNode);
+			curentNode = curentNode.parentNode;
+		}
+
+		// Offset all parent "absolute" nodes
+		for (const parent of allParents) {
+			const parentStyles = window.getComputedStyle(parent);
+			if (parentStyles.position === 'absolute') {
+				offset  = offset - this.offsetComputedStyles(parentStyles);
+			}
+		}
+
+		return Math.round(offset);
 	}
 
 	setPositionRightBottom() {
@@ -1214,7 +1214,6 @@ class PowerDropdown extends PowerTarget {
 				// After choose the position show the dropdown
 				self.element.classList.remove('power-hide');
 			}, 50);
-
 			// Dropdowns only behave like windows if the user is not using touch
 			if (!this.$powerUi.touchdevice) {
 				this.hoverModeOn();
