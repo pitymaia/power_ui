@@ -1087,7 +1087,7 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
-		// This can be called from inMouseEnterAction and in this case we don't want call the toggle
+		// This can be called from onMouseEnterAction and in this case we don't want call the toggle
 		if (!onMouseEnterAction) {
 			// Only call toggle if is active
 			if (params.action._$pwActive) {
@@ -1351,7 +1351,7 @@ class PowerMenu extends PowerTarget {
 			if (someDropdownIsOpen === false) {
 				params.menu.hoverModeOff(ctx, event, params);
 			}
-		}, 333);
+		}, 50);
 	}
 
 	hoverModeOff(ctx, level, params) {
