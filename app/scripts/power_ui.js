@@ -752,7 +752,8 @@ function defineChildDropdownsPosition(self, powerElement) {
 // Define the powerDropdowns defaultPosition for the first level dropdowns
 // The right-bottom is the standard position
 function defineFirstLevelDropdownsPosition(self, powerElement) {
-	if (['right-bottom', 'bottom-right', 'right-top', 'top-right'].includes(self.defaultPosition)) {
+	if (['right-bottom', 'bottom-right', 'left-bottom', 'bottom-left',
+		'right-top', 'top-right', 'left-top', 'top-left'].includes(self.defaultPosition)) {
 		powerElement.defaultPosition = self.defaultPosition;
 	} else if (self.defaultPosition === 'top') {
 		powerElement.defaultPosition = 'top-right';
@@ -961,13 +962,13 @@ class PowerAction extends PowerTarget {
 		// Close if click some power-item
 		if (elementToCheck.classList.contains('power-item') || elementToCheck.classList.contains('power-brand')) {
 			this.toggle();
-			return false;
+			return;
 		}
 
 		do {
 			if (elementToCheck === targetElement || elementToCheck === powerActionElement) {
 				// This is a click inside the dropdown, menu or on the buttom/trigger element. So, do nothing, just return
-				return false;
+				return;
 			}
 			// Go up the DOM
 			elementToCheck = elementToCheck.parentNode;
@@ -1151,23 +1152,39 @@ class PowerDropdown extends PowerTarget {
 		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop + 'px';
 	}
-
+	setPositionBottomRight() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
+	}
+	setPositionLeftBottom() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) - this.element.offsetWidth + 1 + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop + 'px';
+	}
+	setPositionBottomLeft() {
+		const dropdownActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
+		this.element.style.left = this.getLeftPosition(this.powerAction) + dropdownActionWidthDiff + 'px';
+	}
 	setPositionRightTop() {
 		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
 	}
-
-	setPositionBottomOnly() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
-	}
-
-	setPositionTopOnly() {
+	setPositionTopRigth() {
 		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
+	setPositionLeftTop() {
+		this.element.style.left = this.getLeftPosition(this.powerAction) - this.element.offsetWidth + 1 + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
+	}
+	setPositionTopLeft() {
+		const dropdownActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
+		this.element.style.left = this.getLeftPosition(this.powerAction) + dropdownActionWidthDiff + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
+	}
+
+
+
 
 	toggle() {
-		console.log('this', this);
 		// Hide the element when add to DOM
 		// This allow get the dropdown sizes and position before adjust and show
 		this.element.classList.add('power-hide');
@@ -1176,15 +1193,22 @@ class PowerDropdown extends PowerTarget {
 			setTimeout(function () {
 				// The powerDropdown base it's position on the powerAction position
 				if (self.defaultPosition === 'bottom-right') {
-					self.setPositionBottomOnly();
+					self.setPositionBottomRight();
 				} else if (self.defaultPosition === 'right-bottom') {
 					self.setPositionRightBottom();
-				} else if (self.defaultPosition === 'top-right') {
-					self.setPositionTopOnly();
+				} else if (self.defaultPosition === 'bottom-left') {
+					self.setPositionBottomLeft();
+				} else if (self.defaultPosition === 'left-bottom') {
+					self.setPositionLeftBottom();
+				}  else if (self.defaultPosition === 'top-right') {
+					self.setPositionTopRigth();
 				} else if (self.defaultPosition === 'right-top') {
 					self.setPositionRightTop();
+				} else if (self.defaultPosition === 'left-top') {
+					self.setPositionLeftTop();
+				} else if (self.defaultPosition === 'top-left') {
+					self.setPositionTopLeft();
 				} else {
-					console.log("else: don't find position");
 					self.setPositionRightBottom();
 				}
 				// After choose the position show the dropdown
