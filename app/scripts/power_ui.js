@@ -168,12 +168,14 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 			}
 		}
 	}
-
+	// FIX dispatch adn the full events system...
 	broadcast(eventName, alreadyDispatched) {
 		// If the custom event not already called its method
 		if (typeof document.body[eventName] === "undefined" && !alreadyDispatched) {
 			// If is a custom event with a method, the broadcast call it
 			this.dispatch(eventName);
+			// ADDED ONLY TO DEVELOP MENU - FIX IT!!!
+			this.element.dispatchEvent(this._DOMEvents[eventName]);
 		} else if (this._DOMEvents[eventName]) {
 			this.element.dispatchEvent(this._DOMEvents[eventName]);
 		}
@@ -783,6 +785,7 @@ class PowerUi {
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
 		this.truth = {};
+		this.tmp = {dropdown: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 	}
@@ -1070,23 +1073,48 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	hoverModeOn() {
+		// Abort if is moving
+		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+			// Using may moving over the same element, only add new target if not the same target
+			if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== this._id) {
+				this.moveOverPossibleNewTarget(this);
+			}
+			return;
+		}
 		for (const action of this.firstLevelPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
 	}
 
 	onMouseEnterAction(ctx, event, params) {
+		// Abort if is moving
+		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+			// Using may moving over the same element, only add new target if not the same target
+			if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== params.dropdown._id) {
+				params.dropdown.moveOverPossibleNewTarget(this);
+			}
+			return;
+		}
 		if (params.action._$pwActive) {
 			return;
 		}
 		params.action.toggle();
 		params.dropdown.onMouseEnterItem(ctx, event, params, true);
 		for (const item of params.dropdown.firstLevelPowerItems) {
-			item.subscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown});
+			item.subscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown, item: item});
 		}
+		params.dropdown.startWatchMouseMove(ctx, event, params);
 	}
 
 	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
+		// Abort if is moving
+		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+			// Using may moving over the same element, only add new target if not the same target
+			if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== params.dropdown._id) {
+				params.dropdown.moveOverPossibleNewTarget(params.item);
+			}
+			return;
+		}
 		// This can be called from onMouseEnterAction and in this case we don't want call the toggle
 		if (!onMouseEnterAction) {
 			// Only call toggle if is active
@@ -1117,10 +1145,52 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	hoverModeOff() {
+		console.log('hoverModeOff');
 		for (const action of this.firstLevelPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
+		this.stopWatchMouseMove();
 	}
+
+	// Bellow functions temporary abort the hover mode to give time to users move to the opened dropdown
+	moveOverPossibleNewTarget(item) {
+		this.$powerUi.tmp.dropdown._possibleNewTarget = item;
+	}
+	onmousestop() {
+		if (this.$powerUi.tmp.dropdown._possibleNewTarget) {
+			const item = this.$powerUi.tmp.dropdown._possibleNewTarget;
+			setTimeout(function () {
+				item.broadcast('mouseenter');
+			}, 10);
+			this.stopWatchMouseMove();
+		} else {
+			this.$powerUi.tmp.dropdown._resetMouseTimeout();
+		}
+	}
+	// Called when mouse move
+	resetMouseTimeout() {
+		clearTimeout(this.$powerUi.tmp.dropdown.timeout);
+		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 150);
+	}
+	startWatchMouseMove(ctx, event, params) {
+		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+			return;
+		}
+		params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, dropdown: params.dropdown});
+		this.$powerUi.tmp.dropdown._mouseIsMovingTo = params.action.targetObj;
+		this.$powerUi.tmp.dropdown._onmousestop = this.onmousestop.bind(this);
+		this.$powerUi.tmp.dropdown._resetMouseTimeout = this.resetMouseTimeout.bind(this);
+		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 150);
+		document.addEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
+	}
+	stopWatchMouseMove() {
+		this.$powerUi.tmp.dropdown._mouseIsMovingTo = false;
+		this.$powerUi.tmp.dropdown._possibleNewTarget = false;
+		clearTimeout(this.$powerUi.tmp.dropdown.timeout);
+		document.removeEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
+		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
+	}
+
 
 	// Get the dropdown left positon
 	getLeftPosition(powerAction) {
