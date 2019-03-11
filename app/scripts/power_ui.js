@@ -1145,11 +1145,10 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	hoverModeOff() {
-		console.log('hoverModeOff');
+		this.stopWatchMouseMove();
 		for (const action of this.firstLevelPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
-		this.stopWatchMouseMove();
 	}
 
 	// Bellow functions temporary abort the hover mode to give time to users move to the opened dropdown
@@ -1170,7 +1169,7 @@ class PowerDropdown extends PowerTarget {
 	// Called when mouse move
 	resetMouseTimeout() {
 		clearTimeout(this.$powerUi.tmp.dropdown.timeout);
-		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 150);
+		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 100);
 	}
 	startWatchMouseMove(ctx, event, params) {
 		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
@@ -1180,7 +1179,7 @@ class PowerDropdown extends PowerTarget {
 		this.$powerUi.tmp.dropdown._mouseIsMovingTo = params.action.targetObj;
 		this.$powerUi.tmp.dropdown._onmousestop = this.onmousestop.bind(this);
 		this.$powerUi.tmp.dropdown._resetMouseTimeout = this.resetMouseTimeout.bind(this);
-		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 150);
+		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 300);
 		document.addEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
 	}
 	stopWatchMouseMove() {
@@ -1388,6 +1387,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	onMouseEnterAction(ctx, event, params) {
+		params.menu.resetAnyDropdownTmpInfo();
 		// Only call toggle if is not active
 		if (!params.action._$pwActive) {
 			params.action.toggle();
@@ -1428,6 +1428,13 @@ class PowerMenu extends PowerTarget {
 		for (const action of params.menu.firstLevelPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
+	}
+	resetAnyDropdownTmpInfo() {
+		this.$powerUi.tmp.dropdown._mouseIsMovingTo = false;
+		this.$powerUi.tmp.dropdown._possibleNewTarget = false;
+		clearTimeout(this.$powerUi.tmp.dropdown.timeout);
+		document.removeEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
+		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
 	}
 
 	toggle() {
