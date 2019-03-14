@@ -1173,7 +1173,7 @@ class PowerDropdown extends PowerTarget {
 	// Called when mouse move
 	resetMouseTimeout() {
 		clearTimeout(this.$powerUi.tmp.dropdown.timeout);
-		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 100);
+		this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 120);
 	}
 	startWatchMouseMove(ctx, event, params) {
 		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
