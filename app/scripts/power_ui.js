@@ -1089,7 +1089,7 @@ class PowerDropdown extends PowerTarget {
 	onMouseEnterAction(ctx, event, params) {
 		// Abort if is moving
 		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
-			// Using may moving over the same element, only add new target if not the same target
+			// User may moving over the same element, only add new target if not the same target
 			if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== params.dropdown._id) {
 				params.dropdown.moveOverPossibleNewTarget(this);
 			}
@@ -1109,7 +1109,7 @@ class PowerDropdown extends PowerTarget {
 	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
 		// Abort if is moving
 		if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
-			// Using may moving over the same element, only add new target if not the same target
+			// User may moving over the same element, only add new target if not the same target
 			if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== params.dropdown._id) {
 				params.dropdown.moveOverPossibleNewTarget(params.item);
 			}
@@ -1156,7 +1156,9 @@ class PowerDropdown extends PowerTarget {
 		this.$powerUi.tmp.dropdown._possibleNewTarget = item;
 	}
 	onmousestop() {
-		if (this.$powerUi.tmp.dropdown._possibleNewTarget) {
+		// Only stopWatchMouseMove if the _possibleNewTarget are not already active
+		// If it is already active then wait user to mover over it
+		if (this.$powerUi.tmp.dropdown._possibleNewTarget && !this.$powerUi.tmp.dropdown._possibleNewTarget._$pwActive) {
 			const item = this.$powerUi.tmp.dropdown._possibleNewTarget;
 			setTimeout(function () {
 				item.broadcast('mouseenter');
