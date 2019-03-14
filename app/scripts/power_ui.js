@@ -1083,6 +1083,7 @@ class PowerDropdown extends PowerTarget {
 		}
 		for (const action of this.firstLevelPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
+			action.subscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
 	}
 
@@ -1148,6 +1149,7 @@ class PowerDropdown extends PowerTarget {
 		this.stopWatchMouseMove();
 		for (const action of this.firstLevelPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
+			action.unsubscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropdown: this});
 		}
 	}
 
