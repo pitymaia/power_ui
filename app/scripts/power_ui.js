@@ -1197,10 +1197,10 @@ class PowerDropdown extends PowerTarget {
 
 	// Get the dropdown left positon
 	getLeftPosition(powerAction) {
-		const bodyRect = document.body.getBoundingClientRect();
+		const bodyRect = document.documentElement.getBoundingClientRect();
 		const elemRect = powerAction.element.getBoundingClientRect();
 		let offset = elemRect.left - bodyRect.left;
-		offset  = offset + this.offsetComputedBodyStyles(window.getComputedStyle(document.body));
+		offset  = offset + this.offsetComputedBodyStyles(getComputedStyle(document.documentElement));
 
 		// Select all parent nodes to find the ones positioned as "absolute"
 		let curentNode = powerAction.element.parentNode;
@@ -1212,7 +1212,7 @@ class PowerDropdown extends PowerTarget {
 
 		// Offset all parent "absolute" nodes
 		for (const parent of allParents) {
-			const parentStyles = window.getComputedStyle(parent);
+			const parentStyles = getComputedStyle(parent);
 			if (parentStyles.position === 'absolute') {
 				offset  = offset - this.offsetComputedStyles(parentStyles);
 			}
@@ -1254,8 +1254,26 @@ class PowerDropdown extends PowerTarget {
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
 
+	ifPositionOutOfScreenChangeDirection() {
+		const documentRect = document.documentElement.getBoundingClientRect();
+		const elementRect = this.element.getBoundingClientRect();
 
-
+		// Correct position if right is not allowed anymore
+		// Change position if right element is bigger than right document
+		if (elementRect.right > documentRect.right) {
+			// Bottom may aloso not allowed anymore
+			// Change position if bottom element is bigger than bottom document
+			if (elementRect.bottom > document.defaultView.innerHeight) {
+				this.setPositionLeftTop();
+			} else {
+				// Bottom is fine, only not the right
+				this.setPositionLeftBottom();
+			}
+		// Right is fine, but not bottom
+		} else if (elementRect.bottom > document.defaultView.innerHeight) {
+			this.setPositionRightTop();
+		}
+	}
 
 	toggle() {
 		// Hide the element when add to DOM
@@ -1284,6 +1302,9 @@ class PowerDropdown extends PowerTarget {
 				} else {
 					self.setPositionRightBottom();
 				}
+
+				// Find if the position is out of screen and reposition if needed
+				self.ifPositionOutOfScreenChangeDirection();
 				// After choose the position show the dropdown
 				self.element.classList.remove('power-hide');
 			}, 50);
