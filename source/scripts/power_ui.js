@@ -569,6 +569,11 @@ class PowerDropdown extends PowerTarget {
 		}
 	}
 
+	resetDropdownPosition() {
+		this.element.style.top = null;
+		this.element.style.left = null;
+	}
+
 	toggle() {
 		// Hide the element when add to DOM
 		// This allow get the dropdown sizes and position before adjust and show
@@ -611,6 +616,7 @@ class PowerDropdown extends PowerTarget {
 			if (!this.$powerUi.touchdevice) {
 				this.hoverModeOff();
 			}
+			this.resetDropdownPosition();
 		}
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
