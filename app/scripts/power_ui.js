@@ -1258,20 +1258,63 @@ class PowerDropdown extends PowerTarget {
 		const documentRect = document.documentElement.getBoundingClientRect();
 		const elementRect = this.element.getBoundingClientRect();
 
+		const pos = {
+			topDown: this.defaultPosition.includes('bottom') ? 'bottom' : 'top',
+			leftRight: this.defaultPosition.includes('right') ? 'right' : 'left',
+		};
+		const changes = {topDown: 0, leftRight: 0};
+
 		// Correct position if right is not allowed anymore
 		// Change position if right element is bigger than right document
 		if (elementRect.right > documentRect.right) {
-			// Bottom may aloso not allowed anymore
-			// Change position if bottom element is bigger than bottom document
-			if (elementRect.bottom > document.defaultView.innerHeight) {
-				this.setPositionLeftTop();
+			pos.leftRight = 'left';
+			changes.leftRight++;
+		} else if (elementRect.left < documentRect.left) {
+		// Correct position if left is not allowed anymore
+		// Change position if left element is bigger than left document
+			pos.leftRight = 'right';
+			changes.leftRight++;
+		}
+
+		// Bottom may also not allowed anymore
+		// Change position if bottom element is bigger than bottom document
+		if (elementRect.bottom > document.defaultView.innerHeight) {
+			pos.topDown = 'top';
+			changes.topDown++;
+		} else if (elementRect.top < 0) {
+			pos.topDown = 'bottom';
+			changes.topDown++;
+		}
+
+		if (changes.topDown > 0 || changes.leftRight > 0) {
+			if (pos.topDown === 'top') {
+				if (pos.leftRight === 'left') {
+					this.setPositionLeftTop();
+				} else {
+					this.setPositionRightTop();
+				}
 			} else {
-				// Bottom is fine, only not the right
-				this.setPositionLeftBottom();
+				if (pos.leftRight === 'left') {
+					this.setPositionLeftBottom();
+				} else {
+					this.setPositionRightBottom();
+				}
 			}
-		// Right is fine, but not bottom
-		} else if (elementRect.bottom > document.defaultView.innerHeight) {
-			this.setPositionRightTop();
+
+			// Top and left can't have negative values
+			// Fix it if needed
+			this.setPositionLimits();
+		}
+	}
+
+	// Top and left can't have negative values
+	setPositionLimits() {
+		const elementRect = this.element.getBoundingClientRect();
+		if (elementRect.left < 0) {
+			this.element.style.left = '0px';
+		}
+		if (elementRect.top < 0) {
+			this.element.style.top = '0px';
 		}
 	}
 
@@ -1281,6 +1324,7 @@ class PowerDropdown extends PowerTarget {
 	}
 
 	toggle() {
+		this.resetDropdownPosition();
 		// Hide the element when add to DOM
 		// This allow get the dropdown sizes and position before adjust and show
 		this.element.classList.add('power-hide');
@@ -1322,7 +1366,6 @@ class PowerDropdown extends PowerTarget {
 			if (!this.$powerUi.touchdevice) {
 				this.hoverModeOff();
 			}
-			this.resetDropdownPosition();
 		}
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
