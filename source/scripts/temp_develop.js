@@ -37,41 +37,23 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-// if (app.powerDOM.allPowerObjsById['pouco_label']) {
-// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
-// 		console.log('toggle subscribe 1');
-// 	}});
-// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
-// 		console.log('click', ctx);
-// 	}});
+if (app.powerDOM.allPowerObjsById['pouco_label']) {
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
+		console.log('toggle subscribe 1');
+	}});
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
+		console.log('click', ctx);
+	}});
 
-// 	if (app.powerDOM.allPowerObjsById['purecss-action']) {
-// 		setTimeout(function () {
-// 			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('click');
-// 			setTimeout(function () {
-// 					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('click');
-// 				setTimeout(function () {
-// 					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
-// 					setTimeout(function () {
-// 						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('click');
-// 						setTimeout(function () {
-// 							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('click');
-// 							setTimeout(function () {
-// 								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('click');
-// 								setTimeout(function () {
-// 									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('click');
-// 									setTimeout(function () {
-// 										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
-// 									}, 2000);
-// 								}, 1000);
-// 							}, 1000);
-// 						}, 1000);
-// 					}, 500);
-// 				}, 2000);
-// 			}, 2000);
-// 		}, 500);
-// 	}
-// }
+	if (app.powerDOM.allPowerObjsById['mais-top44']) {
+		setTimeout(function () {
+			app.powerDOM.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
+			setTimeout(function () {
+				app.powerDOM.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
+			}, 300);
+		}, 500);
+	}
+}
 function clickum() {
 	console.log('um');
 }

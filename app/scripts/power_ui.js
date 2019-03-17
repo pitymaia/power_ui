@@ -127,7 +127,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._events_fn = {};
 	}
 
-	// The toggle base it's position on the powerAction position
+	// All elements have a toggle event that toggle the _$pwActive status
 	toggle() {
 		this._$pwActive = !this._$pwActive;
 		this.broadcast('toggle', true);
@@ -171,10 +171,12 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	broadcast(eventName, alreadyDispatched) {
 		// If the custom event not already called its method
 		if (typeof document.body[eventName] === "undefined" && !alreadyDispatched) {
+			// Dispatch the DOM event or a class event
+			if (this._DOMEvents[eventName]) {
+				this.element.dispatchEvent(this._DOMEvents[eventName]);
+			}
 			// If is a custom event with a method, the broadcast call it
 			this.dispatch(eventName);
-			// ADDED ONLY TO DEVELOP MENU - FIX IT!!!
-			this.element.dispatchEvent(this._DOMEvents[eventName]);
 		} else if (this._DOMEvents[eventName]) {
 			this.element.dispatchEvent(this._DOMEvents[eventName]);
 		}
@@ -918,9 +920,6 @@ class PowerAction extends PowerTarget {
 		// Add the action to the target Class
 		this.targetObj.powerAction = this;
 		this.subscribe({event: 'click', fn: this.toggle});
-
-		// Allow the target add events to PowerAction dispatch
-		if (this.targetObj.customEventsToDispatch) this.targetObj.customEventsToDispatch();
 	}
 
 	// Params allows a flag to "avoidCallAction"
@@ -1055,11 +1054,6 @@ class PowerDropdown extends PowerTarget {
 				defineChildDropdownsPosition(this, dropdown);
 			}
 		}
-	}
-
-	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
-	customEventsToDispatch() {
-		this.powerAction.toggle = this.powerAction.toggle;
 	}
 
 	// Remove left, margin-left and border width from absolute elements
@@ -1521,11 +1515,6 @@ class PowerMenu extends PowerTarget {
 	action() {
 		this.toggle();
 	}
-
-	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
-	customEventsToDispatch() {
-		this.powerAction.toggle = this.powerAction.toggle;
-	}
 }
 
 class PowerStatus extends PowerTarget {
@@ -1631,41 +1620,23 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 // let app = new TesteUi(inject);
 let app = new PowerUi(inject);
 
-// if (app.powerDOM.allPowerObjsById['pouco_label']) {
-// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
-// 		console.log('toggle subscribe 1');
-// 	}});
-// 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
-// 		console.log('click', ctx);
-// 	}});
+if (app.powerDOM.allPowerObjsById['pouco_label']) {
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
+		console.log('toggle subscribe 1');
+	}});
+	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
+		console.log('click', ctx);
+	}});
 
-// 	if (app.powerDOM.allPowerObjsById['purecss-action']) {
-// 		setTimeout(function () {
-// 			app.powerDOM.allPowerObjsById['purecss-action'].powerAction.broadcast('click');
-// 			setTimeout(function () {
-// 					app.powerDOM.allPowerObjsById['top-menu-action'].powerAction.broadcast('click');
-// 				setTimeout(function () {
-// 					app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
-// 					setTimeout(function () {
-// 						app.powerDOM.allPowerObjsById['pouco_label'].powerAction.broadcast('click');
-// 						setTimeout(function () {
-// 							app.powerDOM.allPowerObjsById['novo_menos'].powerAction.broadcast('click');
-// 							setTimeout(function () {
-// 								app.powerDOM.allPowerObjsById['esse_more'].powerAction.broadcast('click');
-// 								setTimeout(function () {
-// 									app.powerDOM.allPowerObjsById['even-more'].powerAction.broadcast('click');
-// 									setTimeout(function () {
-// 										app.powerDOM.allPowerObjsById['powerui-action'].powerAction.broadcast('click');
-// 									}, 2000);
-// 								}, 1000);
-// 							}, 1000);
-// 						}, 1000);
-// 					}, 500);
-// 				}, 2000);
-// 			}, 2000);
-// 		}, 500);
-// 	}
-// }
+	if (app.powerDOM.allPowerObjsById['mais-top44']) {
+		setTimeout(function () {
+			app.powerDOM.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
+			setTimeout(function () {
+				app.powerDOM.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
+			}, 300);
+		}, 500);
+	}
+}
 function clickum() {
 	console.log('um');
 }

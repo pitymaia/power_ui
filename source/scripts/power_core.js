@@ -127,7 +127,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._events_fn = {};
 	}
 
-	// The toggle base it's position on the powerAction position
+	// All elements have a toggle event that toggle the _$pwActive status
 	toggle() {
 		this._$pwActive = !this._$pwActive;
 		this.broadcast('toggle', true);
@@ -171,10 +171,12 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	broadcast(eventName, alreadyDispatched) {
 		// If the custom event not already called its method
 		if (typeof document.body[eventName] === "undefined" && !alreadyDispatched) {
+			// Dispatch the DOM event or a class event
+			if (this._DOMEvents[eventName]) {
+				this.element.dispatchEvent(this._DOMEvents[eventName]);
+			}
 			// If is a custom event with a method, the broadcast call it
 			this.dispatch(eventName);
-			// ADDED ONLY TO DEVELOP MENU - FIX IT!!!
-			this.element.dispatchEvent(this._DOMEvents[eventName]);
 		} else if (this._DOMEvents[eventName]) {
 			this.element.dispatchEvent(this._DOMEvents[eventName]);
 		}

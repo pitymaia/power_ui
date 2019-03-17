@@ -213,9 +213,6 @@ class PowerAction extends PowerTarget {
 		// Add the action to the target Class
 		this.targetObj.powerAction = this;
 		this.subscribe({event: 'click', fn: this.toggle});
-
-		// Allow the target add events to PowerAction dispatch
-		if (this.targetObj.customEventsToDispatch) this.targetObj.customEventsToDispatch();
 	}
 
 	// Params allows a flag to "avoidCallAction"
@@ -350,11 +347,6 @@ class PowerDropdown extends PowerTarget {
 				defineChildDropdownsPosition(this, dropdown);
 			}
 		}
-	}
-
-	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
-	customEventsToDispatch() {
-		this.powerAction.toggle = this.powerAction.toggle;
 	}
 
 	// Remove left, margin-left and border width from absolute elements
@@ -815,11 +807,6 @@ class PowerMenu extends PowerTarget {
 	// The powerToggle call this action method
 	action() {
 		this.toggle();
-	}
-
-	// This add the toggle as the dispatch for the custom event "toggle" by adding a method with the event name to the powerAction
-	customEventsToDispatch() {
-		this.powerAction.toggle = this.powerAction.toggle;
 	}
 }
 
