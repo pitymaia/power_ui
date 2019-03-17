@@ -157,7 +157,6 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 
 	unsubscribe({event, fn, useCapture=true, ...params}) {
-		const ctx = this;
 		if (this._events[event]) {
 			// Unsubscribe the element
 			this._events[event].unsubscribe(fn);
@@ -168,7 +167,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 			}
 		}
 	}
-	// FIX dispatch adn the full events system...
+	// FIX dispatch and the full events system...
 	broadcast(eventName, alreadyDispatched) {
 		// If the custom event not already called its method
 		if (typeof document.body[eventName] === "undefined" && !alreadyDispatched) {
