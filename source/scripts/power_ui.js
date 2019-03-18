@@ -68,13 +68,17 @@ function defineFirstLevelDropdownsPosition(self, powerElement) {
 	}
 }
 
-class PowerUi {
+class PowerUi extends _PowerUiBase {
 	constructor(inject) {
-		for (const item of inject) {
-			this.injectPwc(item, this);
+		super();
+		console.log('inject', inject);
+		if (inject) {
+			for (const item of inject) {
+				this.injectPwc(item, this);
+			}
 		}
 
-		this.powerDOM = new PowerDOM(this);
+		this._createPowerDOM();
 		this.powerDOM._callInit();
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
@@ -89,6 +93,10 @@ class PowerUi {
 		ctx[`_${asDataSet(item.name)}`] = function (element) {
 			return new item.obj(element);
 		};
+	}
+
+	_createPowerDOM() {
+		this.powerDOM = new PowerDOM(this, PowerUi);
 	}
 
 	_powerMenu(element) {
@@ -870,6 +878,8 @@ class PowerStatus extends PowerTarget {
 				stop = true;
 			}
 		}
-		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: this.toggle.bind(this)});
+		if (this.targetObj) {
+			this.targetObj.subscribe({event: 'toggle', fn: this.toggle.bind(this)});
+		}
 	}
 }

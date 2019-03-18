@@ -69,6 +69,17 @@ function powerClassAsCamelCase(className) {
 	return `${className.split('-')[0]}${className.split('-')[1].charAt(0).toUpperCase()}${className.split('-')[1].slice(1)}`;
 }
 
+// Abstract Power UI Base class
+class _PowerUiBase {
+
+}
+// The list of pow-attributes with the callback to the classes
+_PowerUiBase._powAttrsConfig = [];
+_PowerUiBase.injectPow = function (powAttr) {
+	_PowerUiBase._powAttrsConfig.push(powAttr);
+}
+
+
 const _Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++_Unique.n,
@@ -208,28 +219,6 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 // The list for user custom pwc-attributes
 const _pwcAttrsConfig = [];
 
-// The list of pow-attributes with the callback to the classes
-const _powAttrsConfig = [
-	{name: 'data-pow-src-hover',
-		callback: function(element) {return new PowSrcHover(element);}
-	},
-	{name: 'data-pow-main-src-hover', isMain: true,
-		callback: function(element) {return new PowMainSrcHover(element);}
-	},
-	{name: 'data-pow-css-hover',
-		callback: function(element) {return new PowCssHover(element);}
-	},
-	{name: 'data-pow-main-css-hover', isMain: true,
-		callback: function(element) {return new PowMainCssHover(element);}
-	},
-	{name: 'data-pow-css-hover-remove',
-		callback: function(element) {return new PowCssHoverRemove(element);}
-	},
-	{name: 'data-pow-main-css-hover-remove', isMain: true,
-		callback: function(element) {return new PowMainCssHoverRemove(element);}
-	},
-];
-
 // The list of power-css-selectors with the config to create the objetc
 // The order here is important, keep it on an array
 const _powerCssConfig = [
@@ -247,7 +236,7 @@ const _powerCssConfig = [
 
 
 class PowerDOM {
-	constructor($powerUi) {
+	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
 		this.powerCss = {};
 		this.powAttrs = {};
@@ -268,7 +257,7 @@ class PowerDOM {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
-			for (const selector of _powAttrsConfig) {
+			for (const selector of PowerUi._powAttrsConfig) {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
@@ -371,7 +360,7 @@ class PowerDOM {
 
 	_linkMainClassAndPowAttrs() {
 		// Loop through the list of possible attributes like data-pow-main-src-hover
-		for (const item of _powAttrsConfig.filter(a => a.isMain === true)) {
+		for (const item of PowerUi._powAttrsConfig.filter(a => a.isMain === true)) {
 			const powAttrsList = this.powAttrs[asDataSet(item.name)];
 			// Loop through the list of existing powAttrs in dataset format like powMainSrcHover
 			// Every element it found is the powerElement it needs find the correspondent main object
@@ -596,6 +585,10 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 		}
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-css-hover',
+	callback: function(element) {return new PowCssHover(element);}
+});
 
 
 // Add to some element a list of CSS classes selectors when is mouseover some MAIN element and remove it on mouseout
@@ -630,6 +623,10 @@ class PowMainCssHover extends PowCssHover {
 		this.$pwMain.element.addEventListener(event, callback, useCapture);
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-main-css-hover', isMain: true,
+	callback: function(element) {return new PowMainCssHover(element);}
+});
 
 
 // Replace the value of 'src' attribute when is mouseover some element and undo on mouseout
@@ -640,6 +637,10 @@ class PowSrcHover extends _pwBasicHover {
 		this.$_target = 'src';
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-src-hover',
+	callback: function(element) {return new PowSrcHover(element);}
+});
 
 
 // Replace the value of 'src' attribute when is mouseover some MAIN element and undo on mouseout
@@ -650,6 +651,10 @@ class PowMainSrcHover extends _pwMainBasicHover {
 		this.$_target = 'src';
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-main-src-hover', isMain: true,
+	callback: function(element) {return new PowMainSrcHover(element);}
+});
 
 
 // Remove the a CSS list when mouseover some element and undo on mouseout
@@ -678,6 +683,10 @@ class PowCssHoverRemove extends PowCssHover {
 		}
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-css-hover-remove',
+	callback: function(element) {return new PowCssHoverRemove(element);}
+});
 
 
 // Remove the a CSS list when mouseover some MAIN element and undo on mouseout
@@ -704,6 +713,10 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 		}
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-main-css-hover-remove', isMain: true,
+	callback: function(element) {return new PowMainCssHoverRemove(element);}
+});
 
 // Set two objects: The dropdowns first level child elements, and all dropdowns child elements
 function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx, allDropdowns) {
@@ -775,13 +788,17 @@ function defineFirstLevelDropdownsPosition(self, powerElement) {
 	}
 }
 
-class PowerUi {
+class PowerUi extends _PowerUiBase {
 	constructor(inject) {
-		for (const item of inject) {
-			this.injectPwc(item, this);
+		super();
+		console.log('inject', inject);
+		if (inject) {
+			for (const item of inject) {
+				this.injectPwc(item, this);
+			}
 		}
 
-		this.powerDOM = new PowerDOM(this);
+		this._createPowerDOM();
 		this.powerDOM._callInit();
 		this.menus = this.powerDOM.powerCss.powerMenu;
 		this.mains = this.powerDOM.powerCss.powerMain;
@@ -796,6 +813,10 @@ class PowerUi {
 		ctx[`_${asDataSet(item.name)}`] = function (element) {
 			return new item.obj(element);
 		};
+	}
+
+	_createPowerDOM() {
+		this.powerDOM = new PowerDOM(this, PowerUi);
 	}
 
 	_powerMenu(element) {
@@ -1577,7 +1598,9 @@ class PowerStatus extends PowerTarget {
 				stop = true;
 			}
 		}
-		if (this.targetObj) this.targetObj.subscribe({event: 'toggle', fn: this.toggle.bind(this)});
+		if (this.targetObj) {
+			this.targetObj.subscribe({event: 'toggle', fn: this.toggle.bind(this)});
+		}
 	}
 }
 

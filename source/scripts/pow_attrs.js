@@ -101,6 +101,10 @@ class PowCssHover extends _PowerBasicElementWithEvents {
 		}
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-css-hover',
+	callback: function(element) {return new PowCssHover(element);}
+});
 
 
 // Add to some element a list of CSS classes selectors when is mouseover some MAIN element and remove it on mouseout
@@ -135,6 +139,10 @@ class PowMainCssHover extends PowCssHover {
 		this.$pwMain.element.addEventListener(event, callback, useCapture);
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-main-css-hover', isMain: true,
+	callback: function(element) {return new PowMainCssHover(element);}
+});
 
 
 // Replace the value of 'src' attribute when is mouseover some element and undo on mouseout
@@ -145,6 +153,10 @@ class PowSrcHover extends _pwBasicHover {
 		this.$_target = 'src';
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-src-hover',
+	callback: function(element) {return new PowSrcHover(element);}
+});
 
 
 // Replace the value of 'src' attribute when is mouseover some MAIN element and undo on mouseout
@@ -155,6 +167,10 @@ class PowMainSrcHover extends _pwMainBasicHover {
 		this.$_target = 'src';
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-main-src-hover', isMain: true,
+	callback: function(element) {return new PowMainSrcHover(element);}
+});
 
 
 // Remove the a CSS list when mouseover some element and undo on mouseout
@@ -183,6 +199,10 @@ class PowCssHoverRemove extends PowCssHover {
 		}
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-css-hover-remove',
+	callback: function(element) {return new PowCssHoverRemove(element);}
+});
 
 
 // Remove the a CSS list when mouseover some MAIN element and undo on mouseout
@@ -209,3 +229,7 @@ class PowMainCssHoverRemove extends PowMainCssHover {
 		}
 	}
 }
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-main-css-hover-remove', isMain: true,
+	callback: function(element) {return new PowMainCssHoverRemove(element);}
+});
