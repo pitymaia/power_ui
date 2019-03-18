@@ -83,7 +83,18 @@ _PowerUiBase.injectPow = function (powAttr) {
 // The list for user custom pwc-attributes
 _PowerUiBase._pwcAttrsConfig = [];
 _PowerUiBase.injectPwc = function (pwcAttr) {
-	_PowerUiBase._powAttrsConfig.push(pwcAttr);
+	_PowerUiBase._pwcAttrsConfig.push(pwcAttr);
+};
+// The list of power-css-selectors with the config to create the objetc
+// Keep main elements on top of list
+_PowerUiBase._powerCssConfig = [];
+_PowerUiBase.injectPowerCss = function (powerCss) {
+	if (powerCss.isMain) {
+		console.log('powerCss', powerCss);
+		_PowerUiBase._powerCssConfig.unshift(powerCss);
+	} else {
+		_PowerUiBase._powerCssConfig.push(powerCss);
+	}
 };
 
 
@@ -217,27 +228,13 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 }
 
+
 class PowerTarget extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 		this.powerTarget = true;
 	}
 }
-
-// The list of power-css-selectors with the config to create the objetc
-// The order here is important, keep it on an array
-const _powerCssConfig = [
-	{name: 'power-menu', isMain: true},
-	{name: 'power-main', isMain: true},
-	{name: 'power-brand'},
-	{name: 'power-item'},
-	{name: 'power-accordion'},
-	{name: 'power-section'},
-	{name: 'power-action'},
-	{name: 'power-toggle'},
-	{name: 'power-dropdown'},
-	{name: 'power-status'},
-];
 
 
 class PowerDOM {
@@ -258,7 +255,7 @@ class PowerDOM {
 
 		// Create the power-css object elements
 		for (const attribute in tempSelectors) {
-			for (const selector of _powerCssConfig) {
+			for (const selector of PowerUi._powerCssConfig) {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
@@ -309,7 +306,7 @@ class PowerDOM {
 		let stop = false;
 		while (!stop) {
 			if (element && element.className) {
-				for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
+				for (const cssSelector of PowerUi._powerCssConfig.filter(s => s.isMain === true)) {
 					if (element.className.includes(cssSelector.name)) {
 						stop = true;
 					}
@@ -376,7 +373,7 @@ class PowerDOM {
 				if (mainElementCssSelector) {
 					// Loop through the list of possible main CSS class selectors like power-menu or power-main
 					// With this we will find the main powerElement that holds the simple DOM node main element we have
-					for (const cssSelector of _powerCssConfig.filter(a => a.isMain === true)) {
+					for (const cssSelector of PowerUi._powerCssConfig.filter(a => a.isMain === true)) {
 						if (this.powerCss[asDataSet(cssSelector.name)]) {
 							// Get the powerElement using the simple DOM node main element (mainElementCssSelector)
 							const mainPowerCssObj = this.powerCss[asDataSet(cssSelector.name)][mainElementCssSelector.getAttribute('id')];
@@ -474,7 +471,7 @@ class PowerDOM {
 		}
 		// Check for power css class selectors like "power-menu" or "power-label"
 		if (currentNode.className && currentNode.className.includes('power-')) {
-			for (const selector of _powerCssConfig) {
+			for (const selector of PowerUi._powerCssConfig) {
 				if (currentNode.className.includes(selector.name)) {
 					const currentId = getIdAndCreateIfDontHave(currentNode);
 					if (!ctx.powerCss[asDataSet(selector.name)]) {
@@ -812,7 +809,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_powerMain(element) { // TODO need classes?
-		return new _PowerBasicElement(element, this);
+		return new PowerMain(element, this);
 	}
 
 	_powerBrand(element) {
@@ -853,11 +850,21 @@ class PowerUi extends _PowerUiBase {
 }
 
 
+class PowerMain extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-main', isMain: true});
+
 class PowerItem extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
 }
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-item'});
 
 
 class PowerAccordion extends PowerTarget {
@@ -883,7 +890,8 @@ class PowerAccordion extends PowerTarget {
 		}
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-accordion'});
 
 class PowerSection extends PowerTarget {
 	constructor(element) {
@@ -904,7 +912,8 @@ class PowerSection extends PowerTarget {
 		}
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-section'});
 
 class PowerAction extends PowerTarget {
 	constructor(element) {
@@ -988,14 +997,16 @@ class PowerAction extends PowerTarget {
 		this.toggle();
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-action'});
 
 class PowerToggle extends PowerAction {
 	constructor(element) {
 		super(element);
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-toggle'});
 
 class PowerDropdown extends PowerTarget {
 	constructor(element) {
@@ -1380,7 +1391,8 @@ class PowerDropdown extends PowerTarget {
 		this.toggle();
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-dropdown'});
 
 class PowerBrand extends PowerTarget {
 	constructor(element) {
@@ -1389,7 +1401,8 @@ class PowerBrand extends PowerTarget {
 		const self = this;
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-brand'});
 
 class PowerMenu extends PowerTarget {
 	constructor(menu, $powerUi) {
@@ -1416,7 +1429,7 @@ class PowerMenu extends PowerTarget {
 
 	init() {
 		// Add elements to menu and the menu to the elements
-		for (const config of _powerCssConfig.filter(x => !x.isMain)) {
+		for (const config of PowerUi._powerCssConfig.filter(x => !x.isMain)) {
 			const className = config.name;
 			// power-brand, power-item, power-dropdown, etc...
 			for (const element of this.element.getElementsByClassName(className)) {
@@ -1525,6 +1538,9 @@ class PowerMenu extends PowerTarget {
 		this.toggle();
 	}
 }
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-menu', isMain: true});
+
 
 class PowerStatus extends PowerTarget {
 	constructor(element) {
@@ -1591,6 +1607,8 @@ class PowerStatus extends PowerTarget {
 		}
 	}
 }
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-status'});
 
 function powerOnly() {
 	window.location.href = '/power_only.html';
@@ -1603,12 +1621,12 @@ class PwcPity extends PowCssHover {
 		super(element);
 		this.$_pwAttrName = 'data-pwc-pity';
 		this.element = element;
-		console.log('pwcPity is live!', this.$_pwAttrName);
+		console.log('pwcPity is alive!', this.$_pwAttrName);
 	}
 }
 // Inject the attr on PowerUi
 _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {return new PwcPity(element);}});
-// TODO: testeExtendName is to find a way to modularize multiple exstensions
+// TODO: testeExtendName is to find a way to modularize multiple extensions
 // Make a way to this works as links of a chain
 // const testeExtendName = function () {return PowerMenu;};
 // class TesteMenu extends testeExtendName {
@@ -1621,15 +1639,11 @@ _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {retu
 
 // class TesteUi extends PowerUi {
 //  constructor() {
-//      super(inject);
+//      super();
 //      this.fake = {};
 //  }
-//  newPowerMenu(menu) {
-//      const info = {descri: 'Descrição do menu'};
-//      return new TesteMenu(menu, info);
-//  }
 // }
-// let app = new TesteUi(inject);
+// let app = new TesteUi();
 let app = new PowerUi();
 
 if (app.powerDOM.allPowerObjsById['pouco_label']) {

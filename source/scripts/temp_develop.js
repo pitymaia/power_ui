@@ -9,12 +9,12 @@ class PwcPity extends PowCssHover {
 		super(element);
 		this.$_pwAttrName = 'data-pwc-pity';
 		this.element = element;
-		console.log('pwcPity is live!', this.$_pwAttrName);
+		console.log('pwcPity is alive!', this.$_pwAttrName);
 	}
 }
 // Inject the attr on PowerUi
 _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {return new PwcPity(element);}});
-// TODO: testeExtendName is to find a way to modularize multiple exstensions
+// TODO: testeExtendName is to find a way to modularize multiple extensions
 // Make a way to this works as links of a chain
 // const testeExtendName = function () {return PowerMenu;};
 // class TesteMenu extends testeExtendName {
@@ -27,15 +27,11 @@ _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {retu
 
 // class TesteUi extends PowerUi {
 //  constructor() {
-//      super(inject);
+//      super();
 //      this.fake = {};
 //  }
-//  newPowerMenu(menu) {
-//      const info = {descri: 'Descrição do menu'};
-//      return new TesteMenu(menu, info);
-//  }
 // }
-// let app = new TesteUi(inject);
+// let app = new TesteUi();
 let app = new PowerUi();
 
 if (app.powerDOM.allPowerObjsById['pouco_label']) {

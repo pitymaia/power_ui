@@ -83,7 +83,18 @@ _PowerUiBase.injectPow = function (powAttr) {
 // The list for user custom pwc-attributes
 _PowerUiBase._pwcAttrsConfig = [];
 _PowerUiBase.injectPwc = function (pwcAttr) {
-	_PowerUiBase._powAttrsConfig.push(pwcAttr);
+	_PowerUiBase._pwcAttrsConfig.push(pwcAttr);
+};
+// The list of power-css-selectors with the config to create the objetc
+// Keep main elements on top of list
+_PowerUiBase._powerCssConfig = [];
+_PowerUiBase.injectPowerCss = function (powerCss) {
+	if (powerCss.isMain) {
+		console.log('powerCss', powerCss);
+		_PowerUiBase._powerCssConfig.unshift(powerCss);
+	} else {
+		_PowerUiBase._powerCssConfig.push(powerCss);
+	}
 };
 
 
@@ -217,27 +228,13 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 }
 
+
 class PowerTarget extends _PowerBasicElementWithEvents {
 	constructor(element) {
 		super(element);
 		this.powerTarget = true;
 	}
 }
-
-// The list of power-css-selectors with the config to create the objetc
-// The order here is important, keep it on an array
-const _powerCssConfig = [
-	{name: 'power-menu', isMain: true},
-	{name: 'power-main', isMain: true},
-	{name: 'power-brand'},
-	{name: 'power-item'},
-	{name: 'power-accordion'},
-	{name: 'power-section'},
-	{name: 'power-action'},
-	{name: 'power-toggle'},
-	{name: 'power-dropdown'},
-	{name: 'power-status'},
-];
 
 
 class PowerDOM {
@@ -258,7 +255,7 @@ class PowerDOM {
 
 		// Create the power-css object elements
 		for (const attribute in tempSelectors) {
-			for (const selector of _powerCssConfig) {
+			for (const selector of PowerUi._powerCssConfig) {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
@@ -309,7 +306,7 @@ class PowerDOM {
 		let stop = false;
 		while (!stop) {
 			if (element && element.className) {
-				for (const cssSelector of _powerCssConfig.filter(s => s.isMain === true)) {
+				for (const cssSelector of PowerUi._powerCssConfig.filter(s => s.isMain === true)) {
 					if (element.className.includes(cssSelector.name)) {
 						stop = true;
 					}
@@ -376,7 +373,7 @@ class PowerDOM {
 				if (mainElementCssSelector) {
 					// Loop through the list of possible main CSS class selectors like power-menu or power-main
 					// With this we will find the main powerElement that holds the simple DOM node main element we have
-					for (const cssSelector of _powerCssConfig.filter(a => a.isMain === true)) {
+					for (const cssSelector of PowerUi._powerCssConfig.filter(a => a.isMain === true)) {
 						if (this.powerCss[asDataSet(cssSelector.name)]) {
 							// Get the powerElement using the simple DOM node main element (mainElementCssSelector)
 							const mainPowerCssObj = this.powerCss[asDataSet(cssSelector.name)][mainElementCssSelector.getAttribute('id')];
@@ -474,7 +471,7 @@ class PowerDOM {
 		}
 		// Check for power css class selectors like "power-menu" or "power-label"
 		if (currentNode.className && currentNode.className.includes('power-')) {
-			for (const selector of _powerCssConfig) {
+			for (const selector of PowerUi._powerCssConfig) {
 				if (currentNode.className.includes(selector.name)) {
 					const currentId = getIdAndCreateIfDontHave(currentNode);
 					if (!ctx.powerCss[asDataSet(selector.name)]) {

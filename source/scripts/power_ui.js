@@ -87,7 +87,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_powerMain(element) { // TODO need classes?
-		return new _PowerBasicElement(element, this);
+		return new PowerMain(element, this);
 	}
 
 	_powerBrand(element) {
@@ -128,11 +128,21 @@ class PowerUi extends _PowerUiBase {
 }
 
 
+class PowerMain extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-main', isMain: true});
+
 class PowerItem extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
 }
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-item'});
 
 
 class PowerAccordion extends PowerTarget {
@@ -158,7 +168,8 @@ class PowerAccordion extends PowerTarget {
 		}
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-accordion'});
 
 class PowerSection extends PowerTarget {
 	constructor(element) {
@@ -179,7 +190,8 @@ class PowerSection extends PowerTarget {
 		}
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-section'});
 
 class PowerAction extends PowerTarget {
 	constructor(element) {
@@ -263,14 +275,16 @@ class PowerAction extends PowerTarget {
 		this.toggle();
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-action'});
 
 class PowerToggle extends PowerAction {
 	constructor(element) {
 		super(element);
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-toggle'});
 
 class PowerDropdown extends PowerTarget {
 	constructor(element) {
@@ -655,7 +669,8 @@ class PowerDropdown extends PowerTarget {
 		this.toggle();
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-dropdown'});
 
 class PowerBrand extends PowerTarget {
 	constructor(element) {
@@ -664,7 +679,8 @@ class PowerBrand extends PowerTarget {
 		const self = this;
 	}
 }
-
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-brand'});
 
 class PowerMenu extends PowerTarget {
 	constructor(menu, $powerUi) {
@@ -691,7 +707,7 @@ class PowerMenu extends PowerTarget {
 
 	init() {
 		// Add elements to menu and the menu to the elements
-		for (const config of _powerCssConfig.filter(x => !x.isMain)) {
+		for (const config of PowerUi._powerCssConfig.filter(x => !x.isMain)) {
 			const className = config.name;
 			// power-brand, power-item, power-dropdown, etc...
 			for (const element of this.element.getElementsByClassName(className)) {
@@ -800,6 +816,9 @@ class PowerMenu extends PowerTarget {
 		this.toggle();
 	}
 }
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-menu', isMain: true});
+
 
 class PowerStatus extends PowerTarget {
 	constructor(element) {
@@ -866,3 +885,5 @@ class PowerStatus extends PowerTarget {
 		}
 	}
 }
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-status'});
