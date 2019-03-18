@@ -12,7 +12,8 @@ class PwcPity extends PowCssHover {
 		console.log('pwcPity is live!', this.$_pwAttrName);
 	}
 }
-const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
+// Inject the attr on PowerUi
+_PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {return new PwcPity(element);}});
 // TODO: testeExtendName is to find a way to modularize multiple exstensions
 // Make a way to this works as links of a chain
 // const testeExtendName = function () {return PowerMenu;};
@@ -35,7 +36,7 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 //  }
 // }
 // let app = new TesteUi(inject);
-let app = new PowerUi(inject);
+let app = new PowerUi();
 
 if (app.powerDOM.allPowerObjsById['pouco_label']) {
 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {

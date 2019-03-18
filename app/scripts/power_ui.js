@@ -71,13 +71,20 @@ function powerClassAsCamelCase(className) {
 
 // Abstract Power UI Base class
 class _PowerUiBase {
-
+	_createPowerDOM() {
+		this.powerDOM = new PowerDOM(this, _PowerUiBase);
+	}
 }
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {
 	_PowerUiBase._powAttrsConfig.push(powAttr);
-}
+};
+// The list for user custom pwc-attributes
+_PowerUiBase._pwcAttrsConfig = [];
+_PowerUiBase.injectPwc = function (pwcAttr) {
+	_PowerUiBase._powAttrsConfig.push(pwcAttr);
+};
 
 
 const _Unique = { // produce unique IDs
@@ -216,8 +223,6 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 		this.powerTarget = true;
 	}
 }
-// The list for user custom pwc-attributes
-const _pwcAttrsConfig = [];
 
 // The list of power-css-selectors with the config to create the objetc
 // The order here is important, keep it on an array
@@ -261,7 +266,7 @@ class PowerDOM {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
-			for (const selector of _pwcAttrsConfig) {
+			for (const selector of PowerUi._pwcAttrsConfig) {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 		}
@@ -791,12 +796,6 @@ function defineFirstLevelDropdownsPosition(self, powerElement) {
 class PowerUi extends _PowerUiBase {
 	constructor(inject) {
 		super();
-		console.log('inject', inject);
-		if (inject) {
-			for (const item of inject) {
-				this.injectPwc(item, this);
-			}
-		}
 
 		this._createPowerDOM();
 		this.powerDOM._callInit();
@@ -806,17 +805,6 @@ class PowerUi extends _PowerUiBase {
 		this.tmp = {dropdown: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
-	}
-
-	injectPwc(item, ctx) {
-		_pwcAttrsConfig.push(item);
-		ctx[`_${asDataSet(item.name)}`] = function (element) {
-			return new item.obj(element);
-		};
-	}
-
-	_createPowerDOM() {
-		this.powerDOM = new PowerDOM(this, PowerUi);
 	}
 
 	_powerMenu(element) {
@@ -1618,7 +1606,8 @@ class PwcPity extends PowCssHover {
 		console.log('pwcPity is live!', this.$_pwAttrName);
 	}
 }
-const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
+// Inject the attr on PowerUi
+_PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {return new PwcPity(element);}});
 // TODO: testeExtendName is to find a way to modularize multiple exstensions
 // Make a way to this works as links of a chain
 // const testeExtendName = function () {return PowerMenu;};
@@ -1641,7 +1630,7 @@ const inject = [{name: 'data-pwc-pity', obj: PwcPity}];
 //  }
 // }
 // let app = new TesteUi(inject);
-let app = new PowerUi(inject);
+let app = new PowerUi();
 
 if (app.powerDOM.allPowerObjsById['pouco_label']) {
 	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {

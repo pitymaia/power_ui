@@ -71,12 +71,6 @@ function defineFirstLevelDropdownsPosition(self, powerElement) {
 class PowerUi extends _PowerUiBase {
 	constructor(inject) {
 		super();
-		console.log('inject', inject);
-		if (inject) {
-			for (const item of inject) {
-				this.injectPwc(item, this);
-			}
-		}
 
 		this._createPowerDOM();
 		this.powerDOM._callInit();
@@ -86,17 +80,6 @@ class PowerUi extends _PowerUiBase {
 		this.tmp = {dropdown: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
-	}
-
-	injectPwc(item, ctx) {
-		_pwcAttrsConfig.push(item);
-		ctx[`_${asDataSet(item.name)}`] = function (element) {
-			return new item.obj(element);
-		};
-	}
-
-	_createPowerDOM() {
-		this.powerDOM = new PowerDOM(this, PowerUi);
 	}
 
 	_powerMenu(element) {

@@ -71,13 +71,20 @@ function powerClassAsCamelCase(className) {
 
 // Abstract Power UI Base class
 class _PowerUiBase {
-
+	_createPowerDOM() {
+		this.powerDOM = new PowerDOM(this, _PowerUiBase);
+	}
 }
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {
 	_PowerUiBase._powAttrsConfig.push(powAttr);
-}
+};
+// The list for user custom pwc-attributes
+_PowerUiBase._pwcAttrsConfig = [];
+_PowerUiBase.injectPwc = function (pwcAttr) {
+	_PowerUiBase._powAttrsConfig.push(pwcAttr);
+};
 
 
 const _Unique = { // produce unique IDs
@@ -216,8 +223,6 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 		this.powerTarget = true;
 	}
 }
-// The list for user custom pwc-attributes
-const _pwcAttrsConfig = [];
 
 // The list of power-css-selectors with the config to create the objetc
 // The order here is important, keep it on an array
@@ -261,7 +266,7 @@ class PowerDOM {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 
-			for (const selector of _pwcAttrsConfig) {
+			for (const selector of PowerUi._pwcAttrsConfig) {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
 			}
 		}
