@@ -90,7 +90,6 @@ _PowerUiBase.injectPwc = function (pwcAttr) {
 _PowerUiBase._powerCssConfig = [];
 _PowerUiBase.injectPowerCss = function (powerCss) {
 	if (powerCss.isMain) {
-		console.log('powerCss', powerCss);
 		_PowerUiBase._powerCssConfig.unshift(powerCss);
 	} else {
 		_PowerUiBase._powerCssConfig.push(powerCss);
@@ -1645,23 +1644,16 @@ _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {retu
 // let app = new TesteUi();
 let app = new PowerUi();
 
-if (app.powerDOM.allPowerObjsById['pouco_label']) {
-	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'toggle', fn: function (ctx) {
-		console.log('toggle subscribe 1');
-	}});
-	app.powerDOM.allPowerObjsById['pouco_label'].powerAction.subscribe({event: 'click', fn: function (ctx) {
-		console.log('click', ctx);
-	}});
-
-	if (app.powerDOM.allPowerObjsById['mais-top44']) {
-		setTimeout(function () {
-			app.powerDOM.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
-			setTimeout(function () {
-				app.powerDOM.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
-			}, 300);
-		}, 500);
-	}
-}
+// if (app.powerDOM.allPowerObjsById['pouco_label']) {
+// 	if (app.powerDOM.allPowerObjsById['mais-top44']) {
+// 		setTimeout(function () {
+// 			app.powerDOM.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
+// 			setTimeout(function () {
+// 				app.powerDOM.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
+// 			}, 300);
+// 		}, 500);
+// 	}
+// }
 function clickum() {
 	console.log('um');
 }

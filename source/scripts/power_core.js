@@ -90,7 +90,6 @@ _PowerUiBase.injectPwc = function (pwcAttr) {
 _PowerUiBase._powerCssConfig = [];
 _PowerUiBase.injectPowerCss = function (powerCss) {
 	if (powerCss.isMain) {
-		console.log('powerCss', powerCss);
 		_PowerUiBase._powerCssConfig.unshift(powerCss);
 	} else {
 		_PowerUiBase._powerCssConfig.push(powerCss);
