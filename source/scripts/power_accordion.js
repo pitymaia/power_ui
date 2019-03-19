@@ -36,7 +36,7 @@ class PowerSection extends PowerTarget {
             for (const action in this.powerAccordion.powerAction) {
                 // Only closes if is not this section and if is active
                 const targetAction = this.powerAccordion.powerAction[action];
-                if (targetAction.targetObj.id !== this._id && targetAction._$pwActive) {
+                if (targetAction.targetObj.id !== this.id && targetAction._$pwActive) {
                     // This prevent the targetAction.toggle call this action again, so this flag avoid a loop to occurs
                     targetAction.toggle({avoidCallAction: true});
                 }

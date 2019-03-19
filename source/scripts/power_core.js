@@ -438,7 +438,7 @@ class PowerDOM {
 			}
 			ctx.allPowerObjsById[id][datasetKey] = ctx[attribute][datasetKey][id];
 			// Add to any element some desired variables
-			ctx.allPowerObjsById[id][datasetKey]._id = id;
+			ctx.allPowerObjsById[id][datasetKey].id = id;
 			ctx.allPowerObjsById[id][datasetKey].$_pwName = datasetKey;
 			ctx.allPowerObjsById[id][datasetKey].$powerUi = ctx.$powerUi;
 			// Create a $shared scope for each element

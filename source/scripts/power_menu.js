@@ -84,7 +84,7 @@ class PowerMenu extends PowerTarget {
         }
         // Close any first level possible active dropdown if not the current dropdown
         for (const action of params.menu.firstLevelPowerActions) {
-            if (action._$pwActive && (action._id !== params.action._id)) {
+            if (action._$pwActive && (action.id !== params.action.id)) {
                 action.toggle();
             }
         }

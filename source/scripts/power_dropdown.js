@@ -1,11 +1,11 @@
 class PowerDropdown extends PowerTarget {
     constructor(element) {
         super(element);
-        // Hold all the power actions in this dropdown, buto not the ones on the internal dropdowns
+        // Hold all the power actions in this dropdown, but not the ones on the internal dropdowns
         this.firstLevelPowerActions = [];
         // Hold all the power actions in the internal dropdowns, but not the ones in this dropdown
         this.allChildPowerActions = [];
-        // Hold all the power items in this dropdown, buto not the ones on the internal dropdowns
+        // Hold all the power items in this dropdown, but not the ones on the internal dropdowns
         this.firstLevelPowerItems = [];
         // Hold all the power items in the internal dropdowns, but not the ones in this dropdown
         this.allChildPowerItems = [];
@@ -14,7 +14,7 @@ class PowerDropdown extends PowerTarget {
         // The position the dropdown will try to appear by default
         this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
 
-        // Mark the root of the dropdown tree, first element
+        // Mark the root of the dropdown tree, first level element
         let stop = false;
         let parentElement = element.parentElement;
         while (!stop) {
@@ -79,7 +79,7 @@ class PowerDropdown extends PowerTarget {
         // Abort if is moving
         if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
             // Using may moving over the same element, only add new target if not the same target
-            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== this._id) {
+            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo.id !== this.id) {
                 this.moveOverPossibleNewTarget(this);
             }
             return;
@@ -94,7 +94,7 @@ class PowerDropdown extends PowerTarget {
         // Abort if is moving
         if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
             // User may moving over the same element, only add new target if not the same target
-            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== params.dropdown._id) {
+            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo.id !== params.dropdown.id) {
                 params.dropdown.moveOverPossibleNewTarget(this);
             }
             return;
@@ -114,7 +114,7 @@ class PowerDropdown extends PowerTarget {
         // Abort if is moving
         if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
             // User may moving over the same element, only add new target if not the same target
-            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo._id !== params.dropdown._id) {
+            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo.id !== params.dropdown.id) {
                 params.dropdown.moveOverPossibleNewTarget(params.item);
             }
             return;
@@ -136,7 +136,7 @@ class PowerDropdown extends PowerTarget {
         }
         // Close any first level possible active dropdown if not the current dropdown
         for (const action of params.dropdown.firstLevelPowerActions) {
-            if (action._$pwActive && (action._id !== params.action._id)) {
+            if (action._$pwActive && (action.id !== params.action.id)) {
                 action.toggle();
             }
         }
