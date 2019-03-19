@@ -35,7 +35,7 @@ class PowerMenu extends PowerTarget {
                 }
                 // find the camelCase name of the className
                 const camelCaseName = powerClassAsCamelCase(className);
-                const powerElement = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
+                const powerElement = this.$powerUi.powerTree.powerCss[camelCaseName][element.id];
                 this[keyName][element.id] = powerElement;
                 // Add the menu on the powerElement
                 powerElement.$powerMenu = this;

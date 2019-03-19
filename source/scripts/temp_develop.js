@@ -34,12 +34,12 @@ _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {retu
 // let app = new TesteUi();
 let app = new PowerUi();
 
-// if (app.powerDOM.allPowerObjsById['pouco_label']) {
-// 	if (app.powerDOM.allPowerObjsById['mais-top44']) {
+// if (app.powerTree.allPowerObjsById['pouco_label']) {
+// 	if (app.powerTree.allPowerObjsById['mais-top44']) {
 // 		setTimeout(function () {
-// 			app.powerDOM.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
+// 			app.powerTree.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
 // 			setTimeout(function () {
-// 				app.powerDOM.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
+// 				app.powerTree.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
 // 			}, 300);
 // 		}, 500);
 // 	}
@@ -64,25 +64,25 @@ function mouseoutdois() {
 }
 function clicktres() {
 	console.log('três');
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickum });
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickdois });
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clicktres });
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverum});
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverdois});
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutum});
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutdois});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickum });
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickdois });
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clicktres });
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverum});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverdois});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutum});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutdois});
 }
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickum });
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickdois});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clicktres});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverum});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverdois});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutum});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutdois});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickum });
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickdois});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clicktres});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverum});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverdois});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutum});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutdois});
 window.console.log('power', app);
-window.console.log('panel-0-action', app.powerDOM.allPowerObjsById['panel-0-action']);
+window.console.log('panel-0-action', app.powerTree.allPowerObjsById['panel-0-action']);
 var teste = function(e) {
 	console.log('chamou', this);
 	this.unsubscribe({event: 'mouseover', fn: teste});
 }
-app.powerDOM.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});
+app.powerTree.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});

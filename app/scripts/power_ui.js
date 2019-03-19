@@ -71,8 +71,8 @@ function powerClassAsCamelCase(className) {
 
 // Abstract Power UI Base class
 class _PowerUiBase {
-	_createPowerDOM() {
-		this.powerDOM = new PowerDOM(this, _PowerUiBase);
+	_createPowerTree() {
+		this.powerTree = new PowerTree(this, _PowerUiBase);
 	}
 }
 // The list of pow-attributes with the callback to the classes
@@ -236,7 +236,7 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerDOM {
+class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
 		this.powerCss = {};
@@ -403,7 +403,7 @@ class PowerDOM {
 		}
 	}
 
-	// This creates the powerDOM tree with all the objects attached to the DOM
+	// This creates the powerTree tree with all the objects attached to the DOM
 	// It uses the simple elements of _buildTempPowerTree to get only the power elements
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
 		const datasetKey = asDataSet(selector.name);
@@ -731,7 +731,7 @@ function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelec
 	for (const currentDropdown of allChildDropdowns) {
 		// Get all dropdowns if ask for it
 		if (allDropdowns !== undefined) {
-			allDropdowns.push(ctx.$powerUi.powerDOM.powerCss.powerDropdown[currentDropdown.getAttribute('id')]);
+			allDropdowns.push(ctx.$powerUi.powerTree.powerCss.powerDropdown[currentDropdown.getAttribute('id')]);
 		}
 		const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
 		for (const currentElement of currentDropdownActions) {
@@ -745,10 +745,10 @@ function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelec
 	// Only select the power actions not black listed
 	for (const currentElement of allChildElements) {
 		if (!elementsIdsBlackList.includes(currentElement.id)) {
-			firstLevelElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+			firstLevelElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
 		} else {
 			// Add all child elements
-			allChildPowerElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+			allChildPowerElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
 		}
 	}
 }
@@ -796,10 +796,10 @@ class PowerUi extends _PowerUiBase {
 	constructor(inject) {
 		super();
 
-		this._createPowerDOM();
-		this.powerDOM._callInit();
-		this.menus = this.powerDOM.powerCss.powerMenu;
-		this.mains = this.powerDOM.powerCss.powerMain;
+		this._createPowerTree();
+		this.powerTree._callInit();
+		this.menus = this.powerTree.powerCss.powerMenu;
+		this.mains = this.powerTree.powerCss.powerMain;
 		this.truth = {};
 		this.tmp = {dropdown: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
@@ -862,13 +862,13 @@ class PowerAccordion extends PowerTarget {
         // Add all sections and actions to Power Accordion
         const powerSections = this.element.getElementsByClassName('power-section');
         for (const section of powerSections) {
-            this.powerSection[section.id] = this.$powerUi.powerDOM.powerCss.powerSection[section.id];
+            this.powerSection[section.id] = this.$powerUi.powerTree.powerCss.powerSection[section.id];
             // Add accordion to section
             this.powerSection[section.id].powerAccordion = this;
         }
         const powerActions = this.element.getElementsByClassName('power-action');
         for (const action of powerActions) {
-            this.powerAction[action.id] = this.$powerUi.powerDOM.powerCss.powerAction[action.id];
+            this.powerAction[action.id] = this.$powerUi.powerTree.powerCss.powerAction[action.id];
             // Add accordion to action
             this.powerAction[action.id].powerAccordion = this;
         }
@@ -914,7 +914,7 @@ class PowerAction extends PowerTarget {
     init() {
         // Add the target Class to the Action
         // It selects the first element with this id with is has powerTarget
-        const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById[this._target];
+        const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById[this._target];
         for (const index in allPowerObjsById) {
             if (allPowerObjsById[index].powerTarget) {
                 this.targetObj = allPowerObjsById[index];
@@ -1443,7 +1443,7 @@ class PowerMenu extends PowerTarget {
                 }
                 // find the camelCase name of the className
                 const camelCaseName = powerClassAsCamelCase(className);
-                const powerElement = this.$powerUi.powerDOM.powerCss[camelCaseName][element.id];
+                const powerElement = this.$powerUi.powerTree.powerCss[camelCaseName][element.id];
                 this[keyName][element.id] = powerElement;
                 // Add the menu on the powerElement
                 powerElement.$powerMenu = this;
@@ -1585,7 +1585,7 @@ class PowerStatus extends PowerTarget {
     init() {
         let stop = false;
         let element = this.element.parentElement
-        const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById;
+        const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById;
         while (!stop) {
             if (element) {
                 for (const index in allPowerObjsById[element.id]) {
@@ -1647,12 +1647,12 @@ _PowerUiBase.injectPwc({name: 'data-pwc-pity', callback: function(element) {retu
 // let app = new TesteUi();
 let app = new PowerUi();
 
-// if (app.powerDOM.allPowerObjsById['pouco_label']) {
-// 	if (app.powerDOM.allPowerObjsById['mais-top44']) {
+// if (app.powerTree.allPowerObjsById['pouco_label']) {
+// 	if (app.powerTree.allPowerObjsById['mais-top44']) {
 // 		setTimeout(function () {
-// 			app.powerDOM.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
+// 			app.powerTree.allPowerObjsById['mais-top44'].powerAction.broadcast('click');
 // 			setTimeout(function () {
-// 				app.powerDOM.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
+// 				app.powerTree.allPowerObjsById['novo_menos-top2m44'].powerAction.broadcast('mouseenter');
 // 			}, 300);
 // 		}, 500);
 // 	}
@@ -1677,25 +1677,25 @@ function mouseoutdois() {
 }
 function clicktres() {
 	console.log('três');
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickum });
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickdois });
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clicktres });
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverum});
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverdois});
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutum});
-	app.powerDOM.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutdois});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickum });
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clickdois });
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'click', fn: clicktres });
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverum});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseover', fn: mouseoverdois});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutum});
+	app.powerTree.allPowerObjsById['even-more'].powerAction.unsubscribe({event: 'mouseout', fn: mouseoutdois});
 }
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickum });
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickdois});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clicktres});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverum});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverdois});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutum});
-app.powerDOM.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutdois});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickum });
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clickdois});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'click', fn: clicktres});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverum});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseover', fn: mouseoverdois});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutum});
+app.powerTree.allPowerObjsById['even-more'].powerAction.subscribe({event: 'mouseout', fn: mouseoutdois});
 window.console.log('power', app);
-window.console.log('panel-0-action', app.powerDOM.allPowerObjsById['panel-0-action']);
+window.console.log('panel-0-action', app.powerTree.allPowerObjsById['panel-0-action']);
 var teste = function(e) {
 	console.log('chamou', this);
 	this.unsubscribe({event: 'mouseover', fn: teste});
 }
-app.powerDOM.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});
+app.powerTree.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});

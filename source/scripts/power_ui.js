@@ -7,7 +7,7 @@ function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelec
 	for (const currentDropdown of allChildDropdowns) {
 		// Get all dropdowns if ask for it
 		if (allDropdowns !== undefined) {
-			allDropdowns.push(ctx.$powerUi.powerDOM.powerCss.powerDropdown[currentDropdown.getAttribute('id')]);
+			allDropdowns.push(ctx.$powerUi.powerTree.powerCss.powerDropdown[currentDropdown.getAttribute('id')]);
 		}
 		const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
 		for (const currentElement of currentDropdownActions) {
@@ -21,10 +21,10 @@ function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelec
 	// Only select the power actions not black listed
 	for (const currentElement of allChildElements) {
 		if (!elementsIdsBlackList.includes(currentElement.id)) {
-			firstLevelElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+			firstLevelElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
 		} else {
 			// Add all child elements
-			allChildPowerElements.push(ctx.$powerUi.powerDOM.powerCss[powerSelector][currentElement.id]);
+			allChildPowerElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
 		}
 	}
 }
@@ -72,10 +72,10 @@ class PowerUi extends _PowerUiBase {
 	constructor(inject) {
 		super();
 
-		this._createPowerDOM();
-		this.powerDOM._callInit();
-		this.menus = this.powerDOM.powerCss.powerMenu;
-		this.mains = this.powerDOM.powerCss.powerMain;
+		this._createPowerTree();
+		this.powerTree._callInit();
+		this.menus = this.powerTree.powerCss.powerMenu;
+		this.mains = this.powerTree.powerCss.powerMain;
 		this.truth = {};
 		this.tmp = {dropdown: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)

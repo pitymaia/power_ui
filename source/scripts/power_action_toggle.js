@@ -12,7 +12,7 @@ class PowerAction extends PowerTarget {
     init() {
         // Add the target Class to the Action
         // It selects the first element with this id with is has powerTarget
-        const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById[this._target];
+        const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById[this._target];
         for (const index in allPowerObjsById) {
             if (allPowerObjsById[index].powerTarget) {
                 this.targetObj = allPowerObjsById[index];

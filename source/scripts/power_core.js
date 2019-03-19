@@ -71,8 +71,8 @@ function powerClassAsCamelCase(className) {
 
 // Abstract Power UI Base class
 class _PowerUiBase {
-	_createPowerDOM() {
-		this.powerDOM = new PowerDOM(this, _PowerUiBase);
+	_createPowerTree() {
+		this.powerTree = new PowerTree(this, _PowerUiBase);
 	}
 }
 // The list of pow-attributes with the callback to the classes
@@ -236,7 +236,7 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 }
 
 
-class PowerDOM {
+class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
 		this.powerCss = {};
@@ -403,7 +403,7 @@ class PowerDOM {
 		}
 	}
 
-	// This creates the powerDOM tree with all the objects attached to the DOM
+	// This creates the powerTree tree with all the objects attached to the DOM
 	// It uses the simple elements of _buildTempPowerTree to get only the power elements
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
 		const datasetKey = asDataSet(selector.name);

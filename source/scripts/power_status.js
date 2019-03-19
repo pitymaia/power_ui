@@ -40,7 +40,7 @@ class PowerStatus extends PowerTarget {
     init() {
         let stop = false;
         let element = this.element.parentElement
-        const allPowerObjsById = this.$powerUi.powerDOM.allPowerObjsById;
+        const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById;
         while (!stop) {
             if (element) {
                 for (const index in allPowerObjsById[element.id]) {

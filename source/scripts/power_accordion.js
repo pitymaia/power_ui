@@ -9,13 +9,13 @@ class PowerAccordion extends PowerTarget {
         // Add all sections and actions to Power Accordion
         const powerSections = this.element.getElementsByClassName('power-section');
         for (const section of powerSections) {
-            this.powerSection[section.id] = this.$powerUi.powerDOM.powerCss.powerSection[section.id];
+            this.powerSection[section.id] = this.$powerUi.powerTree.powerCss.powerSection[section.id];
             // Add accordion to section
             this.powerSection[section.id].powerAccordion = this;
         }
         const powerActions = this.element.getElementsByClassName('power-action');
         for (const action of powerActions) {
-            this.powerAction[action.id] = this.$powerUi.powerDOM.powerCss.powerAction[action.id];
+            this.powerAction[action.id] = this.$powerUi.powerTree.powerCss.powerAction[action.id];
             // Add accordion to action
             this.powerAction[action.id].powerAccordion = this;
         }
