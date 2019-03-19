@@ -408,45 +408,47 @@ class PowerTree {
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
 		const datasetKey = asDataSet(selector.name);
 		const selectorsSubSet = tempSelectors[attribute][datasetKey];
-		for (const id in selectorsSubSet) {
-			if (!ctx[attribute][datasetKey]) {
-				ctx[attribute][datasetKey] = {};
-			}
-
-			// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
-			// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-			const es6Class = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
-			if (es6Class === 'powerAttrs') {
-				// Add into a list ordered by attribute name
-				ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
-			} else {
-				// Call the method for create objects like _powerMenu with the node elements in tempSelectors
-				// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
-				// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
-				ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
-			}
-			// Add the same element into a list ordered by id
-			if (!ctx.allPowerObjsById[id]) {
-				ctx.allPowerObjsById[id] = {};
-			} else {
-				const selectorToTest = document.querySelectorAll(`[id=${id}]`);
-				if (selectorToTest.length > 1) {
-					// Check if there is some duplicated ID
-					console.error('DUPLICATED IDs:', selectorToTest);
-					throw `HTML element can't have duplicated IDs: ${id}`;
+		if (selectorsSubSet) {
+			for (const id in selectorsSubSet) {
+				if (!ctx[attribute][datasetKey]) {
+					ctx[attribute][datasetKey] = {};
 				}
+
+				// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
+				// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
+				const es6Class = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+				if (es6Class === 'powerAttrs') {
+					// Add into a list ordered by attribute name
+					ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
+				} else {
+					// Call the method for create objects like _powerMenu with the node elements in tempSelectors
+					// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
+					// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
+					ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
+				}
+				// Add the same element into a list ordered by id
+				if (!ctx.allPowerObjsById[id]) {
+					ctx.allPowerObjsById[id] = {};
+				} else {
+					const selectorToTest = document.querySelectorAll(`[id=${id}]`);
+					if (selectorToTest.length > 1) {
+						// Check if there is some duplicated ID
+						console.error('DUPLICATED IDs:', selectorToTest);
+						throw `HTML element can't have duplicated IDs: ${id}`;
+					}
+				}
+				ctx.allPowerObjsById[id][datasetKey] = ctx[attribute][datasetKey][id];
+				// Add to any element some desired variables
+				ctx.allPowerObjsById[id][datasetKey].id = id;
+				ctx.allPowerObjsById[id][datasetKey].$_pwName = datasetKey;
+				ctx.allPowerObjsById[id][datasetKey].$powerUi = ctx.$powerUi;
+				// Create a $shared scope for each element
+				if (!ctx.allPowerObjsById[id].$shared) {
+					ctx.allPowerObjsById[id].$shared = {};
+				}
+				// add the shered scope to all elements
+				ctx.allPowerObjsById[id][datasetKey].$shared = ctx.allPowerObjsById[id].$shared;
 			}
-			ctx.allPowerObjsById[id][datasetKey] = ctx[attribute][datasetKey][id];
-			// Add to any element some desired variables
-			ctx.allPowerObjsById[id][datasetKey].id = id;
-			ctx.allPowerObjsById[id][datasetKey].$_pwName = datasetKey;
-			ctx.allPowerObjsById[id][datasetKey].$powerUi = ctx.$powerUi;
-			// Create a $shared scope for each element
-			if (!ctx.allPowerObjsById[id].$shared) {
-				ctx.allPowerObjsById[id].$shared = {};
-			}
-			// add the shered scope to all elements
-			ctx.allPowerObjsById[id][datasetKey].$shared = ctx.allPowerObjsById[id].$shared;
 		}
 	}
 
