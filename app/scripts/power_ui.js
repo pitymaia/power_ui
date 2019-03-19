@@ -542,7 +542,8 @@ class _pwMainBasicHover extends _pwBasicHover {
 
 	// Atach the listner/Event to que main element
 	addEventListener(event, callback, useCapture) {
-		this.$pwMain.element.addEventListener(event, callback, useCapture);
+		// this.$pwMain.element.addEventListener(event, callback, useCapture);
+		this.$pwMain.subscribe({event: event, fn: callback, useCapture: useCapture});
 	}
 }
 
@@ -621,8 +622,10 @@ class PowMainCssHover extends PowCssHover {
 
 	// Atach the listner/Event to que main element
 	addEventListener(event, callback, useCapture) {
-		this.$pwMain.element.addEventListener(event, callback, useCapture);
+		// this.$pwMain.element.addEventListener(event, callback, useCapture);
+		this.$pwMain.subscribe({event: event, fn: callback, useCapture: useCapture});
 	}
+
 }
 // Inject the attr on PowerUi
 _PowerUiBase.injectPow({name: 'data-pow-main-css-hover', isMain: true,
