@@ -1,6 +1,6 @@
 /* Dropdown */
 
-.power-dropdown, .power-dropdown.power-active > .power-dropdown {
+.power-dropmenu, .power-dropmenu.power-active > .power-dropmenu {
     display: none !important;
 }
 
@@ -8,7 +8,7 @@
     visibility: hidden !important;
 }
 @media screen and (max-width: 800px) {
-    .power-dropdown > .power-dropdown.power-active {
+    .power-dropmenu > .power-dropmenu.power-active {
         margin-left: 0 !important;
         position: relative;
     }
@@ -27,7 +27,7 @@
     display: none;
 }
 
-.power-dropdown.power-active, .power-dropdown.power-active > .power-dropdown.power-active {
+.power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
     display: block !important;
     white-space:nowrap;
     border-style: solid;

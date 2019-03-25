@@ -1,24 +1,24 @@
-class PowerDropdown extends PowerTarget {
+class PowerDropmenu extends PowerTarget {
     constructor(element) {
         super(element);
-        // Hold all the power actions in this dropdown, but not the ones on the internal dropdowns
+        // Hold all the power actions in this dropmenu, but not the ones on the internal Power dropmenus
         this.firstLevelPowerActions = [];
-        // Hold all the power actions in the internal dropdowns, but not the ones in this dropdown
+        // Hold all the power actions in the internal Power dropmenus, but not the ones in this dropmenu
         this.allChildPowerActions = [];
-        // Hold all the power items in this dropdown, but not the ones on the internal dropdowns
+        // Hold all the power items in this dropmenu, but not the ones on the internal Power dropmenus
         this.firstLevelPowerItems = [];
-        // Hold all the power items in the internal dropdowns, but not the ones in this dropdown
+        // Hold all the power items in the internal Power dropmenus, but not the ones in this dropmenu
         this.allChildPowerItems = [];
-        // Hold all child dropdowns
-        this.allChildPowerDropdowns = [];
-        // The position the dropdown will try to appear by default
+        // Hold all child Power dropmenus
+        this.allChildPowerDropmenus = [];
+        // The position the dropmenu will try to appear by default
         this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
 
-        // Mark the root of the dropdown tree, first level element
+        // Mark the root of the dropmenu tree, first level element
         let stop = false;
         let parentElement = element.parentElement;
         while (!stop) {
-            if (parentElement.classList.contains('power-dropdown')) {
+            if (parentElement.classList.contains('power-dropmenu')) {
                 this.isRootElement = false;
                 return;
             } else if (parentElement.classList.contains('power-menu')) {
@@ -30,7 +30,7 @@ class PowerDropdown extends PowerTarget {
                 // Only select the parentElement if has element but don't found the main class selector
                 parentElement = parentElement.parentElement;
                 if (!parentElement) {
-                    // No more parentElements, than this is first level dropdown
+                    // No more parentElements, than this is first level dropmenu
                     this.isRootElement = true;
                     // If there is no more element set stop
                     stop = true;
@@ -46,7 +46,7 @@ class PowerDropdown extends PowerTarget {
             this.firstLevelPowerActions,
             this.allChildPowerActions,
             this,
-            this.allChildPowerDropdowns,
+            this.allChildPowerDropmenus,
         );
         setAllChildElementsAndFirstLevelChildElements(
             'power-item',
@@ -57,11 +57,11 @@ class PowerDropdown extends PowerTarget {
         );
 
         // Set the default position only for menus not inside a menu
-        // The default position of menus dropdowns are defined by the menu
+        // The default position of menus Power dropmenus are defined by the menu
         if (this.isRootElement && !this.isMenuElement) {
-            defineFirstLevelDropdownsPosition(this, this);
-            for (const dropdown of this.allChildPowerDropdowns) {
-                defineChildDropdownsPosition(this, dropdown);
+            defineFirstLevelDropmenusPosition(this, this);
+            for (const dropmenu of this.allChildPowerDropmenus) {
+                defineChildDropmenusPosition(this, dropmenu);
             }
         }
     }
@@ -77,25 +77,25 @@ class PowerDropdown extends PowerTarget {
 
     hoverModeOn() {
         // Abort if is moving
-        if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+        if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
             // Using may moving over the same element, only add new target if not the same target
-            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo.id !== this.id) {
+            if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo.id !== this.id) {
                 this.moveOverPossibleNewTarget(this);
             }
             return;
         }
         for (const action of this.firstLevelPowerActions) {
-            action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
-            action.subscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropdown: this});
+            action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+            action.subscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
         }
     }
 
     onMouseEnterAction(ctx, event, params) {
         // Abort if is moving
-        if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+        if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
             // User may moving over the same element, only add new target if not the same target
-            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo.id !== params.dropdown.id) {
-                params.dropdown.moveOverPossibleNewTarget(this);
+            if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo.id !== params.dropmenu.id) {
+                params.dropmenu.moveOverPossibleNewTarget(this);
             }
             return;
         }
@@ -103,19 +103,19 @@ class PowerDropdown extends PowerTarget {
             return;
         }
         params.action.toggle();
-        params.dropdown.onMouseEnterItem(ctx, event, params, true);
-        for (const item of params.dropdown.firstLevelPowerItems) {
-            item.subscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown, item: item});
+        params.dropmenu.onMouseEnterItem(ctx, event, params, true);
+        for (const item of params.dropmenu.firstLevelPowerItems) {
+            item.subscribe({event: 'mouseenter', fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu, item: item});
         }
-        params.dropdown.startWatchMouseMove(ctx, event, params);
+        params.dropmenu.startWatchMouseMove(ctx, event, params);
     }
 
     onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
         // Abort if is moving
-        if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+        if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
             // User may moving over the same element, only add new target if not the same target
-            if (this.$powerUi.tmp.dropdown._mouseIsMovingTo.id !== params.dropdown.id) {
-                params.dropdown.moveOverPossibleNewTarget(params.item);
+            if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo.id !== params.dropmenu.id) {
+                params.dropmenu.moveOverPossibleNewTarget(params.item);
             }
             return;
         }
@@ -128,22 +128,22 @@ class PowerDropdown extends PowerTarget {
 
         }
 
-        // Close any child possible active dropdown
-        for (const action of params.dropdown.allChildPowerActions) {
+        // Close any child possible active dropmenu
+        for (const action of params.dropmenu.allChildPowerActions) {
             if (action._$pwActive) {
                 action.toggle();
             }
         }
-        // Close any first level possible active dropdown if not the current dropdown
-        for (const action of params.dropdown.firstLevelPowerActions) {
+        // Close any first level possible active dropmenu if not the current dropmenu
+        for (const action of params.dropmenu.firstLevelPowerActions) {
             if (action._$pwActive && (action.id !== params.action.id)) {
                 action.toggle();
             }
         }
 
         // Unsubscribe from all the power items mouseenter
-        for (const item of params.dropdown.firstLevelPowerItems) {
-            item.unsubscribe({event: 'mouseenter', fn: params.dropdown.onMouseEnterItem, action: params.action, dropdown: params.dropdown});
+        for (const item of params.dropmenu.firstLevelPowerItems) {
+            item.unsubscribe({event: 'mouseenter', fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu});
         }
 
     }
@@ -151,54 +151,54 @@ class PowerDropdown extends PowerTarget {
     hoverModeOff() {
         this.stopWatchMouseMove();
         for (const action of this.firstLevelPowerActions) {
-            action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropdown: this});
-            action.unsubscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropdown: this});
+            action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+            action.unsubscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
         }
     }
 
-    // Bellow functions temporary abort the hover mode to give time to users move to the opened dropdown
+    // Bellow functions temporary abort the hover mode to give time to users move to the opened dropmenu
     moveOverPossibleNewTarget(item) {
-        this.$powerUi.tmp.dropdown._possibleNewTarget = item;
+        this.$powerUi.tmp.dropmenu._possibleNewTarget = item;
     }
     onmousestop() {
         // Only stopWatchMouseMove if the _possibleNewTarget are not already active
         // If it is already active then wait user to mover over it
-        if (this.$powerUi.tmp.dropdown._possibleNewTarget && !this.$powerUi.tmp.dropdown._possibleNewTarget._$pwActive) {
-            const item = this.$powerUi.tmp.dropdown._possibleNewTarget;
+        if (this.$powerUi.tmp.dropmenu._possibleNewTarget && !this.$powerUi.tmp.dropmenu._possibleNewTarget._$pwActive) {
+            const item = this.$powerUi.tmp.dropmenu._possibleNewTarget;
             setTimeout(function () {
                 item.broadcast('mouseenter');
             }, 10);
             this.stopWatchMouseMove();
         } else {
-            this.$powerUi.tmp.dropdown._resetMouseTimeout();
+            this.$powerUi.tmp.dropmenu._resetMouseTimeout();
         }
     }
     // Called when mouse move
     resetMouseTimeout() {
-        clearTimeout(this.$powerUi.tmp.dropdown.timeout);
-        this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 120);
+        clearTimeout(this.$powerUi.tmp.dropmenu.timeout);
+        this.$powerUi.tmp.dropmenu.timeout = setTimeout(this.$powerUi.tmp.dropmenu._onmousestop, 120);
     }
     startWatchMouseMove(ctx, event, params) {
-        if (this.$powerUi.tmp.dropdown._mouseIsMovingTo) {
+        if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
             return;
         }
-        params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, dropdown: params.dropdown});
-        this.$powerUi.tmp.dropdown._mouseIsMovingTo = params.action.targetObj;
-        this.$powerUi.tmp.dropdown._onmousestop = this.onmousestop.bind(this);
-        this.$powerUi.tmp.dropdown._resetMouseTimeout = this.resetMouseTimeout.bind(this);
-        this.$powerUi.tmp.dropdown.timeout = setTimeout(this.$powerUi.tmp.dropdown._onmousestop, 300);
-        document.addEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
+        params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, dropmenu: params.dropmenu});
+        this.$powerUi.tmp.dropmenu._mouseIsMovingTo = params.action.targetObj;
+        this.$powerUi.tmp.dropmenu._onmousestop = this.onmousestop.bind(this);
+        this.$powerUi.tmp.dropmenu._resetMouseTimeout = this.resetMouseTimeout.bind(this);
+        this.$powerUi.tmp.dropmenu.timeout = setTimeout(this.$powerUi.tmp.dropmenu._onmousestop, 300);
+        document.addEventListener('mousemove', this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
     }
     stopWatchMouseMove() {
-        this.$powerUi.tmp.dropdown._mouseIsMovingTo = false;
-        this.$powerUi.tmp.dropdown._possibleNewTarget = false;
-        clearTimeout(this.$powerUi.tmp.dropdown.timeout);
-        document.removeEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
+        this.$powerUi.tmp.dropmenu._mouseIsMovingTo = false;
+        this.$powerUi.tmp.dropmenu._possibleNewTarget = false;
+        clearTimeout(this.$powerUi.tmp.dropmenu.timeout);
+        document.removeEventListener('mousemove', this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
         this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
     }
 
 
-    // Get the dropdown left positon
+    // Get the dropmenu left positon
     getLeftPosition(powerAction) {
         const bodyRect = document.documentElement.getBoundingClientRect();
         const elemRect = powerAction.element.getBoundingClientRect();
@@ -236,8 +236,8 @@ class PowerDropdown extends PowerTarget {
         this.element.style.top = this.powerAction.element.offsetTop + 'px';
     }
     setPositionBottomLeft() {
-        const dropdownActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
-        this.element.style.left = this.getLeftPosition(this.powerAction) + dropdownActionWidthDiff + 'px';
+        const dropmenuActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
+        this.element.style.left = this.getLeftPosition(this.powerAction) + dropmenuActionWidthDiff + 'px';
     }
     setPositionRightTop() {
         this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
@@ -252,8 +252,8 @@ class PowerDropdown extends PowerTarget {
         this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
     }
     setPositionTopLeft() {
-        const dropdownActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
-        this.element.style.left = this.getLeftPosition(this.powerAction) + dropdownActionWidthDiff + 'px';
+        const dropmenuActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
+        this.element.style.left = this.getLeftPosition(this.powerAction) + dropmenuActionWidthDiff + 'px';
         this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
     }
 
@@ -321,20 +321,20 @@ class PowerDropdown extends PowerTarget {
         }
     }
 
-    resetDropdownPosition() {
+    resetDropmenuPosition() {
         this.element.style.top = null;
         this.element.style.left = null;
     }
 
     toggle() {
-        this.resetDropdownPosition();
+        this.resetDropmenuPosition();
         // Hide the element when add to DOM
-        // This allow get the dropdown sizes and position before adjust and show
+        // This allow get the dropmenu sizes and position before adjust and show
         this.element.classList.add('power-hide');
         const self = this;
         if (!this._$pwActive) {
             setTimeout(function () {
-                // The powerDropdown base it's position on the powerAction position
+                // The powerDropmenu base it's position on the powerAction position
                 if (self.defaultPosition === 'bottom-right') {
                     self.setPositionBottomRight();
                 } else if (self.defaultPosition === 'right-bottom') {
@@ -357,15 +357,15 @@ class PowerDropdown extends PowerTarget {
 
                 // Find if the position is out of screen and reposition if needed
                 self.ifPositionOutOfScreenChangeDirection();
-                // After choose the position show the dropdown
+                // After choose the position show the dropmenu
                 self.element.classList.remove('power-hide');
             }, 50);
-            // Dropdowns only behave like windows if the user is not using touch
+            // Power Drops only behave like windows if the user is not using touch
             if (!this.$powerUi.touchdevice) {
                 this.hoverModeOn();
             }
         } else {
-            // Dropdowns only behave like windows if the user is not using touch
+            // Power Drops only behave like windows if the user is not using touch
             if (!this.$powerUi.touchdevice) {
                 this.hoverModeOff();
             }
@@ -382,4 +382,4 @@ class PowerDropdown extends PowerTarget {
     }
 }
 // Inject the power css on PowerUi
-PowerUi.injectPowerCss({name: 'power-dropdown'});
+PowerUi.injectPowerCss({name: 'power-dropmenu'});

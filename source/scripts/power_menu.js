@@ -8,8 +8,8 @@ class PowerMenu extends PowerTarget {
         this.powerTarget = true;
         this.firstLevelPowerActions = [];
         this.allChildPowerActions = [];
-        this.firstLevelPowerDropdowns = [];
-        // The position the dropdown will try to appear by default
+        this.firstLevelPowerDropmenus = [];
+        // The position the dropmenu will try to appear by default
         this.defaultPosition = this.element.getAttribute('data-power-position');
         // If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
         if (!this.defaultPosition) {
@@ -25,7 +25,7 @@ class PowerMenu extends PowerTarget {
         // Add elements to menu and the menu to the elements
         for (const config of PowerUi._powerCssConfig.filter(x => !x.isMain)) {
             const className = config.name;
-            // power-brand, power-item, power-dropdown, etc...
+            // power-brand, power-item, power-dropmenu, etc...
             for (const element of this.element.getElementsByClassName(className)) {
                 let keyName = className.split('-')[1];
                 // Find the apropriate key plural (statuses)
@@ -39,19 +39,19 @@ class PowerMenu extends PowerTarget {
                 this[keyName][element.id] = powerElement;
                 // Add the menu on the powerElement
                 powerElement.$powerMenu = this;
-                if (camelCaseName === 'powerDropdown') {
+                if (camelCaseName === 'powerDropmenu') {
                     if (powerElement.isRootElement) {
-                        this.firstLevelPowerDropdowns.push(powerElement);
-                        defineFirstLevelDropdownsPosition(this, powerElement);
+                        this.firstLevelPowerDropmenus.push(powerElement);
+                        defineFirstLevelDropmenusPosition(this, powerElement);
                     } else {
-                        defineChildDropdownsPosition(this, powerElement);
+                        defineChildDropmenusPosition(this, powerElement);
                     }
                 }
             }
         }
 
-        // Menu subscribe to any action to allow "windows like" behaviour on dropdowns
-        // When click the first menu item on Windows and Linux, the other dropdowns opens on hover
+        // Menu subscribe to any action to allow "windows like" behaviour on Power dropmenus
+        // When click the first menu item on Windows and Linux, the other Power dropmenus opens on hover
         setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
 
         for (const action of this.firstLevelPowerActions) {
@@ -76,13 +76,13 @@ class PowerMenu extends PowerTarget {
             params.action.toggle();
         }
 
-        // Close any child possible active dropdown
+        // Close any child possible active dropmenu
         for (const action of params.menu.allChildPowerActions) {
             if (action._$pwActive) {
                 action.toggle();
             }
         }
-        // Close any first level possible active dropdown if not the current dropdown
+        // Close any first level possible active dropmenu if not the current dropmenu
         for (const action of params.menu.firstLevelPowerActions) {
             if (action._$pwActive && (action.id !== params.action.id)) {
                 action.toggle();
@@ -113,10 +113,10 @@ class PowerMenu extends PowerTarget {
         }
     }
     resetAnyDropdownTmpInfo() {
-        this.$powerUi.tmp.dropdown._mouseIsMovingTo = false;
-        this.$powerUi.tmp.dropdown._possibleNewTarget = false;
-        clearTimeout(this.$powerUi.tmp.dropdown.timeout);
-        document.removeEventListener('mousemove', this.$powerUi.tmp.dropdown._resetMouseTimeout, true);
+        this.$powerUi.tmp.dropmenu._mouseIsMovingTo = false;
+        this.$powerUi.tmp.dropmenu._possibleNewTarget = false;
+        clearTimeout(this.$powerUi.tmp.dropmenu.timeout);
+        document.removeEventListener('mousemove', this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
         this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
     }
 

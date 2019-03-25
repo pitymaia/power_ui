@@ -1,16 +1,16 @@
-// Set two objects: The dropdowns first level child elements, and all dropdowns child elements
+// Set two objects: The Power dropmenus first level child elements, and all Power dropmenus child elements
 function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx, allDropdowns) {
 	const allChildElements = ctx.element.getElementsByClassName(targetElement);
-	const allChildDropdowns = ctx.element.getElementsByClassName('power-dropdown');
-	// Hold the id of actions that belongs to children dropdowns
+	const allChildDropmenus = ctx.element.getElementsByClassName('power-dropmenu');
+	// Hold the id of actions that belongs to children Power dropmenus
 	const elementsIdsBlackList = [];
-	for (const currentDropdown of allChildDropdowns) {
-		// Get all dropdowns if ask for it
+	for (const currentDropmenu of allChildDropmenus) {
+		// Get all Power dropmenus if ask for it
 		if (allDropdowns !== undefined) {
-			allDropdowns.push(ctx.$powerUi.powerTree.powerCss.powerDropdown[currentDropdown.getAttribute('id')]);
+			allDropdowns.push(ctx.$powerUi.powerTree.powerCss.powerDropmenu[currentDropmenu.getAttribute('id')]);
 		}
-		const currentDropdownActions = currentDropdown.getElementsByClassName(targetElement);
-		for (const currentElement of currentDropdownActions) {
+		const currentDropmenuActions = currentDropmenu.getElementsByClassName(targetElement);
+		for (const currentElement of currentDropmenuActions) {
 			// If not already in the black list add it
 			if (!elementsIdsBlackList.includes(currentElement.id)) {
 				elementsIdsBlackList.push(currentElement.id);
@@ -29,9 +29,9 @@ function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelec
 	}
 }
 
-// Define the powerDropdowns defaultPosition for all the child dropdowns
+// Define the powerDropmenus defaultPosition for all the child Power dropmenus
 // The right-bottom is the standard position
-function defineChildDropdownsPosition(self, powerElement) {
+function defineChildDropmenusPosition(self, powerElement) {
 	if (['right-bottom', 'bottom-right', 'bottom', 'right'].includes(self.defaultPosition)) {
 		powerElement.defaultPosition = 'right-bottom';
 	} else if (['left-bottom', 'bottom-left', 'left'].includes(self.defaultPosition)) {
@@ -45,9 +45,9 @@ function defineChildDropdownsPosition(self, powerElement) {
 	}
 }
 
-// Define the powerDropdowns defaultPosition for the first level dropdowns
+// Define the powerDropmenus defaultPosition for the first level Power dropmenus
 // The right-bottom is the standard position
-function defineFirstLevelDropdownsPosition(self, powerElement) {
+function defineFirstLevelDropmenusPosition(self, powerElement) {
 	if (['right-bottom', 'bottom-right', 'left-bottom', 'bottom-left',
 		'right-top', 'top-right', 'left-top', 'top-left'].includes(self.defaultPosition)) {
 		powerElement.defaultPosition = self.defaultPosition;
@@ -77,7 +77,7 @@ class PowerUi extends _PowerUiBase {
 		this.menus = this.powerTree.powerCss.powerMenu;
 		this.mains = this.powerTree.powerCss.powerMain;
 		this.truth = {};
-		this.tmp = {dropdown: {}};
+		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 	}
@@ -114,8 +114,8 @@ class PowerUi extends _PowerUiBase {
 		return new PowerToggle(element, this);
 	}
 
-	_powerDropdown(element) {
-		return new PowerDropdown(element, this);
+	_powerDropmenu(element) {
+		return new PowerDropmenu(element, this);
 	}
 
 	_powerStatus(element) {

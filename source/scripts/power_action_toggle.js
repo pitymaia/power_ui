@@ -69,7 +69,7 @@ class PowerAction extends PowerTarget {
 
         do {
             if (elementToCheck === targetElement || elementToCheck === powerActionElement) {
-                // This is a click inside the dropdown, menu or on the buttom/trigger element. So, do nothing, just return
+                // This is a click inside the dropmenu, menu or on the buttom/trigger element. So, do nothing, just return
                 return;
             }
             // Go up the DOM

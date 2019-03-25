@@ -17,7 +17,7 @@
     vertical-align: middle;
     z-index: 900;
 }
-.power-design-white-smoke .power-dropdown {
+.power-design-white-smoke .power-dropmenu {
     z-index: 900;
 }
 .power-design-white-smoke .power-toggle {
@@ -38,7 +38,7 @@
 /* Menu end*/
 
 /* Dropdown */
-.power-design-white-smoke .power-dropdown span.power-action:hover, .power-design-white-smoke .power-dropdown span.power-item:hover, .power-design-white-smoke .power-dropdown a.power-action:hover, .power-design-white-smoke .power-dropdown a.power-item:hover, .power-design-white-smoke .power-dropdown div.power-action:hover, .power-design-white-smoke .power-dropdown div.power-item:hover {
+.power-design-white-smoke .power-dropmenu span.power-action:hover, .power-design-white-smoke .power-dropmenu span.power-item:hover, .power-design-white-smoke .power-dropmenu a.power-action:hover, .power-design-white-smoke .power-dropmenu a.power-item:hover, .power-design-white-smoke .power-dropmenu div.power-action:hover, .power-design-white-smoke .power-dropmenu div.power-item:hover {
     background-color: #00ace6;
     color: #F5F5F5;
 }
@@ -51,14 +51,14 @@
     font-size: 12pt;
 }
 
-.power-design-white-smoke .power-dropdown > .power-dropdown.power-active {
+.power-design-white-smoke .power-dropmenu > .power-dropmenu.power-active {
     /*margin-left: 2em;*/
 }
 
 .power-design-white-smoke .power-item, .power-design-white-smoke .power-action {
     padding: 0.5em;
 }
-.power-design-white-smoke .power-dropdown.power-active, .power-design-white-smoke .power-dropdown.power-active > .power-dropdown.power-active {
+.power-design-white-smoke .power-dropmenu.power-active, .power-design-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
     background-color: #F5F5F5;
 }
 /* Dropdown end */
