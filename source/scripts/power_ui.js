@@ -68,10 +68,32 @@ function defineFirstLevelDropmenusPosition(self, powerElement) {
 	}
 }
 
+
+class KeyboardManager {
+	constructor() {
+		document.onkeydown = this.checkKey.bind(this);
+		document.onkeyup = this.checkKey.bind(this);
+	}
+
+	checkKey(e) {
+		e = e || window.event;
+		if (e.type === 'keydown') {
+			this[`_${e.keyCode}`] = true;
+		} else {
+			this[`_${e.keyCode}`] = false;
+		}
+		if (this._17 && this._16 && this._48) {
+			this.keyModeIsOn = true;
+			window.alert('Keyboard mode');
+		}
+		console.log('this', this);
+	}
+}
+
+
 class PowerUi extends _PowerUiBase {
 	constructor(inject) {
 		super();
-
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.menus = this.powerTree.powerCss.powerMenu;
@@ -80,6 +102,10 @@ class PowerUi extends _PowerUiBase {
 		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
+		// If not touchdevice add keyboardManager
+		if (!this.touchdevice) {
+			this.keyboardManager = new KeyboardManager();
+		}
 	}
 
 	_powerMenu(element) {
