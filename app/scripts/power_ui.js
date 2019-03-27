@@ -803,16 +803,28 @@ class KeyboardManager {
 
 	checkKey(e) {
 		e = e || window.event;
+		console.log('e', e);
+		// Turn keyboard mode off
+		// ESC = 27
+		if (e.keyCode === 27) {
+			this._17 = false;
+			this._48 = false;
+			this.keyModeIsOn = false;
+		}
+
+		// Monitoring key down and key up
 		if (e.type === 'keydown') {
 			this[`_${e.keyCode}`] = true;
 		} else {
 			this[`_${e.keyCode}`] = false;
 		}
-		if (this._17 && this._16 && this._48) {
+
+		// Turn keyboard mode on
+		// ctrl = 17, 0 = 48 (ctrl + 0)
+		if (this._17 && this._48) {
 			this.keyModeIsOn = true;
 			window.alert('Keyboard mode');
 		}
-		console.log('this', this);
 	}
 }
 
