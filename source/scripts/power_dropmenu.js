@@ -53,7 +53,7 @@ class PowerDropmenu extends PowerTarget {
             'powerItem',
             this.firstLevelPowerItems,
             this.allChildPowerItems,
-            this
+            this,
         );
 
         // Set the default position only for menus not inside a menu
