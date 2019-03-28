@@ -334,7 +334,7 @@ class PowerTree {
 		}
 	}
 
-	// Register power attrs and classes sharing the same element and than call init()
+	// Register power attrs and classes sharing the same element
 	_addSharingElement() {
 		for (const id in this.allPowerObjsById) {
 			// if Object.keys(obj).length add the inSameElement for each objects
