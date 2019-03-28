@@ -4,13 +4,13 @@ class PowerDropmenu extends PowerTarget {
         // Hold all the power actions in this dropmenu, but not the ones on the internal Power dropmenus
         this.firstLevelPowerActions = [];
         // Hold all the power actions in the internal Power dropmenus, but not the ones in this dropmenu
-        this.allChildPowerActions = [];
+        this.innerPowerActions = [];
         // Hold all the power items in this dropmenu, but not the ones on the internal Power dropmenus
         this.firstLevelPowerItems = [];
         // Hold all the power items in the internal Power dropmenus, but not the ones in this dropmenu
-        this.allChildPowerItems = [];
+        this.innerPowerItems = [];
         // Hold all child Power dropmenus
-        this.allChildPowerDropmenus = [];
+        this.innerPowerDropmenus = [];
         // The position the dropmenu will try to appear by default
         this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
 
@@ -44,15 +44,15 @@ class PowerDropmenu extends PowerTarget {
             'power-action',
             'powerAction',
             this.firstLevelPowerActions,
-            this.allChildPowerActions,
+            this.innerPowerActions,
             this,
-            this.allChildPowerDropmenus,
+            this.innerPowerDropmenus,
         );
         setAllChildElementsAndFirstLevelChildElements(
             'power-item',
             'powerItem',
             this.firstLevelPowerItems,
-            this.allChildPowerItems,
+            this.innerPowerItems,
             this,
         );
 
@@ -60,7 +60,7 @@ class PowerDropmenu extends PowerTarget {
         // The default position of menus Power dropmenus are defined by the menu
         if (this.isRootElement && !this.isMenuElement) {
             defineFirstLevelDropmenusPosition(this, this);
-            for (const dropmenu of this.allChildPowerDropmenus) {
+            for (const dropmenu of this.innerPowerDropmenus) {
                 defineChildDropmenusPosition(this, dropmenu);
             }
         }
@@ -129,7 +129,7 @@ class PowerDropmenu extends PowerTarget {
         }
 
         // Close any child possible active dropmenu
-        for (const action of params.dropmenu.allChildPowerActions) {
+        for (const action of params.dropmenu.innerPowerActions) {
             if (action._$pwActive) {
                 action.toggle();
             }

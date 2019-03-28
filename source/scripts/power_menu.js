@@ -7,7 +7,7 @@ class PowerMenu extends PowerTarget {
         this.id = this.element.getAttribute('id');
         this.powerTarget = true;
         this.firstLevelPowerActions = [];
-        this.allChildPowerActions = [];
+        this.innerPowerActions = [];
         this.firstLevelPowerDropmenus = [];
         // The position the dropmenu will try to appear by default
         this.defaultPosition = this.element.getAttribute('data-power-position');
@@ -52,7 +52,7 @@ class PowerMenu extends PowerTarget {
 
         // Menu subscribe to any action to allow "windows like" behaviour on Power dropmenus
         // When click the first menu item on Windows and Linux, the other Power dropmenus opens on hover
-        setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.allChildPowerActions, this);
+        setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.innerPowerActions, this);
 
         for (const action of this.firstLevelPowerActions) {
             // Only atach the windows like behaviour if not a touchdevice
@@ -77,7 +77,7 @@ class PowerMenu extends PowerTarget {
         }
 
         // Close any child possible active dropmenu
-        for (const action of params.menu.allChildPowerActions) {
+        for (const action of params.menu.innerPowerActions) {
             if (action._$pwActive) {
                 action.toggle();
             }
