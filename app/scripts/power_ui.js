@@ -268,7 +268,7 @@ class PowerTree {
 		}
 
 		this._linkMainClassAndPowAttrs();
-		this._addSiblings();
+		this._addSharingElement();
 	}
 
 	// Sweep through each node and pass the node to the callback
@@ -334,23 +334,23 @@ class PowerTree {
 		}
 	}
 
-	// Register siblings elements and call init()
-	_addSiblings() {
+	// Register power attrs and classes sharing the same element and than call init()
+	_addSharingElement() {
 		for (const id in this.allPowerObjsById) {
-			// if Object.keys(obj).length add the siblings for each objects
+			// if Object.keys(obj).length add the inSameElement for each objects
 			// Also call init(if true or else)
 			if (Object.keys(this.allPowerObjsById[id]).length > 1) {
 				for (const attr in this.allPowerObjsById[id]) {
-					// Don't add siblings to $shared
+					// Don't add inSameElement to $shared
 					if (attr != '$shared') {
-						if (!this.allPowerObjsById[id][attr].siblings) {
-							this.allPowerObjsById[id][attr].siblings = {};
+						if (!this.allPowerObjsById[id][attr].inSameElement) {
+							this.allPowerObjsById[id][attr].inSameElement = {};
 						}
 						// To avoid add this element as a sibling of it self we need iterate over attrs again
 						for (const siblingAttr in this.allPowerObjsById[id]) {
-							// Also don't add $shared siblings
+							// Also don't add $shared inSameElement
 							if (siblingAttr !== attr && siblingAttr != '$shared') {
-								this.allPowerObjsById[id][attr].siblings[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
+								this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
 							}
 						}
 					}
