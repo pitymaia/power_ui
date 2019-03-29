@@ -88,10 +88,7 @@ _PowerUiBase.injectPwc = function (pwcAttr) {
 // The list of power-css-selectors with the config to create the objetc
 // Keep main elements on top of list
 _PowerUiBase._powerCssConfig = [];
-// Hold a list with all registred powerCss names (powerMenu, powerAction, etc...)
-_PowerUiBase._powerCssSelectors = [];
 _PowerUiBase.injectPowerCss = function (powerCss) {
-	_PowerUiBase._powerCssSelectors.push({asDataSet: asDataSet(powerCss.name), name: powerCss.name});
 	if (powerCss.isMain) {
 		_PowerUiBase._powerCssConfig.unshift(powerCss);
 	} else {
@@ -100,6 +97,7 @@ _PowerUiBase.injectPowerCss = function (powerCss) {
 };
 
 
+console.log('_PowerUiBase._powerCssConfig ', _PowerUiBase._powerCssConfig);
 const _Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++_Unique.n,
@@ -280,8 +278,8 @@ class PowerTree {
 	// Add siblings, parent and childrens to each power element
 	_likeInDOM(currentNode, ctx) {
 		if (currentNode.id && ctx.allPowerObjsById[currentNode.id]) {
-			for (const selector of _PowerUiBase._powerCssSelectors) {
-				const powerCssObj = ctx.allPowerObjsById[currentNode.id][selector.asDataSet];
+			for (const selector of _PowerUiBase._powerCssConfig) {
+				const powerCssObj = ctx.allPowerObjsById[currentNode.id][asDataSet(selector.name)];
 				if (powerCssObj) {
 					// Add all inner power element/objects to each element/objetc
 					powerCssObj.innerPowerCss = ctx._getAllInnerPowerCss(powerCssObj.element, ctx);
@@ -293,10 +291,10 @@ class PowerTree {
 
 	_getAllInnerPowerCss(currentNode, ctx) {
 		const innerPowerCss = [];
-		for (const selector of _PowerUiBase._powerCssSelectors) {
+		for (const selector of _PowerUiBase._powerCssConfig) {
 			const elements = currentNode.getElementsByClassName(selector.name);
 			for (const element of elements) {
-				const obj = ctx.allPowerObjsById[element.id][selector.asDataSet];
+				const obj = ctx.allPowerObjsById[element.id][asDataSet(selector.name)];
 				innerPowerCss.push(obj);
 			}
 		}
