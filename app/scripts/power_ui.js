@@ -88,7 +88,10 @@ _PowerUiBase.injectPwc = function (pwcAttr) {
 // The list of power-css-selectors with the config to create the objetc
 // Keep main elements on top of list
 _PowerUiBase._powerCssConfig = [];
+// Hold a list with all registred powerCss names (powerMenu, powerAction, etc...)
+_PowerUiBase._powerCssSelectors = [];
 _PowerUiBase.injectPowerCss = function (powerCss) {
+	_PowerUiBase._powerCssSelectors.push({asDataSet: asDataSet(powerCss.name), name: powerCss.name});
 	if (powerCss.isMain) {
 		_PowerUiBase._powerCssConfig.unshift(powerCss);
 	} else {
@@ -252,7 +255,7 @@ class PowerTree {
 
 		this.sweepDOM(document, tempSelectors, this._buildTempPowerTree);
 
-		// Create the power-css object elements
+		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempSelectors) {
 			for (const selector of PowerUi._powerCssConfig) {
 				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
@@ -269,6 +272,35 @@ class PowerTree {
 
 		this._linkMainClassAndPowAttrs();
 		this._addSharingElement();
+
+		// Sweep  DOM again to add siblings, parent and childrens to each power element
+		this.sweepDOM(document, this, this._likeInDOM);
+	}
+
+	// Add siblings, parent and childrens to each power element
+	_likeInDOM(currentNode, ctx) {
+		if (currentNode.id && ctx.allPowerObjsById[currentNode.id]) {
+			for (const selector of _PowerUiBase._powerCssSelectors) {
+				const powerCssObj = ctx.allPowerObjsById[currentNode.id][selector.asDataSet];
+				if (powerCssObj) {
+					// Add all inner power element/objects to each element/objetc
+					powerCssObj.innerPowerCss = ctx._getAllInnerPowerCss(powerCssObj.element, ctx);
+					break;
+				}
+			}
+		}
+	}
+
+	_getAllInnerPowerCss(currentNode, ctx) {
+		const innerPowerCss = [];
+		for (const selector of _PowerUiBase._powerCssSelectors) {
+			const elements = currentNode.getElementsByClassName(selector.name);
+			for (const element of elements) {
+				const obj = ctx.allPowerObjsById[element.id][selector.asDataSet];
+				innerPowerCss.push(obj);
+			}
+		}
+		return innerPowerCss;
 	}
 
 	// Sweep through each node and pass the node to the callback
@@ -282,7 +314,7 @@ class PowerTree {
 				const currentNode = nodes[i];
 				const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
 
-				// Call back with the condition to apply any condition
+				// Call back with any condition to apply
 				callback(currentNode, ctx);
 
 				if(currentNodeHasChindren) {
