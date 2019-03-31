@@ -322,38 +322,9 @@ class PowerTree {
 		}
 	}
 
-
-	// Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
-	// testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned
-	_searchUpDOM(element, testCondition) {
-		let lastPowerElement = element.className.includes('power-') ? element : null;
-		let currentElement = element.parentElement;
-		let conditionResult = false;
-		let stop = false;
-		while (!stop) {
-
-			conditionResult = testCondition(currentElement);
-			if (conditionResult) {
-				stop = true;
-			}
-			if (currentElement.className.includes('power-')) {
-				lastPowerElement = currentElement;
-			}
-			// Don't let go to parentElement if already found it and heve the variable 'stop' as true
-			// Only select the parentElement if has element but don't found the main class selector
-			if (currentElement.parentElement && !stop) {
-				currentElement = currentElement.parentElement;
-			} else {
-				// If there is no more element set stop
-				stop = true;
-			}
-		}
-		return {powerElement: lastPowerElement, conditionResult: conditionResult};
-	}
-
 	// Check is this powerElement is child of some main powerElement (like powerMenu, powerMain, powerAccordion, etc)
 	_getMainElementFromChildElement(element) {
-		const searchResult  = this._searchUpDOM(element, this._checkIfIsMainElement);
+		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsMainElement);
 		if (searchResult.conditionResult) {
 			return searchResult.powerElement;
 		}
@@ -534,3 +505,30 @@ class PowerTree {
 		}
 	}
 }
+// Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
+// testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned
+PowerTree._searchUpDOM = function (element, testCondition) {
+	let lastPowerElement = element.className.includes('power-') ? element : null;
+	let currentElement = element.parentElement;
+	let conditionResult = false;
+	let stop = false;
+	while (!stop) {
+
+		conditionResult = testCondition(currentElement);
+		if (conditionResult) {
+			stop = true;
+		}
+		if (currentElement.className.includes('power-')) {
+			lastPowerElement = currentElement;
+		}
+		// Don't let go to parentElement if already found it and heve the variable 'stop' as true
+		// Only select the parentElement if has element but don't found the main class selector
+		if (currentElement.parentElement && !stop) {
+			currentElement = currentElement.parentElement;
+		} else {
+			// If there is no more element set stop
+			stop = true;
+		}
+	}
+	return {powerElement: lastPowerElement, conditionResult: conditionResult};
+};

@@ -322,38 +322,9 @@ class PowerTree {
 		}
 	}
 
-
-	// Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
-	// testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned
-	_searchUpDOM(element, testCondition) {
-		let lastPowerElement = element.className.includes('power-') ? element : null;
-		let currentElement = element.parentElement;
-		let conditionResult = false;
-		let stop = false;
-		while (!stop) {
-
-			conditionResult = testCondition(currentElement);
-			if (conditionResult) {
-				stop = true;
-			}
-			if (currentElement.className.includes('power-')) {
-				lastPowerElement = currentElement;
-			}
-			// Don't let go to parentElement if already found it and heve the variable 'stop' as true
-			// Only select the parentElement if has element but don't found the main class selector
-			if (currentElement.parentElement && !stop) {
-				currentElement = currentElement.parentElement;
-			} else {
-				// If there is no more element set stop
-				stop = true;
-			}
-		}
-		return {powerElement: lastPowerElement, conditionResult: conditionResult};
-	}
-
 	// Check is this powerElement is child of some main powerElement (like powerMenu, powerMain, powerAccordion, etc)
 	_getMainElementFromChildElement(element) {
-		const searchResult  = this._searchUpDOM(element, this._checkIfIsMainElement);
+		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsMainElement);
 		if (searchResult.conditionResult) {
 			return searchResult.powerElement;
 		}
@@ -534,6 +505,33 @@ class PowerTree {
 		}
 	}
 }
+// Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
+// testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned
+PowerTree._searchUpDOM = function (element, testCondition) {
+	let lastPowerElement = element.className.includes('power-') ? element : null;
+	let currentElement = element.parentElement;
+	let conditionResult = false;
+	let stop = false;
+	while (!stop) {
+
+		conditionResult = testCondition(currentElement);
+		if (conditionResult) {
+			stop = true;
+		}
+		if (currentElement.className.includes('power-')) {
+			lastPowerElement = currentElement;
+		}
+		// Don't let go to parentElement if already found it and heve the variable 'stop' as true
+		// Only select the parentElement if has element but don't found the main class selector
+		if (currentElement.parentElement && !stop) {
+			currentElement = currentElement.parentElement;
+		} else {
+			// If there is no more element set stop
+			stop = true;
+		}
+	}
+	return {powerElement: lastPowerElement, conditionResult: conditionResult};
+};
 
 // Replace a value form an attribute when is mouseover some element and undo on mouseout
 class _pwBasicHover extends _PowerBasicElementWithEvents {
@@ -1109,30 +1107,8 @@ class PowerDropmenu extends PowerTarget {
 		this.innerPowerDropmenus = [];
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
-
 		// Mark the root of the dropmenu tree, first level element
-		let stop = false;
-		let parentElement = element.parentElement;
-		while (!stop) {
-			if (parentElement.classList.contains('power-dropmenu')) {
-				this.isRootElement = false;
-				return;
-			} else if (parentElement.classList.contains('power-menu')) {
-				this.isRootElement = true;
-				this.isMenuElement = true;
-				stop = true;
-			} else {
-				// Don't let go to parentElement if already found and have the variable 'stop' as true
-				// Only select the parentElement if has element but don't found the main class selector
-				parentElement = parentElement.parentElement;
-				if (!parentElement) {
-					// No more parentElements, than this is first level dropmenu
-					this.isRootElement = true;
-					// If there is no more element set stop
-					stop = true;
-				}
-			}
-		}
+		this._markRootAndMenuDropmenu();
 	}
 
 	init() {
@@ -1160,6 +1136,34 @@ class PowerDropmenu extends PowerTarget {
 				defineChildDropmenusPosition(this, dropmenu);
 			}
 		}
+	}
+
+	// Mark the root of the dropmenu tree, first level element
+	_markRootAndMenuDropmenu() {
+		const searchResult  = PowerTree._searchUpDOM(this.element, this._checkIfhavePowerParentElement);
+		if (searchResult.conditionResult) {
+			// If parent element is another dropmenu this is not a root element
+			if (searchResult.powerElement.className.includes('power-dropmenu')) {
+				this.isRootElement = false;
+			} else {
+				this.isRootElement = true;
+			}
+			if (searchResult.powerElement.className.includes('power-menu')) {
+				this.isMenuElement = true;
+			}
+		} else {
+			// If doesn't found power parentElements, than this is first level dropmenu
+			this.isRootElement = true;
+		}
+	}
+
+	// testCondition to return the parent power element if exists
+	_checkIfhavePowerParentElement(currentElement) {
+		let found = false;
+		if (currentElement.className.includes('power-')) {
+			found = true;
+		}
+		return found;
 	}
 
 	// Remove left, margin-left and border width from absolute elements

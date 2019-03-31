@@ -13,30 +13,8 @@ class PowerDropmenu extends PowerTarget {
 		this.innerPowerDropmenus = [];
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
-
 		// Mark the root of the dropmenu tree, first level element
-		let stop = false;
-		let parentElement = element.parentElement;
-		while (!stop) {
-			if (parentElement.classList.contains('power-dropmenu')) {
-				this.isRootElement = false;
-				return;
-			} else if (parentElement.classList.contains('power-menu')) {
-				this.isRootElement = true;
-				this.isMenuElement = true;
-				stop = true;
-			} else {
-				// Don't let go to parentElement if already found and have the variable 'stop' as true
-				// Only select the parentElement if has element but don't found the main class selector
-				parentElement = parentElement.parentElement;
-				if (!parentElement) {
-					// No more parentElements, than this is first level dropmenu
-					this.isRootElement = true;
-					// If there is no more element set stop
-					stop = true;
-				}
-			}
-		}
+		this._markRootAndMenuDropmenu();
 	}
 
 	init() {
@@ -64,6 +42,34 @@ class PowerDropmenu extends PowerTarget {
 				defineChildDropmenusPosition(this, dropmenu);
 			}
 		}
+	}
+
+	// Mark the root of the dropmenu tree, first level element
+	_markRootAndMenuDropmenu() {
+		const searchResult  = PowerTree._searchUpDOM(this.element, this._checkIfhavePowerParentElement);
+		if (searchResult.conditionResult) {
+			// If parent element is another dropmenu this is not a root element
+			if (searchResult.powerElement.className.includes('power-dropmenu')) {
+				this.isRootElement = false;
+			} else {
+				this.isRootElement = true;
+			}
+			if (searchResult.powerElement.className.includes('power-menu')) {
+				this.isMenuElement = true;
+			}
+		} else {
+			// If doesn't found power parentElements, than this is first level dropmenu
+			this.isRootElement = true;
+		}
+	}
+
+	// testCondition to return the parent power element if exists
+	_checkIfhavePowerParentElement(currentElement) {
+		let found = false;
+		if (currentElement.className.includes('power-')) {
+			found = true;
+		}
+		return found;
 	}
 
 	// Remove left, margin-left and border width from absolute elements

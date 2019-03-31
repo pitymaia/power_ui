@@ -1,14 +1,14 @@
-.power-design-white-smoke {
+.pwdesign-white-smoke {
     font-family: Verdana, Arial, "Courier New";
 }
 
 /* Menu */
-.power-design-white-smoke .power-brand, .power-design-white-smoke .power-item, .power-design-white-smoke .power-action, .power-design-white-smoke .power-toggle {
+.pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-toggle {
     cursor: pointer;
     list-style-type: none;
 }
 
-.power-design-white-smoke .power-menu {
+.pwdesign-white-smoke .power-menu {
     padding: 0.5em;
     margin-bottom: 0.5em;
     border-style: solid;
@@ -17,20 +17,20 @@
     vertical-align: middle;
     z-index: 900;
 }
-.power-design-white-smoke .power-dropmenu {
+.pwdesign-white-smoke .power-dropmenu {
     z-index: 900;
 }
-.power-design-white-smoke .power-toggle {
+.pwdesign-white-smoke .power-toggle {
     border-style: solid;
     border-width: 1px;
     padding: 0.3em 0.5em;
 }
 
-.power-design-white-smoke .power-menu-fixed .power-toggle {
+.pwdesign-white-smoke .power-menu-fixed .power-toggle {
     margin-right: 1em;
 }
 
-.power-design-white-smoke  .power-menu-fixed {
+.pwdesign-white-smoke  .power-menu-fixed {
     top: -1px;
     left: -1px;
     width: 100%;
@@ -38,54 +38,54 @@
 /* Menu end*/
 
 /* Dropdown */
-.power-design-white-smoke .power-dropmenu span.power-action:hover, .power-design-white-smoke .power-dropmenu span.power-item:hover, .power-design-white-smoke .power-dropmenu a.power-action:hover, .power-design-white-smoke .power-dropmenu a.power-item:hover, .power-design-white-smoke .power-dropmenu div.power-action:hover, .power-design-white-smoke .power-dropmenu div.power-item:hover {
+.pwdesign-white-smoke .power-dropmenu span.power-action:hover, .pwdesign-white-smoke .power-dropmenu span.power-item:hover, .pwdesign-white-smoke .power-dropmenu a.power-action:hover, .pwdesign-white-smoke .power-dropmenu a.power-item:hover, .pwdesign-white-smoke .power-dropmenu div.power-action:hover, .pwdesign-white-smoke .power-dropmenu div.power-item:hover {
     background-color: #00ace6;
     color: #F5F5F5;
 }
-.power-design-white-smoke .power-menu > span.power-action:hover, .power-design-white-smoke .power-menu > span.power-item:hover, .power-design-white-smoke .power-menu > a.power-action:hover, .power-design-white-smoke .power-menu > a.power-item:hover, .power-design-white-smoke .power-menu > div.power-action:hover, .power-design-white-smoke .power-menu > div.power-item:hover {
+.pwdesign-white-smoke .power-menu > span.power-action:hover, .pwdesign-white-smoke .power-menu > span.power-item:hover, .pwdesign-white-smoke .power-menu > a.power-action:hover, .pwdesign-white-smoke .power-menu > a.power-item:hover, .pwdesign-white-smoke .power-menu > div.power-action:hover, .pwdesign-white-smoke .power-menu > div.power-item:hover {
     font-weight: bold;
     text-shadow: 0px 0px 11px rgb(0, 172, 230);
 }
-.power-design-white-smoke .power-item, .power-design-white-smoke .power-action, .power-design-white-smoke .power-item > *, .power-design-white-smoke .power-brand, .power-design-white-smoke .power-action > *, .power-design-white-smoke .power-brand > * {
+.pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-item > *, .pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-action > *, .pwdesign-white-smoke .power-brand > * {
     vertical-align: middle;
     font-size: 12pt;
 }
 
-.power-design-white-smoke .power-dropmenu > .power-dropmenu.power-active {
+.pwdesign-white-smoke .power-dropmenu > .power-dropmenu.power-active {
     /*margin-left: 2em;*/
 }
 
-.power-design-white-smoke .power-item, .power-design-white-smoke .power-action {
+.pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action {
     padding: 0.5em;
 }
-.power-design-white-smoke .power-dropmenu.power-active, .power-design-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
+.pwdesign-white-smoke .power-dropmenu.power-active, .pwdesign-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
     background-color: #F5F5F5;
 }
 /* Dropdown end */
 
 /* Accordion */
-.power-design-white-smoke .power-accordion > .power-action, .power-design-white-smoke .power-accordion > .power-section {
+.pwdesign-white-smoke .power-accordion > .power-action, .pwdesign-white-smoke .power-accordion > .power-section {
     border-width: 1px;
     border-style: solid;
     border-color: black;
 }
-.power-design-white-smoke .power-accordion > .power-action {
+.pwdesign-white-smoke .power-accordion > .power-action {
     background-color: #F5F5F5;
 }
-.power-design-white-smoke .power-accordion > .power-section {
+.pwdesign-white-smoke .power-accordion > .power-section {
     background-color: #fff;
 }
-.power-design-white-smoke .power-accordion > .power-section {
+.pwdesign-white-smoke .power-accordion > .power-section {
     padding: 0.5em;
     display: none;
 }
-.power-design-white-smoke .power-accordion > .power-section.power-active {
+.pwdesign-white-smoke .power-accordion > .power-section.power-active {
     display: block;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     margin-bottom: 0.2em;
 }
-.power-design-white-smoke .power-accordion > .power-action {
+.pwdesign-white-smoke .power-accordion > .power-action {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -94,7 +94,7 @@
     margin-bottom: 0.2em;
 }
 
-.power-design-white-smoke .power-accordion > .power-action.power-active {
+.pwdesign-white-smoke .power-accordion > .power-action.power-active {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom: 0;
