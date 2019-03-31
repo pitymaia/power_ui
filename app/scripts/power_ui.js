@@ -69,6 +69,7 @@ function powerClassAsCamelCase(className) {
 	return `${className.split('-')[0]}${className.split('-')[1].charAt(0).toUpperCase()}${className.split('-')[1].slice(1)}`;
 }
 
+
 // Abstract Power UI Base class
 class _PowerUiBase {
 	_createPowerTree() {
@@ -97,7 +98,6 @@ _PowerUiBase.injectPowerCss = function (powerCss) {
 };
 
 
-console.log('_PowerUiBase._powerCssConfig ', _PowerUiBase._powerCssConfig);
 const _Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++_Unique.n,
@@ -169,8 +169,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		// Create the event
 		if (!this._events[event]) {
 			this._events[event] = new Event(this.id);
-
-		 	// Only creates if not exists
+			// Only creates if not exists
 			if (!this._DOMEvents[event]) {
 				this._DOMEvents[event] = new CustomEvent(event, {bubbles: useCapture});
 			}
@@ -323,34 +322,55 @@ class PowerTree {
 		}
 	}
 
-	_getMainElementFromChildElement(id, childElement) {
-		let mainElement  = this._findMainElementIfHave(childElement);
-		if (mainElement) {
-			return mainElement;
-		}
-	}
 
-	_findMainElementIfHave(originalElement) {
-		let element = originalElement.parentElement;
+	// Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
+	// testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned
+	_searchUpDOM(element, testCondition) {
+		let lastPowerElement = element.className.includes('power-') ? element : null;
+		let currentElement = element.parentElement;
+		let conditionResult = false;
 		let stop = false;
 		while (!stop) {
-			if (element && element.className) {
-				for (const cssSelector of PowerUi._powerCssConfig.filter(s => s.isMain === true)) {
-					if (element.className.includes(cssSelector.name)) {
-						stop = true;
-					}
-				}
+
+			conditionResult = testCondition(currentElement);
+			if (conditionResult) {
+				stop = true;
 			}
-			// Don't let go to parentElement if already found and heve the variable 'stop' as true
+			if (currentElement.className.includes('power-')) {
+				lastPowerElement = currentElement;
+			}
+			// Don't let go to parentElement if already found it and heve the variable 'stop' as true
 			// Only select the parentElement if has element but don't found the main class selector
-			if (element && !stop) {
-				element = element.parentElement;
+			if (currentElement.parentElement && !stop) {
+				currentElement = currentElement.parentElement;
 			} else {
 				// If there is no more element set stop
 				stop = true;
 			}
 		}
-		return element || null;
+		return {powerElement: lastPowerElement, conditionResult: conditionResult};
+	}
+
+	// Check is this powerElement is child of some main powerElement (like powerMenu, powerMain, powerAccordion, etc)
+	_getMainElementFromChildElement(element) {
+		const searchResult  = this._searchUpDOM(element, this._checkIfIsMainElement);
+		if (searchResult.conditionResult) {
+			return searchResult.powerElement;
+		}
+	}
+
+	// testCondition to find the main powerElement of a given powerElement
+	_checkIfIsMainElement(currentElement) {
+		let found = false;
+		if (currentElement && currentElement.className) {
+			for (const cssSelector of PowerUi._powerCssConfig.filter(s => s.isMain === true)) {
+				if (currentElement.className.includes(cssSelector.name)) {
+					found = true;
+					break;
+				}
+			}
+		}
+		return found;
 	}
 
 	_callInit() {
@@ -398,7 +418,7 @@ class PowerTree {
 			for (const id in powAttrsList) {
 				const currentPowElement = powAttrsList[id];
 				// Get the simple DOM node main element  of the current powerElement object
-				const mainElementCssSelector = this._getMainElementFromChildElement(id, currentPowElement.element);
+				const mainElementCssSelector = this._getMainElementFromChildElement(currentPowElement.element);
 				if (mainElementCssSelector) {
 					// Loop through the list of possible main CSS class selectors like power-menu or power-main
 					// With this we will find the main powerElement that holds the simple DOM node main element we have
@@ -433,7 +453,7 @@ class PowerTree {
 		}
 	}
 
-	// This creates the powerTree tree with all the objects attached to the DOM
+	// This creates the powerTree with all the power objects attached to the DOM
 	// It uses the simple elements of _buildTempPowerTree to get only the power elements
 	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
 		const datasetKey = asDataSet(selector.name);
