@@ -243,6 +243,7 @@ class PowerTree {
 		this.powAttrs = {};
 		this.pwcAttrs = {};
 		this.allPowerObjsById = {};
+		this.rootElements = [];
 
 		const tempSelectors = {
 			powerCss: {},
@@ -270,19 +271,47 @@ class PowerTree {
 		this._linkMainClassAndPowAttrs();
 		this._addSharingElement();
 
-		// Sweep  DOM again to add siblings, parent and childrens to each power element
-		this.sweepDOM(document, this, this._likeInDOM);
+		// Sweep allPowerObjsById to add parent and childrens to each power element
+		this._likeInDOM();
 	}
 
-	// Add siblings, parent and childrens to each power element
-	_likeInDOM(currentNode, ctx) {
-		if (currentNode.id && ctx.allPowerObjsById[currentNode.id]) {
-			for (const selector of _PowerUiBase._powerCssConfig) {
-				const powerCssObj = ctx.allPowerObjsById[currentNode.id][asDataSet(selector.name)];
-				if (powerCssObj) {
-					// Add all inner power element/objects to each element/objetc
-					powerCssObj.innerPowerCss = ctx._getAllInnerPowerCss(powerCssObj.element, ctx);
-					break;
+	_likeInDOM() {
+		for (const id in this.allPowerObjsById) {
+			for (const selectorId in this.allPowerObjsById[id]) {
+				if (selectorId !== '$shared' && !this.allPowerObjsById[id].parent) {
+					const currentObj = this.allPowerObjsById[id][selectorId];
+					// Search a powerElement parent if currentObj up DOM if exists
+					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
+					// If searchResult is true and not returns the same element add parent and child
+					// Else it is a rootElement
+					if (searchResult.conditionResult && searchResult.powerElement.id !== currentObj.element.id) {
+						const parentElement = searchResult.powerElement;
+						for (const parentIndex in this.allPowerObjsById[parentElement.id]) {
+							// Only add if this is a power class (not some pow or pwc attr)
+							if (parentIndex.includes('power')) {
+								// Add parent element to current power object
+								const parentObj = this.allPowerObjsById[parentElement.id][parentIndex];
+								currentObj.parent = parentObj;
+								// Add current object as child of parentObj
+								if (!parentObj.children) {
+									parentObj.children = [];
+								}
+								// Only add if this is a power class (not some pow or pwc attr)
+								// And only if not already added
+								if (currentObj.element.className.includes('power') && !parentObj.children.find(obj => obj.id === currentObj.id)) {
+									parentObj.children.push(currentObj);
+								}
+							}
+						}
+					} else { // This is a rootElement
+						// Only add if this is a power class (not some pow or pwc attr)
+						// And only if not already added
+						if (currentObj.element.className.includes('power') && !this.rootElements.find(obj => obj.id === currentObj.id)) {
+							this.rootElements.push(currentObj);
+							currentObj.parent = null;
+						}
+					}
+
 				}
 			}
 		}
@@ -532,3 +561,11 @@ PowerTree._searchUpDOM = function (element, testCondition) {
 	}
 	return {powerElement: lastPowerElement, conditionResult: conditionResult};
 };
+// testCondition to return the parent power element if exists
+PowerTree._checkIfhavePowerParentElement = function (currentElement) {
+	let found = false;
+	if (currentElement.className.includes('power-')) {
+		found = true;
+	}
+	return found;
+}

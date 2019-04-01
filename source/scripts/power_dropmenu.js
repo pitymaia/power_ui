@@ -46,7 +46,7 @@ class PowerDropmenu extends PowerTarget {
 
 	// Mark the root of the dropmenu tree, first level element
 	_markRootAndMenuDropmenu() {
-		const searchResult  = PowerTree._searchUpDOM(this.element, this._checkIfhavePowerParentElement);
+		const searchResult  = PowerTree._searchUpDOM(this.element, PowerTree._checkIfhavePowerParentElement);
 		if (searchResult.conditionResult) {
 			// If parent element is another dropmenu this is not a root element
 			if (searchResult.powerElement.className.includes('power-dropmenu')) {
@@ -61,15 +61,6 @@ class PowerDropmenu extends PowerTarget {
 			// If doesn't found power parentElements, than this is first level dropmenu
 			this.isRootElement = true;
 		}
-	}
-
-	// testCondition to return the parent power element if exists
-	_checkIfhavePowerParentElement(currentElement) {
-		let found = false;
-		if (currentElement.className.includes('power-')) {
-			found = true;
-		}
-		return found;
 	}
 
 	// Remove left, margin-left and border width from absolute elements
