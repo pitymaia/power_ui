@@ -225,6 +225,10 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	removeEventListener(event, callback, useCapture=false) {
 		this.element.removeEventListener(event, callback, useCapture);
 	}
+
+	getSiblings() {
+		return (this.parent ? this.parent.children : this.$powerUi.powerTree.rootElements).filter(obj => obj.id !== this.id);
+	}
 }
 
 
