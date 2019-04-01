@@ -279,6 +279,7 @@ class PowerTree {
 		this._likeInDOM();
 	}
 
+	// Sweep allPowerObjsById to add parent and childrens to each power element
 	_likeInDOM() {
 		for (const id in this.allPowerObjsById) {
 			for (const selectorId in this.allPowerObjsById[id]) {
