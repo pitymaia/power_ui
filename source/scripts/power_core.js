@@ -436,20 +436,20 @@ class PowerTree {
 								// Add the main object into the child object
 								currentPowElement.$pwMain = mainPowerCssObj;
 								// create the obj to hold the children if dont have it
-								if (mainPowerCssObj.childrenPowAttrs === undefined) {
-									mainPowerCssObj.childrenPowAttrs = {};
+								if (mainPowerCssObj.innerPowAttrs === undefined) {
+									mainPowerCssObj.innerPowAttrs = {};
 								}
 								// Add the child object into the main object
 								// Organize it by attribute dataset name
 								const datasetAttrName = asDataSet(currentPowElement.$_pwAttrName);
-								if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName]) {
-									mainPowerCssObj.childrenPowAttrs[datasetAttrName] = {};
+								if (!mainPowerCssObj.innerPowAttrs[datasetAttrName]) {
+									mainPowerCssObj.innerPowAttrs[datasetAttrName] = {};
 								}
 								// Organize it by id inside attribute dataset name
-								if (!mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id]) {
-									mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = {};
+								if (!mainPowerCssObj.innerPowAttrs[datasetAttrName][currentPowElement.id]) {
+									mainPowerCssObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = {};
 								}
-								mainPowerCssObj.childrenPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
+								mainPowerCssObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
 							}
 						}
 					}
