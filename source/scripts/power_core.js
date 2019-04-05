@@ -316,7 +316,10 @@ class PowerTree {
 							currentObj.parent = null;
 						}
 					}
-
+				}
+				// Add current object as child of parentObj
+				if (currentObj.element && currentObj.element.className.includes('power') && !currentObj.innerPowerCss) {
+					currentObj.innerPowerCss = this._getAllInnerPowerCss(currentObj.element, this);
 				}
 			}
 		}
