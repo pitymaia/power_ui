@@ -282,9 +282,9 @@ class PowerTree {
 	// Sweep allPowerObjsById to add parent and childrens to each power element
 	_likeInDOM() {
 		for (const id in this.allPowerObjsById) {
-			for (const selectorId in this.allPowerObjsById[id]) {
-				if (selectorId !== '$shared' && !this.allPowerObjsById[id].parent) {
-					const currentObj = this.allPowerObjsById[id][selectorId];
+			for (const powerSelector in this.allPowerObjsById[id]) {
+				const currentObj = this.allPowerObjsById[id][powerSelector];
+				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent if currentObj up DOM if exists
 					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
 					// If searchResult is true and not returns the same element add parent and child
