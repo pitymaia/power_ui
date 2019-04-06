@@ -319,18 +319,18 @@ class PowerTree {
 				}
 				// Add current object as child of parentObj
 				if (currentObj.element && currentObj.element.className.includes('power') && !currentObj.innerPowerCss) {
-					currentObj.innerPowerCss = this._getAllInnerPowerCss(currentObj.element, this);
+					currentObj.innerPowerCss = this._getAllInnerPowerCss(currentObj.element);
 				}
 			}
 		}
 	}
 
-	_getAllInnerPowerCss(currentNode, ctx) {
+	_getAllInnerPowerCss(currentNode) {
 		const innerPowerCss = [];
 		for (const selector of _PowerUiBase._powerCssConfig) {
 			const elements = currentNode.getElementsByClassName(selector.name);
 			for (const element of elements) {
-				const obj = ctx.allPowerObjsById[element.id][asDataSet(selector.name)];
+				const obj = this.allPowerObjsById[element.id][asDataSet(selector.name)];
 				innerPowerCss.push(obj);
 			}
 		}
