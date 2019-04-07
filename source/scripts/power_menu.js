@@ -21,43 +21,25 @@ class PowerMenu extends PowerTarget {
 	init() {
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
-		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
+		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu
 		this.innerPowerActionsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerAction');
 		// Child powerDropmenus - Hold all the power Dropmenus in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerDropmenus = this.getChildrenByPowerCss('powerDropmenu');
+		// Inner powerDropmenus - Hold all the power Dropmenus in this menu, including the childrens directly in this menu
+		this.innerPowerDropmenus = this.getInnerByPowerCss('powerDropmenu');
 
-		// Add elements to menu and the menu to the elements
-		for (const config of PowerUi._powerCssConfig.filter(x => !x.isMain)) {
-			const className = config.name;
-			// power-brand, power-item, power-dropmenu, etc...
-			for (const element of this.element.getElementsByClassName(className)) {
-				let keyName = className.split('-')[1];
-				// Find the apropriate key plural (statuses)
-				keyName = (keyName === 'status') ? `${keyName}es` : `${keyName}s`;
-				if (!this[keyName]) {
-					this[keyName] = {};
-				}
-				// find the camelCase name of the className
-				const camelCaseName = powerClassAsCamelCase(className);
-				const powerElement = this.$powerUi.powerTree.powerCss[camelCaseName][element.id];
-				this[keyName][element.id] = powerElement;
-				// Add the menu on the powerElement
-				powerElement.$powerMenu = this;
-				// Define dropmenus position
-				if (camelCaseName === 'powerDropmenu') {
-					if (powerElement.isRootElement) {
-						defineFirstLevelDropmenusPosition(this, powerElement);
-					} else {
-						defineChildDropmenusPosition(this, powerElement);
-					}
-				}
+		// Define the position to show all the dropmenus
+		// The dropmenus directly on the menu may start as a dropdown or dropup and the children dropmenus may start on left or right
+		for (const dropmenu of this.innerPowerDropmenus) {
+			if (dropmenu.isRootElement) {
+				defineFirstLevelDropmenusPosition(this, dropmenu);
+			} else {
+				defineChildDropmenusPosition(this, dropmenu);
 			}
 		}
 
 		// Menu subscribe to any action to allow "windows like" behaviour on Power dropmenus
 		// When click the first menu item on Windows and Linux, the other Power dropmenus opens on hover
-		// setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.childrenPowerActions, this.innerPowerActionsWithoutChildren, this);
-
 		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {

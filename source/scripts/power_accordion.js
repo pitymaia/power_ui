@@ -2,7 +2,6 @@ class PowerAccordion extends PowerTarget {
 	constructor(element) {
 		super(element);
 		element.getAttribute('data-multiple-sections-open') === 'true' ? this.multipleSectionsOpen = true : this.multipleSectionsOpen = false;
-		console.log('accordion this', this);
 	}
 	init() {
 		this.childrenSections = this.getChildrenByPowerCss('powerSection');
@@ -27,8 +26,7 @@ class PowerSection extends PowerTarget {
 			} else {
 				parent = parent.parent;
 			}
-		}
-		while (parent && parent.$_pwName !== 'powerAccordion')
+		} while (parent && parent.$_pwName !== 'powerAccordion');
 	}
 
 	action() {
