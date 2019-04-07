@@ -21,12 +21,12 @@ class PowerSection extends PowerTarget {
 		let parent = this.parent;
 		// Add the accordion to this powerSection
 		do {
-			if (parent.$powerName === 'powerAccordion') {
+			if (parent.$powerCss === 'powerAccordion') {
 				this.powerAccordion = parent;
 			} else {
 				parent = parent.parent;
 			}
-		} while (parent && parent.$powerName !== 'powerAccordion');
+		} while (parent && parent.$powerCss !== 'powerAccordion');
 	}
 
 	action() {
