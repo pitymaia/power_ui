@@ -231,15 +231,15 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 	// Only the first level elements
 	getChildrenByPowerCss(powerCss) {
-		return this.children.filter(child => child.$_pwName === powerCss);
+		return this.children.filter(child => child.$powerName === powerCss);
 	}
 	// All elements inside this element
 	getInnerByPowerCss(powerCss) {
-		return this.innerPowerCss.filter(child => child.$_pwName === powerCss);
+		return this.innerPowerCss.filter(child => child.$powerName === powerCss);
 	}
 	// Inner elements without the children elements
 	getInnerWithoutChildrenByPowerCss(powerCss) {
-		return this.innerPowerCss.filter(child => child.$_pwName === powerCss && child.parent.id !== this.id);
+		return this.innerPowerCss.filter(child => child.$powerName === powerCss && child.parent.id !== this.id);
 	}
 }
 
@@ -511,7 +511,7 @@ class PowerTree {
 				ctx.allPowerObjsById[id][datasetKey] = ctx[attribute][datasetKey][id];
 				// Add to any element some desired variables
 				ctx.allPowerObjsById[id][datasetKey].id = id;
-				ctx.allPowerObjsById[id][datasetKey].$_pwName = datasetKey;
+				ctx.allPowerObjsById[id][datasetKey].$powerName = datasetKey;
 				ctx.allPowerObjsById[id][datasetKey].$powerUi = ctx.$powerUi;
 				// Create a $shared scope for each element
 				if (!ctx.allPowerObjsById[id].$shared) {
