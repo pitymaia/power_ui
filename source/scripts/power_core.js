@@ -225,9 +225,21 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	removeEventListener(event, callback, useCapture=false) {
 		this.element.removeEventListener(event, callback, useCapture);
 	}
-
+	// The elements in the same level of this element
 	getSiblings() {
 		return (this.parent ? this.parent.children : this.$powerUi.powerTree.rootElements).filter(obj => obj.id !== this.id);
+	}
+	// Only the first level elements
+	getChildrenByPowerCss(powerCss) {
+		return this.children.filter(child => child.$_pwName === powerCss);
+	}
+	// All elements inside this element
+	getInnerByPowerCss(powerCss) {
+		return this.innerPowerCss.filter(child => child.$_pwName === powerCss);
+	}
+	// Inner elements without the children elements
+	getInnerWithoutChildrenByPowerCss(powerCss) {
+		return this.innerPowerCss.filter(child => child.$_pwName === powerCss && child.parent.id !== this.id);
 	}
 }
 
@@ -285,7 +297,7 @@ class PowerTree {
 			for (const powerSelector in this.allPowerObjsById[id]) {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
-					// Search a powerElement parent if currentObj up DOM if exists
+					// Search a powerElement parent of currentObj up DOM if exists
 					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
 					// If searchResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
@@ -325,6 +337,7 @@ class PowerTree {
 		}
 	}
 
+	// Get all inner powerObjects of any kind (any powerCss)
 	_getAllInnerPowerCss(currentNode) {
 		const innerPowerCss = [];
 		for (const selector of _PowerUiBase._powerCssConfig) {

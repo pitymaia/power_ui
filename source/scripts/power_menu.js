@@ -6,9 +6,6 @@ class PowerMenu extends PowerTarget {
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
-		this.firstLevelPowerActions = [];
-		this.innerPowerActions = [];
-		this.firstLevelPowerDropmenus = [];
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-power-position');
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
@@ -22,6 +19,13 @@ class PowerMenu extends PowerTarget {
 	}
 
 	init() {
+		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
+		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
+		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
+		this.innerPowerActionsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerAction');
+		// Child powerDropmenus - Hold all the power Dropmenus in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
+		this.childrenPowerDropmenus = this.getChildrenByPowerCss('powerDropmenu');
+
 		// Add elements to menu and the menu to the elements
 		for (const config of PowerUi._powerCssConfig.filter(x => !x.isMain)) {
 			const className = config.name;
@@ -39,9 +43,9 @@ class PowerMenu extends PowerTarget {
 				this[keyName][element.id] = powerElement;
 				// Add the menu on the powerElement
 				powerElement.$powerMenu = this;
+				// Define dropmenus position
 				if (camelCaseName === 'powerDropmenu') {
 					if (powerElement.isRootElement) {
-						this.firstLevelPowerDropmenus.push(powerElement);
 						defineFirstLevelDropmenusPosition(this, powerElement);
 					} else {
 						defineChildDropmenusPosition(this, powerElement);
@@ -52,9 +56,9 @@ class PowerMenu extends PowerTarget {
 
 		// Menu subscribe to any action to allow "windows like" behaviour on Power dropmenus
 		// When click the first menu item on Windows and Linux, the other Power dropmenus opens on hover
-		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.innerPowerActions, this);
+		// setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.childrenPowerActions, this.innerPowerActionsWithoutChildren, this);
 
-		for (const action of this.firstLevelPowerActions) {
+		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
 				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
@@ -64,7 +68,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	hoverModeOn(ctx, event, params) {
-		for (const action of params.menu.firstLevelPowerActions) {
+		for (const action of params.menu.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
@@ -77,13 +81,13 @@ class PowerMenu extends PowerTarget {
 		}
 
 		// Close any child possible active dropmenu
-		for (const action of params.menu.innerPowerActions) {
+		for (const action of params.menu.innerPowerActionsWithoutChildren) {
 			if (action._$pwActive) {
 				action.toggle();
 			}
 		}
 		// Close any first level possible active dropmenu if not the current dropmenu
-		for (const action of params.menu.firstLevelPowerActions) {
+		for (const action of params.menu.childrenPowerActions) {
 			if (action._$pwActive && (action.id !== params.action.id)) {
 				action.toggle();
 			}
@@ -93,8 +97,8 @@ class PowerMenu extends PowerTarget {
 	maySetHoverModeOff(ctx, event, params) {
 		setTimeout(function() {
 			let someDropdownIsOpen = false;
-			// See if there is any firstLevelPowerAction active
-			for (const action of params.menu.firstLevelPowerActions) {
+			// See if there is any childrenPowerActions active
+			for (const action of params.menu.childrenPowerActions) {
 				if (action._$pwActive) {
 					someDropdownIsOpen = true;
 				}
@@ -108,7 +112,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	hoverModeOff(ctx, level, params) {
-		for (const action of params.menu.firstLevelPowerActions) {
+		for (const action of params.menu.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}

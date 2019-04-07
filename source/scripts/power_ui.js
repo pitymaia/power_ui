@@ -1,34 +1,3 @@
-// Set two objects: The Power dropmenus first level child elements, and all Power dropmenus child elements
-function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx, allDropdowns) {
-	const allChildElements = ctx.element.getElementsByClassName(targetElement);
-	const allChildDropmenus = ctx.element.getElementsByClassName('power-dropmenu');
-	// Hold the id of actions that belongs to children Power dropmenus
-	const elementsIdsBlackList = [];
-	for (const currentDropmenu of allChildDropmenus) {
-		// Get all Power dropmenus if ask for it
-		if (allDropdowns !== undefined) {
-			allDropdowns.push(ctx.$powerUi.powerTree.powerCss.powerDropmenu[currentDropmenu.getAttribute('id')]);
-		}
-		const currentDropmenuActions = currentDropmenu.getElementsByClassName(targetElement);
-		for (const currentElement of currentDropmenuActions) {
-			// If not already in the black list add it
-			if (!elementsIdsBlackList.includes(currentElement.id)) {
-				elementsIdsBlackList.push(currentElement.id);
-			}
-		}
-	}
-
-	// Only select the power actions not black listed
-	for (const currentElement of allChildElements) {
-		if (!elementsIdsBlackList.includes(currentElement.id)) {
-			firstLevelElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
-		} else {
-			// Add all child elements
-			allChildPowerElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
-		}
-	}
-}
-
 // Define the powerDropmenus defaultPosition for all the child Power dropmenus
 // The right-bottom is the standard position
 function defineChildDropmenusPosition(self, powerElement) {

@@ -225,9 +225,21 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	removeEventListener(event, callback, useCapture=false) {
 		this.element.removeEventListener(event, callback, useCapture);
 	}
-
+	// The elements in the same level of this element
 	getSiblings() {
 		return (this.parent ? this.parent.children : this.$powerUi.powerTree.rootElements).filter(obj => obj.id !== this.id);
+	}
+	// Only the first level elements
+	getChildrenByPowerCss(powerCss) {
+		return this.children.filter(child => child.$_pwName === powerCss);
+	}
+	// All elements inside this element
+	getInnerByPowerCss(powerCss) {
+		return this.innerPowerCss.filter(child => child.$_pwName === powerCss);
+	}
+	// Inner elements without the children elements
+	getInnerWithoutChildrenByPowerCss(powerCss) {
+		return this.innerPowerCss.filter(child => child.$_pwName === powerCss && child.parent.id !== this.id);
 	}
 }
 
@@ -285,7 +297,7 @@ class PowerTree {
 			for (const powerSelector in this.allPowerObjsById[id]) {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
-					// Search a powerElement parent if currentObj up DOM if exists
+					// Search a powerElement parent of currentObj up DOM if exists
 					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
 					// If searchResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
@@ -325,6 +337,7 @@ class PowerTree {
 		}
 	}
 
+	// Get all inner powerObjects of any kind (any powerCss)
 	_getAllInnerPowerCss(currentNode) {
 		const innerPowerCss = [];
 		for (const selector of _PowerUiBase._powerCssConfig) {
@@ -817,37 +830,6 @@ _PowerUiBase.injectPow({name: 'data-pow-main-css-hover-remove', isMain: true,
 	callback: function(element) {return new PowMainCssHoverRemove(element);}
 });
 
-// Set two objects: The Power dropmenus first level child elements, and all Power dropmenus child elements
-function setAllChildElementsAndFirstLevelChildElements(targetElement, powerSelector, firstLevelElements, allChildPowerElements, ctx, allDropdowns) {
-	const allChildElements = ctx.element.getElementsByClassName(targetElement);
-	const allChildDropmenus = ctx.element.getElementsByClassName('power-dropmenu');
-	// Hold the id of actions that belongs to children Power dropmenus
-	const elementsIdsBlackList = [];
-	for (const currentDropmenu of allChildDropmenus) {
-		// Get all Power dropmenus if ask for it
-		if (allDropdowns !== undefined) {
-			allDropdowns.push(ctx.$powerUi.powerTree.powerCss.powerDropmenu[currentDropmenu.getAttribute('id')]);
-		}
-		const currentDropmenuActions = currentDropmenu.getElementsByClassName(targetElement);
-		for (const currentElement of currentDropmenuActions) {
-			// If not already in the black list add it
-			if (!elementsIdsBlackList.includes(currentElement.id)) {
-				elementsIdsBlackList.push(currentElement.id);
-			}
-		}
-	}
-
-	// Only select the power actions not black listed
-	for (const currentElement of allChildElements) {
-		if (!elementsIdsBlackList.includes(currentElement.id)) {
-			firstLevelElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
-		} else {
-			// Add all child elements
-			allChildPowerElements.push(ctx.$powerUi.powerTree.powerCss[powerSelector][currentElement.id]);
-		}
-	}
-}
-
 // Define the powerDropmenus defaultPosition for all the child Power dropmenus
 // The right-bottom is the standard position
 function defineChildDropmenusPosition(self, powerElement) {
@@ -1140,38 +1122,24 @@ PowerUi.injectPowerCss({name: 'power-brand'});
 class PowerDropmenu extends PowerTarget {
 	constructor(element) {
 		super(element);
-		// Hold all the power actions in this dropmenu, but not the ones on the internal Power dropmenus
-		this.firstLevelPowerActions = [];
-		// Hold all the power actions in the internal Power dropmenus, but not the ones in this dropmenu
-		this.innerPowerActions = [];
-		// Hold all the power items in this dropmenu, but not the ones on the internal Power dropmenus
-		this.firstLevelPowerItems = [];
-		// Hold all the power items in the internal Power dropmenus, but not the ones in this dropmenu
-		this.innerPowerItems = [];
-		// Hold all child Power dropmenus
-		this.innerPowerDropmenus = [];
+
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = element.getAttribute('data-power-position') || 'bottom-right';
+		this.defaultPosition = this.element.getAttribute('data-power-position') || 'bottom-right';
 		// Mark the root of the dropmenu tree, first level element
 		this._markRootAndMenuDropmenu();
 	}
 
 	init() {
-		setAllChildElementsAndFirstLevelChildElements(
-			'power-action',
-			'powerAction',
-			this.firstLevelPowerActions,
-			this.innerPowerActions,
-			this,
-			this.innerPowerDropmenus,
-		);
-		setAllChildElementsAndFirstLevelChildElements(
-			'power-item',
-			'powerItem',
-			this.firstLevelPowerItems,
-			this.innerPowerItems,
-			this,
-		);
+		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
+		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
+		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
+		this.innerPowerActionsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerAction');
+		// Child powerItem - Hold all the power items in this dropmenu, but not the ones on the internal Power dropmenus
+		this.childrenPowerItems = this.getChildrenByPowerCss('powerItem');
+		// Inner powerItem - Hold all the power items in the internal Power dropmenus, but not the childrens directly in this dropmenu
+		this.innerPowerItemsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerItem');
+		// Hold all inner Power dropmenus, including children elements
+		this.innerPowerDropmenus = this.getInnerByPowerCss('powerDropmenu');
 
 		// Set the default position only for menus not inside a menu
 		// The default position of menus Power dropmenus are defined by the menu
@@ -1184,6 +1152,8 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 	// Mark the root of the dropmenu tree, first level element
+	// The first dropmenu have a differente position than the others
+	// The first element in general start up or down, and the children elements start left or right
 	_markRootAndMenuDropmenu() {
 		const searchResult  = PowerTree._searchUpDOM(this.element, PowerTree._checkIfhavePowerParentElement);
 		if (searchResult.conditionResult) {
@@ -1220,7 +1190,7 @@ class PowerDropmenu extends PowerTarget {
 			}
 			return;
 		}
-		for (const action of this.firstLevelPowerActions) {
+		for (const action of this.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
 			action.subscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
@@ -1240,7 +1210,7 @@ class PowerDropmenu extends PowerTarget {
 		}
 		params.action.toggle();
 		params.dropmenu.onMouseEnterItem(ctx, event, params, true);
-		for (const item of params.dropmenu.firstLevelPowerItems) {
+		for (const item of params.dropmenu.childrenPowerItems) {
 			item.subscribe({event: 'mouseenter', fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu, item: item});
 		}
 		params.dropmenu.startWatchMouseMove(ctx, event, params);
@@ -1265,20 +1235,20 @@ class PowerDropmenu extends PowerTarget {
 		}
 
 		// Close any child possible active dropmenu
-		for (const action of params.dropmenu.innerPowerActions) {
+		for (const action of params.dropmenu.innerPowerActionsWithoutChildren) {
 			if (action._$pwActive) {
 				action.toggle();
 			}
 		}
 		// Close any first level possible active dropmenu if not the current dropmenu
-		for (const action of params.dropmenu.firstLevelPowerActions) {
+		for (const action of params.dropmenu.childrenPowerActions) {
 			if (action._$pwActive && (action.id !== params.action.id)) {
 				action.toggle();
 			}
 		}
 
 		// Unsubscribe from all the power items mouseenter
-		for (const item of params.dropmenu.firstLevelPowerItems) {
+		for (const item of params.dropmenu.childrenPowerItems) {
 			item.unsubscribe({event: 'mouseenter', fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu});
 		}
 
@@ -1286,7 +1256,7 @@ class PowerDropmenu extends PowerTarget {
 
 	hoverModeOff() {
 		this.stopWatchMouseMove();
-		for (const action of this.firstLevelPowerActions) {
+		for (const action of this.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
 			action.unsubscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
@@ -1379,7 +1349,7 @@ class PowerDropmenu extends PowerTarget {
 		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
 	}
-	setPositionTopRigth() {
+	setPositionTopRight() {
 		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
@@ -1480,7 +1450,7 @@ class PowerDropmenu extends PowerTarget {
 				} else if (self.defaultPosition === 'left-bottom') {
 					self.setPositionLeftBottom();
 				}  else if (self.defaultPosition === 'top-right') {
-					self.setPositionTopRigth();
+					self.setPositionTopRight();
 				} else if (self.defaultPosition === 'right-top') {
 					self.setPositionRightTop();
 				} else if (self.defaultPosition === 'left-top') {
@@ -1544,9 +1514,6 @@ class PowerMenu extends PowerTarget {
 		this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
-		this.firstLevelPowerActions = [];
-		this.innerPowerActions = [];
-		this.firstLevelPowerDropmenus = [];
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-power-position');
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
@@ -1560,6 +1527,13 @@ class PowerMenu extends PowerTarget {
 	}
 
 	init() {
+		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
+		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
+		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
+		this.innerPowerActionsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerAction');
+		// Child powerDropmenus - Hold all the power Dropmenus in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
+		this.childrenPowerDropmenus = this.getChildrenByPowerCss('powerDropmenu');
+
 		// Add elements to menu and the menu to the elements
 		for (const config of PowerUi._powerCssConfig.filter(x => !x.isMain)) {
 			const className = config.name;
@@ -1577,9 +1551,9 @@ class PowerMenu extends PowerTarget {
 				this[keyName][element.id] = powerElement;
 				// Add the menu on the powerElement
 				powerElement.$powerMenu = this;
+				// Define dropmenus position
 				if (camelCaseName === 'powerDropmenu') {
 					if (powerElement.isRootElement) {
-						this.firstLevelPowerDropmenus.push(powerElement);
 						defineFirstLevelDropmenusPosition(this, powerElement);
 					} else {
 						defineChildDropmenusPosition(this, powerElement);
@@ -1590,9 +1564,9 @@ class PowerMenu extends PowerTarget {
 
 		// Menu subscribe to any action to allow "windows like" behaviour on Power dropmenus
 		// When click the first menu item on Windows and Linux, the other Power dropmenus opens on hover
-		setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.firstLevelPowerActions, this.innerPowerActions, this);
+		// setAllChildElementsAndFirstLevelChildElements('power-action', 'powerAction', this.childrenPowerActions, this.innerPowerActionsWithoutChildren, this);
 
-		for (const action of this.firstLevelPowerActions) {
+		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
 				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
@@ -1602,7 +1576,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	hoverModeOn(ctx, event, params) {
-		for (const action of params.menu.firstLevelPowerActions) {
+		for (const action of params.menu.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
@@ -1615,13 +1589,13 @@ class PowerMenu extends PowerTarget {
 		}
 
 		// Close any child possible active dropmenu
-		for (const action of params.menu.innerPowerActions) {
+		for (const action of params.menu.innerPowerActionsWithoutChildren) {
 			if (action._$pwActive) {
 				action.toggle();
 			}
 		}
 		// Close any first level possible active dropmenu if not the current dropmenu
-		for (const action of params.menu.firstLevelPowerActions) {
+		for (const action of params.menu.childrenPowerActions) {
 			if (action._$pwActive && (action.id !== params.action.id)) {
 				action.toggle();
 			}
@@ -1631,8 +1605,8 @@ class PowerMenu extends PowerTarget {
 	maySetHoverModeOff(ctx, event, params) {
 		setTimeout(function() {
 			let someDropdownIsOpen = false;
-			// See if there is any firstLevelPowerAction active
-			for (const action of params.menu.firstLevelPowerActions) {
+			// See if there is any childrenPowerActions active
+			for (const action of params.menu.childrenPowerActions) {
 				if (action._$pwActive) {
 					someDropdownIsOpen = true;
 				}
@@ -1646,7 +1620,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	hoverModeOff(ctx, level, params) {
-		for (const action of params.menu.firstLevelPowerActions) {
+		for (const action of params.menu.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
