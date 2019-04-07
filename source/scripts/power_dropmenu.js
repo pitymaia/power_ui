@@ -23,9 +23,9 @@ class PowerDropmenu extends PowerTarget {
 		// Set the default position only for menus not inside a menu
 		// The default position of menus Power dropmenus are defined by the menu
 		if (this.isRootElement && !this.isMenuElement) {
-			defineFirstLevelDropmenusPosition(this, this);
+			defineRootDropmenusPosition(this, this);
 			for (const dropmenu of this.innerPowerDropmenus) {
-				defineChildDropmenusPosition(this, dropmenu);
+				defineInnerDropmenusPosition(this, dropmenu);
 			}
 		}
 	}

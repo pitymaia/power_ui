@@ -32,9 +32,9 @@ class PowerMenu extends PowerTarget {
 		// The dropmenus directly on the menu may start as a dropdown or dropup and the children dropmenus may start on left or right
 		for (const dropmenu of this.innerPowerDropmenus) {
 			if (dropmenu.isRootElement) {
-				defineFirstLevelDropmenusPosition(this, dropmenu);
+				defineRootDropmenusPosition(this, dropmenu);
 			} else {
-				defineChildDropmenusPosition(this, dropmenu);
+				defineInnerDropmenusPosition(this, dropmenu);
 			}
 		}
 

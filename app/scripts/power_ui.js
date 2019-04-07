@@ -832,7 +832,7 @@ _PowerUiBase.injectPow({name: 'data-pow-main-css-hover-remove', isMain: true,
 
 // Define the powerDropmenus defaultPosition for all the child Power dropmenus
 // The right-bottom is the standard position
-function defineChildDropmenusPosition(self, powerElement) {
+function defineInnerDropmenusPosition(self, powerElement) {
 	if (['right-bottom', 'bottom-right', 'bottom', 'right'].includes(self.defaultPosition)) {
 		powerElement.defaultPosition = 'right-bottom';
 	} else if (['left-bottom', 'bottom-left', 'left'].includes(self.defaultPosition)) {
@@ -848,7 +848,7 @@ function defineChildDropmenusPosition(self, powerElement) {
 
 // Define the powerDropmenus defaultPosition for the first level Power dropmenus
 // The right-bottom is the standard position
-function defineFirstLevelDropmenusPosition(self, powerElement) {
+function defineRootDropmenusPosition(self, powerElement) {
 	if (['right-bottom', 'bottom-right', 'left-bottom', 'bottom-left',
 		'right-top', 'top-right', 'left-top', 'top-left'].includes(self.defaultPosition)) {
 		powerElement.defaultPosition = self.defaultPosition;
@@ -1143,9 +1143,9 @@ class PowerDropmenu extends PowerTarget {
 		// Set the default position only for menus not inside a menu
 		// The default position of menus Power dropmenus are defined by the menu
 		if (this.isRootElement && !this.isMenuElement) {
-			defineFirstLevelDropmenusPosition(this, this);
+			defineRootDropmenusPosition(this, this);
 			for (const dropmenu of this.innerPowerDropmenus) {
-				defineChildDropmenusPosition(this, dropmenu);
+				defineInnerDropmenusPosition(this, dropmenu);
 			}
 		}
 	}
@@ -1539,9 +1539,9 @@ class PowerMenu extends PowerTarget {
 		// The dropmenus directly on the menu may start as a dropdown or dropup and the children dropmenus may start on left or right
 		for (const dropmenu of this.innerPowerDropmenus) {
 			if (dropmenu.isRootElement) {
-				defineFirstLevelDropmenusPosition(this, dropmenu);
+				defineRootDropmenusPosition(this, dropmenu);
 			} else {
-				defineChildDropmenusPosition(this, dropmenu);
+				defineInnerDropmenusPosition(this, dropmenu);
 			}
 		}
 
