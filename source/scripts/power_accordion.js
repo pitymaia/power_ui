@@ -2,23 +2,11 @@ class PowerAccordion extends PowerTarget {
 	constructor(element) {
 		super(element);
 		element.getAttribute('data-multiple-sections-open') === 'true' ? this.multipleSectionsOpen = true : this.multipleSectionsOpen = false;
-		this.powerSections = {};
-		this.powerActions = {};
+		console.log('accordion this', this);
 	}
 	init() {
-		// Add all sections and actions to Power Accordion
-		const powerSections = this.element.getElementsByClassName('power-section');
-		for (const section of powerSections) {
-			this.powerSections[section.id] = this.$powerUi.powerTree.powerCss.powerSection[section.id];
-			// Add accordion to section
-			this.powerSections[section.id].powerAccordion = this;
-		}
-		const powerActions = this.element.getElementsByClassName('power-action');
-		for (const action of powerActions) {
-			this.powerActions[action.id] = this.$powerUi.powerTree.powerCss.powerAction[action.id];
-			// Add accordion to action
-			this.powerActions[action.id].powerAccordion = this;
-		}
+		this.childrenSections = this.getChildrenByPowerCss('powerSection');
+		this.childrenActions = this.getChildrenByPowerCss('powerAction');
 	}
 }
 // Inject the power css on PowerUi
@@ -30,12 +18,25 @@ class PowerSection extends PowerTarget {
 		super(element);
 	}
 
+	init() {
+		let parent = this.parent;
+		// Add the accordion to this powerSection
+		do {
+			if (parent.$_pwName === 'powerAccordion') {
+				this.powerAccordion = parent;
+			} else {
+				parent = parent.parent;
+			}
+		}
+		while (parent && parent.$_pwName !== 'powerAccordion')
+	}
+
 	action() {
 		// If not allow multipleSectionsOpen, close the other sections
 		if (!this.powerAccordion.multipleSectionsOpen) {
-			for (const action in this.powerAccordion.powerActions) {
+			for (const action in this.powerAccordion.childrenActions) {
 				// Only closes if is not this section and if is active
-				const targetAction = this.powerAccordion.powerActions[action];
+				const targetAction = this.powerAccordion.childrenActions[action];
 				if (targetAction.targetObj.id !== this.id && targetAction._$pwActive) {
 					// This prevent the targetAction.toggle call this action again, so this flag avoid a loop to occurs
 					targetAction.toggle({avoidCallAction: true});
