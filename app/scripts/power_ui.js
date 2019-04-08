@@ -88,12 +88,12 @@ _PowerUiBase.injectPwc = function (pwcAttr) {
 };
 // The list of power-css-selectors with the config to create the objetc
 // Keep main elements on top of list
-_PowerUiBase._powerCssConfig = [];
+_PowerUiBase._powerElementsConfig = [];
 _PowerUiBase.injectPowerCss = function (powerCss) {
 	if (powerCss.isMain) {
-		_PowerUiBase._powerCssConfig.unshift(powerCss);
+		_PowerUiBase._powerElementsConfig.unshift(powerCss);
 	} else {
-		_PowerUiBase._powerCssConfig.push(powerCss);
+		_PowerUiBase._powerElementsConfig.push(powerCss);
 	}
 };
 
@@ -261,26 +261,26 @@ class PowerTree {
 		this.allPowerObjsById = {};
 		this.rootElements = [];
 
-		const tempSelectors = {
+		const tempTree = {
 			powerCss: {},
 			powAttrs: {},
 			pwcAttrs: {},
 		};
 
-		this.sweepDOM(document, tempSelectors, this._buildTempPowerTree);
+		this.sweepDOM(document, tempTree, this._buildTempPowerTree);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
-		for (const attribute in tempSelectors) {
-			for (const selector of PowerUi._powerCssConfig) {
-				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
+		for (const attribute in tempTree) {
+			for (const selector of PowerUi._powerElementsConfig) {
+				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
 
 			for (const selector of PowerUi._powAttrsConfig) {
-				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
+				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
 
 			for (const selector of PowerUi._pwcAttrsConfig) {
-				this._buildObjcsFromTempSelectors(this, attribute, selector, tempSelectors);
+				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
 		}
 
@@ -340,7 +340,7 @@ class PowerTree {
 	// Get all inner powerObjects of any kind (any powerCss)
 	_getAllInnerPowerCss(currentNode) {
 		const innerPowerCss = [];
-		for (const selector of _PowerUiBase._powerCssConfig) {
+		for (const selector of _PowerUiBase._powerElementsConfig) {
 			const elements = currentNode.getElementsByClassName(selector.name);
 			for (const element of elements) {
 				const obj = this.allPowerObjsById[element.id][asDataSet(selector.name)];
@@ -384,8 +384,8 @@ class PowerTree {
 	_checkIfIsMainElement(currentElement) {
 		let found = false;
 		if (currentElement && currentElement.className) {
-			for (const cssSelector of PowerUi._powerCssConfig.filter(s => s.isMain === true)) {
-				if (currentElement.className.includes(cssSelector.name)) {
+			for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(s => s.isMain === true)) {
+				if (currentElement.className.includes(mainPowerElementConfig.name)) {
 					found = true;
 					break;
 				}
@@ -433,39 +433,40 @@ class PowerTree {
 	_linkMainClassAndPowAttrs() {
 		// Loop through the list of possible attributes like data-pow-main-src-hover
 		for (const item of PowerUi._powAttrsConfig.filter(a => a.isMain === true)) {
+			// Hold elements that have pow-attrs
 			const powAttrsList = this.powAttrs[asDataSet(item.name)];
 			// Loop through the list of existing powAttrs in dataset format like powMainSrcHover
 			// Every element it found is the powerElement it needs find the correspondent main object
 			for (const id in powAttrsList) {
 				const currentPowElement = powAttrsList[id];
 				// Get the simple DOM node main element  of the current powerElement object
-				const mainElementCssSelector = this._getMainElementFromChildElement(currentPowElement.element);
-				if (mainElementCssSelector) {
-					// Loop through the list of possible main CSS class selectors like power-menu or power-main
-					// With this we will find the main powerElement that holds the simple DOM node main element we have
-					for (const cssSelector of PowerUi._powerCssConfig.filter(a => a.isMain === true)) {
-						if (this.powerCss[asDataSet(cssSelector.name)]) {
-							// Get the powerElement using the simple DOM node main element (mainElementCssSelector)
-							const mainPowerCssObj = this.powerCss[asDataSet(cssSelector.name)][mainElementCssSelector.getAttribute('id')];
+				const currentMainElement = this._getMainElementFromChildElement(currentPowElement.element);
+				if (currentMainElement) {
+					// Loop through the list of possible main CSS power class names like power-menu or power-main
+					// With this we will find the main powerElement that holds the simple DOM node main element
+					for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
+						if (this.powerCss[asDataSet(mainPowerElementConfig.name)]) {
+							// Get the powerElement using the simple DOM node main element (currentMainElement)
+							const mainPowerObj = this.powerCss[asDataSet(mainPowerElementConfig.name)][currentMainElement.getAttribute('id')];
 							// If we found it let's go to associate the main with the child
-							if(mainPowerCssObj) {
+							if(mainPowerObj) {
 								// Add the main object into the child object
-								currentPowElement.$pwMain = mainPowerCssObj;
+								currentPowElement.$pwMain = mainPowerObj;
 								// create the obj to hold the children if dont have it
-								if (mainPowerCssObj.innerPowAttrs === undefined) {
-									mainPowerCssObj.innerPowAttrs = {};
+								if (mainPowerObj.innerPowAttrs === undefined) {
+									mainPowerObj.innerPowAttrs = {};
 								}
 								// Add the child object into the main object
 								// Organize it by attribute dataset name
 								const datasetAttrName = asDataSet(currentPowElement.$_pwAttrName);
-								if (!mainPowerCssObj.innerPowAttrs[datasetAttrName]) {
-									mainPowerCssObj.innerPowAttrs[datasetAttrName] = {};
+								if (!mainPowerObj.innerPowAttrs[datasetAttrName]) {
+									mainPowerObj.innerPowAttrs[datasetAttrName] = {};
 								}
 								// Organize it by id inside attribute dataset name
-								if (!mainPowerCssObj.innerPowAttrs[datasetAttrName][currentPowElement.id]) {
-									mainPowerCssObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = {};
+								if (!mainPowerObj.innerPowAttrs[datasetAttrName][currentPowElement.id]) {
+									mainPowerObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = {};
 								}
-								mainPowerCssObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
+								mainPowerObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
 							}
 						}
 					}
@@ -476,26 +477,27 @@ class PowerTree {
 
 	// This creates the powerTree with all the power objects attached to the DOM
 	// It uses the simple elements of _buildTempPowerTree to get only the power elements
-	_buildObjcsFromTempSelectors(ctx, attribute, selector, tempSelectors) {
+	_buildObjcsFromTempTree(ctx, attribute, selector, tempTree) {
 		const datasetKey = asDataSet(selector.name);
-		const selectorsSubSet = tempSelectors[attribute][datasetKey];
-		if (selectorsSubSet) {
-			for (const id in selectorsSubSet) {
+		// Hold all element of a power kind (powerCss, powAttr or pwcAttr)
+		const currentTempElementsById = tempTree[attribute][datasetKey];
+		if (currentTempElementsById) {
+			for (const id in currentTempElementsById) {
 				if (!ctx[attribute][datasetKey]) {
 					ctx[attribute][datasetKey] = {};
 				}
 
-				// If there is a method like power-menu (allow it to be extended) call the method like _powerMenu()
+				// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 				// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-				const es6Class = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
-				if (es6Class === 'powerAttrs') {
+				const functionName = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+				if (functionName === 'powerAttrs') {
 					// Add into a list ordered by attribute name
-					ctx[attribute][datasetKey][id] = selector.callback(selectorsSubSet[id]);
+					ctx[attribute][datasetKey][id] = selector.callback(currentTempElementsById[id]);
 				} else {
-					// Call the method for create objects like _powerMenu with the node elements in tempSelectors
+					// Call the method for create objects like _powerMenu with the node elements in tempTree
 					// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
 					// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
-					ctx[attribute][datasetKey][id] = ctx.$powerUi[es6Class](selectorsSubSet[id]);
+					ctx[attribute][datasetKey][id] = ctx.$powerUi[functionName](currentTempElementsById[id]);
 				}
 				// Add the same element into a list ordered by id
 				if (!ctx.allPowerObjsById[id]) {
@@ -543,7 +545,7 @@ class PowerTree {
 		}
 		// Check for power css class selectors like "power-menu" or "power-label"
 		if (currentNode.className && currentNode.className.includes('power-')) {
-			for (const selector of PowerUi._powerCssConfig) {
+			for (const selector of PowerUi._powerElementsConfig) {
 				if (currentNode.className.includes(selector.name)) {
 					const currentId = getIdAndCreateIfDontHave(currentNode);
 					if (!ctx.powerCss[asDataSet(selector.name)]) {
