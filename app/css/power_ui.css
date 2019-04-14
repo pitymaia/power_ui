@@ -101,6 +101,33 @@
     margin-bottom: 0em;
 }
 /* Accordion */
+/* keyboard mode on*/
+.pwdesign-white-smoke .power-keyboard-mode {
+    background-color: #FFFFE0 !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-color: yellow !important;
+    box-shadow: 0 0 10px orange !important;
+    z-index: 2000 !important;
+}
+.pwdesign-white-smoke .power-keyboard-mode * {
+    opacity: 0.5;
+}
+.pwdesign-white-smoke .power-keyboard-backdrop {
+    position: fixed;
+    opacity: 0.8;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #fff;
+    z-index: 900 !important;
+}
+.pwdesign-white-smoke .power-keyboard-position {
+    position: relative !important;
+    z-index: 999 !important;
+}
+/* keyboard mode on*/
 
 /* Dropdown */
 
@@ -274,5 +301,5 @@ section {
     border-width: 5px;
     border-style: solid;
     border-color: black;
-    z-index: 1;
+    z-index: auto;
 }

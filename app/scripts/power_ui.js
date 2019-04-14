@@ -873,20 +873,65 @@ function defineRootDropmenusPosition(self, powerElement) {
 
 
 class KeyboardManager {
-	constructor() {
+	constructor($powerUi) {
 		document.onkeydown = this.checkKey.bind(this);
 		document.onkeyup = this.checkKey.bind(this);
+		this.$powerUi = $powerUi;
+		this.keyModeIsOn = false;
+	}
+
+	getRootElements() {
+		return this.$powerUi.powerTree.rootElements;
+	}
+
+	setKeyModeOn() {
+		if (this.keyModeIsOn === false) {
+			this.keyModeIsOn = true;
+			this.createBackDrop();
+			for (const obj of this.getRootElements()) {
+				const styles = getComputedStyle(obj.element);
+				console.log('styles', styles.position);
+				if (styles.position === 'static') {
+					obj.element.classList.add('power-keyboard-position');
+				}
+				obj.element.classList.add('power-keyboard-mode');
+			}
+			console.log('Keyboard mode ON');
+		}
+	}
+
+	createBackDrop() {
+		this.backdrop = document.createElement("DIV");
+		this.backdrop.classList.add('power-keyboard-backdrop');
+		document.body.appendChild(this.backdrop);
+	}
+
+	removeBackdrop() {
+		document.body.removeChild(this.backdrop);
+	}
+
+	setKeyModeOff() {
+		if (this.keyModeIsOn) {
+			this.removeBackdrop();
+			this._17 = false;
+			this._48 = false;
+			this._96 = false;
+			this.keyModeIsOn = false;
+			console.log('Keyboard mode OFF');
+			for (const obj of this.getRootElements()) {
+				obj.element.classList.remove('power-keyboard-mode');
+				obj.element.classList.remove('power-keyboard-position');
+				console.log('element', obj);
+			}
+		}
 	}
 
 	checkKey(e) {
 		e = e || window.event;
-		console.log('e', e);
-		// Turn keyboard mode off
 		// ESC = 27
 		if (e.keyCode === 27) {
-			this._17 = false;
-			this._48 = false;
-			this.keyModeIsOn = false;
+			// Turn keyboard mode off
+			this.setKeyModeOff();
 		}
 
 		// Monitoring key down and key up
@@ -896,11 +941,10 @@ class KeyboardManager {
 			this[`_${e.keyCode}`] = false;
 		}
 
-		// Turn keyboard mode on
-		// ctrl = 17, 0 = 48 (ctrl + 0)
-		if (this._17 && this._48) {
-			this.keyModeIsOn = true;
-			window.alert('Keyboard mode');
+		// ctrl = 17, 0 = 48, numpad 0 = 96 (ctrl + 0)
+		if (this._17 && (this._48 || this._96)) {
+			// Turn keyboard mode on (ctrl + 0)
+			this.setKeyModeOn();
 		}
 	}
 }
@@ -919,7 +963,7 @@ class PowerUi extends _PowerUiBase {
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		// If not touchdevice add keyboardManager
 		if (!this.touchdevice) {
-			this.keyboardManager = new KeyboardManager();
+			this.keyboardManager = new KeyboardManager(this);
 		}
 	}
 
