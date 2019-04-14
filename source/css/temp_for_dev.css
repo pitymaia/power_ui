@@ -47,7 +47,7 @@
     border: 5px double orange !important;
     border-radius: 0 20px 0 20px !important;
     box-shadow: 5px 5px 20px 0 purple !important;
-    background: linear-gradient(to left, white 5%, #ADD8E6 30%, white 40%, #ADD8E6 50%, white 70%, #ADD8E6 90%, white 95%) !important;
+    background: linear-gradient(to left, white 5%, #ADD8E6 30%, white 40%, #ADD8E6 50%, white 70%, #ADD8E6 90%, white 95%);
 }
 .power-horizontal.another {
     max-width: 100%;
@@ -103,5 +103,5 @@ section {
     border-width: 5px;
     border-style: solid;
     border-color: black;
-    z-index: auto;
+    z-index: 1;
 }

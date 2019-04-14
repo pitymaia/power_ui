@@ -102,26 +102,24 @@
 }
 /* Accordion */
 /* keyboard mode on*/
-.pwdesign-white-smoke .power-keyboard-mode {
-    background-color: #FFFFE0 !important;
+.pwdesign-white-smoke .power-keyboard-mode, .pwdesign-white-smoke .power-keyboard-mode.power-accordion > .power-action {
+    background-image: none !important;
+    background-color: #EEE8AA !important;
     border-style: solid !important;
-    border-width: 1px !important;
+    border-width: 2px !important;
     border-color: yellow !important;
-    box-shadow: 0 0 10px orange !important;
+    box-shadow: 0 0 20px #CCCC00 !important;
     z-index: 2000 !important;
-}
-.pwdesign-white-smoke .power-keyboard-mode * {
-    opacity: 0.5;
 }
 .pwdesign-white-smoke .power-keyboard-backdrop {
     position: fixed;
-    opacity: 0.8;
+    opacity: 0.5;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     background-color: #fff;
-    z-index: 900 !important;
+    z-index: 2001 !important;
 }
 .pwdesign-white-smoke .power-keyboard-position {
     position: relative !important;
