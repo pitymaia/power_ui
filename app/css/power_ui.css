@@ -301,3 +301,16 @@ section {
     border-color: black;
     z-index: 1;
 }
+/*body {
+    position: absolute;
+    margin-left: 4em;
+    border-style: solid;
+    border-width: 3px;
+}*/
+/*html {
+    position: absolute;
+    margin-left: 2em;
+    border-style: solid;
+    border-width: 15px;
+    width: 2000px;
+}*/

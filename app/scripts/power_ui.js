@@ -1221,9 +1221,9 @@ class PowerDropmenu extends PowerTarget {
 	offsetComputedStyles(styles) {
 		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0)  + parseInt(styles['border-left-width'].split('px')[0] || 0);
 	}
-
-	offsetComputedBodyStyles(styles) {
-		return parseInt(styles['margin-left'].split('px')[0] || 0) + parseInt(styles['border-width'].split('px')[0] || 0);
+	// The Root element have some aditional offset on margin-left
+	offsetComputedRootElementStyles(styles) {
+		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 
 	hoverModeOn() {
@@ -1354,13 +1354,18 @@ class PowerDropmenu extends PowerTarget {
 		const bodyRect = document.documentElement.getBoundingClientRect();
 		const elemRect = powerAction.element.getBoundingClientRect();
 		let offset = elemRect.left - bodyRect.left;
-		offset  = offset + this.offsetComputedBodyStyles(getComputedStyle(document.documentElement));
+		offset  = offset + this.offsetComputedRootElementStyles(getComputedStyle(document.documentElement));
 
 		// Select all parent nodes to find the ones positioned as "absolute"
 		let curentNode = powerAction.element.parentNode;
 		const allParents = [];
-		while (curentNode && curentNode.tagName !== 'BODY') {
+		let stop = false;
+		while (curentNode && !stop) {
 			allParents.push(curentNode);
+			// Stop on root element (HTML if is a html page)
+			if (curentNode.tagName === document.documentElement.tagName) {
+				stop = true;
+			}
 			curentNode = curentNode.parentNode;
 		}
 
