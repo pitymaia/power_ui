@@ -267,6 +267,7 @@ class PowerTree {
 			pwcAttrs: {},
 		};
 
+		// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
 		this.sweepDOM(document, tempTree, this._buildTempPowerTree);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements

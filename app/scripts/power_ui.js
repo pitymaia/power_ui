@@ -267,6 +267,7 @@ class PowerTree {
 			pwcAttrs: {},
 		};
 
+		// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
 		this.sweepDOM(document, tempTree, this._buildTempPowerTree);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
@@ -1217,15 +1218,6 @@ class PowerDropmenu extends PowerTarget {
 		}
 	}
 
-	// Remove left, margin-left and border width from absolute elements
-	offsetComputedStyles(styles) {
-		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0)  + parseInt(styles['border-left-width'].split('px')[0] || 0);
-	}
-	// The Root element have some aditional offset on margin-left
-	offsetComputedRootElementStyles(styles) {
-		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
-	}
-
 	hoverModeOn() {
 		// Abort if is moving
 		if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
@@ -1349,6 +1341,14 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 
+	// Remove left, margin-left and border width from absolute elements
+	offsetComputedStyles(styles) {
+		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0)  + parseInt(styles['border-left-width'].split('px')[0] || 0);
+	}
+	// The Root element have some aditional offset on margin-left
+	offsetComputedRootElementStyles(styles) {
+		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
+	}
 	// Get the dropmenu left positon
 	getLeftPosition(powerAction) {
 		const bodyRect = document.documentElement.getBoundingClientRect();
@@ -1370,10 +1370,14 @@ class PowerDropmenu extends PowerTarget {
 		}
 
 		// Offset all parent "absolute" nodes
+		let disableOffset = false;
 		for (const parent of allParents) {
 			const parentStyles = getComputedStyle(parent);
-			if (parentStyles.position === 'absolute') {
+			if (parentStyles.position === 'absolute' && !disableOffset) {
 				offset  = offset - this.offsetComputedStyles(parentStyles);
+			} else if (parentStyles.position === 'fixed') {
+				// disable the parents absolute offset (from now on) if is inside a fixed element
+				disableOffset = true;
 			}
 		}
 
