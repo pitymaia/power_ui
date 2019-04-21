@@ -173,80 +173,36 @@ class PowerDropmenu extends PowerTarget {
 		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
 	}
 
-
-	// Remove left, margin-left and border width from absolute elements
-	offsetComputedStyles(styles) {
-		return parseInt(styles.left.split('px')[0] || 0) + parseInt(styles['margin-left'].split('px')[0] || 0)  + parseInt(styles['border-left-width'].split('px')[0] || 0);
-	}
-	// The Root element have some aditional offset on margin-left
-	offsetComputedRootElementStyles(styles) {
-		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
-	}
-	// Get the dropmenu left positon
-	getLeftPosition(powerAction) {
-		const bodyRect = document.documentElement.getBoundingClientRect();
-		const elemRect = powerAction.element.getBoundingClientRect();
-		let offset = elemRect.left - bodyRect.left;
-		offset  = offset + this.offsetComputedRootElementStyles(getComputedStyle(document.documentElement));
-
-		// Select all parent nodes to find the ones positioned as "absolute"
-		let curentNode = powerAction.element.parentNode;
-		const allParents = [];
-		let stop = false;
-		while (curentNode && !stop) {
-			allParents.push(curentNode);
-			// Stop on root element (HTML if is a html page)
-			if (curentNode.tagName === document.documentElement.tagName) {
-				stop = true;
-			}
-			curentNode = curentNode.parentNode;
-		}
-
-		// Offset all parent "absolute" nodes
-		let disableOffset = false;
-		for (const parent of allParents) {
-			const parentStyles = getComputedStyle(parent);
-			if (parentStyles.position === 'absolute' && !disableOffset) {
-				offset  = offset - this.offsetComputedStyles(parentStyles);
-			} else if (parentStyles.position === 'fixed') {
-				// disable the parents absolute offset (from now on) if is inside a fixed element
-				disableOffset = true;
-			}
-		}
-
-		return Math.round(offset);
-	}
-
 	setPositionRightBottom() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + this.powerAction.element.offsetWidth - 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop + 'px';
 	}
 	setPositionBottomRight() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + 'px';
 	}
 	setPositionLeftBottom() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) - this.element.offsetWidth + 1 + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) - this.element.offsetWidth + 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop + 'px';
 	}
 	setPositionBottomLeft() {
 		const dropmenuActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
-		this.element.style.left = this.getLeftPosition(this.powerAction) + dropmenuActionWidthDiff + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + dropmenuActionWidthDiff + 'px';
 	}
 	setPositionRightTop() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) + this.powerAction.element.offsetWidth - 1 + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + this.powerAction.element.offsetWidth - 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
 	}
 	setPositionTopRight() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
 	setPositionLeftTop() {
-		this.element.style.left = this.getLeftPosition(this.powerAction) - this.element.offsetWidth + 1 + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) - this.element.offsetWidth + 1 + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
 	}
 	setPositionTopLeft() {
 		const dropmenuActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
-		this.element.style.left = this.getLeftPosition(this.powerAction) + dropmenuActionWidthDiff + 'px';
+		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + dropmenuActionWidthDiff + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
 
