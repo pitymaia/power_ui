@@ -1384,7 +1384,6 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 	ifPositionOutOfScreenChangeDirection() {
-		const documentRect = document.documentElement.getBoundingClientRect();
 		const elementRect = this.element.getBoundingClientRect();
 
 		// This offset the top when scroll to bottom
@@ -1396,16 +1395,15 @@ class PowerDropmenu extends PowerTarget {
 
 		// Correct position if right is not allowed anymore
 		// Change position if right element is bigger than right document
-		if (elementRect.right > documentRect.right) {
+		if (elementRect.right > document.defaultView.innerWidth) {
 			pos.leftRight = 'left';
 			changes.leftRight++;
-		} else if (elementRect.left < documentRect.left) {
+		} else if (elementRect.left < 0) {
 		// Correct position if left is not allowed anymore
 		// Change position if left element is bigger than left document
 			pos.leftRight = 'right';
 			changes.leftRight++;
 		}
-
 		// Bottom may also not allowed anymore
 		// Change position if bottom element is bigger than bottom document
 		if (elementRect.bottom > document.defaultView.innerHeight) {
