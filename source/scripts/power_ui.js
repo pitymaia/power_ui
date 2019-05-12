@@ -185,39 +185,4 @@ class PowerUi extends _PowerUiBase {
 	_offsetComputedRootElementStyles(styles) {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
-	// Get the element real left positon
-	// This offset any absolute parent element and deals with fixed elements
-	getLeftPosition(element) {
-		const bodyRect = document.documentElement.getBoundingClientRect();
-		const elemRect = element.getBoundingClientRect();
-		let offset = elemRect.left - bodyRect.left;
-		offset  = offset + this._offsetComputedRootElementStyles(getComputedStyle(document.documentElement));
-
-		// Select all parent nodes to find the ones positioned as "absolute"
-		let curentNode = element.parentNode;
-		const allParents = [];
-		let stop = false;
-		while (curentNode && !stop) {
-			allParents.push(curentNode);
-			// Stop on root element (HTML if is a html page)
-			if (curentNode.tagName === document.documentElement.tagName) {
-				stop = true;
-			}
-			curentNode = curentNode.parentNode;
-		}
-		// Offset all parent "absolute" nodes
-		let disableOffset = false;
-		for (const parent of allParents) {
-			const parentStyles = getComputedStyle(parent);
-			if (!disableOffset && (parentStyles.position === 'absolute' || parentStyles.position === 'fixed')) {
-				offset  = offset - this._offsetComputedStyles(parentStyles);
-				if (parentStyles.position === 'fixed') {
-					// disable the parents absolute offset (from now on) if is inside a fixed element
-					disableOffset = true;
-				}
-			}
-		}
-
-		return Math.round(offset);
-	}
 }

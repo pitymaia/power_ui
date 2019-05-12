@@ -173,36 +173,37 @@ class PowerDropmenu extends PowerTarget {
 		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
 	}
 
-	setPositionRightBottom() {
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + this.powerAction.element.offsetWidth - 1 + 'px';
+	setPositionRightBottom(position) {
+		this.element.style.left = this.powerAction.element.offsetLeft + this.powerAction.element.offsetWidth + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop + 'px';
 	}
-	setPositionBottomRight() {
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + 'px';
+	setPositionBottomRight(position) {
+		this.element.style.top = this.powerAction.element.offsetTop + this.powerAction.element.offsetHeight + 'px';
+		this.element.style.left = this.powerAction.element.offsetLeft + 'px';
 	}
-	setPositionLeftBottom() {
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) - this.element.offsetWidth + 1 + 'px';
+	setPositionLeftBottom(position) {
+		this.element.style.left = this.powerAction.element.offsetLeft - this.element.offsetWidth + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop + 'px';
 	}
-	setPositionBottomLeft() {
+	setPositionBottomLeft(position) {
 		const dropmenuActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + dropmenuActionWidthDiff + 'px';
+		this.element.style.left = this.powerAction.element.offsetLeft + dropmenuActionWidthDiff + 'px';
 	}
-	setPositionRightTop() {
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + this.powerAction.element.offsetWidth - 1 + 'px';
-		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
+	setPositionRightTop(position) {
+		this.element.style.left = this.powerAction.element.offsetLeft + this.powerAction.element.offsetWidth + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight) + 'px';
 	}
-	setPositionTopRight() {
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + 'px';
+	setPositionTopRight(position) {
+		this.element.style.left = this.powerAction.element.offsetLeft + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
-	setPositionLeftTop() {
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) - this.element.offsetWidth + 1 + 'px';
-		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight)+ 'px';
+	setPositionLeftTop(position) {
+		this.element.style.left = this.powerAction.element.offsetLeft - this.element.offsetWidth  + 'px';
+		this.element.style.top = this.powerAction.element.offsetTop - (this.element.offsetHeight - this.powerAction.element.offsetHeight) + 'px';
 	}
-	setPositionTopLeft() {
+	setPositionTopLeft(position) {
 		const dropmenuActionWidthDiff = this.powerAction.element.offsetWidth - this.element.offsetWidth;
-		this.element.style.left = this.$powerUi.getLeftPosition(this.powerAction.element) + dropmenuActionWidthDiff + 'px';
+		this.element.style.left = this.powerAction.element.offsetLeft + dropmenuActionWidthDiff + 'px';
 		this.element.style.top = this.powerAction.element.offsetTop - this.element.offsetHeight + 'px';
 	}
 
@@ -210,6 +211,7 @@ class PowerDropmenu extends PowerTarget {
 		const documentRect = document.documentElement.getBoundingClientRect();
 		const elementRect = this.element.getBoundingClientRect();
 
+		// This offset the top when scroll to bottom
 		const pos = {
 			topDown: this.defaultPosition.includes('bottom') ? 'bottom' : 'top',
 			leftRight: this.defaultPosition.includes('right') ? 'right' : 'left',
@@ -302,6 +304,12 @@ class PowerDropmenu extends PowerTarget {
 					self.setPositionTopLeft();
 				} else {
 					self.setPositionRightBottom();
+				}
+
+				// If the action is fixed, the dropdown also needs to be fixed
+				if (getComputedStyle(self.powerAction.element).position === 'fixed') {
+					self.element.style.position = 'fixed';
+					self.element.style.left = getComputedStyle(self.powerAction.element).left;
 				}
 
 				// Find if the position is out of screen and reposition if needed

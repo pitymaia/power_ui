@@ -105,11 +105,19 @@ section {
     border-color: black;
     z-index: 1;
 }
-/*.temp-fixed {
+.temp-fixed {
     position: fixed;
-    left: 63em;
-
-}*/
+    left: 56em;
+    z-index: 100;
+}
+.temp-absolute {
+    position: absolute;
+    left: 30em;
+    width: 300px:
+    border-width: 5px;
+    border-style: solid;
+    border-color: black;
+}
 body {
     position: absolute;
     margin-left: 4em;
