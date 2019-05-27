@@ -124,6 +124,7 @@ class PowerDropmenu extends PowerTarget {
 
 	}
 
+	// Deactivate hover mode
 	hoverModeOff() {
 		this.stopWatchMouseMove();
 		for (const action of this.childrenPowerActions) {
