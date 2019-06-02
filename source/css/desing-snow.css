@@ -64,7 +64,7 @@
 /* Dropdown end */
 
 /* Accordion */
-.pwdesign-white-smoke .power-accordion > .power-action, .pwdesign-white-smoke .power-accordion > .power-section {
+.pwdesign-white-smoke .power-accordion > .power-action, .pwdesign-white-smoke .power-accordion > .power-accordion-section {
     border-width: 1px;
     border-style: solid;
     border-color: black;
@@ -72,14 +72,14 @@
 .pwdesign-white-smoke .power-accordion > .power-action {
     background-color: #F5F5F5;
 }
-.pwdesign-white-smoke .power-accordion > .power-section {
+.pwdesign-white-smoke .power-accordion > .power-accordion-section {
     background-color: #fff;
 }
-.pwdesign-white-smoke .power-accordion > .power-section {
+.pwdesign-white-smoke .power-accordion > .power-accordion-section {
     padding: 0.5em;
     display: none;
 }
-.pwdesign-white-smoke .power-accordion > .power-section.power-active {
+.pwdesign-white-smoke .power-accordion > .power-accordion-section.power-active {
     display: block;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;

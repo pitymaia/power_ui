@@ -153,8 +153,8 @@ class PowerUi extends _PowerUiBase {
 		return new PowerAccordion(element, this);
 	}
 
-	_powerSection(element) {
-		return new PowerSection(element, this);
+	_powerAccordionSection(element) {
+		return new PowerAccordionSection(element, this);
 	}
 
 	_powerAction(element) {

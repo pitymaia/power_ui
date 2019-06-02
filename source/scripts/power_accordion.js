@@ -5,13 +5,15 @@ class AccordionModel {
 	}
 }
 
+
 class AccordionHtmlView {
 	constructor(ctx) {
 		this.ctx = ctx;
-		this.childrenSections = ctx.getChildrenByPowerCss('powerSection');
+		this.childrenSections = ctx.getChildrenByPowerCss('powerAccordionSection');
 		this.childrenActions = ctx.getChildrenByPowerCss('powerAction');
 	}
 }
+
 
 class AccordionHtmlCtrl {
 	constructor(ctx) {
@@ -34,6 +36,7 @@ class AccordionHtmlCtrl {
 	}
 }
 
+
 class PowerAccordion extends PowerTarget {
 	constructor(element) {
 		super(element);
@@ -49,7 +52,7 @@ class PowerAccordion extends PowerTarget {
 PowerUi.injectPowerCss({name: 'power-accordion'});
 
 
-class PowerSection extends PowerTarget {
+class PowerAccordionSection extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
@@ -71,4 +74,4 @@ class PowerSection extends PowerTarget {
 	}
 }
 // Inject the power css on PowerUi
-PowerUi.injectPowerCss({name: 'power-section'});
+PowerUi.injectPowerCss({name: 'power-accordion-section'});

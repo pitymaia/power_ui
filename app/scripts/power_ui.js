@@ -316,7 +316,7 @@ class PowerTree {
 								}
 								// Only add if this is a power class (not some pow or pwc attr)
 								// And only if not already added
-								if (currentObj.element.className.includes('power') && !parentObj.children.find(obj => obj.id === currentObj.id)) {
+								if (currentObj.element.className.includes('power-') && !parentObj.children.find(obj => obj.id === currentObj.id)) {
 									parentObj.children.push(currentObj);
 								}
 							}
@@ -324,14 +324,14 @@ class PowerTree {
 					} else { // This is a rootElement
 						// Only add if this is a power class (not some pow or pwc attr)
 						// And only if not already added
-						if (currentObj.element.className.includes('power') && !this.rootElements.find(obj => obj.id === currentObj.id)) {
+						if (currentObj.element.className.includes('power-') && !this.rootElements.find(obj => obj.id === currentObj.id)) {
 							this.rootElements.push(currentObj);
 							currentObj.parent = null;
 						}
 					}
 				}
 				// Add current object as child of parentObj
-				if (currentObj.element && currentObj.element.className.includes('power') && !currentObj.innerPowerCss) {
+				if (currentObj.element && currentObj.element.className.includes('power-') && !currentObj.innerPowerCss) {
 					currentObj.innerPowerCss = this._getAllInnerPowerCss(currentObj.element);
 				}
 			}
@@ -386,7 +386,7 @@ class PowerTree {
 		let found = false;
 		if (currentElement && currentElement.className) {
 			for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(s => s.isMain === true)) {
-				if (currentElement.className.includes(mainPowerElementConfig.name)) {
+				if (currentElement.classList.contains(mainPowerElementConfig.name)) {
 					found = true;
 					break;
 				}
@@ -547,7 +547,7 @@ class PowerTree {
 		// Check for power css class selectors like "power-menu" or "power-label"
 		if (currentNode.className && currentNode.className.includes('power-')) {
 			for (const selector of PowerUi._powerElementsConfig) {
-				if (currentNode.className.includes(selector.name)) {
+				if (currentNode.classList.contains(selector.name)) {
 					const currentId = getIdAndCreateIfDontHave(currentNode);
 					if (!ctx.powerCss[asDataSet(selector.name)]) {
 						ctx.powerCss[asDataSet(selector.name)] = {};
@@ -988,8 +988,8 @@ class PowerUi extends _PowerUiBase {
 		return new PowerAccordion(element, this);
 	}
 
-	_powerSection(element) {
-		return new PowerSection(element, this);
+	_powerAccordionSection(element) {
+		return new PowerAccordionSection(element, this);
 	}
 
 	_powerAction(element) {
@@ -1029,13 +1029,15 @@ class AccordionModel {
 	}
 }
 
+
 class AccordionHtmlView {
 	constructor(ctx) {
 		this.ctx = ctx;
-		this.childrenSections = ctx.getChildrenByPowerCss('powerSection');
+		this.childrenSections = ctx.getChildrenByPowerCss('powerAccordionSection');
 		this.childrenActions = ctx.getChildrenByPowerCss('powerAction');
 	}
 }
+
 
 class AccordionHtmlCtrl {
 	constructor(ctx) {
@@ -1058,6 +1060,7 @@ class AccordionHtmlCtrl {
 	}
 }
 
+
 class PowerAccordion extends PowerTarget {
 	constructor(element) {
 		super(element);
@@ -1073,7 +1076,7 @@ class PowerAccordion extends PowerTarget {
 PowerUi.injectPowerCss({name: 'power-accordion'});
 
 
-class PowerSection extends PowerTarget {
+class PowerAccordionSection extends PowerTarget {
 	constructor(element) {
 		super(element);
 	}
@@ -1095,7 +1098,7 @@ class PowerSection extends PowerTarget {
 	}
 }
 // Inject the power css on PowerUi
-PowerUi.injectPowerCss({name: 'power-section'});
+PowerUi.injectPowerCss({name: 'power-accordion-section'});
 
 class PowerAction extends PowerTarget {
 	constructor(element) {
