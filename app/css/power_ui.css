@@ -11,8 +11,6 @@
 .pwdesign-white-smoke .power-menu {
     padding: 0.5em;
     margin-bottom: 0.5em;
-    border-style: solid;
-    border-width: 1px;
     background-color: #F5F5F5;
     vertical-align: middle;
     z-index: 900;
@@ -31,8 +29,8 @@
 }
 
 .pwdesign-white-smoke  .power-menu-fixed {
-    top: -1px;
-    left: -1px;
+    top: 0;
+    left: 0;
     width: 100%;
 }
 /* Menu end*/
