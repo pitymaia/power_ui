@@ -117,9 +117,10 @@ class KeyboardManager {
 
 
 class PowerUi extends _PowerUiBase {
-	constructor(inject) {
+	constructor(config) {
 		super();
 		this._createPowerTree();
+		this.request = new Request(config);
 		this.powerTree._callInit();
 		this.menus = this.powerTree.powerCss.powerMenu;
 		this.mains = this.powerTree.powerCss.powerMain;
@@ -132,6 +133,25 @@ class PowerUi extends _PowerUiBase {
 			this.keyboardManager = new KeyboardManager(this);
 		}
 	}
+
+	loadHtmlView(url, viewId) {
+		this.request({
+				url: url,
+				method: 'GET',
+				status: "Loading page",
+				withCredentials: false,
+		}).then(function (response, xhr) {
+			document.getElementById(viewId).innerHTML = xhr.responseText;
+		}).catch(function (response, xhr) {
+			console.log('loadHtmlView error', response, xhr);
+		});
+	}
+
+	sanitizeHTML(str) {
+		const temp = document.createElement('div');
+		temp.textContent = str;
+		return temp.innerHTML;
+	};
 
 	_powerMenu(element) {
 		return new PowerMenu(element, this);

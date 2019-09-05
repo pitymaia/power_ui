@@ -1,45 +1,6 @@
 // Layout, design and user interface framework in ES6
 'use strict';
 
-function splitStringWithUrl(string) {
-	const expression = new RegExp(/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\b[.:][a-z0-9@:%_\+.~#?&//=]{2,256}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi);
-	// Hold all the matched URLs
-	const urls = string ? string.match(expression) || [] : [];
-	const finalUrls = [];
-	// The final parts to return
-	const stringParts = [];
-	if (urls.length) {
-		// Create the url list of dicts with the href with http://
-		for (let count = 0; count < urls.length; count++) {
-			let newUrl = urls[count];
-			if (!newUrl.includes('http://') && !newUrl.includes('https://')) {
-				newUrl = `http:\/\/${newUrl}`;
-			}
-			finalUrls.push({string: urls[count], href: newUrl});
-
-			string = string.replace(urls[count], '«url»');
-		}
-		// Hold all string parts without URLs
-		const splitedString = string.split('«url»');
-		// Create the final array with all url parts with the flag isUrl = true
-		for (let count = 0; count < splitedString.length; count++) {
-			// If item is undefined replace it with the URL
-			if (splitedString[count]) {
-				stringParts.push({string: splitedString[count]});
-			}
-
-			if (finalUrls[0]) {
-				stringParts.push(finalUrls[0]);
-				// Remove this url from array
-				finalUrls.shift();
-			}
-		}
-		return stringParts;
-	} else {
-		return [{string: string}];
-	}
-}
-
 function getIdAndCreateIfDontHave(currentNode) {
 	let currentId = currentNode.id;
 	if (!currentId) {
@@ -952,9 +913,10 @@ class KeyboardManager {
 
 
 class PowerUi extends _PowerUiBase {
-	constructor(inject) {
+	constructor(config) {
 		super();
 		this._createPowerTree();
+		this.request = new Request(config);
 		this.powerTree._callInit();
 		this.menus = this.powerTree.powerCss.powerMenu;
 		this.mains = this.powerTree.powerCss.powerMain;
@@ -967,6 +929,25 @@ class PowerUi extends _PowerUiBase {
 			this.keyboardManager = new KeyboardManager(this);
 		}
 	}
+
+	loadHtmlView(url, viewId) {
+		this.request({
+				url: url,
+				method: 'GET',
+				status: "Loading page",
+				withCredentials: false,
+		}).then(function (response, xhr) {
+			document.getElementById(viewId).innerHTML = xhr.responseText;
+		}).catch(function (response, xhr) {
+			console.log('loadHtmlView error', response, xhr);
+		});
+	}
+
+	sanitizeHTML(str) {
+		const temp = document.createElement('div');
+		temp.textContent = str;
+		return temp.innerHTML;
+	};
 
 	_powerMenu(element) {
 		return new PowerMenu(element, this);
@@ -1688,6 +1669,97 @@ class PowerMenu extends PowerTarget {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-menu', isMain: true});
 
+class Request {
+	constructor(config) {
+		const self = this;
+		return function (d) {
+			d.withCredentials = d.withCredentials === undefined ? true : d.withCredentials;
+			d.headers = d.headers || config.headers || {};
+			if (config.authCookie) {
+				d.headers['Authorization'] = getCookie(config.authCookie)
+			}
+			console.log('Authorization', d.headers['Authorization']);
+			const promise = {
+				then: function (onsucess) {
+					this.onsucess = onsucess;
+					return this;
+				}, catch: function (onerror) {
+					this.onerror = onerror;
+					return this;
+				}
+			};
+			self.ajaxRequest({
+				method: d.method,
+				url: d.url,
+				data: d,
+				onsucess: function (xhr) {
+					if (promise.onsucess) {
+						try {
+							return promise.onsucess(JSON.parse(xhr.response), xhr);
+						} catch {
+							return promise.onsucess(xhr.response, xhr);
+						}
+					}
+					return promise;
+				},
+				onerror: function (xhr) {
+					if (promise.onerror) {
+						try {
+							return promise.onerror(JSON.parse(xhr.response), xhr);
+						} catch {
+							return promise.onerror(xhr.response, xhr);
+						}
+					}
+				},
+			});
+			return promise;
+		}
+	}
+
+	encodedParams(object) {
+		var encodedString = '';
+		for (var prop in object) {
+			if (object.hasOwnProperty(prop)) {
+				if (encodedString.length > 0) {
+					encodedString += '&';
+				}
+				encodedString += encodeURI(prop + '=' + object[prop]);
+			}
+		}
+		return encodedString;
+	}
+
+	ajaxRequest({method, url, onsucess, onerror, async, data}) {
+		if (async === undefined || async === null) {
+			async = true;
+		}
+		const xhr = new XMLHttpRequest();
+		xhr.open(method, url, async);
+		xhr.onload = function() {
+			if (xhr.status === 200 && onsucess) {
+				onsucess(xhr);
+			} else if (xhr.status !== 200 && onerror) {
+				onerror(xhr);
+			} else {
+				window.console('Request failed.  Returned status of ' + xhr.status);
+			}
+		}
+		if (method && method.toUpperCase() === 'POST')
+			xhr.setRequestHeader('Content-Type', 'application/json');
+		else {
+			xhr.setRequestHeader('Content-Type', 'text/html');
+		}
+		if (data.headers && data.headers['Content-Type'])
+			xhr.setRequestHeader('Content-Type', data.headers['Content-Type']);
+		if (data && data.body) {
+			xhr.send(JSON.stringify(data.body));
+		} else {
+			xhr.send();
+		}
+		return xhr;
+	}
+}
+
 class PowerStatus extends PowerTarget {
 	constructor(element) {
 		super(element);
@@ -1756,12 +1828,12 @@ class PowerStatus extends PowerTarget {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-status'});
 
-// function powerOnly() {
-// 	window.location.href = '/power_only.html';
-// }
-// function gotoIndex() {
-// 	window.location.href = '/';
-// }
+function powerOnly() {
+	window.location.href = '/power_only.html';
+}
+function gotoIndex() {
+	window.location.href = '/';
+}
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -1790,7 +1862,7 @@ PowerUi.injectPowerCss({name: 'power-status'});
 //  }
 // }
 // let app = new TesteUi();
-// let app = new PowerUi();
+let app = new PowerUi();
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {
