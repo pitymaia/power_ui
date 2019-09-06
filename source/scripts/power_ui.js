@@ -119,8 +119,13 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this._createPowerTree();
 		this.request = new Request(config);
+		this.router = new Router(config, this);
+		this.init();
+	}
+
+	init() {
+		this._createPowerTree();
 		this.powerTree._callInit();
 		this.menus = this.powerTree.powerCss.powerMenu;
 		this.mains = this.powerTree.powerCss.powerMain;
@@ -132,9 +137,11 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
+		window.scrollTo(0, 0);
 	}
 
 	loadHtmlView(url, viewId) {
+		const self = this;
 		this.request({
 				url: url,
 				method: 'GET',
@@ -142,6 +149,8 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			document.getElementById(viewId).innerHTML = xhr.responseText;
+
+			self.init();
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);
 		});

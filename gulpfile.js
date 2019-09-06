@@ -40,7 +40,7 @@ gulp.task('build', function (done) {
 		'source/scripts/*.js'
 	]).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
 	gulp.src('source/css/*.css').pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
-	gulp.src('source/templates/power_only.html').pipe(gulp.dest('app/'));
+	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
 
 	reloadTask(done);
 });
