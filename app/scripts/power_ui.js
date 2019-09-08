@@ -1900,12 +1900,12 @@ class PowerStatus extends PowerTarget {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-status'});
 
-// function powerOnly() {
-// 	window.location.replace('/#power_only');
-// }
-// function gotoIndex() {
-// 	window.location.replace('/');
-// }
+function powerOnly() {
+	window.location.replace('/#power_only');
+}
+function gotoIndex() {
+	window.location.replace('/');
+}
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -1934,21 +1934,21 @@ PowerUi.injectPowerCss({name: 'power-status'});
 //  }
 // }
 // let app = new TesteUi();
-// let app = new PowerUi({
-// 	routes: [
-// 		{
-// 			name: 'Front page',
-// 			hash: '/',
-// 			view: 'front_page.html',
-// 		},
-// 		{
-// 			name: 'Power only',
-// 			hash: 'power_only',
-// 			view: 'power_only.html',
-// 		},
-// 	],
-// 	routerViewId: 'app-views',
-// });
+let app = new PowerUi({
+	routes: [
+		{
+			name: 'Front page',
+			hash: '/',
+			view: 'front_page.html',
+		},
+		{
+			name: 'Power only',
+			hash: 'power_only',
+			view: 'power_only.html',
+		},
+	],
+	routerViewId: 'app-views',
+});
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {

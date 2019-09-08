@@ -1,6 +1,6 @@
 /*TEMP*/
 
-/*.pw-blue, .pw-blue * {
+.pw-blue, .pw-blue * {
     color: blue !important;
 }
 
@@ -104,7 +104,7 @@ section {
     border-style: solid;
     border-color: black;
     z-index: 1;
-}*/
+}
 /*.temp-fixed {
     position: fixed;
     left: 56em;
