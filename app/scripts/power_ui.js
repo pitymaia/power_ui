@@ -66,10 +66,10 @@ const _Unique = { // produce unique IDs
 };
 
 
-class Event {
+class UEvent {
 	constructor(name) {
 		this.observers = [];
-		if (name)  Event.index[name] = this;
+		if (name)  UEvent.index[name] = this;
 	}
 
 	subscribe(fn, ctx, params) { // *ctx* is what *this* will be inside *fn*.
@@ -86,7 +86,7 @@ class Event {
 		}
 	}
 }
-Event.index = {}; // storage for all named events
+UEvent.index = {}; // storage for all named events
 
 
 // Abstract class to create any power elements
@@ -129,7 +129,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		const ctx = this;
 		// Create the event
 		if (!this._events[event]) {
-			this._events[event] = new Event(this.id);
+			this._events[event] = new UEvent(this.id);
 			// Only creates if not exists
 			if (!this._DOMEvents[event]) {
 				this._DOMEvents[event] = new CustomEvent(event, {bubbles: useCapture});
