@@ -45,7 +45,6 @@ let app = new PowerUi({
 			view: 'power_only.html',
 		},
 	],
-	routerMainViewId: 'app-views',
 });
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
