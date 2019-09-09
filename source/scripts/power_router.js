@@ -1,3 +1,4 @@
+
 class Router {
 	constructor(config={}, powerUi) {
 		this.config = config;
@@ -14,47 +15,57 @@ class Router {
 		window.onhashchange = this.init.bind(this);
 	}
 
-	add({name, hash, view, callback}) {
+	add({id, route, view, callback}) {
 		// ensure that the parameters are not empty
-		if (!hash && !view && !callback) throw new Error('hash, view or callback must be given');
+		if (!id) {
+			throw new Error('A route ID must be given');
+		}
+		if (!route && !view && !callback) {
+			throw new Error('route, view or callback must be given');
+		}
 
 		// ensure that the parameters have the correct types
-		if (typeof hash !== "string") throw new TypeError('typeof hash must be a string');
-		if (callback && (typeof callback !== "function")) throw new TypeError('typeof callback must be a function');
+		if (typeof route !== "string") {
+			throw new TypeError('typeof route must be a string');
+		}
+		if (callback && (typeof callback !== "function")) {
+			throw new TypeError('typeof callback must be a function');
+		}
 
-
-		const route = {
-			hash: '#' + hash,
+		const entry = {
+			route: '#' + route,
 			callback: callback,
 			view: view,
 		};
-		// throw an error if the route hash already exists to avoid confilicting routes
-		for (const route in this.routes) {
-			if (this.routes[route].hash === '#' + hash) {
-				throw new Error(`the hash "${hash}" already exists`);
+		// throw an error if the route already exists to avoid confilicting routes
+		for (const id in this.routes) {
+			if (this.routes[id].route === '#' + entry) {
+				throw new Error(`the route "${id}" already exists`);
 			}
 		}
-		// throw an error if the route name already exists to avoid confilicting routes
-		if (this.routes[name]) {
-			throw new Error(`the name ${route.name} already exists`);
+		// throw an error if the route id already exists to avoid confilicting routes
+		if (this.routes[id]) {
+			throw new Error(`the id ${route.id} already exists`);
 		} else {
-			this.routes[name] = route;
+			this.routes[id] = entry;
 		}
 	}
 
 	init() {
-		for (const route in this.routes) {
+		for (const id in this.routes) {
 			// This regular expression below avoid detect /some-page-2 and /some-page as the same route
-			let regEx = new RegExp(`^${this.routes[route].hash}$`);
+			let regEx = new RegExp(`^${this.routes[id].route}$`);
 			let path = window.location.hash || '#/';
 
 			// our route logic is true,
 			if (path.match(regEx)) {
-				if (this.routes[route].view) {
-					this.$powerUi.loadHtmlView(this.routes[route].view, this.config.routerViewId);
+				// If have a view to load let's do it
+				if (this.routes[id].view) {
+					this.$powerUi.loadHtmlView(this.routes[id].view, this.config.routerMainViewId);
 				}
-				if (this.routes[route].callback) {
-					return this.routes[route].callback.call(this, this.routes[route]);
+				// If have a callback run it
+				if (this.routes[id].callback) {
+					return this.routes[id].callback.call(this, this.routes[id]);
 				}
 			}
 		};

@@ -35,17 +35,17 @@ function gotoIndex() {
 let app = new PowerUi({
 	routes: [
 		{
-			name: 'Front page',
-			hash: '/',
+			id: 'front-page',
+			route: '/',
 			view: 'front_page.html',
 		},
 		{
-			name: 'Power only',
-			hash: 'power_only',
+			id: 'power-only',
+			route: 'power_only',
 			view: 'power_only.html',
 		},
 	],
-	routerViewId: 'app-views',
+	routerMainViewId: 'app-views',
 });
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
