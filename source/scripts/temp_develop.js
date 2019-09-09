@@ -1,9 +1,3 @@
-function powerOnly() {
-	window.location.replace('/#power_only');
-}
-function gotoIndex() {
-	window.location.replace('/');
-}
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -46,6 +40,14 @@ let app = new PowerUi({
 		},
 	],
 });
+console.log('app', app);
+
+function powerOnly() {
+	window.location.replace(app.router.config.rootRoute + 'power_only');
+}
+function gotoIndex() {
+	window.location.replace(app.router.config.rootRoute);
+}
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {

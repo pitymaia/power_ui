@@ -4,6 +4,9 @@ class Router {
 		this.config = config;
 		this.$powerUi = powerUi;
 		this.routes = {};
+		if (!this.config.rootRoute) {
+			this.config.rootRoute = '#!/';
+		}
 		if (config.routes) {
 			for (const route of config.routes) {
 				this.add(route);
@@ -41,15 +44,20 @@ class Router {
 			throw new TypeError('typeof callback must be a function');
 		}
 
+		// Rewrite root route difined as '/' to an empty string so the final route can be '#!/'
+		if (route === '/') {
+			route = '';
+		}
+
 		const entry = {
-			route: '#' + route,
+			route: this.config.rootRoute + route,
 			callback: callback,
 			template: template,
 			viewId: viewId,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
 		for (const id in this.routes) {
-			if (this.routes[id].route === '#' + entry) {
+			if (this.routes[id].route === this.config.rootRoute + entry) {
 				throw new Error(`the route "${id}" already exists`);
 			}
 		}
@@ -62,13 +70,17 @@ class Router {
 	}
 	// Match the current window.location to a route and call th necessary template and callback
 	init() {
+		let match = false;
+		console.log('window.location.hash', window.location.hash);
 		for (const id in this.routes) {
 			// This regular expression below avoid detect /some-page-2 and /some-page as the same route
 			let regEx = new RegExp(`^${this.routes[id].route}$`);
-			let path = window.location.hash || '#/';
+			let path = window.location.hash || this.config.rootRoute;
+			console.log('path', path, 'window.location.hash', window.location.hash);
 
 			// our route logic is true,
 			if (path.match(regEx)) {
+				match = true;
 				// If have a template to load let's do it
 				if (this.routes[id].template && !this.config.noRouterViews) {
 					// If user defines a custom vieId to this route, but router don't find it alert the user
@@ -83,5 +95,10 @@ class Router {
 				}
 			}
 		};
+		// otherwise
+		if (match === false) {
+			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
+			window.location.replace(newRoute);
+		}
 	}
 }
