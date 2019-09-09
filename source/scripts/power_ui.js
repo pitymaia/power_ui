@@ -120,11 +120,11 @@ class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
 		this.request = new Request(config);
-		this.router = new Router(config, this);
-		this.init();
+		this.router = new Router(config, this); // Router calls this.init();
 	}
 
 	init() {
+		console.log('PowerUi init');
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.menus = this.powerTree.powerCss.powerMenu;

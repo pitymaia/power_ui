@@ -916,11 +916,11 @@ class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
 		this.request = new Request(config);
-		this.router = new Router(config, this);
-		this.init();
+		this.router = new Router(config, this); // Router calls this.init();
 	}
 
 	init() {
+		console.log('PowerUi init');
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.menus = this.powerTree.powerCss.powerMenu;
@@ -1685,9 +1685,9 @@ class Request {
 			d.withCredentials = d.withCredentials === undefined ? true : d.withCredentials;
 			d.headers = d.headers || config.headers || {};
 			if (config.authCookie) {
-				d.headers['Authorization'] = getCookie(config.authCookie)
+				d.headers['Authorization'] = getCookie(config.authCookie) || null;
 			}
-			console.log('Authorization', d.headers['Authorization']);
+			console.log('headers', d.headers);
 			const promise = {
 				then: function (onsucess) {
 					this.onsucess = onsucess;
