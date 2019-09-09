@@ -15,13 +15,13 @@ class Router {
 		window.onhashchange = this.init.bind(this);
 	}
 
-	add({id, route, view, callback}) {
+	add({id, route, template, callback, viewId}) {
 		// Ensure user have a element to render the main view
 		// If the user not define en id to use, main-view will be used as id
 		if (!this.config.routerMainViewId) {
 			this.config.routerMainViewId = 'main-view';
 			// If there are no element with the id difined to render the view throw an error
-			if (!document.getElementById(this.config.routerMainViewId ) && !this.config.noRouterViews) {
+			if (!document.getElementById(this.config.routerMainViewId) && !this.config.noRouterViews) {
 				throw new Error('The router needs a element with a ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view, set the config key "noRouterViews" to true.');
 			}
 		}
@@ -29,8 +29,8 @@ class Router {
 		if (!id) {
 			throw new Error('A route ID must be given');
 		}
-		if (!route && !view && !callback) {
-			throw new Error('route, view or callback must be given');
+		if (!route && !template && !callback) {
+			throw new Error('route, template or callback must be given');
 		}
 
 		// Ensure that the parameters have the correct types
@@ -44,7 +44,8 @@ class Router {
 		const entry = {
 			route: '#' + route,
 			callback: callback,
-			view: view,
+			template: template,
+			viewId: viewId,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
 		for (const id in this.routes) {
@@ -59,7 +60,7 @@ class Router {
 			this.routes[id] = entry;
 		}
 	}
-	// Match the current window.location to a route and call th necessary view and callback
+	// Match the current window.location to a route and call th necessary template and callback
 	init() {
 		for (const id in this.routes) {
 			// This regular expression below avoid detect /some-page-2 and /some-page as the same route
@@ -68,9 +69,13 @@ class Router {
 
 			// our route logic is true,
 			if (path.match(regEx)) {
-				// If have a view to load let's do it
-				if (this.routes[id].view && !this.config.noRouterViews) {
-					this.$powerUi.loadHtmlView(this.routes[id].view, this.config.routerMainViewId);
+				// If have a template to load let's do it
+				if (this.routes[id].template && !this.config.noRouterViews) {
+					// If user defines a custom vieId to this route, but router don't find it alert the user
+					if (this.routes[id].viewId && !document.getElementById(this.routes[id].viewId)) {
+						throw new Error(`You defined a custom viewId "${this.routes[id].viewId}" to this route but it do not exists in DOM.`);
+					}
+					this.$powerUi.loadHtmlView(this.routes[id].template, this.routes[id].viewId || this.config.routerMainViewId);
 				}
 				// If have a callback run it
 				if (this.routes[id].callback) {

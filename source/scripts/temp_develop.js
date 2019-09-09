@@ -37,12 +37,12 @@ let app = new PowerUi({
 		{
 			id: 'front-page',
 			route: '/',
-			view: 'front_page.html',
+			template: 'front_page.html',
 		},
 		{
 			id: 'power-only',
 			route: 'power_only',
-			view: 'power_only.html',
+			template: 'power_only.html',
 		},
 	],
 });
