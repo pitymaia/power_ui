@@ -38,6 +38,11 @@ let app = new PowerUi({
 			route: 'power_only',
 			template: 'power_only.html',
 		},
+		{
+			id: 'otherwise',
+			route: '404',
+			template: '404.html',
+		}
 	],
 });
 console.log('app', app);

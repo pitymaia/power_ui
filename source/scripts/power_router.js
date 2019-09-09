@@ -56,9 +56,13 @@ class Router {
 			viewId: viewId,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
-		for (const id in this.routes) {
-			if (this.routes[id].route === this.config.rootRoute + entry) {
-				throw new Error(`the route "${id}" already exists`);
+		// the "otherwise" route can be duplicated only if it do not have a template
+		if (id !== 'otherwise' || template) {
+			for (const routeId in this.routes) {
+				// the "otherwise" route can be duplicated only if it do not have a template
+				if (this.routes[routeId].route === entry.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
+					throw new Error(`the route "${route}" already exists, so "${id}" can't use it.`);
+				}
 			}
 		}
 		// throw an error if the route id already exists to avoid confilicting routes
@@ -72,29 +76,32 @@ class Router {
 	init() {
 		let match = false;
 		console.log('window.location.hash', window.location.hash);
-		for (const id in this.routes) {
-			// This regular expression below avoid detect /some-page-2 and /some-page as the same route
-			let regEx = new RegExp(`^${this.routes[id].route}$`);
-			let path = window.location.hash || this.config.rootRoute;
-			console.log('path', path, 'window.location.hash', window.location.hash);
+		for (const routeId in this.routes) {
+			// Only run if not otherwise or if the otherwise have a template
+			if (routeId !== 'otherwise' || this.routes[routeId].template) {
+				// This regular expression below avoid detect /some-page-2 and /some-page as the same route
+				let regEx = new RegExp(`^${this.routes[routeId].route}$`);
+				let path = window.location.hash || this.config.rootRoute;
+				console.log('path', path, 'window.location.hash', window.location.hash);
 
-			// our route logic is true,
-			if (path.match(regEx)) {
-				match = true;
-				// If have a template to load let's do it
-				if (this.routes[id].template && !this.config.noRouterViews) {
-					// If user defines a custom vieId to this route, but router don't find it alert the user
-					if (this.routes[id].viewId && !document.getElementById(this.routes[id].viewId)) {
-						throw new Error(`You defined a custom viewId "${this.routes[id].viewId}" to this route but it do not exists in DOM.`);
+				// our route logic is true,
+				if (path.match(regEx)) {
+					match = true;
+					// If have a template to load let's do it
+					if (this.routes[routeId].template && !this.config.noRouterViews) {
+						// If user defines a custom vieId to this route, but router don't find it alert the user
+						if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
+							throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to this route but it do not exists in DOM.`);
+						}
+						this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || this.config.routerMainViewId);
 					}
-					this.$powerUi.loadHtmlView(this.routes[id].template, this.routes[id].viewId || this.config.routerMainViewId);
-				}
-				// If have a callback run it
-				if (this.routes[id].callback) {
-					return this.routes[id].callback.call(this, this.routes[id]);
+					// If have a callback run it
+					if (this.routes[routeId].callback) {
+						return this.routes[routeId].callback.call(this, this.routes[routeId]);
+					}
 				}
 			}
-		};
+		}
 		// otherwise
 		if (match === false) {
 			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
