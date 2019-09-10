@@ -1832,7 +1832,11 @@ class Router {
 			for (const routeId in this.routes) {
 				// the "otherwise" route can be duplicated only if it do not have a template
 				if (this.routes[routeId].route === entry.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
-					throw new Error(`the route "${route}" already exists, so "${id}" can't use it.`);
+					if (routeId === 'otherwise' || id === 'otherwise') {
+						throw new Error(`the route "${route || '/'}" already exists, so "${id}" can't use it if you use a template. You can remove the template or use another route.`);
+					} else {
+						throw new Error(`the route "${route || '/'}" already exists, so "${id}" can't use it.`);
+					}
 				}
 			}
 		}
@@ -1846,14 +1850,12 @@ class Router {
 	// Match the current window.location to a route and call th necessary template and callback
 	init() {
 		let match = false;
-		console.log('window.location.hash', window.location.hash);
 		for (const routeId in this.routes) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
 				// This regular expression below avoid detect /some-page-2 and /some-page as the same route
 				let regEx = new RegExp(`^${this.routes[routeId].route}$`);
 				let path = window.location.hash || this.config.rootRoute;
-				console.log('path', path, 'window.location.hash', window.location.hash);
 
 				// our route logic is true,
 				if (path.match(regEx)) {
