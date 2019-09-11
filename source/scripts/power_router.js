@@ -82,8 +82,26 @@ class Router {
 		for (const routeId in this.routes) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
-				// This regular expression below avoid detect /some-page-2 and /some-page as the same route
+				// This regular expression below avoid detect /some_page_2 and /some_page as the same route
 				let regEx = new RegExp(`^${this.routes[routeId].route}$`);
+				// If the route have some parameters get it /some_page/:page_id/syfy/:title
+				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
+				if (paramKeys) {
+					// replace the keys on regEx with a kegex to allow any character
+					let newRegEx = regEx.toString();
+					// Trim first and last char from regex string
+					newRegEx = newRegEx.substring(1);
+					newRegEx = newRegEx.slice(0, -1);
+
+					for (const key of paramKeys) {
+						// [^]* (all)
+						// [a-zA-Z0-9_-]+ (alphanumeric plus _ and -)
+						newRegEx = newRegEx.replace(key, '[a-zA-Z0-9_-]+');
+					}
+					regEx = new RegExp(newRegEx);
+				}
+				console.log('regEx after', regEx);
+				console.log('getRouteParams', this.getRouteParamKeys(this.routes[routeId].route));
 				let path = window.location.hash || this.config.rootRoute;
 
 				// our route logic is true,
@@ -109,5 +127,10 @@ class Router {
 			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
 			window.location.replace(newRoute);
 		}
+	}
+
+	getRouteParamKeys(route) {
+		const regex = new RegExp(/:[^\s/]+/g);
+		return route.match(regex);
 	}
 }

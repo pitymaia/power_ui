@@ -39,6 +39,11 @@ let app = new PowerUi({
 			template: 'power_only.html',
 		},
 		{
+			id: 'power-only2',
+			route: 'power_only/:id/teste/:name',
+			template: 'power_only.html',
+		},
+		{
 			id: 'otherwise',
 			route: '404',
 			template: '404.html',
