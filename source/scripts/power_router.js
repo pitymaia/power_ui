@@ -1,9 +1,12 @@
-
 class Router {
 	constructor(config={}, powerUi) {
 		this.config = config;
 		this.$powerUi = powerUi;
 		this.routes = {};
+		this.currentRoute = {
+			params: [],
+			id: '',
+		};
 		if (!this.config.rootRoute) {
 			this.config.rootRoute = '#!/';
 		}
@@ -94,14 +97,11 @@ class Router {
 					newRegEx = newRegEx.slice(0, -1);
 
 					for (const key of paramKeys) {
-						// [^]* (all)
 						// [a-zA-Z0-9_-]+ (alphanumeric plus _ and -)
 						newRegEx = newRegEx.replace(key, '[a-zA-Z0-9_-]+');
 					}
 					regEx = new RegExp(newRegEx);
 				}
-				console.log('regEx after', regEx);
-				console.log('getRouteParams', this.getRouteParamKeys(this.routes[routeId].route));
 				let path = window.location.hash || this.config.rootRoute;
 
 				// our route logic is true,
@@ -119,6 +119,11 @@ class Router {
 					if (this.routes[routeId].callback) {
 						return this.routes[routeId].callback.call(this, this.routes[routeId]);
 					}
+					// Register current route id
+					this.currentRoute.id = routeId;
+					if (paramKeys) {
+						this.currentRoute.params = this.getRouteParamValues(paramKeys);
+					}
 				}
 			}
 		}
@@ -132,5 +137,20 @@ class Router {
 	getRouteParamKeys(route) {
 		const regex = new RegExp(/:[^\s/]+/g);
 		return route.match(regex);
+	}
+
+	getRouteParamValues(paramKeys) {
+		const routeParts = this.routes[this.currentRoute.id].route.split('/');
+		const hashParts = (window.location.hash || this.config.rootRoute).split('/');
+		const params = [];
+		for (const key of paramKeys) {
+			params.push({[key.substring(1)]: hashParts[routeParts.indexOf(key)]});
+		}
+		return params;
+	}
+
+	getParamValue(key) {
+		const param = this.currentRoute.params.find(p=>p[key]);
+		return param ? param[key] : null;
 	}
 }
