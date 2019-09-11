@@ -1915,14 +1915,14 @@ class Router {
 		const hashParts = (window.location.hash || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
-			params.push({[key.substring(1)]: hashParts[routeParts.indexOf(key)]});
+			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)]});
 		}
 		return params;
 	}
 
 	getParamValue(key) {
-		const param = this.currentRoute.params.find(p=>p[key]);
-		return param ? param[key] : null;
+		const param = this.currentRoute.params.find(p => p.key === key);
+		return param ? param.value : null;
 	}
 }
 
