@@ -54,9 +54,9 @@ class Router {
 
 		const entry = {
 			route: this.config.rootRoute + route,
-			callback: callback,
-			template: template,
-			viewId: viewId,
+			callback: callback || null,
+			template: template || null,
+			viewId: viewId || null,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
