@@ -1794,12 +1794,12 @@ class Router {
 
 	add({id, route, template, callback, viewId}) {
 		// Ensure user have a element to render the main view
-		// If the user not define en id to use, main-view will be used as id
-		if (!this.config.routerMainViewId) {
+		// If the user not define an id to use as main view, "main-view" will be used as id
+		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
 			this.config.routerMainViewId = 'main-view';
-			// If there are no element with the id difined to render the view throw an error
-			if (!document.getElementById(this.config.routerMainViewId) && !this.config.noRouterViews) {
-				throw new Error('The router needs a element with a ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view, set the config key "noRouterViews" to true.');
+			// If there are no element with the id defined to render the main view throw an error
+			if (!document.getElementById(this.config.routerMainViewId)) {
+				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view in a main view, set the config key "routerMainViewId" to false and a "viewId" flag to each route with a view.');
 			}
 		}
 		// Ensure that the parameters are not empty
@@ -1809,7 +1809,9 @@ class Router {
 		if (!route && !template && !callback) {
 			throw new Error('route, template or callback must be given');
 		}
-
+		if (this.config.routerMainViewId === false && template && !viewId) {
+			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+		}
 		// Ensure that the parameters have the correct types
 		if (typeof route !== "string") {
 			throw new TypeError('typeof route must be a string');
@@ -1882,7 +1884,7 @@ class Router {
 					if (this.routes[routeId].template && !this.config.noRouterViews) {
 						// If user defines a custom vieId to this route, but router don't find it alert the user
 						if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
-							throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to this route but it do not exists in DOM.`);
+							throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 						}
 						this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || this.config.routerMainViewId);
 					}
