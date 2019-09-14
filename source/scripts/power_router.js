@@ -6,6 +6,7 @@ class Router {
 		this.currentRoute = {
 			params: [],
 			id: '',
+			componentRoutes: [],
 		};
 		if (!this.config.rootRoute) {
 			this.config.rootRoute = '#!/';
@@ -18,17 +19,25 @@ class Router {
 		this.init();
 
 		// call init if hash change
-		window.onhashchange = this.init.bind(this);
+		window.onhashchange = this.hashChange.bind(this);
 	}
 
 	add({id, route, template, callback, viewId}) {
 		// Ensure user have a element to render the main view
-		// If the user not define an id to use as main view, "main-view" will be used as id
+		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
 			this.config.routerMainViewId = 'main-view';
 			// If there are no element with the id defined to render the main view throw an error
 			if (!document.getElementById(this.config.routerMainViewId)) {
 				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view in a main view, set the config key "routerMainViewId" to false and a "viewId" flag to each route with a view.');
+			}
+		}
+		// If the user doesn't define an id to use as component view, "component-view" will be used as id
+		if (!this.config.routerComponentViewId && this.config.routerComponentViewId !== false) {
+			this.config.routerComponentViewId = 'component-view';
+			// If there are no element with the id defined to render the component view throw an error
+			if (!document.getElementById(this.config.routerComponentViewId)) {
+				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "component-view" or set your on id in the config using the key "routerComponentViewId" with the choosen id. If you not want render any view in a component view, set the config key "routerComponentViewId" to false and a "viewId" flag to each route with a view.');
 			}
 		}
 		// Ensure that the parameters are not empty
@@ -40,6 +49,9 @@ class Router {
 		}
 		if (this.config.routerMainViewId === false && template && !viewId) {
 			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+		}
+		if (this.config.routerComponentViewId === false && template && !viewId) {
+			throw new Error(`You set the config flag "routerComponentViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
 		}
 		// Ensure that the parameters have the correct types
 		if (typeof route !== "string") {
@@ -81,56 +93,108 @@ class Router {
 			this.routes[id] = entry;
 		}
 	}
-	// Match the current window.location to a route and call th necessary template and callback
-	init() {
-		let match = false;
+
+	hashChange(event) {
+		this.init({onHashChange: event});
+	}
+	// Match the current window.location to a route and call the necessary template and callback
+	// If location doesn't have a hash, redirect to rootRoute
+	// the componentRoute param allows to manually match component routes
+	init({componentRoute, onHashChange}={}) {
+		const routeParts = this.extractRouteParts(componentRoute || window.location.hash || this.config.rootRoute);
+
 		for (const routeId in this.routes) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
 				// If the route have some parameters get it /some_page/:page_id/syfy/:title
 				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
 				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
-				let path = window.location.hash || this.config.rootRoute;
-				path = this.extractUrlParams(path);
 				// our route logic is true,
-				if (path.match(regEx)) {
-					match = true;
-					// If have a template to load let's do it
-					if (this.routes[routeId].template && !this.config.noRouterViews) {
-						// If user defines a custom vieId to this route, but router don't find it alert the user
-						if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
-							throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
+				if (routeParts.path.match(regEx)) {
+					if (!componentRoute) {
+						// Load main route
+						this.loadRoute(routeId, paramKeys, this.config.routerMainViewId);
+						this.setMainRouteState(routeId, paramKeys);
+						// Recursively run the init for each possible componentRoute
+						for (const compRoute of routeParts.componentRoutes) {
+							this.init({componentRoute: compRoute});
 						}
-						this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || this.config.routerMainViewId);
-					}
-					// If have a callback run it
-					if (this.routes[routeId].callback) {
-						return this.routes[routeId].callback.call(this, this.routes[routeId]);
-					}
-					// Register current route id
-					this.currentRoute.id = routeId;
-					// Register current route parameters keys and values
-					if (paramKeys) {
-						this.currentRoute.params = this.getRouteParamValues(paramKeys);
+						return true;
+					} else {
+						// Load component route
+						this.loadRoute(routeId, paramKeys, this.config.routerComponentViewId);
+						this.setComponentRouteState(routeId, paramKeys);
+						console.log('router', this);
 					}
 				}
 			}
 		}
 		// otherwise
-		if (match === false) {
+		// (doesn't run otherwise for component routes)
+		if (!componentRoute) {
 			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
 			window.location.replace(newRoute);
 		}
 	}
 
-	extractUrlParams(path) {
-		if (path.includes('?')) {
-			const parts = path.split('?');
-			console.log('parts:', parts[1].split('cr=')[1].split(','));
-			return parts[0];
-		} else {
-			return path;
+	loadRoute(routeId, paramKeys, viewId) {
+		// If have a template to load let's do it
+		if (this.routes[routeId].template && !this.config.noRouterViews) {
+			// If user defines a custom vieId to this route, but the router don't find it alert the user
+			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
+				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
+			}
+			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId);
 		}
+		// If have a callback run it
+		if (this.routes[routeId].callback) {
+			return this.routes[routeId].callback.call(this, this.routes[routeId]);
+		}
+	}
+
+	setMainRouteState(routeId, paramKeys) {
+		// Register current route id
+		this.currentRoute.id = routeId;
+		// Register current route parameters keys and values
+		if (paramKeys) {
+			this.currentRoute.params = this.getRouteParamValues(paramKeys);
+		}
+	}
+	setComponentRouteState(routeId, paramKeys) {
+		const route = {
+			params: [],
+			id: '',
+		}
+		// Register current route id
+		route.id = routeId;
+		// Register current route parameters keys and values
+		if (paramKeys) {
+			route.params = this.getRouteParamValues(paramKeys);
+		}
+		this.currentRoute.componentRoutes.push(route);
+	}
+
+	extractRouteParts(path) {
+		const routeParts = {
+			path: path,
+			componentRoutes: [],
+		};
+		if (path.includes('?')) {
+			const splited = path.split('?');
+			routeParts.path = splited[0];
+			for (const part of splited) {
+				if (part.includes('cr=')) {
+					for (const fragment of part.split('cr=')) {
+						if (fragment) {
+							routeParts.componentRoutes.push(this.config.rootRoute + fragment);
+						}
+					}
+				}
+			}
+		}
+
+		console.log('routeParts:', routeParts);
+		return routeParts;
 	}
 
 	buildRegExPatternToRoute(routeId, paramKeys) {
