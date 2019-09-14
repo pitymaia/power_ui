@@ -114,7 +114,7 @@ class Router {
 					if (!componentRoute) {
 						// Load main route
 						this.loadRoute(routeId, paramKeys, this.config.routerMainViewId);
-						this.setMainRouteState(routeId, paramKeys);
+						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys});
 						// Recursively run the init for each possible componentRoute
 						for (const compRoute of routeParts.componentRoutes) {
 							this.init({componentRoute: compRoute});
@@ -123,7 +123,7 @@ class Router {
 					} else {
 						// Load component route
 						this.loadRoute(routeId, paramKeys, this.config.routerComponentViewId);
-						this.setComponentRouteState(routeId, paramKeys);
+						this.setComponentRouteState({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute});
 						console.log('router', this);
 					}
 				}
@@ -152,15 +152,15 @@ class Router {
 		}
 	}
 
-	setMainRouteState(routeId, paramKeys) {
+	setMainRouteState({routeId, paramKeys}) {
 		// Register current route id
 		this.currentRoute.id = routeId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
-			this.currentRoute.params = this.getRouteParamValues(paramKeys);
+			this.currentRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
 		}
 	}
-	setComponentRouteState(routeId, paramKeys) {
+	setComponentRouteState({routeId, paramKeys, componentRoute}) {
 		const route = {
 			params: [],
 			id: '',
@@ -169,7 +169,7 @@ class Router {
 		route.id = routeId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
-			route.params = this.getRouteParamValues(paramKeys);
+			route.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute});
 		}
 		this.currentRoute.componentRoutes.push(route);
 	}
@@ -192,8 +192,6 @@ class Router {
 				}
 			}
 		}
-
-		console.log('routeParts:', routeParts);
 		return routeParts;
 	}
 
@@ -225,12 +223,14 @@ class Router {
 		return route.match(regex);
 	}
 
-	getRouteParamValues(paramKeys) {
-		const routeParts = this.routes[this.currentRoute.id].route.split('/');
-		const hashParts = (window.location.hash || this.config.rootRoute).split('/');
+	getRouteParamValues({routeId, paramKeys, componentRoute}) {
+		const routeParts = this.routes[routeId].route.split('/');
+		const hashParts = (componentRoute || window.location.hash || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
-			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)]});
+			// Get key and value
+			// Also remove any ?cr=route from the value
+			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?cr=[^]*)/, '')});
 		}
 		return params;
 	}

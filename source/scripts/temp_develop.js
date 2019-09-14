@@ -40,12 +40,12 @@ let app = new PowerUi({
 		},
 		{
 			id: 'power-only2',
-			route: 'power_only/:id/teste/:name',
+			route: 'power_only/:id/:name',
 			template: 'power_only.html',
 		},
 		{
 			id: 'component1',
-			route: 'component',
+			route: 'component/:name/:title',
 			template: '404.html',
 		},
 		{
