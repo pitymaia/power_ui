@@ -46,7 +46,7 @@ let app = new PowerUi({
 		{
 			id: 'component1',
 			route: 'component/:name/:title',
-			template: '404.html',
+			template: 'somecomponent.html',
 		},
 		{
 			id: 'otherwise',
@@ -62,6 +62,12 @@ function powerOnly() {
 }
 function gotoIndex() {
 	window.location.replace(app.router.config.rootRoute);
+}
+function closeModal() {
+	window.location.replace(window.location.hash.split('?')[0]);
+}
+function openModal() {
+	window.location.replace(window.location.hash + '?cr=component/andre/aqueda');
 }
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {

@@ -1,5 +1,30 @@
 /*TEMP*/
-
+html{
+    min-height:100%;/* make sure it is at least as tall as the viewport */
+    position:relative;
+}
+.fakemodal {
+    position: relative;
+    margin: 20vh auto;
+    padding: 2em;
+    border-radius: 1em;
+    border-width: 2px;
+    border-style: solid;
+    border-color: black;
+    background-color: #ADD8E6;
+    box-shadow: 5px 5px 20px 0 purple;
+    width: 45em;
+}
+.fakemodalback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0, 0.7);
+    z-index: 10000;
+}
 .pw-blue, .pw-blue * {
     color: blue !important;
 }
