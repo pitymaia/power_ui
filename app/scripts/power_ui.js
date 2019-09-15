@@ -1774,6 +1774,7 @@ class Router {
 		this.config = config;
 		this.$powerUi = powerUi;
 		this.routes = {};
+		this.oldComponentRoutes = [];
 		this.currentRoute = {
 			params: [],
 			id: '',
@@ -1865,7 +1866,13 @@ class Router {
 		}
 	}
 
+	// Copy the current open component route, and init the router with the new route
 	hashChange(event) {
+		this.oldComponentRoutes = [];
+		for (const route of this.currentRoute.componentRoutes) {
+			this.oldComponentRoutes.push(route);
+		}
+		this.currentRoute.componentRoutes = []; // Clean current routes
 		this.init({onHashChange: event});
 	}
 	// Match the current window.location to a route and call the necessary template and callback
@@ -1884,17 +1891,31 @@ class Router {
 				if (routeParts.path.match(regEx)) {
 					if (!componentRoute) {
 						// Load main route
-						this.loadRoute(routeId, paramKeys, this.config.routerMainViewId);
+						this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
 						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys});
 						// Recursively run the init for each possible componentRoute
 						for (const compRoute of routeParts.componentRoutes) {
 							this.init({componentRoute: compRoute});
 						}
+						// After create all new component views remove the old ones if needed
+						this.closeOldComponentViews();
 						return true;
 					} else {
-						// Load component route
-						this.loadRoute(routeId, paramKeys, this.config.routerComponentViewId);
-						this.setComponentRouteState({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute});
+						// Load component route if not already open
+						// Check if the route already open as old route or as new route
+						const thisRoute = componentRoute.replace(this.config.rootRoute, '');
+						const oldComponentRoute = this.oldComponentRoutes.find(r=>r && r.route === thisRoute);
+						const newComponentRoute = this.currentRoute.componentRoutes.find(r=>r && r.route === thisRoute);
+						if (!oldComponentRoute && !newComponentRoute) {
+							const componentViewId = this.loadComponentRoute({routeId: routeId, paramKeys: paramKeys, routerComponentViewId: this.config.routerComponentViewId});
+							this.setComponentRouteState({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute, componentViewId: componentViewId});
+						} else {
+							// If the newComponentRoute it already on the list do nothing
+							// Only add if it is only on oldComponentRoute list
+							if (!newComponentRoute) {
+								this.currentRoute.componentRoutes.push(oldComponentRoute);
+							}
+						}
 						console.log('router', this);
 					}
 				}
@@ -1908,7 +1929,21 @@ class Router {
 		}
 	}
 
-	loadRoute(routeId, paramKeys, viewId) {
+	// Only close the old component views that are not also in the currentRoute.componentRoutes
+	closeOldComponentViews() {
+		for (const route of this.oldComponentRoutes) {
+			if (!this.currentRoute.componentRoutes.find(r=>r.route === route.route)) {
+				this.removeComponentView({componentViewId: route.componentViewId});
+			}
+		}
+	}
+
+	removeComponentView({componentViewId}) {
+		const node = document.getElementById(componentViewId);
+		node.parentNode.removeChild(node);
+	}
+
+	loadRoute({routeId, paramKeys, viewId}) {
 		// If have a template to load let's do it
 		if (this.routes[routeId].template && !this.config.noRouterViews) {
 			// If user defines a custom vieId to this route, but the router don't find it alert the user
@@ -1922,6 +1957,16 @@ class Router {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
+	loadComponentRoute({routeId, paramKeys, routerComponentViewId}) {
+		// Create a new element to this view and add it to component-view element (where all component views are)
+		const newViewNode = document.createElement('div');
+		const viewId = getIdAndCreateIfDontHave(newViewNode);
+		newViewNode.id = viewId;
+		document.getElementById(routerComponentViewId).appendChild(newViewNode);
+		// Load the route inside the new element view
+		this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: viewId});
+		return viewId;
+	}
 
 	setMainRouteState({routeId, paramKeys}) {
 		// Register current route id
@@ -1931,10 +1976,12 @@ class Router {
 			this.currentRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
 		}
 	}
-	setComponentRouteState({routeId, paramKeys, componentRoute}) {
+	setComponentRouteState({routeId, paramKeys, componentRoute, componentViewId}) {
 		const route = {
 			params: [],
 			id: '',
+			route: componentRoute.replace(this.config.rootRoute, ''),
+			componentViewId: componentViewId,
 		}
 		// Register current route id
 		route.id = routeId;
