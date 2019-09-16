@@ -56,7 +56,9 @@ let app = new PowerUi({
 	],
 });
 console.log('app', app);
-
+function pity() {
+    return 'Meu nome é Pity o bom!';
+}
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
 }

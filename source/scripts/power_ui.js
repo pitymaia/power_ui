@@ -119,6 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.templating = new PowerTemplating(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
 	}
@@ -148,7 +149,7 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			document.getElementById(viewId).innerHTML = xhr.responseText;
+			document.getElementById(viewId).innerHTML = self.templating.compile(xhr.responseText);
 
 			self.init();
 		}).catch(function (response, xhr) {

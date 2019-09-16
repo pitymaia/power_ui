@@ -75,7 +75,21 @@
 
         <!-- Menu end -->
         <h1 class="color1" data-pow-css-hover="color2">Hello, my component!</h1>
+        {{for="macho of ['Riquinho', 'Tico', 'Pingo']"
+            <h3>Nome: </h3><h4>{{ macho }}</h4>
+        for}}
         <p data-pow-css-hover="pw-orange">Algum conteúdo de component</p>
+        <p>{{ pity() }} 2 + 2 é igual a {{ 2+2 }} e não {{(2+1) + (' teste se' + ' isso é verdade: ') + (2+2)}}</p>
+        <p>2 + 2 é igual a {{
+            2+2
+            }}  e não {{ 2+1 }}
+            My age = {{30 + 1 + 8}}
+            {{ console.log('CUIDADO ISSO FOI INJETADO!!!!', setTimeout(function () {window.alert('This is an injection attack, you are FUCKED!')}, 500)) || '' }}
+        </p>
+
+        {{for="femea of ['Florzinha', 'Princesa', 'Docinho']"
+            <h3>Nome: </h3><h4>{{ femea }}</h4>
+        for}}
         <button onclick="closeModal()">Close</button>
     </div>
 </div>
