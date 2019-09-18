@@ -4,51 +4,22 @@ class PowerTemplating {
 		this.$powerUi = powerUi;
 		this.startSymbol = config.interpolateStartSymbol || '{{';
 		this.endSymbol = config.interpolateEndSymbol || '}}';
-		this.kind = {
-			standard: 'stripStandardInterpolation',
-			for: 'stripForInterpolation',
-		}
 	}
 
 	compile(template) {
-		this.replaceForInterpolation(template);
-		return template;
-		return this.replaceStandardInterpolation(template);
+		return this.replaceInterpolation(template);
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
 		const REGEX = `${this.startSymbol}[^]*?${this.endSymbol}`;
 		return new RegExp(REGEX, 'gm');
 	}
-	// REGEX {{for*?for}} INTERPOLETE THIS {{for= for}}
-	forInterpolationRegex() {
-		const REGEX = `${this.startSymbol}for=[^]*?for${this.endSymbol}`;
-		return new RegExp(REGEX, 'gm');
-	}
 
-	replaceForInterpolation(template) {
-		const match = template.match(this.forInterpolationRegex());
-		if (match) {
-			for (const entry of match) {
-				const value = this.getForInterpolationValue(entry);
-				// template = template.replace(entry, value);
-			}
-		}
-		return template;
-	}
-
-	getForInterpolationValue(entry, kind) {
-		let newEntry = this.stripWhiteChars(entry);
-		// newEntry = this.stripStandardInterpolation(newEntry);
-		console.log('match', newEntry);
-		// return eval(newEntry);
-	}
-
-	replaceStandardInterpolation(template) {
+	replaceInterpolation(template) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
-				const value = this.getStandardInterpolationValue(entry);
+				const value = this.getInterpolationValue(entry);
 				template = template.replace(entry, value);
 			}
 		}
@@ -63,7 +34,7 @@ class PowerTemplating {
 		return newEntry;
 	}
 
-	stripStandardInterpolation(entry) {
+	stripInterpolation(entry) {
 		// remove interpolation startSymbol
 		let newEntry = entry.replace(this.startSymbol,'');
 		// Remove interpolation endSymbol
@@ -71,17 +42,9 @@ class PowerTemplating {
 		return newEntry;
 	}
 
-	stripForInterpolation(entry) {
-		// remove interpolation startSymbol
-		let newEntry = entry.replace(this.startSymbol+'for','');
-		// Remove interpolation endSymbol
-		newEntry = newEntry.replace('for'+this.endSymbol,'');
-		return newEntry;
-	}
-
-	getStandardInterpolationValue(entry, kind) {
+	getInterpolationValue(entry) {
 		let newEntry = this.stripWhiteChars(entry);
-		newEntry = this.stripStandardInterpolation(newEntry);
+		newEntry = this.stripInterpolation(newEntry);
 		return eval(newEntry);
 	}
 }
