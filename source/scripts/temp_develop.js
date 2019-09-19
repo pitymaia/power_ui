@@ -63,7 +63,8 @@ function pity() {
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
 	console.log(myName, pity());
-	app.router.hashChange();
+	// app.router.hashChange();
+	app.init();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');

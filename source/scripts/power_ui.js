@@ -164,6 +164,10 @@ class PowerUi extends _PowerUiBase {
 		return temp.innerHTML;
 	};
 
+	_powerView(element) {
+		return new PowerView(element, this);
+	}
+
 	_powerMenu(element) {
 		return new PowerMenu(element, this);
 	}

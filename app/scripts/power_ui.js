@@ -960,6 +960,10 @@ class PowerUi extends _PowerUiBase {
 		return temp.innerHTML;
 	};
 
+	_powerView(element) {
+		return new PowerView(element, this);
+	}
+
 	_powerMenu(element) {
 		return new PowerMenu(element, this);
 	}
@@ -2251,6 +2255,14 @@ class PowerInterpolation {
 	};
 }
 
+class PowerView extends _PowerBasicElementWithEvents {
+	constructor(element) {
+		super(element);
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-view', isMain: true});
+
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -2316,7 +2328,8 @@ function pity() {
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
 	console.log(myName, pity());
-	app.router.hashChange();
+	// app.router.hashChange();
+	app.init();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
