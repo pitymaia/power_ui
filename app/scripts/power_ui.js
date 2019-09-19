@@ -2175,7 +2175,6 @@ class PowerTemplating {
 	getInterpolationValue(entry) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
-		const func = new Function("return " + newEntry);
 		return this.safeEvaluate(newEntry);
 	}
 
@@ -2205,15 +2204,25 @@ class PowerTemplating {
 			/loadHtmlView/gm,
 			/XMLHttpRequest/gm,
 			/new[^]*?\)/gm,
-			/new/gm,
+			/new /gm,
 			/<[^]*?script[^]*?>[^]*?<[^]*?\/[^]*?script[^]*?>/gm,
 			/script/gm,
+			/var [^]*?\=/gm,
+			/var /gm,
+			/let [^]*?\=/gm,
+			/let /gm,
+			/const [^]*?\=/gm,
+			/const /gm,
 		];
 
 		let newEntry = entry;
 
 		for (const regex of REGEXLIST) {
-			newEntry = newEntry.replace(regex,'');
+			const match = newEntry.match(new RegExp(regex));
+			if (match && match.length) {
+				console.log('The template interpolation removes some danger or not allowed entry: ', newEntry);
+				newEntry = '';
+			}
 		}
 		return this.safeString(newEntry);
 	}
