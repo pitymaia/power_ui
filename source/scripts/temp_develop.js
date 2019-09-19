@@ -69,7 +69,11 @@ function closeModal() {
 	window.location.replace(window.location.hash.split('?')[0]);
 }
 function openModal() {
-	window.location.replace(window.location.hash + '?cr=component/andre/aqueda');
+	let newHash = '?cr=component/andre/aqueda';
+	if (!window.location.hash) {
+		newHash = '#!/' + newHash;
+	}
+	window.location.replace(window.location.hash + newHash);
 }
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
