@@ -915,7 +915,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.templating = new PowerTemplating(config, this);
+		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
 	}
@@ -945,7 +945,8 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			document.getElementById(viewId).innerHTML = self.templating.compile(xhr.responseText);
+			// We decide to only compile views becouse it avoid uncompiled data display to users
+			document.getElementById(viewId).innerHTML = self.interpolation.compile(xhr.responseText);
 
 			self.init();
 		}).catch(function (response, xhr) {
@@ -2128,7 +2129,7 @@ class PowerStatus extends PowerTarget {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-status'});
 
-class PowerTemplating {
+class PowerInterpolation {
 	constructor(config={}, powerUi) {
 		this.config = config;
 		this.$powerUi = powerUi;
@@ -2308,8 +2309,14 @@ let app = new PowerUi({
 	],
 });
 console.log('app', app);
+let myName = 'Eu sou o Pity o bom!';
 function pity() {
-    return 'Meu nome é Pity o bom!';
+    return myName;
+}
+function changeModel() {
+	myName = 'My name is Bond, James Bond!';
+	console.log(myName, pity());
+	app.router.hashChange();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');

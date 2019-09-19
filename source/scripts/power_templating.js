@@ -1,4 +1,4 @@
-class PowerTemplating {
+class PowerInterpolation {
 	constructor(config={}, powerUi) {
 		this.config = config;
 		this.$powerUi = powerUi;

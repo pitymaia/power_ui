@@ -56,8 +56,14 @@ let app = new PowerUi({
 	],
 });
 console.log('app', app);
+let myName = 'Eu sou o Pity o bom!';
 function pity() {
-    return 'Meu nome é Pity o bom!';
+    return myName;
+}
+function changeModel() {
+	myName = 'My name is Bond, James Bond!';
+	console.log(myName, pity());
+	app.router.hashChange();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
