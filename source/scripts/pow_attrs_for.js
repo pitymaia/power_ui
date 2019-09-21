@@ -6,7 +6,7 @@ class PowFor extends _PowerBasicElementWithEvents {
     }
 
     // element attr allow to recursivelly call it with another element
-    beforeInit(element) {
+    compile(element) {
         const el = element || this.element;
         const parts = el.dataset.powFor.split(' ');
         const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));

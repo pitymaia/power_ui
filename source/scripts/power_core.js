@@ -229,7 +229,7 @@ class PowerTree {
 		this.buildTempTreeAndObjects(document);
 
 		// May add new DOM elements
-		this._beforeInit();
+		this._compile();
 
 		// Add navigation element like "main", "parentObj" and "children"
 		this.linkElement();
@@ -372,12 +372,12 @@ class PowerTree {
 		return found;
 	}
 
-	_beforeInit() {
+	_compile() {
 		for (const id in this.allPowerObjsById) {
-			// Call beforeInit for all elements
+			// Call compile for all elements
 			for (const attr in this.allPowerObjsById[id]) {
-				if (this.allPowerObjsById[id][attr].beforeInit) {
-					this.allPowerObjsById[id][attr].beforeInit();
+				if (this.allPowerObjsById[id][attr].compile) {
+					this.allPowerObjsById[id][attr].compile();
 				}
 			}
 		}
