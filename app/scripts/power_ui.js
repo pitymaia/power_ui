@@ -276,9 +276,6 @@ class PowerTree {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
-					// if (currentObj.element === null) {
-						console.log('currentObj', currentObj, currentObj.element);
-					// }
 					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
 					// If searchResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
