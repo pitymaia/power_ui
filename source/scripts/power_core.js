@@ -37,6 +37,8 @@ class _PowerUiBase {
 		this.powerTree = new PowerTree(this, _PowerUiBase);
 	}
 }
+// Hold temp scopes during templating
+_PowerUiBase.tempScope = {};
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {
@@ -63,6 +65,7 @@ const _Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++_Unique.n,
 	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
+	scopeID: () => `_scope_${_Unique.next()}`,
 };
 
 
@@ -222,14 +225,25 @@ class PowerTree {
 		this.allPowerObjsById = {};
 		this.rootElements = [];
 
+		// Sweep FOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
+		this.buildTempTreeAndObjects(document);
+
+		// May add new DOM elements
+		this._beforeInit();
+
+		// Add navigation element like "main", "parentObj" and "children"
+		this.linkElement();
+
+	}
+
+	buildTempTreeAndObjects(node) {
 		const tempTree = {
 			powerCss: {},
 			powAttrs: {},
 			pwcAttrs: {},
 		};
-
-		// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-		this.sweepDOM(document, tempTree, this._buildTempPowerTree);
+		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
+		this.sweepDOM(node, tempTree, this._buildTempPowerTree);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -245,7 +259,9 @@ class PowerTree {
 				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
 		}
+	}
 
+	linkElement() {
 		this._linkMainClassAndPowAttrs();
 		this._addSharingElement();
 
@@ -260,6 +276,9 @@ class PowerTree {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
+					// if (currentObj.element === null) {
+						console.log('currentObj', currentObj, currentObj.element);
+					// }
 					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
 					// If searchResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
@@ -354,6 +373,17 @@ class PowerTree {
 			}
 		}
 		return found;
+	}
+
+	_beforeInit() {
+		for (const id in this.allPowerObjsById) {
+			// Call beforeInit for all elements
+			for (const attr in this.allPowerObjsById[id]) {
+				if (this.allPowerObjsById[id][attr].beforeInit) {
+					this.allPowerObjsById[id][attr].beforeInit();
+				}
+			}
+		}
 	}
 
 	_callInit() {

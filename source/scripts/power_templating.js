@@ -9,6 +9,10 @@ class PowerInterpolation {
 	compile(template) {
 		return this.replaceInterpolation(template);
 	}
+	// Add the {{ }} to pow interpolation values
+	compileAttrs(template) {
+		return this.compile(`{{ ${template } }}`);
+	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
 		const REGEX = `${this.startSymbol}[^]*?${this.endSymbol}`;

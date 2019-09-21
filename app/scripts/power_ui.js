@@ -37,6 +37,8 @@ class _PowerUiBase {
 		this.powerTree = new PowerTree(this, _PowerUiBase);
 	}
 }
+// Hold temp scopes during templating
+_PowerUiBase.tempScope = {};
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {
@@ -63,6 +65,7 @@ const _Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++_Unique.n,
 	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
+	scopeID: () => `_scope_${_Unique.next()}`,
 };
 
 
@@ -222,14 +225,25 @@ class PowerTree {
 		this.allPowerObjsById = {};
 		this.rootElements = [];
 
+		// Sweep FOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
+		this.buildTempTreeAndObjects(document);
+
+		// May add new DOM elements
+		this._beforeInit();
+
+		// Add navigation element like "main", "parentObj" and "children"
+		this.linkElement();
+
+	}
+
+	buildTempTreeAndObjects(node) {
 		const tempTree = {
 			powerCss: {},
 			powAttrs: {},
 			pwcAttrs: {},
 		};
-
-		// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-		this.sweepDOM(document, tempTree, this._buildTempPowerTree);
+		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
+		this.sweepDOM(node, tempTree, this._buildTempPowerTree);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -245,7 +259,9 @@ class PowerTree {
 				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
 		}
+	}
 
+	linkElement() {
 		this._linkMainClassAndPowAttrs();
 		this._addSharingElement();
 
@@ -260,6 +276,9 @@ class PowerTree {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
+					// if (currentObj.element === null) {
+						console.log('currentObj', currentObj, currentObj.element);
+					// }
 					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
 					// If searchResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
@@ -354,6 +373,17 @@ class PowerTree {
 			}
 		}
 		return found;
+	}
+
+	_beforeInit() {
+		for (const id in this.allPowerObjsById) {
+			// Call beforeInit for all elements
+			for (const attr in this.allPowerObjsById[id]) {
+				if (this.allPowerObjsById[id][attr].beforeInit) {
+					this.allPowerObjsById[id][attr].beforeInit();
+				}
+			}
+		}
 	}
 
 	_callInit() {
@@ -946,8 +976,8 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			// We decide to only compile views becouse it avoid uncompiled data display to users
-			document.getElementById(viewId).innerHTML = self.interpolation.compile(xhr.responseText);
 
+			document.getElementById(viewId).innerHTML = self.interpolation.compile(xhr.responseText);
 			self.init();
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);
@@ -1017,6 +1047,72 @@ class PowerUi extends _PowerUiBase {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 }
+
+// Replace a value form an attribute when is mouseover some element and undo on mouseout
+class PowFor extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+    }
+
+    // element attr allow to recursivelly call it with another element
+    beforeInit(element) {
+        const el = element || this.element;
+        const parts = el.dataset.powFor.split(' ');
+        const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));
+        const scope = {};
+        if (parts[1] === 'of') {
+            this.forOf(scope, parts[0], obj, el);
+        } else {
+            forIn(scope, parts[0], obj, el);
+        }
+    }
+
+    forOf(scope, selector, obj, el) {
+        let newHtml = '';
+        for (const item of obj) {
+            const scope = _Unique.scopeID();
+            var regex = new RegExp(selector, 'gm');
+            _PowerUiBase.tempScope[scope] = item;
+            newHtml = newHtml + el.innerHTML.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
+        }
+        el.innerHTML = newHtml;
+        el.removeAttribute('data-pow-for');
+    }
+
+    forIn(scope, selector, obj) {
+
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'pow-for',
+    callback: function(element) {return new PowFor(element);}
+});
+
+// Replace a value form an attribute when is mouseover some element and undo on mouseout
+class PowIf extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+    }
+
+    init() {
+        console.log('POW-IF: ', this.element.dataset.powIf);
+        const value = this.$powerUi.interpolation.compileAttrs(this.element.dataset.powIf) == 'true';
+        // Hide if element is false
+        if (value === false) {
+            this.element.style.display = 'none';
+        } else {
+            this.element.style.display = null;
+        }
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'pow-if',
+    callback: function(element) {return new PowIf(element);}
+});
 
 class AccordionModel {
 	constructor(ctx) {
@@ -2144,6 +2240,10 @@ class PowerInterpolation {
 	compile(template) {
 		return this.replaceInterpolation(template);
 	}
+	// Add the {{ }} to pow interpolation values
+	compileAttrs(template) {
+		return this.compile(`{{ ${template } }}`);
+	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
 		const REGEX = `${this.startSymbol}[^]*?${this.endSymbol}`;
@@ -2325,9 +2425,28 @@ let myName = 'Eu sou o Pity o bom!';
 function pity() {
     return myName;
 }
+let currentIf = false;
+function showIf() {
+	currentIf = !currentIf;
+	return currentIf;
+}
+const cats = [
+	{name: 'Riquinho', gender: 'male'},
+	{name: 'Tico', gender: 'male'},
+	{name: 'Drew', gender: 'male'},
+	{name: 'Kid', gender: 'male'},
+	{name: 'Neo', gender: 'male'},
+	{name: 'Pingo', gender: 'male'},
+	{name: 'Princesa', gender: 'female'},
+	{name: 'Lady', gender: 'female'},
+	{name: 'Lindinha', gender: 'female'},
+	{name: 'Docinho', gender: 'female'},
+	{name: 'Florzinha', gender: 'female'},
+	{name: 'Laylita', gender: 'female'},
+];
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
-	console.log(myName, pity());
+	console.log(myName, pity(), 'currentIf', currentIf);
 	// app.router.hashChange();
 	app.init();
 }

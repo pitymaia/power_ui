@@ -60,9 +60,28 @@ let myName = 'Eu sou o Pity o bom!';
 function pity() {
     return myName;
 }
+let currentIf = false;
+function showIf() {
+	currentIf = !currentIf;
+	return currentIf;
+}
+const cats = [
+	{name: 'Riquinho', gender: 'male'},
+	{name: 'Tico', gender: 'male'},
+	{name: 'Drew', gender: 'male'},
+	{name: 'Kid', gender: 'male'},
+	{name: 'Neo', gender: 'male'},
+	{name: 'Pingo', gender: 'male'},
+	{name: 'Princesa', gender: 'female'},
+	{name: 'Lady', gender: 'female'},
+	{name: 'Lindinha', gender: 'female'},
+	{name: 'Docinho', gender: 'female'},
+	{name: 'Florzinha', gender: 'female'},
+	{name: 'Laylita', gender: 'female'},
+];
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
-	console.log(myName, pity());
+	console.log(myName, pity(), 'currentIf', currentIf);
 	// app.router.hashChange();
 	app.init();
 }
