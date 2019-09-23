@@ -11,6 +11,7 @@ class PowFor extends _PowerBasicElementWithEvents {
         console.log('_PowerUiBase._powAttrsConfig', _PowerUiBase._powAttrsConfig);
         console.log('_PowerUiBase._pwcAttrsConfig', _PowerUiBase._pwcAttrsConfig);
         const el = element || this.element;
+        console.log('THIS FOR IS !!!!!!!!!!!!!!!!', el);
         const parts = el.dataset.powFor.split(' ');
         const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));
         const scope = {};
@@ -30,6 +31,7 @@ class PowFor extends _PowerBasicElementWithEvents {
             newHtml = newHtml + el.innerHTML.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
         el.innerHTML = newHtml;
+        console.log('newHtml', newHtml);
         el.removeAttribute('data-pow-for');
     }
 

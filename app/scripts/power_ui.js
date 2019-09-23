@@ -428,9 +428,9 @@ class PowerTree {
 							for (const key in self.allPowerObjsById[id]) {
 								if (self.allPowerObjsById[currentElement.id][key]) {
 									// Add the parent
-									self.allPowerObjsById[currentElement.id][key].parent = self.allPowerObjsById[id][datasetKey];
+									self.allPowerObjsById[id][datasetKey].parent = self.allPowerObjsById[currentElement.id][key];
 									// Add the children
-									self.allPowerObjsById[id][datasetKey].children.push(self.allPowerObjsById[currentElement.id][key]);
+									self.allPowerObjsById[currentElement.id][key].children.push(self.allPowerObjsById[id][datasetKey]);
 								}
 							}
 							found = true;
@@ -445,7 +445,8 @@ class PowerTree {
 		for (const id in this.allPowerObjsById) {
 			// Call compile for all elements
 			for (const datasetKey in this.allPowerObjsById[id]) {
-				if (this.allPowerObjsById[id][datasetKey].compile && !this.allPowerObjsById[id][datasetKey].parent) {
+				if (this.allPowerObjsById[id][datasetKey].compile && this.allPowerObjsById[id][datasetKey].parent === undefined) {
+					console.log('CALL THIS COMPILE', this.allPowerObjsById[id][datasetKey]);
 					this.allPowerObjsById[id][datasetKey].compile();
 					// Recursively call all children and inner (children of children) powerObject compile()
 					this._callChildrenCompile(this.allPowerObjsById[id][datasetKey].children);
@@ -1145,6 +1146,7 @@ class PowFor extends _PowerBasicElementWithEvents {
         console.log('_PowerUiBase._powAttrsConfig', _PowerUiBase._powAttrsConfig);
         console.log('_PowerUiBase._pwcAttrsConfig', _PowerUiBase._pwcAttrsConfig);
         const el = element || this.element;
+        console.log('THIS FOR IS !!!!!!!!!!!!!!!!', el);
         const parts = el.dataset.powFor.split(' ');
         const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));
         const scope = {};
@@ -1164,6 +1166,7 @@ class PowFor extends _PowerBasicElementWithEvents {
             newHtml = newHtml + el.innerHTML.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
         el.innerHTML = newHtml;
+        console.log('newHtml', newHtml);
         el.removeAttribute('data-pow-for');
     }
 
