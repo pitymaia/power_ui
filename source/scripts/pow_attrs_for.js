@@ -7,6 +7,9 @@ class PowFor extends _PowerBasicElementWithEvents {
 
     // element attr allow to recursivelly call it with another element
     compile(element) {
+        console.log('_PowerUiBase._powerElementsConfig', _PowerUiBase._powerElementsConfig);
+        console.log('_PowerUiBase._powAttrsConfig', _PowerUiBase._powAttrsConfig);
+        console.log('_PowerUiBase._pwcAttrsConfig', _PowerUiBase._pwcAttrsConfig);
         const el = element || this.element;
         const parts = el.dataset.powFor.split(' ');
         const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));
@@ -36,6 +39,6 @@ class PowFor extends _PowerBasicElementWithEvents {
 }
 
 // Inject the attr on PowerUi
-_PowerUiBase.injectPow({name: 'pow-for',
+_PowerUiBase.injectPow({name: 'data-pow-for',
     callback: function(element) {return new PowFor(element);}
 });

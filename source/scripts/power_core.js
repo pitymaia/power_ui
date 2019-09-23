@@ -225,15 +225,14 @@ class PowerTree {
 		this.allPowerObjsById = {};
 		this.rootElements = [];
 
-		// Sweep FOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
-		this.buildTempTreeAndObjects(document);
-
 		// May add new DOM elements
 		this._compile();
 
+		// Sweep FOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
+		this.buildTempTreeAndObjects(document);
+
 		// Add navigation element like "main", "parentObj" and "children"
 		this.linkElement();
-
 	}
 
 	buildTempTreeAndObjects(node) {
@@ -373,14 +372,85 @@ class PowerTree {
 	}
 
 	_compile() {
+		self = this;
+		const body = document.getElementsByTagName('BODY')[0];
+		// Select objects with compile method
+		const elementsWithCompile = [];
+		for (const index in _PowerUiBase._powAttrsConfig) {
+			const test = _PowerUiBase._powAttrsConfig[index].callback();
+			if (test.compile) {
+				elementsWithCompile.push(_PowerUiBase._powAttrsConfig[index]);
+			}
+		}
+		for (const index in _PowerUiBase._pwcAttrsConfig) {
+			const test = _PowerUiBase._pwcAttrsConfig[index].callback();
+			if (test.compile) {
+				elementsWithCompile.push(_PowerUiBase._pwcAttrsConfig[index]);
+			}
+		}
+
+		// Create a temp version of all powerObjects with compile methods
+		for (const selector of elementsWithCompile) {
+			const nodes = document.querySelectorAll(`[${selector.name}]`);
+			const datasetKey = selector.name.includes('data-pow') ? 'pow' : 'pwc';
+			for (const node of nodes) {
+				const id = getIdAndCreateIfDontHave(node);
+				const newObj = selector.callback(node);
+				if (!this.allPowerObjsById[id]) {
+					this.allPowerObjsById[id] = {};
+				}
+				if (!this.allPowerObjsById[id][datasetKey]) {
+					this.allPowerObjsById[id][datasetKey] = {};
+				}
+				this.allPowerObjsById[id][datasetKey] = newObj;
+				// Add to any element some desired variables
+				this.allPowerObjsById[id][datasetKey].id = id;
+				this.allPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
+				console.log('nodes', nodes, selector.name);
+			}
+		}
+
+		// Add children to each powerObject if it have
+		for (const id in this.allPowerObjsById) {
+			for (const datasetKey in this.allPowerObjsById[id]) {
+				console.log('PowerObject: ', this.allPowerObjsById[id][datasetKey]);
+				// Search a powerElement parent of currentObj up DOM if exists
+				const searchResult = PowerTree._searchUpDOM(
+					this.allPowerObjsById[id][datasetKey].element,
+					function (currentElement) {
+						// If the id of the element exists in this.allPowerObjsById
+						let found = false;
+						if (!self.allPowerObjsById[id][datasetKey].chindren) {
+							self.allPowerObjsById[id][datasetKey].chindren = [];
+						}
+						// If found a parent element add this currentElement as chindren
+						if (self.allPowerObjsById[currentElement.id]) {
+							for (const key in self.allPowerObjsById[id]) {
+								if (self.allPowerObjsById[currentElement.id][key]) {
+									self.allPowerObjsById[id][datasetKey].chindren.push(self.allPowerObjsById[currentElement.id][key]);
+								}
+							}
+							found = true;
+						}
+						return found;
+				});
+			}
+		}
+
+		// Finally call the compile for each root element
 		for (const id in this.allPowerObjsById) {
 			// Call compile for all elements
-			for (const attr in this.allPowerObjsById[id]) {
-				if (this.allPowerObjsById[id][attr].compile) {
-					this.allPowerObjsById[id][attr].compile();
+			for (const datasetKey in this.allPowerObjsById[id]) {
+				if (this.allPowerObjsById[id][datasetKey].compile && !this.allPowerObjsById[id][datasetKey].children) {
+					this.allPowerObjsById[id][datasetKey].compile();
 				}
 			}
 		}
+
+		console.log('this.allPowerObjsById', this.allPowerObjsById);
+		console.log('elementsWithCompile', elementsWithCompile);
+		// const test = sidfsdufo.sdf;
+		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
 	}
 
 	_callInit() {

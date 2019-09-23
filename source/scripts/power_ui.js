@@ -151,7 +151,7 @@ class PowerUi extends _PowerUiBase {
 		}).then(function (response, xhr) {
 			// We decide to only compile views becouse it avoid uncompiled data display to users
 
-			document.getElementById(viewId).innerHTML = self.interpolation.compile(xhr.responseText);
+			document.getElementById(viewId).innerHTML = xhr.responseText;
 			self.init();
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);

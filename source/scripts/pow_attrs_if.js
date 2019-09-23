@@ -6,7 +6,6 @@ class PowIf extends _PowerBasicElementWithEvents {
     }
 
     init() {
-        console.log('POW-IF: ', this.element.dataset.powIf);
         const value = this.$powerUi.interpolation.compileAttrs(this.element.dataset.powIf) == 'true';
         // Hide if element is false
         if (value === false) {
@@ -18,6 +17,6 @@ class PowIf extends _PowerBasicElementWithEvents {
 }
 
 // Inject the attr on PowerUi
-_PowerUiBase.injectPow({name: 'pow-if',
+_PowerUiBase.injectPow({name: 'data-pow-if',
     callback: function(element) {return new PowIf(element);}
 });
