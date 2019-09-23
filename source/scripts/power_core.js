@@ -336,12 +336,12 @@ class PowerTree {
 			const nodes = entryNode.childNodes;
 			for (let i=0; i < nodes.length; i++) {
 				const currentNode = nodes[i];
-				const currentNodeHasChindren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+				const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
 
 				// Call back with any condition to apply
 				callback(currentNode, ctx);
 
-				if(currentNodeHasChindren) {
+				if(currentNodeHaschildren) {
 					// Recursively sweep through currentNode children
 					this.sweepDOM(currentNode, ctx, callback);
 				}
@@ -410,7 +410,7 @@ class PowerTree {
 			}
 		}
 
-		// Add children to each powerObject if it have
+		// Add the parent and children to each powerObject if it have
 		for (const id in this.allPowerObjsById) {
 			for (const datasetKey in this.allPowerObjsById[id]) {
 				console.log('PowerObject: ', this.allPowerObjsById[id][datasetKey]);
@@ -420,14 +420,17 @@ class PowerTree {
 					function (currentElement) {
 						// If the id of the element exists in this.allPowerObjsById
 						let found = false;
-						if (!self.allPowerObjsById[id][datasetKey].chindren) {
-							self.allPowerObjsById[id][datasetKey].chindren = [];
+						if (!self.allPowerObjsById[id][datasetKey].children) {
+							self.allPowerObjsById[id][datasetKey].children = [];
 						}
-						// If found a parent element add this currentElement as chindren
+						// If found a parent element add this currentElement as children
 						if (self.allPowerObjsById[currentElement.id]) {
 							for (const key in self.allPowerObjsById[id]) {
 								if (self.allPowerObjsById[currentElement.id][key]) {
-									self.allPowerObjsById[id][datasetKey].chindren.push(self.allPowerObjsById[currentElement.id][key]);
+									// Add the parent
+									self.allPowerObjsById[currentElement.id][key].parent = self.allPowerObjsById[id][datasetKey];
+									// Add the children
+									self.allPowerObjsById[id][datasetKey].children.push(self.allPowerObjsById[currentElement.id][key]);
 								}
 							}
 							found = true;
@@ -437,20 +440,34 @@ class PowerTree {
 			}
 		}
 
-		// Finally call the compile for each root element
+		// Finally call the compile() for each root element (powerObjects without parent)
+		// And from the root, call the compile() of it's children if it have
 		for (const id in this.allPowerObjsById) {
 			// Call compile for all elements
 			for (const datasetKey in this.allPowerObjsById[id]) {
-				if (this.allPowerObjsById[id][datasetKey].compile && !this.allPowerObjsById[id][datasetKey].children) {
+				if (this.allPowerObjsById[id][datasetKey].compile && !this.allPowerObjsById[id][datasetKey].parent) {
 					this.allPowerObjsById[id][datasetKey].compile();
+					// Recursively call all children and inner (children of children) powerObject compile()
+					this._callChildrenCompile(this.allPowerObjsById[id][datasetKey].children);
 				}
 			}
 		}
 
-		console.log('this.allPowerObjsById', this.allPowerObjsById);
-		console.log('elementsWithCompile', elementsWithCompile);
-		// const test = sidfsdufo.sdf;
 		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
+
+		// After compile the new DOM element we can remove the temp powerObjects
+		this.allPowerObjsById = {};
+	}
+
+	// Recursively call all children and inner (children of children) powerObject compile()
+	_callChildrenCompile(children) {
+		for (const child of children) {
+			if (child.compile) {
+				child.compile();
+				// call this for the children
+				this._callChildrenCompile(child.children);
+			}
+		}
 	}
 
 	_callInit() {

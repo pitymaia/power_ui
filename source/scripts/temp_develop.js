@@ -79,6 +79,11 @@ const cats = [
 	{name: 'Florzinha', gender: 'female'},
 	{name: 'Laylita', gender: 'female'},
 ];
+const cands = [
+	['brigadeiro', 'cajuzinho'],
+	['bolo', 'torta'],
+	['bala', 'chiclete'],
+];
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
 	console.log(myName, pity(), 'currentIf', currentIf);
