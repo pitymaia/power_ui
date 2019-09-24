@@ -80,9 +80,9 @@ const cats = [
 	{name: 'Laylita', gender: 'female'},
 ];
 const cands = [
-	['brigadeiro', 'cajuzinho'],
 	['bolo', 'torta'],
 	['bala', 'chiclete'],
+	['brigadeiro', 'cajuzinho'],
 ];
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';

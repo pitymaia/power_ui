@@ -371,11 +371,13 @@ class PowerTree {
 		return found;
 	}
 
-	_compile() {
+	// Recursively call _compile() to all powerObjects with compile method
+	_compile(entryNode, elementsWithCompile, tempPowerObjsById) {
 		self = this;
-		const body = document.getElementsByTagName('BODY')[0];
+		entryNode = entryNode || document;
+		tempPowerObjsById = tempPowerObjsById || {};
 		// Select objects with compile method
-		const elementsWithCompile = [];
+		elementsWithCompile = elementsWithCompile || [];
 		for (const index in _PowerUiBase._powAttrsConfig) {
 			const test = _PowerUiBase._powAttrsConfig[index].callback();
 			if (test.compile) {
@@ -391,82 +393,89 @@ class PowerTree {
 
 		// Create a temp version of all powerObjects with compile methods
 		for (const selector of elementsWithCompile) {
-			const nodes = document.querySelectorAll(`[${selector.name}]`);
+			const nodes = entryNode.querySelectorAll(`[${selector.name}]`);
 			const datasetKey = selector.name.includes('data-pow') ? 'pow' : 'pwc';
 			for (const node of nodes) {
-				const id = getIdAndCreateIfDontHave(node);
+				// TODO: allow interpolation of custom IDs
+				const id = _Unique.domID(node.tagName.toLowerCase());//getIdAndCreateIfDontHave(node);
 				const newObj = selector.callback(node);
-				if (!this.allPowerObjsById[id]) {
-					this.allPowerObjsById[id] = {};
+				if (!tempPowerObjsById[id]) {
+					tempPowerObjsById[id] = {};
 				}
-				if (!this.allPowerObjsById[id][datasetKey]) {
-					this.allPowerObjsById[id][datasetKey] = {};
+				if (!tempPowerObjsById[id][datasetKey]) {
+					tempPowerObjsById[id][datasetKey] = {};
 				}
-				this.allPowerObjsById[id][datasetKey] = newObj;
+				tempPowerObjsById[id][datasetKey] = newObj;
 				// Add to any element some desired variables
-				this.allPowerObjsById[id][datasetKey].id = id;
-				this.allPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
-				console.log('nodes', nodes, selector.name);
+				tempPowerObjsById[id][datasetKey].id = id;
+				tempPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
 			}
 		}
 
 		// Add the parent and children to each powerObject if it have
-		for (const id in this.allPowerObjsById) {
-			for (const datasetKey in this.allPowerObjsById[id]) {
-				console.log('PowerObject: ', this.allPowerObjsById[id][datasetKey]);
+		for (const id in tempPowerObjsById) {
+			for (const datasetKey in tempPowerObjsById[id]) {
 				// Search a powerElement parent of currentObj up DOM if exists
 				const searchResult = PowerTree._searchUpDOM(
-					this.allPowerObjsById[id][datasetKey].element,
+					tempPowerObjsById[id][datasetKey].element,
 					function (currentElement) {
 						// If the id of the element exists in this.allPowerObjsById
 						let found = false;
-						if (!self.allPowerObjsById[id][datasetKey].children) {
-							self.allPowerObjsById[id][datasetKey].children = [];
-						}
 						// If found a parent element add this currentElement as children
-						if (self.allPowerObjsById[currentElement.id]) {
-							for (const key in self.allPowerObjsById[id]) {
-								if (self.allPowerObjsById[currentElement.id][key]) {
+						if (tempPowerObjsById[currentElement.id]) {
+							for (const key in tempPowerObjsById[id]) {
+								if (tempPowerObjsById[currentElement.id][key]) {
+									if (!tempPowerObjsById[currentElement.id][key].children) {
+										tempPowerObjsById[currentElement.id][key].children = [];
+									}
 									// Add the parent
-									self.allPowerObjsById[id][datasetKey].parent = self.allPowerObjsById[currentElement.id][key];
+									tempPowerObjsById[id][datasetKey].parent = tempPowerObjsById[currentElement.id][key];
 									// Add the children
-									self.allPowerObjsById[currentElement.id][key].children.push(self.allPowerObjsById[id][datasetKey]);
+									tempPowerObjsById[currentElement.id][key].children.push(tempPowerObjsById[id][datasetKey]);
 								}
 							}
 							found = true;
 						}
 						return found;
-				});
+					}
+				);
 			}
 		}
 
 		// Finally call the compile() for each root element (powerObjects without parent)
 		// And from the root, call the compile() of it's children if it have
-		for (const id in this.allPowerObjsById) {
+		for (const id in tempPowerObjsById) {
 			// Call compile for all elements
-			for (const datasetKey in this.allPowerObjsById[id]) {
-				if (this.allPowerObjsById[id][datasetKey].compile && this.allPowerObjsById[id][datasetKey].parent === undefined) {
-					console.log('CALL THIS COMPILE', this.allPowerObjsById[id][datasetKey]);
-					this.allPowerObjsById[id][datasetKey].compile();
-					// Recursively call all children and inner (children of children) powerObject compile()
-					this._callChildrenCompile(this.allPowerObjsById[id][datasetKey].children);
+			for (const datasetKey in tempPowerObjsById[id]) {
+				if (tempPowerObjsById[id][datasetKey].compile && (
+					tempPowerObjsById[id][datasetKey].parent === undefined ||
+					tempPowerObjsById[id][datasetKey].parent.element.getAttribute('data-pwcompiled')) &&
+					!tempPowerObjsById[id][datasetKey].element.getAttribute('data-pwcompiled')) {
+					tempPowerObjsById[id][datasetKey].compile();
+					// After compile set pwcompiled flag as true so do not compile it again
+					tempPowerObjsById[id][datasetKey].element.setAttribute('data-pwcompiled', true);
+					// Recursively remove all children and inner elements from allPowerObjsById
+					// This children are old versions because the compile() method creates a new version of the children
+					this._removeChildrenObjects({children: tempPowerObjsById[id][datasetKey].children, tempPowerObjsById: tempPowerObjsById});
+
+					// Recursively call _compile with tempPowerObjsById[id][datasetKey].element as entryNode
+					// This will complile any needed inner elements
+					this._compile(tempPowerObjsById[id][datasetKey].element, elementsWithCompile, tempPowerObjsById);
 				}
 			}
 		}
-
+		const body = document.getElementsByTagName('BODY')[0];
 		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
-
-		// After compile the new DOM element we can remove the temp powerObjects
-		this.allPowerObjsById = {};
 	}
 
 	// Recursively call all children and inner (children of children) powerObject compile()
-	_callChildrenCompile(children) {
+	_removeChildrenObjects({children=[], tempPowerObjsById}) {
 		for (const child of children) {
-			if (child.compile) {
-				child.compile();
+			if (tempPowerObjsById[child.id]) {
 				// call this for the children
-				this._callChildrenCompile(child.children);
+				this._removeChildrenObjects(child.children || []);
+				// Remove this
+				tempPowerObjsById[child.id] = null;
 			}
 		}
 	}
