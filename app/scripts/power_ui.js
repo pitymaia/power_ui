@@ -446,17 +446,19 @@ class PowerTree {
 		// And from the root, call the compile() of it's children if it have
 		for (const id in tempPowerObjsById) {
 			// Call compile for all elements
+			console.log('chamou');
 			for (const datasetKey in tempPowerObjsById[id]) {
 				if (tempPowerObjsById[id][datasetKey].compile && (
 					tempPowerObjsById[id][datasetKey].parent === undefined ||
 					tempPowerObjsById[id][datasetKey].parent.element.getAttribute('data-pwcompiled')) &&
 					!tempPowerObjsById[id][datasetKey].element.getAttribute('data-pwcompiled')) {
+					// Recursively remove all children and inner elements from allPowerObjsById
+					// This children are old versions because the compile() method will creates a new version of the children
+					this._removeChildrenObjects({children: tempPowerObjsById[id][datasetKey].children, tempPowerObjsById: tempPowerObjsById});
+					// Compile it
 					tempPowerObjsById[id][datasetKey].compile();
 					// After compile set pwcompiled flag as true so do not compile it again
 					tempPowerObjsById[id][datasetKey].element.setAttribute('data-pwcompiled', true);
-					// Recursively remove all children and inner elements from allPowerObjsById
-					// This children are old versions because the compile() method creates a new version of the children
-					this._removeChildrenObjects({children: tempPowerObjsById[id][datasetKey].children, tempPowerObjsById: tempPowerObjsById});
 
 					// Recursively call _compile with tempPowerObjsById[id][datasetKey].element as entryNode
 					// This will complile any needed inner elements
