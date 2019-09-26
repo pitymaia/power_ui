@@ -10,7 +10,7 @@ function getIdAndCreateIfDontHave(currentNode) {
 	return currentId;
 }
 
-// Dataset converts "data-something-nice" formats to camel case without data,
+// converts "data-something-nice" formats to camel case without data,
 // the result is like "somethingNice"
 function asDataSet(selector) {
 	// Get the parts without the 'data' part
@@ -229,9 +229,6 @@ class PowerTree {
 		this.rootElements = [];
 		this.objetcsWithCompile = this.findObjetcsWithCompile();
 
-		// // May add new DOM elements
-		this._compile();
-
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
 		this.buildTempTreeAndObjects(document);
 
@@ -265,6 +262,10 @@ class PowerTree {
 		};
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
 		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this));
+
+		// Interpolate the body
+		const body = document.getElementsByTagName('BODY')[0];
+		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -393,89 +394,25 @@ class PowerTree {
 		return found;
 	}
 
-	// Recursively call _compile() to all powerObjects with compile method
-	_compile(entryNode, tempPowerObjsById) {
-		self = this;
-		entryNode = entryNode || document;
-		tempPowerObjsById = tempPowerObjsById || {};
-
+	// Compile the current node if the element powerObject have a compile() method
+	_compile(currentNode, datasetKey) {
 		// Create a temp version of all powerObjects with compile methods
 		for (const selector of this.objetcsWithCompile) {
-			const nodes = entryNode.querySelectorAll(`[${selector.name}]`);
-			const datasetKey = selector.name.includes('data-pow') ? 'pow' : 'pwc';
-			for (const node of nodes) {
-				// TODO: allow interpolation of custom IDs
-				const id = _Unique.domID(node.tagName.toLowerCase());//getIdAndCreateIfDontHave(node);
-				const newObj = selector.callback(node);
-				if (!tempPowerObjsById[id]) {
-					tempPowerObjsById[id] = {};
-				}
-				if (!tempPowerObjsById[id][datasetKey]) {
-					tempPowerObjsById[id][datasetKey] = {};
-				}
-				tempPowerObjsById[id][datasetKey] = newObj;
-				// Add to any element some desired variables
-				tempPowerObjsById[id][datasetKey].id = id;
-				tempPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
-			}
-		}
-
-		// Add the parent and children to each powerObject if it have
-		for (const id in tempPowerObjsById) {
-			for (const datasetKey in tempPowerObjsById[id]) {
-				// Search a powerElement parent of currentObj up DOM if exists
-				const searchResult = PowerTree._searchUpDOM(
-					tempPowerObjsById[id][datasetKey].element,
-					function (currentElement) {
-						// If the id of the element exists in this.allPowerObjsById
-						let found = false;
-						// If found a parent element add this currentElement as children
-						if (tempPowerObjsById[currentElement.id]) {
-							for (const key in tempPowerObjsById[id]) {
-								if (tempPowerObjsById[currentElement.id][key]) {
-									if (!tempPowerObjsById[currentElement.id][key].children) {
-										tempPowerObjsById[currentElement.id][key].children = [];
-									}
-									// Add the parent
-									tempPowerObjsById[id][datasetKey].parent = tempPowerObjsById[currentElement.id][key];
-									// Add the children
-									tempPowerObjsById[currentElement.id][key].children.push(tempPowerObjsById[id][datasetKey]);
-								}
-							}
-							found = true;
-						}
-						return found;
-					}
-				);
-			}
-		}
-
-		// Finally call the compile() for each root element (powerObjects without parent)
-		// And from the root, call the compile() of it's children if it have
-		for (const id in tempPowerObjsById) {
-			// Call compile for all elements
-			console.log('chamou');
-			for (const datasetKey in tempPowerObjsById[id]) {
-				if (tempPowerObjsById[id][datasetKey].compile && (
-					tempPowerObjsById[id][datasetKey].parent === undefined ||
-					tempPowerObjsById[id][datasetKey].parent.element.getAttribute('data-pwcompiled')) &&
-					!tempPowerObjsById[id][datasetKey].element.getAttribute('data-pwcompiled')) {
-					// Recursively remove all children and inner elements from allPowerObjsById
-					// This children are old versions because the compile() method will creates a new version of the children
-					this._removeChildrenObjects({children: tempPowerObjsById[id][datasetKey].children, tempPowerObjsById: tempPowerObjsById});
-					// Compile it
-					tempPowerObjsById[id][datasetKey].compile();
-					// After compile set pwcompiled flag as true so do not compile it again
-					tempPowerObjsById[id][datasetKey].element.setAttribute('data-pwcompiled', true);
-
-					// Recursively call _compile with tempPowerObjsById[id][datasetKey].element as entryNode
-					// This will complile any needed inner elements
-					this._compile(tempPowerObjsById[id][datasetKey].element, tempPowerObjsById);
+			// console.log('datasetKey', datasetKey, 'selector', selector.name);
+			// TODO: allow interpolation of custom IDs
+			if (selector.datasetKey === datasetKey) {
+				// Check if not already compiled
+				if (!currentNode.getAttribute('data-pwcompiled')) {
+					const id = _Unique.domID(currentNode.tagName.toLowerCase());//getIdAndCreateIfDontHave(currentNode);
+					const newObj = selector.callback(currentNode);
+					// Add to any element some desired variables
+					newObj.id = id;
+					newObj.$powerUi = this.$powerUi;
+					newObj.compile();
+					newObj.element.setAttribute('data-pwcompiled', true);
 				}
 			}
 		}
-		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
 	}
 
 	// Recursively call all children and inner (children of children) powerObject compile()
@@ -588,12 +525,14 @@ class PowerTree {
 				const functionName = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
 				if (functionName === 'powerAttrs') {
 					// Add into a list ordered by attribute name
-					ctx[attribute][datasetKey][id] = selector.callback(currentTempElementsById[id]);
+					// ctx[attribute][datasetKey][id] = selector.callback(currentTempElementsById[id]);
+					ctx[attribute][datasetKey][id] = selector.callback(document.getElementById(id));
 				} else {
 					// Call the method for create objects like _powerMenu with the node elements in tempTree
 					// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
 					// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
-					ctx[attribute][datasetKey][id] = ctx.$powerUi[functionName](currentTempElementsById[id]);
+					// ctx[attribute][datasetKey][id] = ctx.$powerUi[functionName](currentTempElementsById[id]);
+					ctx[attribute][datasetKey][id] = ctx.$powerUi[functionName](document.getElementById(id));
 				}
 				// Add the same element into a list ordered by id
 				if (!ctx.allPowerObjsById[id]) {
@@ -631,25 +570,7 @@ class PowerTree {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
 						// TODO: The compiler needs enter HERE!
-						// console.log('currentNode', currentNode);
-
-						// Create a temp version of all powerObjects with compile methods
-						for (const selector of this.objetcsWithCompile) {
-							// console.log('datasetKey', datasetKey, 'selector', selector.name);
-							// // TODO: allow interpolation of custom IDs
-							// const id = _Unique.domID(node.tagName.toLowerCase());//getIdAndCreateIfDontHave(node);
-							// const newObj = selector.callback(node);
-							// if (!tempPowerObjsById[id]) {
-							// 	tempPowerObjsById[id] = {};
-							// }
-							// if (!tempPowerObjsById[id][datasetKey]) {
-							// 	tempPowerObjsById[id][datasetKey] = {};
-							// }
-							// tempPowerObjsById[id][datasetKey] = newObj;
-							// // Add to any element some desired variables
-							// tempPowerObjsById[id][datasetKey].id = id;
-							// tempPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
-						}
+						this._compile(currentNode, datasetKey);
 
 						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
 						const currentId = getIdAndCreateIfDontHave(currentNode);
