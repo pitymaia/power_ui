@@ -991,6 +991,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
@@ -1015,19 +1016,29 @@ class PowerUi extends _PowerUiBase {
 
 	loadHtmlView(url, viewId) {
 		const self = this;
+		self.waitingServer = self.waitingServer + 1;
 		this.request({
 				url: url,
 				method: 'GET',
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			// We decide to only compile views becouse it avoid uncompiled data display to users
-
 			document.getElementById(viewId).innerHTML = xhr.responseText;
-			self.init();
+			self.ifNotWaitingServerCallInit();
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);
+			self.ifNotWaitingServerCallInit();
 		});
+	}
+
+	ifNotWaitingServerCallInit() {
+		const self = this;
+		setTimeout(function () {
+			self.waitingServer = self.waitingServer - 1;
+			if (self.waitingServer === 0) {
+				self.init();
+			}
+		}, 10);
 	}
 
 	sanitizeHTML(str) {
