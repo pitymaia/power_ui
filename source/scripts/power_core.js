@@ -218,7 +218,6 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 	}
 }
 
-
 class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
@@ -239,13 +238,13 @@ class PowerTree {
 	findObjetcsWithCompile() {
 		const objetcsWithCompile = [];
 		for (const index in _PowerUiBase._powAttrsConfig) {
-			const test = _PowerUiBase._powAttrsConfig[index].callback();
+			const test = _PowerUiBase._powAttrsConfig[index].callback(document.createElement('div'));
 			if (test.compile) {
 				objetcsWithCompile.push(_PowerUiBase._powAttrsConfig[index]);
 			}
 		}
 		for (const index in _PowerUiBase._pwcAttrsConfig) {
-			const test = _PowerUiBase._pwcAttrsConfig[index].callback();
+			const test = _PowerUiBase._pwcAttrsConfig[index].callback(document.createElement('div'));
 			if (test.compile) {
 				objetcsWithCompile.push(_PowerUiBase._pwcAttrsConfig[index]);
 			}

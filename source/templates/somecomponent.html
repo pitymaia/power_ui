@@ -78,14 +78,25 @@
         <h4 data-pow-if="showIf()">Hello my if</h4>
         <h4 data-pow-if="showIf()">By my if</h4>
         <h4 data-pow-if="showIf()">Another if</h4>
+        <hr />
         <div data-pow-for="cat of cats">
             <div data-pow-if="cat.gender === 'female'">Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
             <div data-pow-if="cat.gender === 'male'">Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
         </div>
+        <hr />
         Doces:
         <div data-pow-for="cand of cands">
             <div data-pow-for="content of cand">
                 <div>doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
+            </div>
+        </div>
+        <hr />
+        <div data-pow-if="showIf()">Odd</div>
+        <div data-pow-if="showIf()">
+            <div data-pow-for="cand of cands">
+                <div data-pow-for="content of cand">
+                    <div>doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
+                </div>
             </div>
         </div>
         <p data-pow-css-hover="pw-orange">Algum conteúdo de component</p>

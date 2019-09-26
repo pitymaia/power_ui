@@ -218,7 +218,6 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 	}
 }
 
-
 class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
@@ -239,13 +238,13 @@ class PowerTree {
 	findObjetcsWithCompile() {
 		const objetcsWithCompile = [];
 		for (const index in _PowerUiBase._powAttrsConfig) {
-			const test = _PowerUiBase._powAttrsConfig[index].callback();
+			const test = _PowerUiBase._powAttrsConfig[index].callback(document.createElement('div'));
 			if (test.compile) {
 				objetcsWithCompile.push(_PowerUiBase._powAttrsConfig[index]);
 			}
 		}
 		for (const index in _PowerUiBase._pwcAttrsConfig) {
-			const test = _PowerUiBase._pwcAttrsConfig[index].callback();
+			const test = _PowerUiBase._pwcAttrsConfig[index].callback(document.createElement('div'));
 			if (test.compile) {
 				objetcsWithCompile.push(_PowerUiBase._pwcAttrsConfig[index]);
 			}
@@ -1104,27 +1103,26 @@ class PowFor extends _PowerBasicElementWithEvents {
 
     // element attr allow to recursivelly call it with another element
     compile(element) {
-        const el = element || this.element;
-        if (!el.dataset.powFor) return;
-        const parts = el.dataset.powFor.split(' ');
+        if (!this.element.dataset.powFor) return;
+        const parts = this.element.dataset.powFor.split(' ');
         const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));
         const scope = {};
         if (parts[1] === 'of') {
-            this.forOf(scope, parts[0], obj, el);
+            this.forOf(scope, parts[0], obj);
         } else {
-            forIn(scope, parts[0], obj, el);
+            forIn(scope, parts[0], obj);
         }
     }
 
-    forOf(scope, selector, obj, el) {
+    forOf(scope, selector, obj) {
         let newHtml = '';
         for (const item of obj) {
             const scope = _Unique.scopeID();
             var regex = new RegExp(selector, 'gm');
             _PowerUiBase.tempScope[scope] = item;
-            newHtml = newHtml + el.innerHTML.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
+            newHtml = newHtml + this.element.innerHTML.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
-        el.innerHTML = newHtml;
+        this.element.innerHTML = newHtml;
     }
 
     forIn(scope, selector, obj) {
@@ -1142,15 +1140,18 @@ class PowIf extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
         this._$pwActive = false;
+        this.originalHTML = this.element.innerHTML;
     }
 
-    init() {
+    compile() {
         const value = this.$powerUi.interpolation.compileAttrs(this.element.dataset.powIf) == 'true';
         // Hide if element is false
         if (value === false) {
             this.element.style.display = 'none';
+            this.element.innerHTML = '';
         } else {
             this.element.style.display = null;
+            this.element.innerHTML = this.originalHTML;
         }
     }
 }
