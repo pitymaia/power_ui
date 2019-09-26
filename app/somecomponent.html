@@ -95,7 +95,18 @@
         <div data-pow-if="showIf()">
             <div data-pow-for="cand of cands">
                 <div data-pow-for="content of cand">
-                    <div>doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
+                    <div>doce: {{ content }}
+                        <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
+                        <div data-pow-if="content === 'torta'">
+                            ==========================================<br />
+                            Como a torta é o ultimo ai vem mais gatos:<br />
+                            ==========================================<br />
+                            <div data-pow-for="cat of cats">
+                                <div data-pow-if="cat.gender === 'female'">Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
+                                <div data-pow-if="cat.gender === 'male'">Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
+                            </div>
+                            ==========================================
+                        </div>
                 </div>
             </div>
         </div>
