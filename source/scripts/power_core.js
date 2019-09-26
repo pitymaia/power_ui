@@ -42,17 +42,20 @@ _PowerUiBase.tempScope = {};
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {
+	powAttr.datasetKey = asDataSet(powAttr.name);
 	_PowerUiBase._powAttrsConfig.push(powAttr);
 };
 // The list for user custom pwc-attributes
 _PowerUiBase._pwcAttrsConfig = [];
 _PowerUiBase.injectPwc = function (pwcAttr) {
+	powAttr.datasetKey = asDataSet(powAttr.name);
 	_PowerUiBase._pwcAttrsConfig.push(pwcAttr);
 };
 // The list of power-css-selectors with the config to create the objetc
 // Keep main elements on top of list
 _PowerUiBase._powerElementsConfig = [];
 _PowerUiBase.injectPowerCss = function (powerCss) {
+	powerCss.datasetKey = asDataSet(powerCss.name);
 	if (powerCss.isMain) {
 		_PowerUiBase._powerElementsConfig.unshift(powerCss);
 	} else {
@@ -224,15 +227,34 @@ class PowerTree {
 		this.pwcAttrs = {};
 		this.allPowerObjsById = {};
 		this.rootElements = [];
+		this.objetcsWithCompile = this.findObjetcsWithCompile();
 
-		// May add new DOM elements
+		// // May add new DOM elements
 		this._compile();
 
-		// Sweep FOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
+		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
 		this.buildTempTreeAndObjects(document);
 
 		// Add navigation element like "main", "parentObj" and "children"
 		this.linkElement();
+	}
+
+	findObjetcsWithCompile() {
+		const objetcsWithCompile = [];
+		for (const index in _PowerUiBase._powAttrsConfig) {
+			const test = _PowerUiBase._powAttrsConfig[index].callback();
+			if (test.compile) {
+				objetcsWithCompile.push(_PowerUiBase._powAttrsConfig[index]);
+			}
+		}
+		for (const index in _PowerUiBase._pwcAttrsConfig) {
+			const test = _PowerUiBase._pwcAttrsConfig[index].callback();
+			if (test.compile) {
+				objetcsWithCompile.push(_PowerUiBase._pwcAttrsConfig[index]);
+			}
+		}
+
+		return objetcsWithCompile;
 	}
 
 	buildTempTreeAndObjects(node) {
@@ -242,7 +264,7 @@ class PowerTree {
 			pwcAttrs: {},
 		};
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-		this.sweepDOM(node, tempTree, this._buildTempPowerTree);
+		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this));
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -320,7 +342,7 @@ class PowerTree {
 		for (const selector of _PowerUiBase._powerElementsConfig) {
 			const elements = currentNode.getElementsByClassName(selector.name);
 			for (const element of elements) {
-				const obj = this.allPowerObjsById[element.id][asDataSet(selector.name)];
+				const obj = this.allPowerObjsById[element.id][selector.datasetKey];
 				innerPowerCss.push(obj);
 			}
 		}
@@ -372,27 +394,13 @@ class PowerTree {
 	}
 
 	// Recursively call _compile() to all powerObjects with compile method
-	_compile(entryNode, elementsWithCompile, tempPowerObjsById) {
+	_compile(entryNode, tempPowerObjsById) {
 		self = this;
 		entryNode = entryNode || document;
 		tempPowerObjsById = tempPowerObjsById || {};
-		// Select objects with compile method
-		elementsWithCompile = elementsWithCompile || [];
-		for (const index in _PowerUiBase._powAttrsConfig) {
-			const test = _PowerUiBase._powAttrsConfig[index].callback();
-			if (test.compile) {
-				elementsWithCompile.push(_PowerUiBase._powAttrsConfig[index]);
-			}
-		}
-		for (const index in _PowerUiBase._pwcAttrsConfig) {
-			const test = _PowerUiBase._pwcAttrsConfig[index].callback();
-			if (test.compile) {
-				elementsWithCompile.push(_PowerUiBase._pwcAttrsConfig[index]);
-			}
-		}
 
 		// Create a temp version of all powerObjects with compile methods
-		for (const selector of elementsWithCompile) {
+		for (const selector of this.objetcsWithCompile) {
 			const nodes = entryNode.querySelectorAll(`[${selector.name}]`);
 			const datasetKey = selector.name.includes('data-pow') ? 'pow' : 'pwc';
 			for (const node of nodes) {
@@ -462,7 +470,7 @@ class PowerTree {
 
 					// Recursively call _compile with tempPowerObjsById[id][datasetKey].element as entryNode
 					// This will complile any needed inner elements
-					this._compile(tempPowerObjsById[id][datasetKey].element, elementsWithCompile, tempPowerObjsById);
+					this._compile(tempPowerObjsById[id][datasetKey].element, tempPowerObjsById);
 				}
 			}
 		}
@@ -522,7 +530,7 @@ class PowerTree {
 		// Loop through the list of possible attributes like data-pow-main-src-hover
 		for (const item of PowerUi._powAttrsConfig.filter(a => a.isMain === true)) {
 			// Hold elements that have pow-attrs
-			const powAttrsList = this.powAttrs[asDataSet(item.name)];
+			const powAttrsList = this.powAttrs[item.datasetKey];
 			// Loop through the list of existing powAttrs in dataset format like powMainSrcHover
 			// Every element it found is the powerElement it needs find the correspondent main object
 			for (const id in powAttrsList) {
@@ -533,9 +541,9 @@ class PowerTree {
 					// Loop through the list of possible main CSS power class names like power-menu or power-main
 					// With this we will find the main powerElement that holds the simple DOM node main element
 					for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
-						if (this.powerCss[asDataSet(mainPowerElementConfig.name)]) {
+						if (this.powerCss[mainPowerElementConfig.datasetKey]) {
 							// Get the powerElement using the simple DOM node main element (currentMainElement)
-							const mainPowerObj = this.powerCss[asDataSet(mainPowerElementConfig.name)][currentMainElement.getAttribute('id')];
+							const mainPowerObj = this.powerCss[mainPowerElementConfig.datasetKey][currentMainElement.getAttribute('id')];
 							// If we found it let's go to associate the main with the child
 							if(mainPowerObj) {
 								// Add the main object into the child object
@@ -546,7 +554,7 @@ class PowerTree {
 								}
 								// Add the child object into the main object
 								// Organize it by attribute dataset name
-								const datasetAttrName = asDataSet(currentPowElement.$_pwAttrName);
+								const datasetAttrName = currentPowElement.$powerCss;
 								if (!mainPowerObj.innerPowAttrs[datasetAttrName]) {
 									mainPowerObj.innerPowAttrs[datasetAttrName] = {};
 								}
@@ -566,7 +574,7 @@ class PowerTree {
 	// This creates the powerTree with all the power objects attached to the DOM
 	// It uses the simple elements of _buildTempPowerTree to get only the power elements
 	_buildObjcsFromTempTree(ctx, attribute, selector, tempTree) {
-		const datasetKey = asDataSet(selector.name);
+		const datasetKey = selector.datasetKey;
 		// Hold all element of a power kind (powerCss, powAttr or pwcAttr)
 		const currentTempElementsById = tempTree[attribute][datasetKey];
 		if (currentTempElementsById) {
@@ -591,6 +599,7 @@ class PowerTree {
 				if (!ctx.allPowerObjsById[id]) {
 					ctx.allPowerObjsById[id] = {};
 				} else {
+					// It only test if id exists in DOM when it already exists in allPowerObjsById, so this is not a slow code
 					const selectorToTest = document.querySelectorAll(`[id=${id}]`);
 					if (selectorToTest.length > 1) {
 						// Check if there is some duplicated ID
@@ -617,16 +626,37 @@ class PowerTree {
 	_buildTempPowerTree(currentNode, ctx) {
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
-			for (const data in currentNode.dataset) {
+			for (const datasetKey in currentNode.dataset) {
 				for(const prefixe of ['pwc', 'pow']) {
-					const hasPrefixe = data.startsWith(prefixe);
+					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
+						// TODO: The compiler needs enter HERE!
+						// console.log('currentNode', currentNode);
+
+						// Create a temp version of all powerObjects with compile methods
+						for (const selector of this.objetcsWithCompile) {
+							// console.log('datasetKey', datasetKey, 'selector', selector.name);
+							// // TODO: allow interpolation of custom IDs
+							// const id = _Unique.domID(node.tagName.toLowerCase());//getIdAndCreateIfDontHave(node);
+							// const newObj = selector.callback(node);
+							// if (!tempPowerObjsById[id]) {
+							// 	tempPowerObjsById[id] = {};
+							// }
+							// if (!tempPowerObjsById[id][datasetKey]) {
+							// 	tempPowerObjsById[id][datasetKey] = {};
+							// }
+							// tempPowerObjsById[id][datasetKey] = newObj;
+							// // Add to any element some desired variables
+							// tempPowerObjsById[id][datasetKey].id = id;
+							// tempPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
+						}
+
 						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
 						const currentId = getIdAndCreateIfDontHave(currentNode);
-						if (!ctx[attributeName][data]) {
-							ctx[attributeName][data] = {};
+						if (!ctx[attributeName][datasetKey]) {
+							ctx[attributeName][datasetKey] = {};
 						}
-						ctx[attributeName][data][currentId] = currentNode;
+						ctx[attributeName][datasetKey][currentId] = currentNode;
 					}
 				}
 			}
@@ -636,10 +666,10 @@ class PowerTree {
 			for (const selector of PowerUi._powerElementsConfig) {
 				if (currentNode.classList.contains(selector.name)) {
 					const currentId = getIdAndCreateIfDontHave(currentNode);
-					if (!ctx.powerCss[asDataSet(selector.name)]) {
-						ctx.powerCss[asDataSet(selector.name)] = {};
+					if (!ctx.powerCss[selector.datasetKey]) {
+						ctx.powerCss[selector.datasetKey] = {};
 					}
-					ctx.powerCss[asDataSet(selector.name)][currentId] = currentNode;
+					ctx.powerCss[selector.datasetKey][currentId] = currentNode;
 				}
 			}
 		}
