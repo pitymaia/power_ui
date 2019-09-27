@@ -84,6 +84,19 @@ const cands = [
 	['brigadeiro', 'cajuzinho'],
 	['bolo', 'torta'],
 ];
+
+const flowers = {
+	Rose: 'Pink',
+	Orchidy: 'White',
+	Violet: 'Blue',
+}
+const languages = {
+	good: {name: 'Python', kind: 'Not typed'},
+	hard: {name: 'Java', kind: 'Typed'},
+	bad: {name: 'EcmaScript', kind: 'Not typed'},
+	old: {name: 'COBOL', kind: 'Not typed'},
+	cool: {name: 'C++', kind: 'typed'},
+}
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
 	console.log(myName, pity(), 'currentIf', currentIf);

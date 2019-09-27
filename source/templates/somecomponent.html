@@ -80,8 +80,8 @@
         <h4 data-pow-if="showIf()">Another if</h4>
         <hr />
         <div data-pow-for="cat of cats">
-            <div data-pow-if="cat.gender === 'female'">Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
-            <div data-pow-if="cat.gender === 'male'">Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
+            <div data-pow-if="cat.gender === 'female'">{{pwIndex + 1}} - Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
+            <div data-pow-if="cat.gender === 'male'">{{pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
         </div>
         <hr />
         Doces:
@@ -93,23 +93,15 @@
         <hr />
         <div data-pow-if="showIf()">Odd</div>
         <div data-pow-if="showIf()">
-            <div data-pow-for="cand of cands">
-                <div data-pow-for="content of cand">
-                    <div>doce: {{ content }}
-                        <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
-                        <div data-pow-if="content === 'torta'">
-                            ==========================================<br />
-                            Como a torta é o ultimo ai vem mais gatos:<br />
-                            ==========================================<br />
-                            <div data-pow-for="cat of cats">
-                                <div data-pow-if="cat.gender === 'female'">Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
-                                <div data-pow-if="cat.gender === 'male'">Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
-                            </div>
-                            ==========================================
-                        </div>
-                </div>
+            <div data-pow-for="color in flowers">
+                {{ pwIndex +1 }} - {{ color }} {{ pwKey }}<br />
             </div>
         </div>
+        <hr />
+        <div data-pow-for="lang in {test: {name: 'ba', kind: 'bu'}, {name: 'be', kind: 'bi'}}">
+            {{ pwIndex +1 }} - {{ lang.name }} - {{ lang.kind }} ({{ pwKey }})<br />
+        </div>
+        <hr />
         <p data-pow-css-hover="pw-orange">Algum conteúdo de component</p>
         <p>{{ pity() }} 2 + 2 é igual a {{ 2+2 }} e não {{(2+1) + (' teste se' + ' isso é verdade: ') + (2+2)}}</p>
         <p>2 + 2 é igual a {{

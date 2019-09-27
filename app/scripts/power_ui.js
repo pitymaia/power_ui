@@ -1121,23 +1121,45 @@ class PowFor extends _PowerBasicElementWithEvents {
         if (parts[1] === 'of') {
             this.forOf(scope, parts[0], obj);
         } else {
-            forIn(scope, parts[0], obj);
+            this.forIn(scope, parts[0], obj);
         }
     }
 
     forOf(scope, selector, obj) {
         let newHtml = '';
+        let pwIndex = 0;
+        const regexPwIndex = new RegExp('pwIndex', 'gm');
         for (const item of obj) {
             const scope = _Unique.scopeID();
-            var regex = new RegExp(selector, 'gm');
+            const regex = new RegExp(selector, 'gm');
+            // Replace any pwIndex
+            const currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
+            pwIndex = pwIndex + 1;
+            // Replace any value
             _PowerUiBase.tempScope[scope] = item;
-            newHtml = newHtml + this.element.innerHTML.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
+            newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
         this.element.innerHTML = newHtml;
     }
 
     forIn(scope, selector, obj) {
-
+        let newHtml = '';
+        let pwIndex = 0;
+        const regexPwIndex = new RegExp('pwIndex', 'gm');
+        const regexPwKey = new RegExp('pwKey', 'gm');
+        for (const pwKey in obj) {
+            const scope = _Unique.scopeID();
+            const regex = new RegExp(selector, 'gm');
+            // Replace any pwKey
+            let currentHtml = this.element.innerHTML.replace(regexPwKey, `'${pwKey}'`);
+            // Replace any pwIndex
+            currentHtml = currentHtml.replace(regexPwIndex, pwIndex);
+            pwIndex = pwIndex + 1;
+            // Replace any value
+            _PowerUiBase.tempScope[scope] = obj[pwKey];
+            newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
+        }
+        this.element.innerHTML = newHtml;
     }
 }
 
@@ -2507,6 +2529,19 @@ const cands = [
 	['brigadeiro', 'cajuzinho'],
 	['bolo', 'torta'],
 ];
+
+const flowers = {
+	Rose: 'Pink',
+	Orchidy: 'White',
+	Violet: 'Blue',
+}
+const languages = {
+	good: {name: 'Python', kind: 'Not typed'},
+	hard: {name: 'Java', kind: 'Typed'},
+	bad: {name: 'EcmaScript', kind: 'Not typed'},
+	old: {name: 'COBOL', kind: 'Not typed'},
+	cool: {name: 'C++', kind: 'typed'},
+}
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
 	console.log(myName, pity(), 'currentIf', currentIf);
