@@ -11,7 +11,7 @@ class PowFor extends _PowerBasicElementWithEvents {
         if (!this.element.dataset.powFor) return;
         const scope = {};
         const parts = this.element.dataset.powFor.split(' ');
-        const item = parts[0];
+        const item = `\\b(${parts[0]})\\b`;
         const operation = parts[1];
         // Remove parts[0]
         parts.shift();
@@ -27,7 +27,7 @@ class PowFor extends _PowerBasicElementWithEvents {
             }
         }
 
-        obj = eval(this.$powerUi.interpolation.sanitizeEntry(obj));
+        obj = eval(this.$powerUi.interpolation.sanitizeEntry(obj, true));
 
         if (operation === 'of') {
             this.forOf(scope, item, obj);

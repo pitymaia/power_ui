@@ -54,8 +54,8 @@ class PowerInterpolation {
 
 	// TODO: This is not really safe, just good to use during ALPHA and maybe BETA phase of development
 	// remove functions, arrow functions, document.*() and window.*(), script and more
-	sanitizeEntry(entry) {
-		if (entry.length > 250) {
+	sanitizeEntry(entry, noLimit) {
+		if (!noLimit && entry.length > 250) {
 			console.log('Sorry, for security reasons the expressions used in the template cannot contain more than 250 characters.', entry);
 			return;
 		}
