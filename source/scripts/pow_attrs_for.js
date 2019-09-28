@@ -3,18 +3,36 @@ class PowFor extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
         this._$pwActive = false;
+        this._pwEvaluateValue = '';
     }
 
     // element attr allow to recursivelly call it with another element
     compile(element) {
         if (!this.element.dataset.powFor) return;
-        const parts = this.element.dataset.powFor.split(' ');
-        const obj = eval(this.$powerUi.interpolation.sanitizeEntry(parts[2]));
         const scope = {};
-        if (parts[1] === 'of') {
-            this.forOf(scope, parts[0], obj);
+        const parts = this.element.dataset.powFor.split(' ');
+        const item = parts[0];
+        const operation = parts[1];
+        // Remove parts[0]
+        parts.shift();
+        // Remove parts[1]
+        parts.shift();
+        // Recreate the final string to evaluate with the remaining parts
+        let obj = parts.join(' ');
+        if (operation === 'in') {
+            // Verify if user type a dictionary direct on the template
+            const objRegex = '{[^]*?}';
+            if (obj.match(objRegex)) {
+                obj = "this._pwEvaluateValue = " + obj;
+            }
+        }
+
+        obj = eval(this.$powerUi.interpolation.sanitizeEntry(obj));
+
+        if (operation === 'of') {
+            this.forOf(scope, item, obj);
         } else {
-            this.forIn(scope, parts[0], obj);
+            this.forIn(scope, item, obj);
         }
     }
 
