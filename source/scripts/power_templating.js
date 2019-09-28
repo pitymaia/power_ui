@@ -52,12 +52,19 @@ class PowerInterpolation {
 		return this.safeEvaluate(newEntry);
 	}
 
-	// TODO: This is not really safe, just good to use during ALPHA phase of development
+	// TODO: This is not really safe, just good to use during ALPHA and maybe BETA phase of development
 	// remove functions, arrow functions, document.*() and window.*(), script and more
 	sanitizeEntry(entry) {
+		if (entry.length > 250) {
+			console.log('Sorry, for security reasons the expressions used in the template cannot contain more than 250 characters.', entry);
+			return;
+		}
 		const REGEXLIST = [
 			/function[^]*?\)/gm,
 			/function/gm,
+			/defineProperty/gm,
+			/prototype/gm,
+			/Object\./gm,
 			/=>[^]*?/gm,
 			/=>/gm,
 			/localStorage\.[^]*?\)/gm,
@@ -66,17 +73,22 @@ class PowerInterpolation {
 			/window/gm,
 			/document\.[^]*?\)/gm,
 			/document/gm,
+			/while/gm,
+			/cookie/gm,
 			/write/gm,
 			/console\.[^]*?\)/gm,
 			/console/gm,
 			/alert[^]*?\)/gm,
-			/alert/gm,
+			/alert\(/gm,
+			/alert /gm,
 			/eval[^]*?\)/gm,
-			/eval/gm,
+			/eval\(/gm,
+			/eval /gm,
 			/request/gm,
 			/ajaxRequest/gm,
 			/loadHtmlView/gm,
 			/XMLHttpRequest/gm,
+			/setRequestHeader/gm,
 			/new[^]*?\)/gm,
 			/new /gm,
 			/<[^]*?script[^]*?>[^]*?<[^]*?\/[^]*?script[^]*?>/gm,
