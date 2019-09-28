@@ -44,13 +44,13 @@ class PowFor extends _PowerBasicElementWithEvents {
             const scope = _Unique.scopeID();
             const regex = new RegExp(selector, 'gm');
             // Replace any pwIndex
-            const currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
+            let currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
             pwIndex = pwIndex + 1;
             // Replace any value
             _PowerUiBase.tempScope[scope] = item;
             newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
-        this.element.innerHTML = newHtml;
+        this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
     }
 
     forIn(scope, selector, obj) {
@@ -70,7 +70,7 @@ class PowFor extends _PowerBasicElementWithEvents {
             _PowerUiBase.tempScope[scope] = obj[pwKey];
             newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
-        this.element.innerHTML = newHtml;
+        this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
     }
 }
 

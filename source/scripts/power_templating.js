@@ -52,6 +52,22 @@ class PowerInterpolation {
 		return this.safeEvaluate(newEntry);
 	}
 
+	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
+		// Find id attributes like id="pity_{{pwIndex}}_f"
+		const IdRegex = new RegExp('\\b(id)\\b[^]*?[\'\"][^]*?[\'\"]', 'gm');
+		const matchs = innerHTML.match(new RegExp(IdRegex));
+		if (matchs) {
+			for (const match of matchs) {
+				// Strip {{}} (or custom symbol) from ID ATTRIBUTE
+				let newIdEntry = match.replace(this.startSymbol, '');
+				newIdEntry = newIdEntry.replace(this.endSymbol, '');
+				// Replace the ID entry with the striped one
+				innerHTML = innerHTML.replace(match, newIdEntry);
+			}
+		}
+		return innerHTML;
+	}
+
 	// TODO: This is not really safe, just good to use during ALPHA and maybe BETA phase of development
 	// remove functions, arrow functions, document.*() and window.*(), script and more
 	sanitizeEntry(entry, noLimit) {

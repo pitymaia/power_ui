@@ -402,7 +402,7 @@ class PowerTree {
 			if (selector.datasetKey === datasetKey) {
 				// Check if not already compiled
 				if (!currentNode.getAttribute('data-pwcompiled')) {
-					const id = _Unique.domID(currentNode.tagName.toLowerCase());//getIdAndCreateIfDontHave(currentNode);
+					const id = getIdAndCreateIfDontHave(currentNode);
 					const newObj = selector.callback(currentNode);
 					// Add to any element some desired variables
 					newObj.id = id;

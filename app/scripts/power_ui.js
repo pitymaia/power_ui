@@ -402,7 +402,7 @@ class PowerTree {
 			if (selector.datasetKey === datasetKey) {
 				// Check if not already compiled
 				if (!currentNode.getAttribute('data-pwcompiled')) {
-					const id = _Unique.domID(currentNode.tagName.toLowerCase());//getIdAndCreateIfDontHave(currentNode);
+					const id = getIdAndCreateIfDontHave(currentNode);
 					const newObj = selector.callback(currentNode);
 					// Add to any element some desired variables
 					newObj.id = id;
@@ -1151,13 +1151,13 @@ class PowFor extends _PowerBasicElementWithEvents {
             const scope = _Unique.scopeID();
             const regex = new RegExp(selector, 'gm');
             // Replace any pwIndex
-            const currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
+            let currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
             pwIndex = pwIndex + 1;
             // Replace any value
             _PowerUiBase.tempScope[scope] = item;
             newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
-        this.element.innerHTML = newHtml;
+        this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
     }
 
     forIn(scope, selector, obj) {
@@ -1177,7 +1177,7 @@ class PowFor extends _PowerBasicElementWithEvents {
             _PowerUiBase.tempScope[scope] = obj[pwKey];
             newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
         }
-        this.element.innerHTML = newHtml;
+        this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
     }
 }
 
@@ -2379,6 +2379,22 @@ class PowerInterpolation {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
 		return this.safeEvaluate(newEntry);
+	}
+
+	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
+		// Find id attributes like id="pity_{{pwIndex}}_f"
+		const IdRegex = new RegExp('\\b(id)\\b[^]*?[\'\"][^]*?[\'\"]', 'gm');
+		const matchs = innerHTML.match(new RegExp(IdRegex));
+		if (matchs) {
+			for (const match of matchs) {
+				// Strip {{}} (or custom symbol) from ID ATTRIBUTE
+				let newIdEntry = match.replace(this.startSymbol, '');
+				newIdEntry = newIdEntry.replace(this.endSymbol, '');
+				// Replace the ID entry with the striped one
+				innerHTML = innerHTML.replace(match, newIdEntry);
+			}
+		}
+		return innerHTML;
 	}
 
 	// TODO: This is not really safe, just good to use during ALPHA and maybe BETA phase of development
