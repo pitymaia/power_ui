@@ -260,7 +260,7 @@ class PowerTree {
 			pwcAttrs: {},
 		};
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this));
+		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this), false);
 
 		// Interpolate the body: Replace any remaing {{ interpolation }} with <span data=pow-bind="interpolation">interpolation</span>
 		const body = document.getElementsByTagName('BODY')[0];
@@ -350,7 +350,7 @@ class PowerTree {
 	}
 
 	// Sweep through each node and pass the node to the callback
-	sweepDOM(entryNode, ctx, callback) {
+	sweepDOM(entryNode, ctx, callback, isInnerOfTarget) {
 		const isNode = !!entryNode && !!entryNode.nodeType;
 		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
 
@@ -361,7 +361,7 @@ class PowerTree {
 
 				// Call back with any condition to apply
 				// The callback Recursively call seepDOM for it's children nodes
-				callback(currentNode, ctx);
+				callback(currentNode, ctx, isInnerOfTarget);
 			}
 		}
 	}
@@ -390,6 +390,7 @@ class PowerTree {
 
 	// Compile the current node if the element powerObject have a compile() method
 	_compile(currentNode, datasetKey) {
+		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
 		for (const selector of this.objetcsWithCompile) {
 			// console.log('datasetKey', datasetKey, 'selector', selector.name);
@@ -404,9 +405,11 @@ class PowerTree {
 					newObj.$powerUi = this.$powerUi;
 					newObj.compile();
 					newObj.element.setAttribute('data-pwcompiled', true);
+					compiled = true;
 				}
 			}
 		}
+		return compiled;
 	}
 
 	// Recursively call all children and inner (children of children) powerObject compile()
@@ -556,7 +559,9 @@ class PowerTree {
 	}
 
 	// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-	_buildTempPowerTree(currentNode, ctx) {
+	_buildTempPowerTree(currentNode, ctx, isInnerOfTarget) {
+		isInnerOfTarget = isInnerOfTarget || false;
+		let hasCompiled = false;
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
 			for (const datasetKey in currentNode.dataset) {
@@ -564,7 +569,7 @@ class PowerTree {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
 						// Call powerObject compile that may create new children nodes
-						this._compile(currentNode, datasetKey);
+						hasCompiled = this._compile(currentNode, datasetKey);
 
 						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
 						const currentId = getIdAndCreateIfDontHave(currentNode);
@@ -590,9 +595,19 @@ class PowerTree {
 		}
 
 		const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
-		if(currentNodeHaschildren) {
-			// Recursively sweep through currentNode children
-			this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this));
+		// Recursively sweep through currentNode children
+		if (currentNodeHaschildren) {
+			// isInnerOfTarget detects if this is the root object with compile()
+			if (hasCompiled || isInnerOfTarget) {
+				this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this), true);
+			} else {
+				this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this), false);
+			}
+		}
+		// If hasCompiled and is the root element with a compile() method call interpolation compile
+		// This will make the interpolation of elements with compile without replace {{}} to <span data-pow-bind></span>
+		if (hasCompiled && !isInnerOfTarget) {
+			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
 		}
 	}
 }
