@@ -479,7 +479,7 @@ class PowerTree {
 							// Get the powerElement using the simple DOM node main element (currentMainElement)
 							const mainPowerObj = this.powerCss[mainPowerElementConfig.datasetKey][currentMainElement.getAttribute('id')];
 							// If we found it let's go to associate the main with the child
-							if(mainPowerObj) {
+							if (mainPowerObj) {
 								// Add the main object into the child object
 								currentPowElement.$pwMain = mainPowerObj;
 								// create the obj to hold the children if dont have it
@@ -1122,6 +1122,23 @@ class PowerUi extends _PowerUiBase {
 }
 
 // Replace a value form an attribute when is mouseover some element and undo on mouseout
+class PowBind extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+    }
+
+    compile() {
+        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powBind);
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-bind',
+    callback: function(element) {return new PowBind(element);}
+});
+
+// Create DOM elements with all ineerHTML for each "for in" or "for of"
 class PowFor extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
@@ -1204,7 +1221,7 @@ _PowerUiBase.injectPow({name: 'data-pow-for',
     callback: function(element) {return new PowFor(element);}
 });
 
-// Replace a value form an attribute when is mouseover some element and undo on mouseout
+// Hide DOM element if value is false
 class PowIf extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
@@ -1213,7 +1230,7 @@ class PowIf extends _PowerBasicElementWithEvents {
     }
 
     compile() {
-        const value = this.$powerUi.interpolation.addCompileAttrs(this.element.dataset.powIf) == 'true';
+        const value = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powIf) == 'true';
         // Hide if element is false
         if (value === false) {
             this.element.style.display = 'none';
@@ -2357,7 +2374,7 @@ class PowerInterpolation {
 		return this.replaceInterpolation(template);
 	}
 	// Add the {{ }} to pow interpolation values
-	addCompileAttrs(template) {
+	getDatasetResult(template) {
 		return this.compile(`${this.startSymbol} ${template} ${this.endSymbol}`);
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
@@ -2367,6 +2384,7 @@ class PowerInterpolation {
 	}
 
 	replaceInterpolation(template) {
+		template = this.stripWhiteChars(template);
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
@@ -2374,7 +2392,7 @@ class PowerInterpolation {
 				template = template.replace(entry, value);
 			}
 		}
-		return template;
+		return template.trim();
 	}
 
 	interpolationToPowBind(template) {

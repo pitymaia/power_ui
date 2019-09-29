@@ -479,7 +479,7 @@ class PowerTree {
 							// Get the powerElement using the simple DOM node main element (currentMainElement)
 							const mainPowerObj = this.powerCss[mainPowerElementConfig.datasetKey][currentMainElement.getAttribute('id')];
 							// If we found it let's go to associate the main with the child
-							if(mainPowerObj) {
+							if (mainPowerObj) {
 								// Add the main object into the child object
 								currentPowElement.$pwMain = mainPowerObj;
 								// create the obj to hold the children if dont have it

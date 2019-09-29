@@ -1,4 +1,4 @@
-// Replace a value form an attribute when is mouseover some element and undo on mouseout
+// Create DOM elements with all ineerHTML for each "for in" or "for of"
 class PowFor extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);

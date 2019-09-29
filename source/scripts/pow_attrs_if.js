@@ -1,4 +1,4 @@
-// Replace a value form an attribute when is mouseover some element and undo on mouseout
+// Hide DOM element if value is false
 class PowIf extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
@@ -7,7 +7,7 @@ class PowIf extends _PowerBasicElementWithEvents {
     }
 
     compile() {
-        const value = this.$powerUi.interpolation.addCompileAttrs(this.element.dataset.powIf) == 'true';
+        const value = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powIf) == 'true';
         // Hide if element is false
         if (value === false) {
             this.element.style.display = 'none';
