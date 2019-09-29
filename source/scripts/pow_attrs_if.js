@@ -7,7 +7,7 @@ class PowIf extends _PowerBasicElementWithEvents {
     }
 
     compile() {
-        const value = this.$powerUi.interpolation.compileAttrs(this.element.dataset.powIf) == 'true';
+        const value = this.$powerUi.interpolation.addCompileAttrs(this.element.dataset.powIf) == 'true';
         // Hide if element is false
         if (value === false) {
             this.element.style.display = 'none';

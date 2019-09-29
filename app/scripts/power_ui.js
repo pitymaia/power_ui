@@ -262,9 +262,9 @@ class PowerTree {
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
 		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this));
 
-		// Interpolate the body
+		// Interpolate the body: Replace any remaing {{ interpolation }} with <span data=pow-bind="interpolation">interpolation</span>
 		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
+		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -358,15 +358,10 @@ class PowerTree {
 			const nodes = entryNode.childNodes;
 			for (let i=0; i < nodes.length; i++) {
 				const currentNode = nodes[i];
-				const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
 
 				// Call back with any condition to apply
+				// The callback Recursively call seepDOM for it's children nodes
 				callback(currentNode, ctx);
-
-				if(currentNodeHaschildren) {
-					// Recursively sweep through currentNode children
-					this.sweepDOM(currentNode, ctx, callback);
-				}
 			}
 		}
 	}
@@ -568,7 +563,7 @@ class PowerTree {
 				for(const prefixe of ['pwc', 'pow']) {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
-						// TODO: The compiler needs enter HERE!
+						// Call powerObject compile that may create new children nodes
 						this._compile(currentNode, datasetKey);
 
 						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
@@ -592,6 +587,12 @@ class PowerTree {
 					ctx.powerCss[selector.datasetKey][currentId] = currentNode;
 				}
 			}
+		}
+
+		const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+		if(currentNodeHaschildren) {
+			// Recursively sweep through currentNode children
+			this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this));
 		}
 	}
 }
@@ -1115,7 +1116,9 @@ class PowFor extends _PowerBasicElementWithEvents {
 
     // element attr allow to recursivelly call it with another element
     compile(element) {
-        if (!this.element.dataset.powFor) return;
+        if (!this.element.dataset.powFor) {
+            return;
+        }
         const scope = {};
         const parts = this.element.dataset.powFor.split(' ');
         const item = `\\b(${parts[0]})\\b`;
@@ -1195,7 +1198,7 @@ class PowIf extends _PowerBasicElementWithEvents {
     }
 
     compile() {
-        const value = this.$powerUi.interpolation.compileAttrs(this.element.dataset.powIf) == 'true';
+        const value = this.$powerUi.interpolation.addCompileAttrs(this.element.dataset.powIf) == 'true';
         // Hide if element is false
         if (value === false) {
             this.element.style.display = 'none';
@@ -2339,8 +2342,8 @@ class PowerInterpolation {
 		return this.replaceInterpolation(template);
 	}
 	// Add the {{ }} to pow interpolation values
-	compileAttrs(template) {
-		return this.compile(`{{ ${template } }}`);
+	addCompileAttrs(template) {
+		return this.compile(`${this.startSymbol} ${template} ${this.endSymbol}`);
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -2353,6 +2356,17 @@ class PowerInterpolation {
 		if (match) {
 			for (const entry of match) {
 				const value = this.getInterpolationValue(entry);
+				template = template.replace(entry, value);
+			}
+		}
+		return template;
+	}
+
+	interpolationToPowBind(template) {
+		const match = template.match(this.standardRegex());
+		if (match) {
+			for (const entry of match) {
+				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}" data-pwcompiled="true">${this.getInterpolationValue(entry)}</span>`;
 				template = template.replace(entry, value);
 			}
 		}
@@ -2587,6 +2601,24 @@ const languages = {
 	bad: {name: 'EcmaScript', kind: 'Not typed'},
 	old: {name: 'COBOL', kind: 'Not typed'},
 	cool: {name: 'C++', kind: 'typed'},
+}
+function getCandNumber(currentCand) {
+	let count = 1;
+	let position = 0;
+	for (const group of cands) {
+		let innerCount = 0;
+		for (const cand of group) {
+			if (cand === currentCand) {
+				position = count;
+				return position;
+			}
+			if (innerCount === 0) {
+				count = count + 1;
+				innerCount = innerCount + 1;
+			}
+		}
+		count = count + 1;
+	}
 }
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';

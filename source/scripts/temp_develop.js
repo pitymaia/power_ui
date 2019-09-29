@@ -97,6 +97,24 @@ const languages = {
 	old: {name: 'COBOL', kind: 'Not typed'},
 	cool: {name: 'C++', kind: 'typed'},
 }
+function getCandNumber(currentCand) {
+	let count = 1;
+	let position = 0;
+	for (const group of cands) {
+		let innerCount = 0;
+		for (const cand of group) {
+			if (cand === currentCand) {
+				position = count;
+				return position;
+			}
+			if (innerCount === 0) {
+				count = count + 1;
+				innerCount = innerCount + 1;
+			}
+		}
+		count = count + 1;
+	}
+}
 function changeModel() {
 	myName = 'My name is Bond, James Bond!';
 	console.log(myName, pity(), 'currentIf', currentIf);

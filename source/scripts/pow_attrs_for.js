@@ -8,7 +8,9 @@ class PowFor extends _PowerBasicElementWithEvents {
 
     // element attr allow to recursivelly call it with another element
     compile(element) {
-        if (!this.element.dataset.powFor) return;
+        if (!this.element.dataset.powFor) {
+            return;
+        }
         const scope = {};
         const parts = this.element.dataset.powFor.split(' ');
         const item = `\\b(${parts[0]})\\b`;

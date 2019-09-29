@@ -10,8 +10,8 @@ class PowerInterpolation {
 		return this.replaceInterpolation(template);
 	}
 	// Add the {{ }} to pow interpolation values
-	compileAttrs(template) {
-		return this.compile(`{{ ${template } }}`);
+	addCompileAttrs(template) {
+		return this.compile(`${this.startSymbol} ${template} ${this.endSymbol}`);
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -24,6 +24,17 @@ class PowerInterpolation {
 		if (match) {
 			for (const entry of match) {
 				const value = this.getInterpolationValue(entry);
+				template = template.replace(entry, value);
+			}
+		}
+		return template;
+	}
+
+	interpolationToPowBind(template) {
+		const match = template.match(this.standardRegex());
+		if (match) {
+			for (const entry of match) {
+				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}" data-pwcompiled="true">${this.getInterpolationValue(entry)}</span>`;
 				template = template.replace(entry, value);
 			}
 		}

@@ -87,7 +87,7 @@
         Doces:
         <div data-pow-for="cand of cands">
             <div data-pow-for="content of cand">
-                <div>doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
+                <div>{{ getCandNumber(content) }} - doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>
             </div>
         </div>
         <hr />

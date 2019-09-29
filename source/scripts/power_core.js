@@ -262,9 +262,9 @@ class PowerTree {
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
 		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this));
 
-		// Interpolate the body
+		// Interpolate the body: Replace any remaing {{ interpolation }} with <span data=pow-bind="interpolation">interpolation</span>
 		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.compile(body.innerHTML);
+		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML);
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -358,15 +358,10 @@ class PowerTree {
 			const nodes = entryNode.childNodes;
 			for (let i=0; i < nodes.length; i++) {
 				const currentNode = nodes[i];
-				const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
 
 				// Call back with any condition to apply
+				// The callback Recursively call seepDOM for it's children nodes
 				callback(currentNode, ctx);
-
-				if(currentNodeHaschildren) {
-					// Recursively sweep through currentNode children
-					this.sweepDOM(currentNode, ctx, callback);
-				}
 			}
 		}
 	}
@@ -568,7 +563,7 @@ class PowerTree {
 				for(const prefixe of ['pwc', 'pow']) {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
-						// TODO: The compiler needs enter HERE!
+						// Call powerObject compile that may create new children nodes
 						this._compile(currentNode, datasetKey);
 
 						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
@@ -592,6 +587,12 @@ class PowerTree {
 					ctx.powerCss[selector.datasetKey][currentId] = currentNode;
 				}
 			}
+		}
+
+		const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+		if(currentNodeHaschildren) {
+			// Recursively sweep through currentNode children
+			this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this));
 		}
 	}
 }
