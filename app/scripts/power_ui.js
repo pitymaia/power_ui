@@ -258,13 +258,23 @@ class PowerTree {
 			powerCss: {},
 			powAttrs: {},
 			pwcAttrs: {},
+			pending: [],
 		};
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
 		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this), false);
 
-		// Interpolate the body: Replace any remaing {{ interpolation }} with <span data=pow-bind="interpolation">interpolation</span>
+		// Interpolate the body: Replace any remaing {{ interpolation }} with <span data=pow-bind="interpolation">interpolation</span> and add it to tempTree
 		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML);
+		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree);
+
+		// Add eny pending element created by the interpolationToPowBind method
+		for (const id of tempTree.pending) {
+			if (!tempTree.powAttrs.powBind) {
+				tempTree.powAttrs.powBind = {};
+			}
+			tempTree.powAttrs.powBind[id] = document.getElementById(id);
+		}
+		tempTree.pending = [];
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
 		for (const attribute in tempTree) {
@@ -2395,12 +2405,17 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowBind(template) {
+	interpolationToPowBind(template, tempTree) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
-				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}" data-pwcompiled="true">${this.getInterpolationValue(entry)}</span>`;
+				const id = _Unique.domID('span');
+				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}"
+					data-pwcompiled="true" id="${id}">${this.getInterpolationValue(entry)}</span>`;
 				template = template.replace(entry, value);
+
+				// Regiter any new element on tempTree pending to add after interpolation
+				tempTree.pending.push(id);
 			}
 		}
 		return template;
