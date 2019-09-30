@@ -23,7 +23,7 @@ class AccordionSectionHtmlCtrl {
 	toggle() {
 		// If not allow multipleSectionsOpen, close the other sections
 		if (!this.ctx.powerAccordion.model.multipleSectionsOpen) {
-			for (const action in this.ctx.powerAccordion.childrenActions) {
+			for (const action of Object.keys(this.ctx.powerAccordion.childrenActions || {})) {
 				// Only toggle if is not this section and or is active
 				const targetAction = this.ctx.powerAccordion.childrenActions[action];
 				if ((targetAction.targetObj.id !== this.ctx.powerAccordion.id) && targetAction._$pwActive && (this.ctx !== targetAction.targetObj)) {

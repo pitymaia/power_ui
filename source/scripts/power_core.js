@@ -237,13 +237,13 @@ class PowerTree {
 
 	findObjetcsWithCompile() {
 		const objetcsWithCompile = [];
-		for (const index in _PowerUiBase._powAttrsConfig) {
+		for (const index of Object.keys(_PowerUiBase._powAttrsConfig || {})) {
 			const test = _PowerUiBase._powAttrsConfig[index].callback(document.createElement('div'));
 			if (test.compile) {
 				objetcsWithCompile.push(_PowerUiBase._powAttrsConfig[index]);
 			}
 		}
-		for (const index in _PowerUiBase._pwcAttrsConfig) {
+		for (const index of Object.keys(_PowerUiBase._pwcAttrsConfig || {})) {
 			const test = _PowerUiBase._pwcAttrsConfig[index].callback(document.createElement('div'));
 			if (test.compile) {
 				objetcsWithCompile.push(_PowerUiBase._pwcAttrsConfig[index]);
@@ -277,7 +277,7 @@ class PowerTree {
 		tempTree.pending = [];
 
 		// Create the power-css and pow/pwc attrs objects from DOM elements
-		for (const attribute in tempTree) {
+		for (const attribute of Object.keys(tempTree || {})) {
 			for (const selector of PowerUi._powerElementsConfig) {
 				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
@@ -301,8 +301,8 @@ class PowerTree {
 
 	// Sweep allPowerObjsById to add parent and childrens to each power element
 	_likeInDOM() {
-		for (const id in this.allPowerObjsById) {
-			for (const powerSelector in this.allPowerObjsById[id]) {
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
+			for (const powerSelector of Object.keys(this.allPowerObjsById[id] || {})) {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
@@ -331,7 +331,7 @@ class PowerTree {
 					// Else it is a rootElement
 					if (searchParentResult.conditionResult && searchParentResult.powerElement.id !== currentObj.element.id) {
 						const parentElement = searchParentResult.powerElement;
-						for (const parentIndex in this.allPowerObjsById[parentElement.id]) {
+						for (const parentIndex of Object.keys(this.allPowerObjsById[parentElement.id] || {})) {
 							// Only add if this is a power class (not some pow or pwc attr)
 							if (parentIndex.includes('power')) {
 								// Add parent element to current power object
@@ -465,9 +465,9 @@ class PowerTree {
 	}
 
 	_callInit() {
-		for (const id in this.allPowerObjsById) {
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			// Call init for all elements
-			for (const attr in this.allPowerObjsById[id]) {
+			for (const attr of Object.keys(this.allPowerObjsById[id] || {})) {
 				if (this.allPowerObjsById[id][attr].init) {
 					this.allPowerObjsById[id][attr].init();
 				}
@@ -477,18 +477,18 @@ class PowerTree {
 
 	// Register power attrs and classes sharing the same element
 	_addSharingElement() {
-		for (const id in this.allPowerObjsById) {
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			// if Object.keys(obj).length add the inSameElement for each objects
 			// Also call init(if true or else)
-			if (Object.keys(this.allPowerObjsById[id]).length > 1) {
-				for (const attr in this.allPowerObjsById[id]) {
+			if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
+				for (const attr of Object.keys(this.allPowerObjsById[id] || {})) {
 					// Don't add inSameElement to $shared
 					if (attr != '$shared') {
 						if (!this.allPowerObjsById[id][attr].inSameElement) {
 							this.allPowerObjsById[id][attr].inSameElement = {};
 						}
 						// To avoid add this element as a sibling of it self we need iterate over attrs again
-						for (const siblingAttr in this.allPowerObjsById[id]) {
+						for (const siblingAttr of Object.keys(this.allPowerObjsById[id] || {})) {
 							// Also don't add $shared inSameElement
 							if (siblingAttr !== attr && siblingAttr != '$shared') {
 								this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
@@ -507,7 +507,7 @@ class PowerTree {
 		// Hold all element of a power kind (powerCss, powAttr or pwcAttr)
 		const currentTempElementsById = tempTree[attribute][datasetKey];
 		if (currentTempElementsById) {
-			for (const id in currentTempElementsById) {
+			for (const id of Object.keys(currentTempElementsById || {})) {
 				if (!ctx[attribute][datasetKey]) {
 					ctx[attribute][datasetKey] = {};
 				}
@@ -559,7 +559,7 @@ class PowerTree {
 		let hasCompiled = false;
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
-			for (const datasetKey in currentNode.dataset) {
+			for (const datasetKey of Object.keys(currentNode.dataset || {})) {
 				for(const prefixe of ['pwc', 'pow']) {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {

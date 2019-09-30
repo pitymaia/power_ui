@@ -76,7 +76,7 @@ class Router {
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
 		if (id !== 'otherwise' || template) {
-			for (const routeId in this.routes) {
+			for (const routeId of Object.keys(this.routes || {})) {
 				// the "otherwise" route can be duplicated only if it do not have a template
 				if (this.routes[routeId].route === entry.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
 					if (routeId === 'otherwise' || id === 'otherwise') {
@@ -110,7 +110,7 @@ class Router {
 	init({componentRoute, onHashChange}={}) {
 		const routeParts = this.extractRouteParts(componentRoute || window.location.hash || this.config.rootRoute);
 
-		for (const routeId in this.routes) {
+		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
 				// If the route have some parameters get it /some_page/:page_id/syfy/:title
