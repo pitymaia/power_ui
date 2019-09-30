@@ -293,7 +293,6 @@ class PowerTree {
 	}
 
 	linkElement() {
-		this._linkMainClassAndPowAttrs();
 		this._addSharingElement();
 
 		// Sweep allPowerObjsById to add parent and childrens to each power element
@@ -307,11 +306,31 @@ class PowerTree {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
-					const searchResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
-					// If searchResult is true and not returns the same element add parent and child
+					const searchParentResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
+					// Get the main and view elements of the currentObj
+					const currentMainElement = this._getMainElementFromChildElement(currentObj.element);
+					const currentViewElement = this._getViewElementFromChildElement(currentObj.element);
+					// Loop through the list of possible main CSS power class names like power-menu or power-main
+					// With this we will find the main powerElement that holds the simple DOM node main element
+					if (currentMainElement) {
+						for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
+							const powerMain = this.powerCss[mainPowerElementConfig.datasetKey][currentMainElement.id];
+							if (this.powerCss[mainPowerElementConfig.datasetKey] && powerMain) {
+								currentObj.$pwMain = powerMain;
+							}
+						}
+					}
+
+					// Add the mainView to element
+					if (currentViewElement) {
+						const powerView = this.powerCss['powerView'][currentViewElement.id];
+						currentObj.$pwView = powerView;
+					}
+
+					// If searchParentResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
-					if (searchResult.conditionResult && searchResult.powerElement.id !== currentObj.element.id) {
-						const parentElement = searchResult.powerElement;
+					if (searchParentResult.conditionResult && searchParentResult.powerElement.id !== currentObj.element.id) {
+						const parentElement = searchParentResult.powerElement;
 						for (const parentIndex in this.allPowerObjsById[parentElement.id]) {
 							// Only add if this is a power class (not some pow or pwc attr)
 							if (parentIndex.includes('power')) {
@@ -384,6 +403,14 @@ class PowerTree {
 		}
 	}
 
+	// Check is this powerElement is child of some power view
+	_getViewElementFromChildElement(element) {
+		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsViewElement);
+		if (searchResult.conditionResult) {
+			return searchResult.powerElement;
+		}
+	}
+
 	// testCondition to find the main powerElement of a given powerElement
 	_checkIfIsMainElement(currentElement) {
 		let found = false;
@@ -398,13 +425,16 @@ class PowerTree {
 		return found;
 	}
 
+	// testCondition to find element is a power-view
+	_checkIfIsViewElement(currentElement) {
+		return (currentElement && currentElement.className && currentElement.classList.contains('power-view'));
+	}
+
 	// Compile the current node if the element powerObject have a compile() method
 	_compile(currentNode, datasetKey) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
 		for (const selector of this.objetcsWithCompile) {
-			// console.log('datasetKey', datasetKey, 'selector', selector.name);
-			// TODO: allow interpolation of custom IDs
 			if (selector.datasetKey === datasetKey) {
 				// Check if not already compiled
 				if (!currentNode.getAttribute('data-pwcompiled')) {
@@ -462,51 +492,6 @@ class PowerTree {
 							// Also don't add $shared inSameElement
 							if (siblingAttr !== attr && siblingAttr != '$shared') {
 								this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	_linkMainClassAndPowAttrs() {
-		// Loop through the list of possible attributes like data-pow-main-src-hover
-		for (const item of PowerUi._powAttrsConfig.filter(a => a.isMain === true)) {
-			// Hold elements that have pow-attrs
-			const powAttrsList = this.powAttrs[item.datasetKey];
-			// Loop through the list of existing powAttrs in dataset format like powMainSrcHover
-			// Every element it found is the powerElement it needs find the correspondent main object
-			for (const id in powAttrsList) {
-				const currentPowElement = powAttrsList[id];
-				// Get the simple DOM node main element  of the current powerElement object
-				const currentMainElement = this._getMainElementFromChildElement(currentPowElement.element);
-				if (currentMainElement) {
-					// Loop through the list of possible main CSS power class names like power-menu or power-main
-					// With this we will find the main powerElement that holds the simple DOM node main element
-					for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
-						if (this.powerCss[mainPowerElementConfig.datasetKey]) {
-							// Get the powerElement using the simple DOM node main element (currentMainElement)
-							const mainPowerObj = this.powerCss[mainPowerElementConfig.datasetKey][currentMainElement.getAttribute('id')];
-							// If we found it let's go to associate the main with the child
-							if (mainPowerObj) {
-								// Add the main object into the child object
-								currentPowElement.$pwMain = mainPowerObj;
-								// create the obj to hold the children if dont have it
-								if (mainPowerObj.innerPowAttrs === undefined) {
-									mainPowerObj.innerPowAttrs = {};
-								}
-								// Add the child object into the main object
-								// Organize it by attribute dataset name
-								const datasetAttrName = currentPowElement.$powerCss;
-								if (!mainPowerObj.innerPowAttrs[datasetAttrName]) {
-									mainPowerObj.innerPowAttrs[datasetAttrName] = {};
-								}
-								// Organize it by id inside attribute dataset name
-								if (!mainPowerObj.innerPowAttrs[datasetAttrName][currentPowElement.id]) {
-									mainPowerObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = {};
-								}
-								mainPowerObj.innerPowAttrs[datasetAttrName][currentPowElement.id] = currentPowElement;
 							}
 						}
 					}
