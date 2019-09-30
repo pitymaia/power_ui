@@ -26,6 +26,7 @@
 //  }
 // }
 // let app = new TesteUi();
+const t0 = performance.now();
 let app = new PowerUi({
 	routes: [
 		{
@@ -55,6 +56,8 @@ let app = new PowerUi({
 		}
 	],
 });
+const t1 = performance.now();
+console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 function pity() {

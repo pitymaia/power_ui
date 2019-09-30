@@ -126,7 +126,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	init() {
-		console.log('PowerUi init');
+		const t0 = performance.now();
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.truth = {};
@@ -138,6 +138,8 @@ class PowerUi extends _PowerUiBase {
 			this.keyboardManager = new KeyboardManager(this);
 		}
 		window.scrollTo(0, 0);
+		const t1 = performance.now();
+		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	loadHtmlView(url, viewId) {
