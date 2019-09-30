@@ -42,7 +42,7 @@ class PowFor extends _PowerBasicElementWithEvents {
         let newHtml = '';
         let pwIndex = 0;
         const regexPwIndex = new RegExp('pwIndex', 'gm');
-        for (const item of obj) {
+        for (const item of obj || []) {
             const scope = _Unique.scopeID();
             const regex = new RegExp(selector, 'gm');
             // Replace any pwIndex
@@ -60,7 +60,7 @@ class PowFor extends _PowerBasicElementWithEvents {
         let pwIndex = 0;
         const regexPwIndex = new RegExp('pwIndex', 'gm');
         const regexPwKey = new RegExp('pwKey', 'gm');
-        for (const pwKey in obj) {
+        for (const pwKey of Object.keys(obj || {})) {
             const scope = _Unique.scopeID();
             const regex = new RegExp(selector, 'gm');
             // Replace any pwKey
