@@ -1012,8 +1012,6 @@ class PowerUi extends _PowerUiBase {
 		console.log('PowerUi init');
 		this._createPowerTree();
 		this.powerTree._callInit();
-		this.menus = this.powerTree.powerCss.powerMenu;
-		this.mains = this.powerTree.powerCss.powerMain;
 		this.truth = {};
 		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
