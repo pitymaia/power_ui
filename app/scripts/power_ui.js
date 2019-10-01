@@ -304,7 +304,7 @@ class PowerTree {
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
-					const searchParentResult = PowerTree._searchUpDOM(currentObj.element, PowerTree._checkIfhavePowerParentElement);
+					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
 					// Get the main and view elements of the currentObj
 					const currentMainElement = this._getMainElementFromChildElement(currentObj.element);
 					const currentViewElement = this._getViewElementFromChildElement(currentObj.element);
@@ -327,13 +327,12 @@ class PowerTree {
 
 					// If searchParentResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
-					if (searchParentResult.conditionResult && searchParentResult.powerElement.id !== currentObj.element.id) {
-						const parentElement = searchParentResult.powerElement;
-						for (const parentIndex of Object.keys(this.allPowerObjsById[parentElement.id] || {})) {
+					if (currentParentElement && (currentParentElement.id !== currentObj.element.id)) {
+						for (const parentIndex of Object.keys(this.allPowerObjsById[currentParentElement.id] || {})) {
 							// Only add if this is a power class (not some pow or pwc attr)
 							if (parentIndex.includes('power')) {
 								// Add parent element to current power object
-								const parentObj = this.allPowerObjsById[parentElement.id][parentIndex];
+								const parentObj = this.allPowerObjsById[currentParentElement.id][parentIndex];
 								currentObj.parent = parentObj;
 								// Add current object as child of parentObj
 								if (!parentObj.children) {
@@ -393,6 +392,13 @@ class PowerTree {
 		}
 	}
 
+	_getParentElementFromChildElement(element) {
+		const searchResult = PowerTree._searchUpDOM(element, PowerTree._checkIfhavePowerParentElement);
+		if (searchResult.conditionResult) {
+			return searchResult.powerElement;
+		}
+	}
+
 	// Check is this powerElement is child of some main powerElement (like powerMenu, powerMain, powerAccordion, etc)
 	_getMainElementFromChildElement(element) {
 		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsMainElement);
@@ -448,18 +454,6 @@ class PowerTree {
 			}
 		}
 		return compiled;
-	}
-
-	// Recursively call all children and inner (children of children) powerObject compile()
-	_removeChildrenObjects({children=[], tempPowerObjsById}) {
-		for (const child of children) {
-			if (tempPowerObjsById[child.id]) {
-				// call this for the children
-				this._removeChildrenObjects(child.children || []);
-				// Remove this
-				tempPowerObjsById[child.id] = null;
-			}
-		}
 	}
 
 	_callInit() {
