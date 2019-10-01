@@ -43,7 +43,7 @@ class PowerStatus extends PowerTarget {
 		const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById;
 		while (!stop) {
 			if (element) {
-				for (const index in allPowerObjsById[element.id]) {
+				for (const index of Object.keys(allPowerObjsById[element.id] || {})) {
 					if (allPowerObjsById[element.id][index].powerTarget) {
 						this.targetObj = allPowerObjsById[element.id][index];
 					}

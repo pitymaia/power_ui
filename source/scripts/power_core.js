@@ -232,7 +232,7 @@ class PowerTree {
 		this.buildTempTreeAndObjects(document);
 
 		// Add navigation element like "main", "parentObj" and "children"
-		this.linkElement();
+		this.linkElements();
 	}
 
 	findObjetcsWithCompile() {
@@ -292,7 +292,7 @@ class PowerTree {
 		}
 	}
 
-	linkElement() {
+	linkElements() {
 		this._addSharingElement();
 
 		// Sweep allPowerObjsById to add parent and childrens to each power element
@@ -479,7 +479,6 @@ class PowerTree {
 	_addSharingElement() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			// if Object.keys(obj).length add the inSameElement for each objects
-			// Also call init(if true or else)
 			if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
 				for (const attr of Object.keys(this.allPowerObjsById[id] || {})) {
 					// Don't add inSameElement to $shared
