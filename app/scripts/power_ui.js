@@ -232,7 +232,7 @@ class PowerTree {
 		this.buildTempTreeAndObjects(document);
 
 		// Add navigation element like "main", "parentObj" and "children"
-		this.linkElements();
+		this._likeInDOM();
 	}
 
 	findObjetcsWithCompile() {
@@ -292,17 +292,15 @@ class PowerTree {
 		}
 	}
 
-	linkElements() {
-		this._addSharingElement();
-
-		// Sweep allPowerObjsById to add parent and childrens to each power element
-		this._likeInDOM();
-	}
-
 	// Sweep allPowerObjsById to add parent and childrens to each power element
 	_likeInDOM() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			for (const powerSelector of Object.keys(this.allPowerObjsById[id] || {})) {
+				// If have multiple powerSelectors need add shared scope
+				if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
+					// Register power attrs and classes sharing the same element
+					this._addSharingScope(id, powerSelector);
+				}
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if (powerSelector !== '$shared' && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
@@ -476,24 +474,17 @@ class PowerTree {
 	}
 
 	// Register power attrs and classes sharing the same element
-	_addSharingElement() {
-		for (const id of Object.keys(this.allPowerObjsById || {})) {
-			// if Object.keys(obj).length add the inSameElement for each objects
-			if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
-				for (const attr of Object.keys(this.allPowerObjsById[id] || {})) {
-					// Don't add inSameElement to $shared
-					if (attr != '$shared') {
-						if (!this.allPowerObjsById[id][attr].inSameElement) {
-							this.allPowerObjsById[id][attr].inSameElement = {};
-						}
-						// To avoid add this element as a sibling of it self we need iterate over attrs again
-						for (const siblingAttr of Object.keys(this.allPowerObjsById[id] || {})) {
-							// Also don't add $shared inSameElement
-							if (siblingAttr !== attr && siblingAttr != '$shared') {
-								this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
-							}
-						}
-					}
+	_addSharingScope(id, attr) {
+		// Don't add inSameElement to $shared
+		if (attr != '$shared') {
+			if (!this.allPowerObjsById[id][attr].inSameElement) {
+				this.allPowerObjsById[id][attr].inSameElement = {};
+			}
+			// To avoid add this element as a sibling of it self we need iterate over attrs again
+			for (const siblingAttr of Object.keys(this.allPowerObjsById[id] || {})) {
+				// Also don't add $shared inSameElement
+				if (siblingAttr !== attr && siblingAttr != '$shared') {
+					this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
 				}
 			}
 		}
