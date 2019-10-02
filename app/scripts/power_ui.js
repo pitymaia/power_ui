@@ -114,9 +114,8 @@ class _PowerBasicElement {
 	get children() {
 		const children = [];
 		for (const id of Object.keys(this.childrenById)) {
-			for (const key of Object.keys(this.childrenById[id])) {
-				children.push(this.childrenById[id][key]);
-			}
+			for (const key of Object.keys(this.childrenById[id]))
+			children.push(this.childrenById[id][key]);
 		}
 		return children;
 	}
@@ -236,7 +235,7 @@ class PowerTree {
 		this.powAttrs = {};
 		this.pwcAttrs = {};
 		this.allPowerObjsById = {};
-		this.rootElementsById = {};
+		this.rootElements = [];
 		this.objetcsWithCompile = this.findObjetcsWithCompile();
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
@@ -244,16 +243,6 @@ class PowerTree {
 
 		// Add navigation element like "main", "parentObj" and "children"
 		this._likeInDOM();
-	}
-
-	get rootElements() {
-		const root = [];
-		for (const id of Object.keys(this.rootElementsById)) {
-			for (const key of Object.keys(this.rootElementsById[id])) {
-				root.push(this.rootElementsById[id][key]);
-			}
-		}
-		return root;
 	}
 
 	findObjetcsWithCompile() {
@@ -367,20 +356,15 @@ class PowerTree {
 							}
 						}
 					} else { // This is a rootElement
+						// Only add if this is a power class (not some pow or pwc attr)
 						// And only if not already added
-						if (!this.rootElementsById[currentObj.id] || !this.rootElementsById[currentObj.id][currentObj.$powerCss]) {
-							if (!this.rootElementsById[currentObj.id]) {
-								this.rootElementsById[currentObj.id] = {};
-							}
-							if (!this.rootElementsById[currentObj.id][currentObj.$powerCss]) {
-								this.rootElementsById[currentObj.id][currentObj.$powerCss] = {};
-							}
-							this.rootElementsById[currentObj.id][currentObj.$powerCss] = currentObj;
+						if (currentObj.element.className.includes('power-') && !this.rootElements.find(obj => obj.id === currentObj.id)) {
+							this.rootElements.push(currentObj);
 							currentObj.parent = null;
 						}
 					}
 				}
-				// Add current object as inner of parentObj
+				// Add current object as child of parentObj
 				if (currentObj.element && currentObj.element.className.includes('power-') && !currentObj.innerPowerCss) {
 					currentObj.innerPowerCss = this._getAllInnerPowerCss(currentObj.element);
 				}
