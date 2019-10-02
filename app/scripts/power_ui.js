@@ -100,7 +100,6 @@ class _PowerBasicElement {
 	constructor(element) {
 		this.element = element;
 		this._$pwActive = false;
-		this.childrenById = {};
 	}
 
 	get id() {
@@ -109,15 +108,6 @@ class _PowerBasicElement {
 
 	set id(id) {
 		this.element.id = id;
-	}
-
-	get children() {
-		const children = [];
-		for (const id of Object.keys(this.childrenById)) {
-			for (const key of Object.keys(this.childrenById[id]))
-			children.push(this.childrenById[id][key]);
-		}
-		return children;
 	}
 }
 
@@ -335,23 +325,23 @@ class PowerTree {
 						currentObj.$pwView = powerView;
 					}
 
-					// If currentParentElement is true and not returns the same element add parent and child
+					// If searchParentResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
 					if (currentParentElement && (currentParentElement.id !== currentObj.element.id)) {
 						for (const parentIndex of Object.keys(this.allPowerObjsById[currentParentElement.id] || {})) {
-							if (parentIndex !== '$shared') {
+							// Only add if this is a power class (not some pow or pwc attr)
+							if (parentIndex.includes('power')) {
 								// Add parent element to current power object
 								const parentObj = this.allPowerObjsById[currentParentElement.id][parentIndex];
 								currentObj.parent = parentObj;
+								// Add current object as child of parentObj
+								if (!parentObj.children) {
+									parentObj.children = [];
+								}
+								// Only add if this is a power class (not some pow or pwc attr)
 								// And only if not already added
-								if (!parentObj.childrenById[currentObj.id] || !parentObj.childrenById[currentObj.id][powerSelector]) {
-									if (!parentObj.childrenById[currentObj.id]) {
-										parentObj.childrenById[currentObj.id] = {};
-									}
-									if (!parentObj.childrenById[currentObj.id][powerSelector]) {
-										parentObj.childrenById[currentObj.id][powerSelector] = {};
-									}
-									parentObj.childrenById[currentObj.id][powerSelector] = currentObj;
+								if (currentObj.element.className.includes('power-') && !parentObj.children.find(obj => obj.id === currentObj.id)) {
+									parentObj.children.push(currentObj);
 								}
 							}
 						}
