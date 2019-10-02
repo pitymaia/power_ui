@@ -119,6 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.config = config;
 		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
@@ -137,9 +138,14 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
-		window.scrollTo(0, 0);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
+	}
+
+	hardReload() {
+		this.router.removeComponentViews();
+		this.waitingServer = 0;
+		this.router = new Router(this.config, this);
 	}
 
 	loadHtmlView(url, viewId) {

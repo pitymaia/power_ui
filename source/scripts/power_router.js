@@ -197,6 +197,11 @@ class Router {
 		return viewId;
 	}
 
+	removeComponentViews() {
+		const componentView = document.getElementById(this.config.routerComponentViewId);
+		componentView.innerHTML = '';
+	}
+
 	setMainRouteState({routeId, paramKeys}) {
 		// Register current route id
 		this.currentRoute.id = routeId;

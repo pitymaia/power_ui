@@ -986,6 +986,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.config = config;
 		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
@@ -1004,9 +1005,14 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
-		window.scrollTo(0, 0);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
+	}
+
+	hardReload() {
+		this.router.removeComponentViews();
+		this.waitingServer = 0;
+		this.router = new Router(this.config, this);
 	}
 
 	loadHtmlView(url, viewId) {
@@ -2182,6 +2188,11 @@ class Router {
 		return viewId;
 	}
 
+	removeComponentViews() {
+		const componentView = document.getElementById(this.config.routerComponentViewId);
+		componentView.innerHTML = '';
+	}
+
 	setMainRouteState({routeId, paramKeys}) {
 		// Register current route id
 		this.currentRoute.id = routeId;
@@ -2582,6 +2593,7 @@ const t1 = performance.now();
 console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
+let oldName = myName;
 function pity() {
     return myName;
 }
@@ -2641,10 +2653,21 @@ function getCandNumber(currentCand) {
 	}
 }
 function changeModel() {
-	myName = 'My name is Bond, James Bond!';
+	if (oldName === myName) {
+		myName = 'My name is Bond, James Bond!';
+	} else {
+		const changeName = myName;
+		myName = oldName;
+		oldName = changeName;
+	}
 	console.log(myName, pity(), 'currentIf', currentIf);
-	// app.router.hashChange();
-	app.init();
+	if (cats.length === 12) {
+		console.log('12 gatos');
+		cats.push({name: '4 gatinhos', gender: 'unknow'});
+	} else {
+		cats.pop();
+	}
+	app.hardReload();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
