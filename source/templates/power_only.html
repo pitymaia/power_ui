@@ -1107,7 +1107,11 @@
         Eu sou mais bonito que o Brad...
     </aside>
     <article>
-        <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
+        <div data-pow-for="cat of cats">
+            <div data-pow-if="cat.gender === 'female'" id="cat_{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
+            <div data-pow-if="cat.gender === 'male'" id="cat_{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
+            <div data-pow-if="cat.gender === 'unknow'" id="cat_{{pwIndex}}_m">{{pwIndex + 1}} - São lindos meus {{ cat.name }}</div>
+        </div>
         <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
         <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
         <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
@@ -1116,9 +1120,10 @@
         Eu sou mais bonito que o Brad...
     </aside>
     <footer>
-        Esse aqui é footer.
+        Esse aqui é footer. <span data-pow-bind="pity()"></span>
     </footer>
 </section>
+    <button onclick="changeModel()">Change model</button>
     <span>Aqui temos uma interpolação de 2 + 2: </span>
     {{ 2 + 2 }}
 <div class="power-accordion" id="my-accordion" data-multiple-sections-open="false">

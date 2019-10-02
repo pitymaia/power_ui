@@ -994,7 +994,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	init() {
-		const t0 = performance.now();
+		// const t0 = performance.now();
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.truth = {};
@@ -1005,8 +1005,8 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
-		const t1 = performance.now();
-		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
+		// const t1 = performance.now();
+		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	hardReload() {

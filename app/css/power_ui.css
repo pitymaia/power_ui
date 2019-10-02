@@ -275,7 +275,7 @@ body {
     background: #fff;
 }
 .back {
-    margin: 3em;
+    margin-top: 0;
     padding: 2em;
     border-radius: 1em;
     background-color: #ADD8E6;
@@ -309,10 +309,11 @@ header, aside, footer, article {
     overflow: auto;
 }
 section {
+    margin: 1em;
+    margin-top: 3em;
     border-radius: .5em;
     background-color: #ADD8E6;
     box-shadow: 5px 5px 20px 0 purple;
-    margin: 1em;
 }
 .back {
     position: absolute;
