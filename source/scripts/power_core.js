@@ -221,9 +221,9 @@ class PowerTarget extends _PowerBasicElementWithEvents {
 class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
-		this.powerCss = {};
-		this.powAttrs = {};
-		this.pwcAttrs = {};
+		// this.powerCss = {};
+		// this.powAttrs = {};
+		// this.pwcAttrs = {};
 		this.allPowerObjsById = {};
 		this.rootElements = [];
 		this.objetcsWithCompile = this.findObjetcsWithCompile();
@@ -258,6 +258,7 @@ class PowerTree {
 			powerCss: {},
 			powAttrs: {},
 			pwcAttrs: {},
+			rootCompilers: {},
 			pending: [],
 		};
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
@@ -267,7 +268,7 @@ class PowerTree {
 		const body = document.getElementsByTagName('BODY')[0];
 		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree);
 
-		// Add eny pending element created by the interpolationToPowBind method
+		// Add any pending element created by the interpolationToPowBind method
 		for (const id of tempTree.pending) {
 			if (!tempTree.powAttrs.powBind) {
 				tempTree.powAttrs.powBind = {};
@@ -290,6 +291,11 @@ class PowerTree {
 				this._buildObjcsFromTempTree(this, attribute, selector, tempTree);
 			}
 		}
+
+		// Move the original innerHTML of compiler elements with the powerObjects
+		for (const id of Object.keys(tempTree.rootCompilers || {})) {
+			this.allPowerObjsById[id]['$originalInnerHTML'] = tempTree.rootCompilers[id];
+		}
 	}
 
 	// Sweep allPowerObjsById to add parent and childrens to each power element
@@ -302,7 +308,7 @@ class PowerTree {
 					this._addSharingScope(id, powerSelector);
 				}
 				const currentObj = this.allPowerObjsById[id][powerSelector];
-				if (powerSelector !== '$shared' && !currentObj.parent) {
+				if ((powerSelector !== '$shared' && powerSelector !== '$originalInnerHTML') && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
 					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
 					// Get the main and view elements of the currentObj
@@ -312,8 +318,8 @@ class PowerTree {
 					// With this we will find the main powerElement that holds the simple DOM node main element
 					if (currentMainElement) {
 						for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
-							const powerMain = this.powerCss[mainPowerElementConfig.datasetKey][currentMainElement.id];
-							if (this.powerCss[mainPowerElementConfig.datasetKey] && powerMain) {
+							const powerMain = this.allPowerObjsById[currentMainElement.id][mainPowerElementConfig.datasetKey];
+							if (powerMain) {
 								currentObj.$pwMain = powerMain;
 							}
 						}
@@ -321,7 +327,7 @@ class PowerTree {
 
 					// Add the mainView to element
 					if (currentViewElement) {
-						const powerView = this.powerCss['powerView'][currentViewElement.id];
+						const powerView = this.allPowerObjsById[currentViewElement.id]['powerView'];
 						currentObj.$pwView = powerView;
 					}
 
@@ -435,7 +441,7 @@ class PowerTree {
 	}
 
 	// Compile the current node if the element powerObject have a compile() method
-	_compile(currentNode, datasetKey) {
+	_compile({currentNode, datasetKey, isInnerOfRoot}) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
 		for (const selector of this.objetcsWithCompile) {
@@ -447,9 +453,10 @@ class PowerTree {
 					// Add to any element some desired variables
 					newObj.id = id;
 					newObj.$powerUi = this.$powerUi;
+					// If is the root element save the original innerHTML, if not only return true
+					compiled = !isInnerOfRoot ? currentNode.innerHTML : true;
 					newObj.compile();
 					newObj.element.setAttribute('data-pwcompiled', true);
-					compiled = true;
 				}
 			}
 		}
@@ -470,14 +477,14 @@ class PowerTree {
 	// Register power attrs and classes sharing the same element
 	_addSharingScope(id, attr) {
 		// Don't add inSameElement to $shared
-		if (attr != '$shared') {
+		if (attr !== '$shared' && attr !== '$originalInnerHTML') {
 			if (!this.allPowerObjsById[id][attr].inSameElement) {
 				this.allPowerObjsById[id][attr].inSameElement = {};
 			}
 			// To avoid add this element as a sibling of it self we need iterate over attrs again
 			for (const siblingAttr of Object.keys(this.allPowerObjsById[id] || {})) {
 				// Also don't add $shared inSameElement
-				if (siblingAttr !== attr && siblingAttr != '$shared') {
+				if (siblingAttr !== attr && (siblingAttr != '$shared' && siblingAttr !== '$originalInnerHTML')) {
 					this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
 				}
 			}
@@ -492,23 +499,19 @@ class PowerTree {
 		const currentTempElementsById = tempTree[attribute][datasetKey];
 		if (currentTempElementsById) {
 			for (const id of Object.keys(currentTempElementsById || {})) {
-				if (!ctx[attribute][datasetKey]) {
-					ctx[attribute][datasetKey] = {};
-				}
-
 				// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 				// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
 				const functionName = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+				let powerObject;
 				if (functionName === 'powerAttrs') {
-					// Add into a list ordered by attribute name
-					// ctx[attribute][datasetKey][id] = selector.callback(currentTempElementsById[id]);
-					ctx[attribute][datasetKey][id] = selector.callback(document.getElementById(id));
+					// Create powerObject from pow or pwc attrs
+					powerObject = selector.callback(document.getElementById(id));
 				} else {
 					// Call the method for create objects like _powerMenu with the node elements in tempTree
 					// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
 					// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
-					// ctx[attribute][datasetKey][id] = ctx.$powerUi[functionName](currentTempElementsById[id]);
-					ctx[attribute][datasetKey][id] = ctx.$powerUi[functionName](document.getElementById(id));
+					// Create powerObject from pow or pwc attrs it will create powerObject from class name like power-menu or power-view
+					powerObject = ctx.$powerUi[functionName](document.getElementById(id));
 				}
 				// Add the same element into a list ordered by id
 				if (!ctx.allPowerObjsById[id]) {
@@ -522,7 +525,7 @@ class PowerTree {
 						throw `HTML element can't have duplicated IDs: ${id}`;
 					}
 				}
-				ctx.allPowerObjsById[id][datasetKey] = ctx[attribute][datasetKey][id];
+				ctx.allPowerObjsById[id][datasetKey] = powerObject;
 				// Add to any element some desired variables
 				ctx.allPowerObjsById[id][datasetKey].id = id;
 				ctx.allPowerObjsById[id][datasetKey].$powerCss = datasetKey;
@@ -531,7 +534,7 @@ class PowerTree {
 				if (!ctx.allPowerObjsById[id].$shared) {
 					ctx.allPowerObjsById[id].$shared = {};
 				}
-				// add the shered scope to all elements
+				// add the shared scope to all elements
 				ctx.allPowerObjsById[id][datasetKey].$shared = ctx.allPowerObjsById[id].$shared;
 			}
 		}
@@ -548,14 +551,14 @@ class PowerTree {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
 						// Call powerObject compile that may create new children nodes
-						hasCompiled = this._compile(currentNode, datasetKey);
+						hasCompiled = this._compile({currentNode: currentNode, datasetKey: datasetKey, isInnerOfRoot: isInnerOfTarget});
 
 						const attributeName = `${prefixe}Attrs`; // pwcAttrs or powAttrs
-						const currentId = getIdAndCreateIfDontHave(currentNode);
+						currentNode.id = getIdAndCreateIfDontHave(currentNode);
 						if (!ctx[attributeName][datasetKey]) {
 							ctx[attributeName][datasetKey] = {};
 						}
-						ctx[attributeName][datasetKey][currentId] = currentNode;
+						ctx[attributeName][datasetKey][currentNode.id] = currentNode;
 					}
 				}
 			}
@@ -564,11 +567,11 @@ class PowerTree {
 		if (currentNode.className && currentNode.className.includes('power-')) {
 			for (const selector of PowerUi._powerElementsConfig) {
 				if (currentNode.classList.contains(selector.name)) {
-					const currentId = getIdAndCreateIfDontHave(currentNode);
+					currentNode.id = getIdAndCreateIfDontHave(currentNode);
 					if (!ctx.powerCss[selector.datasetKey]) {
 						ctx.powerCss[selector.datasetKey] = {};
 					}
-					ctx.powerCss[selector.datasetKey][currentId] = currentNode;
+					ctx.powerCss[selector.datasetKey][currentNode.id] = currentNode;
 				}
 			}
 		}
@@ -576,7 +579,7 @@ class PowerTree {
 		const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
 		// Recursively sweep through currentNode children
 		if (currentNodeHaschildren) {
-			// isInnerOfTarget detects if this is the root object with compile()
+			// isInnerOfTarget detects if this is NOT the root object with compile()
 			if (hasCompiled || isInnerOfTarget) {
 				this.sweepDOM({entryNode: currentNode, ctx: ctx, callback: this._buildTempPowerTree.bind(this), isInnerOfTarget: true});
 			} else {
@@ -586,6 +589,8 @@ class PowerTree {
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
 		// This will make the interpolation of elements with compile without replace {{}} to <span data-pow-bind></span>
 		if (hasCompiled && !isInnerOfTarget) {
+			// Has compiled contains the original node.innerHTML and we nned save it
+			ctx.rootCompilers[currentNode.id] = hasCompiled;
 			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
 		}
 	}
