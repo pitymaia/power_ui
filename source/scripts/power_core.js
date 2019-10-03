@@ -261,7 +261,7 @@ class PowerTree {
 			pending: [],
 		};
 		// Sweep FOM to create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-		this.sweepDOM(node, tempTree, this._buildTempPowerTree.bind(this), false);
+		this.sweepDOM({entryNode: node, ctx: tempTree, callback: this._buildTempPowerTree.bind(this), isInnerOfTarget: false});
 
 		// Interpolate the body: Replace any remaing {{ interpolation }} with <span data=pow-bind="interpolation">interpolation</span> and add it to tempTree
 		const body = document.getElementsByTagName('BODY')[0];
@@ -376,7 +376,7 @@ class PowerTree {
 	}
 
 	// Sweep through each node and pass the node to the callback
-	sweepDOM(entryNode, ctx, callback, isInnerOfTarget) {
+	sweepDOM({entryNode, ctx, callback, isInnerOfTarget}) {
 		const isNode = !!entryNode && !!entryNode.nodeType;
 		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
 
@@ -387,7 +387,7 @@ class PowerTree {
 
 				// Call back with any condition to apply
 				// The callback Recursively call seepDOM for it's children nodes
-				callback(currentNode, ctx, isInnerOfTarget);
+				callback({currentNode: currentNode, ctx: ctx, isInnerOfTarget: isInnerOfTarget});
 			}
 		}
 	}
@@ -538,7 +538,7 @@ class PowerTree {
 	}
 
 	// Thist create a temp tree with simple DOM elements that contais 'pwc', 'pow' and 'power-' prefixes
-	_buildTempPowerTree(currentNode, ctx, isInnerOfTarget) {
+	_buildTempPowerTree({currentNode, ctx, isInnerOfTarget}) {
 		isInnerOfTarget = isInnerOfTarget || false;
 		let hasCompiled = false;
 		// Check if has the custom data-pwc and data-pow attributes
@@ -578,9 +578,9 @@ class PowerTree {
 		if (currentNodeHaschildren) {
 			// isInnerOfTarget detects if this is the root object with compile()
 			if (hasCompiled || isInnerOfTarget) {
-				this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this), true);
+				this.sweepDOM({entryNode: currentNode, ctx: ctx, callback: this._buildTempPowerTree.bind(this), isInnerOfTarget: true});
 			} else {
-				this.sweepDOM(currentNode, ctx, this._buildTempPowerTree.bind(this), false);
+				this.sweepDOM({entryNode: currentNode, ctx: ctx, callback: this._buildTempPowerTree.bind(this), isInnerOfTarget: false});
 			}
 		}
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
