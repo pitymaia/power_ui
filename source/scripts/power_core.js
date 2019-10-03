@@ -294,7 +294,7 @@ class PowerTree {
 
 		// Move the original innerHTML of compiler elements with the powerObjects
 		for (const id of Object.keys(tempTree.rootCompilers || {})) {
-			this.allPowerObjsById[id]['$originalInnerHTML'] = tempTree.rootCompilers[id];
+			this.allPowerObjsById[id]['$rootCompiler'] = tempTree.rootCompilers[id];
 		}
 	}
 
@@ -308,7 +308,7 @@ class PowerTree {
 					this._addSharingScope(id, powerSelector);
 				}
 				const currentObj = this.allPowerObjsById[id][powerSelector];
-				if ((powerSelector !== '$shared' && powerSelector !== '$originalInnerHTML') && !currentObj.parent) {
+				if ((powerSelector !== '$shared' && powerSelector !== '$rootCompiler') && !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
 					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
 					// Get the main and view elements of the currentObj
@@ -477,14 +477,14 @@ class PowerTree {
 	// Register power attrs and classes sharing the same element
 	_addSharingScope(id, attr) {
 		// Don't add inSameElement to $shared
-		if (attr !== '$shared' && attr !== '$originalInnerHTML') {
+		if (attr !== '$shared' && attr !== '$rootCompiler') {
 			if (!this.allPowerObjsById[id][attr].inSameElement) {
 				this.allPowerObjsById[id][attr].inSameElement = {};
 			}
 			// To avoid add this element as a sibling of it self we need iterate over attrs again
 			for (const siblingAttr of Object.keys(this.allPowerObjsById[id] || {})) {
 				// Also don't add $shared inSameElement
-				if (siblingAttr !== attr && (siblingAttr != '$shared' && siblingAttr !== '$originalInnerHTML')) {
+				if (siblingAttr !== attr && (siblingAttr != '$shared' && siblingAttr !== '$rootCompiler')) {
 					this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
 				}
 			}

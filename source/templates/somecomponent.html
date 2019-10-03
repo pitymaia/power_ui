@@ -82,7 +82,7 @@
         <div data-pow-for="cat of cats">
             <div data-pow-if="cat.gender === 'female'" id="cat_{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
             <div data-pow-if="cat.gender === 'male'" id="cat_{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
-            <div data-pow-if="cat.gender === 'unknow'" id="cat_{{pwIndex}}_m">{{pwIndex + 1}} - São lindos meus {{ cat.name }}</div>
+            <div data-pow-if="cat.gender === 'unknow'" id="cat_{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}</div>
         </div>
         <hr />
         <div data-pow-bind="'Doces: (' + (cands.length * 2) + ')'"></div>
