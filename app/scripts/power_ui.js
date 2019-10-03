@@ -1009,7 +1009,7 @@ class PowerUi extends _PowerUiBase {
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	hardReload() {
+	pwReload() {
 		this.router.removeComponentViews();
 		this.waitingServer = 0;
 		this.router = new Router(this.config, this);
@@ -2667,7 +2667,7 @@ function changeModel() {
 	} else {
 		cats.pop();
 	}
-	app.hardReload();
+	app.pwReload();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');

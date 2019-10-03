@@ -134,7 +134,7 @@ function changeModel() {
 	} else {
 		cats.pop();
 	}
-	app.hardReload();
+	app.pwReload();
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
