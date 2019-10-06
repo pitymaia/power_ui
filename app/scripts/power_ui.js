@@ -32,12 +32,45 @@ function powerClassAsCamelCase(className) {
 
 
 class SharedScope {
-	constructor(id) {
+	constructor({id, main, view, rootCompiler, powerUi}) {
 		this.id = id;
+		this.tempMainEl = main;
+		this.tempViewEl = view;
+		this.tempRootCompilerEl = rootCompiler;
+		this.$powerUi = powerUi;
 	}
 
 	get element() {
 		return document.getElementById(this.id);
+	}
+
+	get main() {
+		return document.getElementById(this.tempMainEl.id);
+	}
+
+	get view() {
+		return document.getElementById(this.tempViewEl.id);
+	}
+
+	get rootCompiler() {
+		return document.getElementById(this.tempRootCompilerEl.id);
+	}
+
+	get mainObj() {
+		return this.cachedMain || this.getMain(this.main.id);
+	}
+	getMain(id) {
+		if (this.cachedMain === undefined) {
+			for (const key of Object.keys(this.$powerUi.powerTree.allPowerObjsById[id] || {})) {
+				if (this.$powerUi.powerTree.allPowerObjsById[id][key].isMain) {
+					this.cachedMain = this.$powerUi.powerTree.allPowerObjsById[id][key];
+					return this.cachedMain;
+				}
+			}
+			this.this.cachedMain = false;
+		} else {
+			return this.cachedMain;
+		}
 	}
 }
 
@@ -125,6 +158,10 @@ class _PowerBasicElement {
 
 	get element() {
 		return this.$shared ? this.$shared.element : this.tempEl;
+	}
+
+	get $pwMain() {
+		return this.$shared ? this.$shared.mainObj : null;
 	}
 
 }
@@ -307,6 +344,7 @@ class PowerTree {
 		view = view || false;
 		// If currentNode is a view the view variable may change to the children and we need save the view for this node in oldView
 		const oldView = view;
+		let isMain = false;
 
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
@@ -323,6 +361,11 @@ class PowerTree {
 						if (hasCompiled && !rootCompiler) {
 							rootCompiler = currentNode;
 						}
+						// Save this node as main of it's children
+						if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isMain) {
+							main = currentNode;
+							isMain = true;
+						}
 						// Select this datasetKey to create a powerObject with currentNode
 						currentObjects.push({
 							datasetKey: datasetKey,
@@ -330,11 +373,8 @@ class PowerTree {
 							main: oldMain,
 							view: oldView,
 							rootCompiler: isInnerCompiler ? rootCompiler : null,
+							isMain: isMain
 						});
-						// Save this node as main of it's children
-						if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isMain) {
-							main = currentNode;
-						}
 					}
 				}
 			}
@@ -344,6 +384,13 @@ class PowerTree {
 		if (currentNode.className && currentNode.className.includes('power-')) {
 			for (const selector of PowerUi._powerElementsConfig) {
 				if (currentNode.classList.contains(selector.name)) {
+					if (selector.isMain) {
+						main = currentNode;
+						isMain = true;
+					}
+					if (selector.datasetKey === 'powerView') {
+						view = currentNode;
+					}
 					// Select this datasetKey to create a powerObject with currentNode
 					currentObjects.push({
 						datasetKey: selector.datasetKey,
@@ -351,13 +398,8 @@ class PowerTree {
 						main: oldMain,
 						view: oldView,
 						rootCompiler: isInnerCompiler ? rootCompiler : null,
+						isMain: isMain,
 					});
-					if (selector.isMain) {
-						main = currentNode;
-					}
-					if (selector.datasetKey === 'powerView') {
-						view = currentNode;
-					}
 				}
 			}
 		}
@@ -404,6 +446,7 @@ class PowerTree {
 					main: item.main,
 					view: item.view,
 					rootCompiler: item.rootCompiler,
+					isMain: item.isMain,
 				});
 			}
 			currentObjects = [];
@@ -435,7 +478,7 @@ class PowerTree {
 		return compiled;
 	}
 
-	_instanciateObj({currentElement, datasetKey}) {
+	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
@@ -457,12 +500,21 @@ class PowerTree {
 			// Create powerObject from pow or pwc attrs it will create powerObject from class name like power-menu or power-view
 			powerObject = this.$powerUi[functionName](document.getElementById(id));
 		}
+		// Register if object is main object
+		powerObject.isMain = isMain || null;
 		// Add the powerObject into a list ordered by id
-		this._addToObjectsById({powerObject: powerObject, id: id, datasetKey: datasetKey});
+		this._addToObjectsById({
+			powerObject: powerObject,
+			id: id,
+			datasetKey: datasetKey,
+			main: main,
+			view: view,
+			rootCompiler: rootCompiler,
+		});
 	}
 
 	// Add the powerObject into a list ordered by id
-	_addToObjectsById({powerObject, id, datasetKey}) {
+	_addToObjectsById({powerObject, id, datasetKey, main, view, rootCompiler}) {
 		if (!this.allPowerObjsById[id]) {
 			this.allPowerObjsById[id] = {};
 		} else {
@@ -485,7 +537,13 @@ class PowerTree {
 		this.allPowerObjsById[id][datasetKey].$powerUi = this.$powerUi;
 		// Create a $shared scope for each element
 		if (!this.allPowerObjsById[id].$shared) {
-			this.allPowerObjsById[id].$shared = new SharedScope(id);
+			this.allPowerObjsById[id].$shared = new SharedScope({
+				id: id,
+				main: main,
+				view: view,
+				rootCompiler: rootCompiler,
+				powerUi: this.$powerUi,
+			});
 		}
 		// add the shared scope to all elements
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
@@ -545,7 +603,7 @@ class PowerTree {
 						for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
 							const powerMain = this.allPowerObjsById[currentMainElement.id][mainPowerElementConfig.datasetKey];
 							if (powerMain) {
-								currentObj.$pwMain = powerMain;
+								// currentObj.$pwMain = powerMain;
 							}
 						}
 					}
