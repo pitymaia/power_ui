@@ -127,7 +127,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	init() {
-		// const t0 = performance.now();
+		const t0 = performance.now();
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.truth = {};
@@ -138,14 +138,42 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
-		// const t1 = performance.now();
-		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
+		const t1 = performance.now();
+		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	pwReload() {
-		this.router.removeComponentViews();
-		this.waitingServer = 0;
-		this.router = new Router(this.config, this);
+		this.hardRefresh();
+		// this.router.removeComponentViews();
+		// this.waitingServer = 0;
+		// this.router = new Router(this.config, this);
+	}
+
+	hardRefresh() {
+		const t0 = performance.now();
+		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
+			if (this.powerTree.allPowerObjsById[id]) {
+				for (const attr of Object.keys(this.powerTree.allPowerObjsById[id])) {
+					if (this.powerTree.allPowerObjsById[id] && this.powerTree.allPowerObjsById[id].$rootCompiler) {
+						if (this.powerTree.allPowerObjsById[id][attr].removeInnerElements) {
+							this.powerTree.allPowerObjsById[id][attr].removeInnerElements();
+						}
+						// Recreate it
+						if (attr !== '$shared' && attr !== '$rootCompiler') {
+							const newNode = document.createElement('div');
+							newNode.appendChild(this.powerTree.allPowerObjsById[id][attr].element);
+							this.powerTree.buildTempTreeAndObjects(newNode);
+						}
+					}
+					if (this.powerTree.allPowerObjsById[id][attr].init) {
+						this.powerTree.allPowerObjsById[id][attr].init();
+					}
+				}
+			}
+		}
+		this.powerTree._likeInDOM();
+		const t1 = performance.now();
+		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	loadHtmlView(url, viewId) {
