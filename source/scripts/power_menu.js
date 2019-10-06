@@ -3,7 +3,7 @@ class PowerMenu extends PowerTarget {
 		super(menu);
 		this.$powerUi = $powerUi;
 		this._$pwActive = false;
-		this.element = menu;
+		// this.element = menu;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
 		// The position the dropmenu will try to appear by default

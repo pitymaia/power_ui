@@ -3,7 +3,7 @@ class PowIf extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
         this._$pwActive = false;
-        this.originalHTML = this.element.innerHTML;
+        this.originalHTML = element.innerHTML;
     }
 
     compile() {
