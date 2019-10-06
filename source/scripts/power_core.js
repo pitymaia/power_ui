@@ -369,7 +369,6 @@ class PowerTree {
 		if ((currentObjects.length > 0 && !hasCompiled) || (hasCompiled && isInnerCompiler)) {
 			for (const item of currentObjects) {
 				this._instanciateObj({
-					ctx: this,
 					currentElement: item.node,
 					datasetKey: item.datasetKey,
 				});
@@ -403,11 +402,11 @@ class PowerTree {
 		return compiled;
 	}
 
-	_instanciateObj({ctx, currentElement, datasetKey}) {
+	_instanciateObj({currentElement, datasetKey}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
-		const functionName = !!ctx.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
+		const functionName = !!this.$powerUi[`_${datasetKey}`] ? `_${datasetKey}` : 'powerAttrs';
 		let powerObject;
 		if (functionName === 'powerAttrs') {
 			if (this.attrsConfig[datasetKey]) {
@@ -420,10 +419,10 @@ class PowerTree {
 			}
 		} else {
 			// Call the method for create objects like _powerMenu with the node elements in tempTree
-			// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'ctx'
-			// E. G. , ctx.powerCss.powerMenu.topmenu = ctx.$powerUi._powerMenu(topmenuElement);
+			// uses an underline plus the camelCase selector to call _powerMenu or other similar method on 'this.$powerUi'
+			// E. G. , this.powerCss.powerMenu.topmenu = this.$powerUi._powerMenu(topmenuElement);
 			// Create powerObject from pow or pwc attrs it will create powerObject from class name like power-menu or power-view
-			powerObject = ctx.$powerUi[functionName](document.getElementById(id));
+			powerObject = this.$powerUi[functionName](document.getElementById(id));
 		}
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({powerObject: powerObject, id: id, datasetKey: datasetKey});
