@@ -38,6 +38,7 @@ class SharedScope {
 		this.tempViewEl = view;
 		this.tempRootCompilerEl = rootCompiler;
 		this.$powerUi = powerUi;
+		this.cached = {};
 	}
 
 	get element() {
@@ -45,11 +46,11 @@ class SharedScope {
 	}
 
 	get main() {
-		return document.getElementById(this.tempMainEl.id);
+		return this.tempMainEl ? document.getElementById(this.tempMainEl.id) : null;
 	}
 
 	get view() {
-		return document.getElementById(this.tempViewEl.id);
+		return this.tempViewEl ? document.getElementById(this.tempViewEl.id) : null;
 	}
 
 	get rootCompiler() {
@@ -57,19 +58,27 @@ class SharedScope {
 	}
 
 	get mainObj() {
-		return this.cachedMain || this.getMain(this.main.id);
+		const flag = 'isMain';
+		return this.cached[flag] || this.getTarget(this.main.id, flag);
 	}
-	getMain(id) {
-		if (this.cachedMain === undefined) {
+	get viewObj() {
+		const flag = 'isView';
+		return this.cached[flag] || this.getTarget(this.view.id, flag);
+	}
+	getTarget(id, flag) {
+		if (!id) {
+			return false;
+		}
+		if (this.cached[flag] === undefined) {
 			for (const key of Object.keys(this.$powerUi.powerTree.allPowerObjsById[id] || {})) {
-				if (this.$powerUi.powerTree.allPowerObjsById[id][key].isMain) {
-					this.cachedMain = this.$powerUi.powerTree.allPowerObjsById[id][key];
-					return this.cachedMain;
+				if (this.$powerUi.powerTree.allPowerObjsById[id][key][flag]) {
+					this.cached[flag] = this.$powerUi.powerTree.allPowerObjsById[id][key];
+					return this.cached[flag];
 				}
 			}
-			this.this.cachedMain = false;
+			this.cached[flag] = false;
 		} else {
-			return this.cachedMain;
+			return this.cached[flag];
 		}
 	}
 }
@@ -162,6 +171,10 @@ class _PowerBasicElement {
 
 	get $pwMain() {
 		return this.$shared ? this.$shared.mainObj : null;
+	}
+
+	get $pwView() {
+		return this.$shared ? this.$shared.viewObj : null;
 	}
 
 }
@@ -611,7 +624,7 @@ class PowerTree {
 					// Add the mainView to element
 					if (currentViewElement) {
 						const powerView = this.allPowerObjsById[currentViewElement.id]['powerView'];
-						currentObj.$pwView = powerView;
+						// currentObj.$pwView = powerView;
 					}
 
 					// If searchParentResult is true and not returns the same element add parent and child
