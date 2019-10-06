@@ -294,6 +294,14 @@ class PowerTree {
 			// Add the same element into a list ordered by id
 			this._addToObjectsById({powerObject: powerObject, id: id, datasetKey: 'powBind'});
 		}
+
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
+			for (const datasetKey of Object.keys(this.allPowerObjsById[id] || {})) {
+				if (this.allPowerObjsById[id][datasetKey].element) {
+					this.allPowerObjsById[id][datasetKey].element = document.getElementById(id);
+				}
+			}
+		}
 	}
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending}) {
