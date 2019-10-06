@@ -143,10 +143,10 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
-		this.hardRefresh();
-		// this.router.removeComponentViews();
-		// this.waitingServer = 0;
-		// this.router = new Router(this.config, this);
+		// this.hardRefresh();
+		this.router.removeComponentViews();
+		this.waitingServer = 0;
+		this.router = new Router(this.config, this);
 	}
 
 	hardRefresh() {

@@ -279,7 +279,7 @@ class PowerTree {
 	buildAll(node) {
 		node = node || document;
 
-		this.newSweepDOM({
+		this.sweepDOM({
 			entryNode: node,
 			callback: this.buildPowerObjects.bind(this),
 			isInnerCompiler: false,
@@ -295,26 +295,19 @@ class PowerTree {
 		}
 	}
 
-	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending}) {
+	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending, rootCompiler}) {
 		let hasCompiled = false;
-		let isMain = false;
 		let currentObjects = [];
 		isInnerCompiler = isInnerCompiler || false;
 		pending = [];
 
-		// Check for power css class selectors like "power-menu" or "power-label"
-		if (currentNode.className && currentNode.className.includes('power-')) {
-			for (const selector of PowerUi._powerElementsConfig) {
-				if (currentNode.classList.contains(selector.name)) {
-					if (selector.isMain) {
-						isMain = true;
-						main = currentNode;
-					}
-					// Select this datasetKey to create a powerObject with currentNode
-					currentObjects.push({datasetKey: selector.datasetKey, node: currentNode});
-				}
-			}
-		}
+		main = main || false;
+		// If currentNode is main the main variable may change to the children and we need save the main for this node in oldMain
+		const oldMain = main;
+		view = view || false;
+		// If currentNode is a view the view variable may change to the children and we need save the view for this node in oldView
+		const oldView = view;
+
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
 			for (const datasetKey of Object.keys(currentNode.dataset || {})) {
@@ -322,13 +315,48 @@ class PowerTree {
 					const hasPrefixe = datasetKey.startsWith(prefixe);
 					if (hasPrefixe) {
 						// Call powerObject compile that may create new children nodes
-						hasCompiled = this._newCompile({
+						hasCompiled = this._compile({
 							currentNode: currentNode,
 							datasetKey: datasetKey,
 							isInnerCompiler: isInnerCompiler,
 						});
+						if (hasCompiled && !rootCompiler) {
+							rootCompiler = currentNode;
+						}
 						// Select this datasetKey to create a powerObject with currentNode
-						currentObjects.push({datasetKey: datasetKey, node: currentNode});
+						currentObjects.push({
+							datasetKey: datasetKey,
+							node: currentNode,
+							main: oldMain,
+							view: oldView,
+							rootCompiler: isInnerCompiler ? rootCompiler : null,
+						});
+						// Save this node as main of it's children
+						if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isMain) {
+							main = currentNode;
+						}
+					}
+				}
+			}
+		}
+
+		// Check for power css class selectors like "power-menu" or "power-label"
+		if (currentNode.className && currentNode.className.includes('power-')) {
+			for (const selector of PowerUi._powerElementsConfig) {
+				if (currentNode.classList.contains(selector.name)) {
+					// Select this datasetKey to create a powerObject with currentNode
+					currentObjects.push({
+						datasetKey: selector.datasetKey,
+						node: currentNode,
+						main: oldMain,
+						view: oldView,
+						rootCompiler: isInnerCompiler ? rootCompiler : null,
+					});
+					if (selector.isMain) {
+						main = currentNode;
+					}
+					if (selector.datasetKey === 'powerView') {
+						view = currentNode;
 					}
 				}
 			}
@@ -339,21 +367,23 @@ class PowerTree {
 		if (currentNodeHaschildren) {
 			// params.isInnerCompiler detects if this is NOT the root object with compile()
 			if (hasCompiled || isInnerCompiler) {
-				this.newSweepDOM({
+				this.sweepDOM({
 					entryNode: currentNode,
 					callback: this.buildPowerObjects.bind(this),
 					isInnerCompiler: true,
 					main: main,
 					view: view,
+					rootCompiler: rootCompiler,
 					pending: pending,
 				});
 			} else {
-				this.newSweepDOM({
+				this.sweepDOM({
 					entryNode: currentNode,
 					callback: this.buildPowerObjects.bind(this),
 					isInnerCompiler: false,
 					main: main,
 					view: view,
+					rootCompiler: rootCompiler,
 					pending: pending,
 				});
 			}
@@ -371,18 +401,21 @@ class PowerTree {
 				this._instanciateObj({
 					currentElement: item.node,
 					datasetKey: item.datasetKey,
+					main: item.main,
+					view: item.view,
+					rootCompiler: item.rootCompiler,
 				});
 			}
 			currentObjects = [];
 		} else {
-			// If is some inner compiler save it for last
+			// If is some inner compiler save it for instanciate later
 			for (const item of currentObjects) {
 				pending.push(item);
 			}
 		}
 	}
 
-	_newCompile({currentNode, datasetKey, isInnerCompiler}) {
+	_compile({currentNode, datasetKey, isInnerCompiler}) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
 		if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isCompiler) {
@@ -458,7 +491,7 @@ class PowerTree {
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
 	}
 
-	newSweepDOM({entryNode, callback, isInnerCompiler, main, view, pending}) {
+	sweepDOM({entryNode, callback, isInnerCompiler, main, view, rootCompiler, pending}) {
 		const isNode = !!entryNode && !!entryNode.nodeType;
 		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
 
@@ -473,6 +506,7 @@ class PowerTree {
 					isInnerCompiler: isInnerCompiler,
 					main: main,
 					view: view,
+					rootCompiler: rootCompiler,
 					pending: pending,
 				});
 			}
@@ -483,6 +517,7 @@ class PowerTree {
 				isInnerCompiler: isInnerCompiler,
 				main: main,
 				view: view,
+				rootCompiler: rootCompiler,
 				pending: pending,
 			});
 		}
@@ -1062,10 +1097,10 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
-		this.hardRefresh();
-		// this.router.removeComponentViews();
-		// this.waitingServer = 0;
-		// this.router = new Router(this.config, this);
+		// this.hardRefresh();
+		this.router.removeComponentViews();
+		this.waitingServer = 0;
+		this.router = new Router(this.config, this);
 	}
 
 	hardRefresh() {
