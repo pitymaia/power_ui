@@ -349,11 +349,47 @@ class PowerTree {
 			this.attrsConfig[attr.datasetKey] = attr;
 		}
 
+		this.rootDatasetKeys = Object.keys(this.attrsConfig).filter(i => this.attrsConfig[i].isCompiler);
+		this.mainDatasetKeys = this.getMainDatasetKeys();
+
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
 		this.buildAll(document);
 
 		// Add navigation element like "main", "view" and "parent"
 		this._likeInDOM();
+	}
+
+	getMainDatasetKeys() {
+		const mainDatasetKeys = [];
+		for (const item of PowerUi._powerElementsConfig) {
+			if (item.isMain) {
+				mainDatasetKeys.push(item.datasetKey);
+			}
+		}
+		for (const key of Object.keys(this.attrsConfig || {})) {
+			if (this.attrsConfig[key].isMain) {
+				mainDatasetKeys.push(this.attrsConfig[key].datasetKey);
+			}
+		}
+		return mainDatasetKeys;
+	}
+
+	datasetIsCompiler(dataset) {
+		for (const datasetKey of Object.keys(dataset || {})) {
+			if (this.rootDatasetKeys.includes(datasetKey)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	datasetIsMain(dataset) {
+		for (const datasetKey of Object.keys(dataset || {})) {
+			if (this.mainDatasetKeys.includes(datasetKey)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	buildAll(node) {
@@ -369,17 +405,22 @@ class PowerTree {
 		const body = document.getElementsByTagName('BODY')[0];
 		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree);
 		for (const id of tempTree.pending) {
-			this.addNode(id);
+			this.addPowerObject(id);
 		}
 	}
 
-	addNode(id) {
+	// Create individual powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
+	addPowerObject(id) {
 		const newNode = document.getElementById(id);
 		// Search a powerElement parent of currentObj up DOM if exists
 		const currentParentElement = this._getParentElementFromChildElement(newNode);
 		// Get the main and view elements of the currentObj
 		const currentMainElement = this._getMainElementFromChildElement(newNode);
+		const isMain = this.datasetIsMain(newNode.dataset);
 		const currentViewElement = this._getViewElementFromChildElement(newNode);
+		// Get any possible rootCompiler
+		const currentRootCompilerElement = this._getRootCompilerElementFromChildElement(newNode, this);
+		const isRootCompiler = (!currentRootCompilerElement && this.datasetIsCompiler(newNode.dataset));
 		// Make the instance and add the powerObject into a list ordered by id
 		this._instanciateObj({
 			currentElement: newNode,
@@ -387,6 +428,8 @@ class PowerTree {
 			main: currentMainElement,
 			view: currentViewElement,
 			parent: {node: newNode, datasetKey: 'powBind'},
+			isRootCompiler: isRootCompiler,
+			isMain: isMain,
 		});
 	}
 
@@ -765,6 +808,23 @@ class PowerTree {
 		}
 	}
 
+	_getRootCompilerElementFromChildElement(element, ctx) {
+		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsRootCompilerElement, ctx);
+		if (searchResult.conditionResult) {
+			return searchResult.powerElement;
+		}
+	}
+
+	_checkIfIsRootCompilerElement(element, ctx) {
+		let found = false;
+		if (element && element.dataset) {
+			if (ctx.datasetIsCompiler(element.dataset)) {
+				found = true;
+			}
+		}
+		return found;
+	}
+
 	// testCondition to find the main powerElement of a given powerElement
 	_checkIfIsMainElement(currentElement) {
 		let found = false;
@@ -797,14 +857,14 @@ class PowerTree {
 }
 // Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
 // testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned
-PowerTree._searchUpDOM = function (element, testCondition) {
+PowerTree._searchUpDOM = function (element, testCondition, ctx) {
 	let lastPowerElement = element.className.includes('power-') ? element : null;
 	let currentElement = element.parentElement;
 	let conditionResult = false;
 	let stop = currentElement ? false : true;
 	while (!stop) {
 
-		conditionResult = testCondition(currentElement);
+		conditionResult = testCondition(currentElement, ctx);
 		if (conditionResult) {
 			stop = true;
 		}
