@@ -369,10 +369,25 @@ class PowerTree {
 		const body = document.getElementsByTagName('BODY')[0];
 		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree);
 		for (const id of tempTree.pending) {
-			const powerObject = this.attrsConfig['powBind'].callback(document.getElementById(id));
-			// Add the powerObject into a list ordered by id
-			this._addToObjectsById({powerObject: powerObject, id: id, datasetKey: 'powBind'});
+			this.addNode(id);
 		}
+	}
+
+	addNode(id) {
+		const newNode = document.getElementById(id);
+		// Search a powerElement parent of currentObj up DOM if exists
+		const currentParentElement = this._getParentElementFromChildElement(newNode);
+		// Get the main and view elements of the currentObj
+		const currentMainElement = this._getMainElementFromChildElement(newNode);
+		const currentViewElement = this._getViewElementFromChildElement(newNode);
+		// Make the instance and add the powerObject into a list ordered by id
+		this._instanciateObj({
+			currentElement: newNode,
+			datasetKey: 'powBind',
+			main: currentMainElement,
+			view: currentViewElement,
+			parent: {node: newNode, datasetKey: 'powBind'},
+		});
 	}
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending, rootCompiler, parent}) {
@@ -655,7 +670,7 @@ class PowerTree {
 				if ((powerSelector !== '$shared')) { //&& !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
 					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
-					// // Get the main and view elements of the currentObj
+					// Get the main and view elements of the currentObj
 					// const currentMainElement = this._getMainElementFromChildElement(currentObj.element);
 					// const currentViewElement = this._getViewElementFromChildElement(currentObj.element);
 					// // Loop through the list of possible main CSS power class names like power-menu or power-main
@@ -686,7 +701,7 @@ class PowerTree {
 								const parentObj = currentObj.parent;
 								// currentObj.parent = parentObj;
 								// Add current object as child of parentObj
-								console.log('currentParentElement', currentParentElement, parentObj, currentObj);
+								// console.log('currentParentElement', currentParentElement, parentObj, currentObj);
 								if (!parentObj.children) {
 									parentObj.children = [];
 								}
