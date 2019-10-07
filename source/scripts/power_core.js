@@ -32,12 +32,13 @@ function powerClassAsCamelCase(className) {
 
 
 class SharedScope {
-	constructor({id, main, view, rootCompiler, powerUi}) {
+	constructor({id, main, view, rootCompiler, parent, ctx}) {
 		this.id = id;
 		this.tempMainEl = main;
 		this.tempViewEl = view;
 		this.tempRootCompilerEl = rootCompiler;
-		this.$powerUi = powerUi;
+		this.tempParent = parent || {node: null, datasetKey: null};
+		this.ctx = ctx;
 		this.cached = {};
 	}
 
@@ -54,7 +55,28 @@ class SharedScope {
 	}
 
 	get rootCompiler() {
-		return document.getElementById(this.tempRootCompilerEl.id);
+		return this.tempRootCompilerEl ? document.getElementById(this.tempRootCompilerEl.id) : null;
+	}
+
+	get parentNode() {
+		return this.tempParent.node ? document.getElementById(this.tempParent.node.id) : null;
+	}
+
+	get parentDatasetKey() {
+		return this.tempParent.datasetKey;
+	}
+
+	get parentObj() {
+		if (!this.parentNode) {
+			return null;
+		}
+		const id = this.parentNode.id;
+		const datasetKey = this.parentDatasetKey;
+		if (this.ctx.allPowerObjsById[id] && this.ctx.allPowerObjsById[id][datasetKey]) {
+			return this.ctx.allPowerObjsById[id][datasetKey];
+		} else {
+			return null;
+		}
 	}
 
 	get mainObj() {
@@ -65,14 +87,18 @@ class SharedScope {
 		const flag = 'isView';
 		return this.cached[flag] || this.getTarget(this.view.id, flag);
 	}
+	get rootCompilerObj() {
+		const flag = 'isRootCompiler';
+		return this.cached[flag] || this.getTarget(this.rootCompiler.id, flag);
+	}
 	getTarget(id, flag) {
 		if (!id) {
 			return false;
 		}
-		if (this.cached[flag] === undefined) {
-			for (const key of Object.keys(this.$powerUi.powerTree.allPowerObjsById[id] || {})) {
-				if (this.$powerUi.powerTree.allPowerObjsById[id][key][flag]) {
-					this.cached[flag] = this.$powerUi.powerTree.allPowerObjsById[id][key];
+		if (this.cached[flag] == undefined) {
+			for (const key of Object.keys(this.ctx.allPowerObjsById[id] || {})) {
+				if (this.ctx.allPowerObjsById[id][key][flag]) {
+					this.cached[flag] = this.ctx.allPowerObjsById[id][key];
 					return this.cached[flag];
 				}
 			}
@@ -175,6 +201,10 @@ class _PowerBasicElement {
 
 	get $pwView() {
 		return this.$shared ? this.$shared.viewObj : null;
+	}
+
+	get parent() {
+		return this.$shared ? this.$shared.parentObj : null;
 	}
 
 }
@@ -345,12 +375,13 @@ class PowerTree {
 		}
 	}
 
-	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending, rootCompiler}) {
+	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending, rootCompiler, parent}) {
 		let hasCompiled = false;
 		let currentObjects = [];
 		isInnerCompiler = isInnerCompiler || false;
+		parent = parent || false;
+		let childParent = parent;
 		pending = [];
-
 		main = main || false;
 		// If currentNode is main the main variable may change to the children and we need save the main for this node in oldMain
 		const oldMain = main;
@@ -358,6 +389,7 @@ class PowerTree {
 		// If currentNode is a view the view variable may change to the children and we need save the view for this node in oldView
 		const oldView = view;
 		let isMain = false;
+		let isRootCompiler = false;
 
 		// Check if has the custom data-pwc and data-pow attributes
 		if (currentNode.dataset) {
@@ -373,6 +405,7 @@ class PowerTree {
 						});
 						if (hasCompiled && !rootCompiler) {
 							rootCompiler = currentNode;
+							isRootCompiler = true;
 						}
 						// Save this node as main of it's children
 						if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isMain) {
@@ -386,8 +419,12 @@ class PowerTree {
 							main: oldMain,
 							view: oldView,
 							rootCompiler: isInnerCompiler ? rootCompiler : null,
-							isMain: isMain
+							isMain: isMain,
+							isRootCompiler: isRootCompiler,
+							parent: parent,
 						});
+						// For now only powerCss objects have .parent
+						// childParent = {node: currentNode, datasetKey: datasetKey};
 					}
 				}
 			}
@@ -412,7 +449,9 @@ class PowerTree {
 						view: oldView,
 						rootCompiler: isInnerCompiler ? rootCompiler : null,
 						isMain: isMain,
+						parent: parent,
 					});
+					childParent = {node: currentNode, datasetKey: selector.datasetKey};
 				}
 			}
 		}
@@ -430,6 +469,7 @@ class PowerTree {
 					view: view,
 					rootCompiler: rootCompiler,
 					pending: pending,
+					parent: childParent,
 				});
 			} else {
 				this.sweepDOM({
@@ -440,6 +480,7 @@ class PowerTree {
 					view: view,
 					rootCompiler: rootCompiler,
 					pending: pending,
+					parent: childParent,
 				});
 			}
 		}
@@ -460,6 +501,8 @@ class PowerTree {
 					view: item.view,
 					rootCompiler: item.rootCompiler,
 					isMain: item.isMain,
+					isRootCompiler: item.isRootCompiler,
+					parent: item.parent,
 				});
 			}
 			currentObjects = [];
@@ -491,7 +534,7 @@ class PowerTree {
 		return compiled;
 	}
 
-	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain}) {
+	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
@@ -513,8 +556,9 @@ class PowerTree {
 			// Create powerObject from pow or pwc attrs it will create powerObject from class name like power-menu or power-view
 			powerObject = this.$powerUi[functionName](document.getElementById(id));
 		}
-		// Register if object is main object
+		// Register if object is main object or a rootCompiler
 		powerObject.isMain = isMain || null;
+		powerObject.isRootCompiler = isRootCompiler || null;
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({
 			powerObject: powerObject,
@@ -523,11 +567,12 @@ class PowerTree {
 			main: main,
 			view: view,
 			rootCompiler: rootCompiler,
+			parent: parent,
 		});
 	}
 
 	// Add the powerObject into a list ordered by id
-	_addToObjectsById({powerObject, id, datasetKey, main, view, rootCompiler}) {
+	_addToObjectsById({powerObject, id, datasetKey, main, view, rootCompiler, parent}) {
 		if (!this.allPowerObjsById[id]) {
 			this.allPowerObjsById[id] = {};
 		} else {
@@ -555,14 +600,15 @@ class PowerTree {
 				main: main,
 				view: view,
 				rootCompiler: rootCompiler,
-				powerUi: this.$powerUi,
+				parent: parent,
+				ctx: this,
 			});
 		}
 		// add the shared scope to all elements
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
 	}
 
-	sweepDOM({entryNode, callback, isInnerCompiler, main, view, rootCompiler, pending}) {
+	sweepDOM({entryNode, callback, isInnerCompiler, main, view, rootCompiler, pending, parent}) {
 		const isNode = !!entryNode && !!entryNode.nodeType;
 		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
 
@@ -579,6 +625,7 @@ class PowerTree {
 					view: view,
 					rootCompiler: rootCompiler,
 					pending: pending,
+					parent: parent,
 				});
 			}
 		} else {
@@ -590,6 +637,7 @@ class PowerTree {
 				view: view,
 				rootCompiler: rootCompiler,
 				pending: pending,
+				parent: parent,
 			});
 		}
 	}
@@ -598,34 +646,34 @@ class PowerTree {
 	_likeInDOM() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			for (const powerSelector of Object.keys(this.allPowerObjsById[id] || {})) {
-				// If have multiple powerSelectors need add shared scope
-				if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
-					// Register power attrs and classes sharing the same element
-					this._addSharingScope(id, powerSelector);
-				}
+				// // If have multiple powerSelectors need add shared scope
+				// if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
+				// 	// Register power attrs and classes sharing the same element
+				// 	this._addSharingScope(id, powerSelector);
+				// }
 				const currentObj = this.allPowerObjsById[id][powerSelector];
-				if ((powerSelector !== '$shared' && powerSelector !== '$rootCompiler') && !currentObj.parent) {
+				if ((powerSelector !== '$shared')) { //&& !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
 					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
-					// Get the main and view elements of the currentObj
-					const currentMainElement = this._getMainElementFromChildElement(currentObj.element);
-					const currentViewElement = this._getViewElementFromChildElement(currentObj.element);
-					// Loop through the list of possible main CSS power class names like power-menu or power-main
-					// With this we will find the main powerElement that holds the simple DOM node main element
-					if (currentMainElement) {
-						for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
-							const powerMain = this.allPowerObjsById[currentMainElement.id][mainPowerElementConfig.datasetKey];
-							if (powerMain) {
-								// currentObj.$pwMain = powerMain;
-							}
-						}
-					}
+					// // Get the main and view elements of the currentObj
+					// const currentMainElement = this._getMainElementFromChildElement(currentObj.element);
+					// const currentViewElement = this._getViewElementFromChildElement(currentObj.element);
+					// // Loop through the list of possible main CSS power class names like power-menu or power-main
+					// // With this we will find the main powerElement that holds the simple DOM node main element
+					// if (currentMainElement) {
+					// 	for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
+					// 		const powerMain = this.allPowerObjsById[currentMainElement.id][mainPowerElementConfig.datasetKey];
+					// 		if (powerMain) {
+					// 			// currentObj.$pwMain = powerMain;
+					// 		}
+					// 	}
+					// }
 
-					// Add the mainView to element
-					if (currentViewElement) {
-						const powerView = this.allPowerObjsById[currentViewElement.id]['powerView'];
-						// currentObj.$pwView = powerView;
-					}
+					// // Add the mainView to element
+					// if (currentViewElement) {
+					// 	const powerView = this.allPowerObjsById[currentViewElement.id]['powerView'];
+					// 	// currentObj.$pwView = powerView;
+					// }
 
 					// If searchParentResult is true and not returns the same element add parent and child
 					// Else it is a rootElement
@@ -634,9 +682,11 @@ class PowerTree {
 							// Only add if this is a power class (not some pow or pwc attr)
 							if (parentIndex.includes('power')) {
 								// Add parent element to current power object
-								const parentObj = this.allPowerObjsById[currentParentElement.id][parentIndex];
-								currentObj.parent = parentObj;
+								// const parentObj = this.allPowerObjsById[currentParentElement.id][parentIndex];
+								const parentObj = currentObj.parent;
+								// currentObj.parent = parentObj;
 								// Add current object as child of parentObj
+								console.log('currentParentElement', currentParentElement, parentObj, currentObj);
 								if (!parentObj.children) {
 									parentObj.children = [];
 								}
@@ -652,7 +702,7 @@ class PowerTree {
 						// And only if not already added
 						if (currentObj.element.className.includes('power-') && !this.rootElements.find(obj => obj.id === currentObj.id)) {
 							this.rootElements.push(currentObj);
-							currentObj.parent = null;
+							// currentObj.parent = null;
 						}
 					}
 				}
@@ -725,24 +775,6 @@ class PowerTree {
 			for (const attr of Object.keys(this.allPowerObjsById[id] || {})) {
 				if (this.allPowerObjsById[id][attr].init) {
 					this.allPowerObjsById[id][attr].init();
-				}
-			}
-		}
-	}
-
-	// TODO: Remove this shit and replace with a "inSameElement" get method
-	// Register power attrs and classes sharing the same element
-	_addSharingScope(id, attr) {
-		// Don't add inSameElement to $shared
-		if (attr !== '$shared' && attr !== '$rootCompiler') {
-			if (!this.allPowerObjsById[id][attr].inSameElement) {
-				this.allPowerObjsById[id][attr].inSameElement = {};
-			}
-			// To avoid add this element as a sibling of it self we need iterate over attrs again
-			for (const siblingAttr of Object.keys(this.allPowerObjsById[id] || {})) {
-				// Also don't add $shared inSameElement
-				if (siblingAttr !== attr && (siblingAttr !== '$shared' && siblingAttr !== '$rootCompiler')) {
-					this.allPowerObjsById[id][attr].inSameElement[siblingAttr] = this.allPowerObjsById[id][siblingAttr];
 				}
 			}
 		}
