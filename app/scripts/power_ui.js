@@ -316,10 +316,6 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	removeEventListener(event, callback, useCapture=false) {
 		this.element.removeEventListener(event, callback, useCapture);
 	}
-	// The elements in the same level of this element
-	getSiblings() {
-		return (this.parent ? this.parent.children : this.$powerUi.powerTree.rootElements).filter(obj => obj.id !== this.id);
-	}
 	// Only the first level elements
 	getChildrenByPowerCss(powerCss) {
 		return this.children.filter(child => child.$powerCss === powerCss);
@@ -356,7 +352,6 @@ class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
 		this.allPowerObjsById = {};
-		this.rootElements = [];
 		this.rootCompilers = {};
 		this.attrsConfig = {};
 
@@ -380,9 +375,6 @@ class PowerTree {
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
 		this.buildAll(document);
-
-		// Add navigation element like "main", "view" and "parent"
-		this._likeInDOM();
 	}
 
 	getMainDatasetKeys() {
@@ -723,30 +715,6 @@ class PowerTree {
 				pending: pending,
 				parent: parent,
 			});
-		}
-	}
-
-	// Sweep allPowerObjsById to add parent and childrens to each power element
-	_likeInDOM() {
-		for (const id of Object.keys(this.allPowerObjsById || {})) {
-			for (const powerSelector of Object.keys(this.allPowerObjsById[id] || {})) {
-				const currentObj = this.allPowerObjsById[id][powerSelector];
-				if ((powerSelector !== '$shared')) { //&& !currentObj.parent) {
-					// Search a powerElement parent of currentObj up DOM if exists
-					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
-
-					if (currentParentElement && (currentParentElement.id !== currentObj.element.id)) {
-
-					} else { // This is a rootElement
-						// Only add if this is a power class (not some pow or pwc attr)
-						// And only if not already added
-						if (currentObj.element.className.includes('power-') && !this.rootElements.find(obj => obj.id === currentObj.id)) {
-							this.rootElements.push(currentObj);
-							// currentObj.parent = null;
-						}
-					}
-				}
-			}
 		}
 	}
 
