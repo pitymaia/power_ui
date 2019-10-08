@@ -152,7 +152,6 @@ class PowerUi extends _PowerUiBase {
 	hardRefresh() {
 		const t0 = performance.now();
 		for (const id of Object.keys(this.powerTree.rootCompilers)) {
-			console.log('id', id, this.powerTree.allPowerObjsById[id]);
 			if (this.powerTree.allPowerObjsById[id]) {
 				this.powerTree.allPowerObjsById[id]['$shared'].removeInnerElements();
 				const element = document.getElementById(id);

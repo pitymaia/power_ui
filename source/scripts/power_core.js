@@ -112,10 +112,11 @@ class SharedScope {
 		const childNodes = this.element.childNodes;
 		for (const child of childNodes) {
 			if (child.id && this.ctx.allPowerObjsById[child.id]) {
-				this.ctx.allPowerObjsById[child.id] = null;
+				delete this.ctx.allPowerObjsById[child.id];
 			}
 		}
 		this.element.innerHTML = '';
+		this.element.dataset.pwcompiled = false;
 	}
 }
 
@@ -421,7 +422,7 @@ class PowerTree {
 
 		const tempTree = {pending: []};
 		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree);
+		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
 		for (const id of tempTree.pending) {
 			this.addPowerObject(id);
 		}
@@ -565,8 +566,6 @@ class PowerTree {
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
 		// This will make the interpolation of elements with compile without replace {{}} to <span data-pow-bind></span>
 		if (hasCompiled && !isInnerCompiler) {
-			// Has compiled contains the original node.innerHTML and we need save it
-			this.rootCompilers[currentNode.id] = hasCompiled;
 			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
 			for (const item of saved.pending) {
 				this._instanciateObj(item);
@@ -602,6 +601,10 @@ class PowerTree {
 				compiled = !isInnerCompiler ? currentNode.innerHTML : true;
 				newObj.compile();
 				newObj.element.setAttribute('data-pwcompiled', true);
+				// Has compiled contains the original node.innerHTML and we need save it
+				if (!isInnerCompiler) {
+					this.rootCompilers[currentNode.id] = compiled;
+				}
 			}
 		}
 		return compiled;

@@ -31,17 +31,19 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowBind(template, tempTree) {
+	interpolationToPowBind(template, tempTree, powerTree) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
+				const innerTEXT = this.getInterpolationValue(entry);
 				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}"
-					data-pwcompiled="true" id="${id}">${this.getInterpolationValue(entry)}</span>`;
+					data-pwcompiled="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
 
 				// Regiter any new element on tempTree pending to add after interpolation
 				tempTree.pending.push(id);
+				powerTree.rootCompilers[id] = innerTEXT;
 			}
 		}
 		return template;
