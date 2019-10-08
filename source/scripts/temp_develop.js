@@ -119,7 +119,7 @@ function getCandNumber(currentCand) {
 		count = count + 1;
 	}
 }
-function changeModel() {
+function changeModel(kind) {
 	if (oldName === myName) {
 		myName = 'My name is Bond, James Bond!';
 	} else {
@@ -127,14 +127,31 @@ function changeModel() {
 		myName = oldName;
 		oldName = changeName;
 	}
+	if (myName == 'My name is Bond, James Bond!') {
+		languages.garbage = {name: 'PHP', kind: 'Not typed'};
+	} else {
+		delete languages.garbage;
+	}
 	console.log(myName, pity(), 'currentIf', currentIf);
 	if (cats.length === 12) {
-		console.log('12 gatos');
+		console.log('12 gatos', cats[10]);
+		cats[10].name = 'Luke';
+		cats[10].gender = 'male';
+		cats.push({name: 'Floquinho', gender: 'male'});
 		cats.push({name: '4 gatinhos', gender: 'unknow'});
+		cands.push(['caramelo', 'pirulito']);
+		cands.push(['pipoca', 'cocada']);
 	} else {
+		cats[10].name = 'Florzinha';
+		cats[10].gender = 'female';
 		cats.pop();
+		cands.pop();
 	}
-	app.pwReload();
+	if (kind === 'pwReload') {
+		app.pwReload();
+	} else if (kind === 'hardRefresh') {
+		app.hardRefresh();
+	}
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');

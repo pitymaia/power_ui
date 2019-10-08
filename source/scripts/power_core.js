@@ -169,7 +169,10 @@ class UEvent {
 	}
 
 	subscribe(fn, ctx, params) { // *ctx* is what *this* will be inside *fn*.
+		// Remove any old event before add to avoid duplication
+		this.unsubscribe(fn);
 		this.observers.push({fn, ctx, arguments});
+		console.log('observers', this.observers);
 	}
 
 	unsubscribe(fn) {
@@ -325,7 +328,9 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 
 	removeEventListener(event, callback, useCapture=false) {
-		this.element.removeEventListener(event, callback, useCapture);
+		if (this.element) {
+			this.element.removeEventListener(event, callback, useCapture);
+		}
 	}
 	// Only the first level elements
 	getChildrenByPowerCss(powerCss) {
@@ -376,6 +381,18 @@ class PowerTree {
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
 		this.buildAll(document);
+	}
+
+	removeAllEvents() {
+		for (const id of Object.keys(UEvent.index || {})) {
+			for (const observer of UEvent.index[id].observers) {
+				const ctx = observer.ctx;
+				for (const eventName of Object.keys(observer.ctx._events || {})) {
+					observer.ctx.unsubscribe({event: eventName, fn: observer.fn});
+				}
+			}
+		}
+		// UEvent.index = {};
 	}
 
 	getMainDatasetKeys() {

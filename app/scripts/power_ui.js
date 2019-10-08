@@ -169,7 +169,10 @@ class UEvent {
 	}
 
 	subscribe(fn, ctx, params) { // *ctx* is what *this* will be inside *fn*.
+		// Remove any old event before add to avoid duplication
+		this.unsubscribe(fn);
 		this.observers.push({fn, ctx, arguments});
+		console.log('observers', this.observers);
 	}
 
 	unsubscribe(fn) {
@@ -325,7 +328,9 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	}
 
 	removeEventListener(event, callback, useCapture=false) {
-		this.element.removeEventListener(event, callback, useCapture);
+		if (this.element) {
+			this.element.removeEventListener(event, callback, useCapture);
+		}
 	}
 	// Only the first level elements
 	getChildrenByPowerCss(powerCss) {
@@ -376,6 +381,18 @@ class PowerTree {
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
 		this.buildAll(document);
+	}
+
+	removeAllEvents() {
+		for (const id of Object.keys(UEvent.index || {})) {
+			for (const observer of UEvent.index[id].observers) {
+				const ctx = observer.ctx;
+				for (const eventName of Object.keys(observer.ctx._events || {})) {
+					observer.ctx.unsubscribe({event: eventName, fn: observer.fn});
+				}
+			}
+		}
+		// UEvent.index = {};
 	}
 
 	getMainDatasetKeys() {
@@ -1199,6 +1216,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.ready = false;
 		this.config = config;
 		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
@@ -1208,6 +1226,10 @@ class PowerUi extends _PowerUiBase {
 
 	init() {
 		const t0 = performance.now();
+		// If ready is true that is not the first time this initiate, so wee need clean the events
+		if (this.ready) {
+			this.powerTree.removeAllEvents();
+		}
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.truth = {};
@@ -1218,18 +1240,19 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
+		this.ready = true;
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	pwReload() {
-		this.hardRefresh();
-		// this.router.removeComponentViews();
-		// this.waitingServer = 0;
-		// this.router = new Router(this.config, this);
+		this.router.removeComponentViews();
+		this.waitingServer = 0;
+		this.router = new Router(this.config, this);
 	}
 
-	hardRefresh() {
+	hardRefresh(node) {
+		node = node || document;
 		const t0 = performance.now();
 		for (const id of Object.keys(this.powerTree.rootCompilers)) {
 			if (this.powerTree.allPowerObjsById[id]) {
@@ -1238,12 +1261,20 @@ class PowerUi extends _PowerUiBase {
 				element.innerHTML = this.powerTree.rootCompilers[id];
 			}
 		}
+		// Remove all the events
+		this.powerTree.removeAllEvents();
+
 		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAll(document, true);
+		this.powerTree.buildAll(node, true);
+		console.log('UEvent.index', UEvent.index);
 		this.powerTree._callInit();
 
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
+	}
+
+	softRefresh() {
+
 	}
 
 	loadHtmlView(url, viewId) {
@@ -2886,7 +2917,7 @@ function getCandNumber(currentCand) {
 		count = count + 1;
 	}
 }
-function changeModel() {
+function changeModel(kind) {
 	if (oldName === myName) {
 		myName = 'My name is Bond, James Bond!';
 	} else {
@@ -2894,14 +2925,31 @@ function changeModel() {
 		myName = oldName;
 		oldName = changeName;
 	}
+	if (myName == 'My name is Bond, James Bond!') {
+		languages.garbage = {name: 'PHP', kind: 'Not typed'};
+	} else {
+		delete languages.garbage;
+	}
 	console.log(myName, pity(), 'currentIf', currentIf);
 	if (cats.length === 12) {
-		console.log('12 gatos');
+		console.log('12 gatos', cats[10]);
+		cats[10].name = 'Luke';
+		cats[10].gender = 'male';
+		cats.push({name: 'Floquinho', gender: 'male'});
 		cats.push({name: '4 gatinhos', gender: 'unknow'});
+		cands.push(['caramelo', 'pirulito']);
+		cands.push(['pipoca', 'cocada']);
 	} else {
+		cats[10].name = 'Florzinha';
+		cats[10].gender = 'female';
 		cats.pop();
+		cands.pop();
 	}
-	app.pwReload();
+	if (kind === 'pwReload') {
+		app.pwReload();
+	} else if (kind === 'hardRefresh') {
+		app.hardRefresh();
+	}
 }
 function powerOnly() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');

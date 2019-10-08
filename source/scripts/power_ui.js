@@ -119,6 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.ready = false;
 		this.config = config;
 		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
@@ -128,6 +129,10 @@ class PowerUi extends _PowerUiBase {
 
 	init() {
 		const t0 = performance.now();
+		// If ready is true that is not the first time this initiate, so wee need clean the events
+		if (this.ready) {
+			this.powerTree.removeAllEvents();
+		}
 		this._createPowerTree();
 		this.powerTree._callInit();
 		this.truth = {};
@@ -138,18 +143,19 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
+		this.ready = true;
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	pwReload() {
-		this.hardRefresh();
-		// this.router.removeComponentViews();
-		// this.waitingServer = 0;
-		// this.router = new Router(this.config, this);
+		this.router.removeComponentViews();
+		this.waitingServer = 0;
+		this.router = new Router(this.config, this);
 	}
 
-	hardRefresh() {
+	hardRefresh(node) {
+		node = node || document;
 		const t0 = performance.now();
 		for (const id of Object.keys(this.powerTree.rootCompilers)) {
 			if (this.powerTree.allPowerObjsById[id]) {
@@ -158,12 +164,20 @@ class PowerUi extends _PowerUiBase {
 				element.innerHTML = this.powerTree.rootCompilers[id];
 			}
 		}
+		// Remove all the events
+		this.powerTree.removeAllEvents();
+
 		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAll(document, true);
+		this.powerTree.buildAll(node, true);
+		console.log('UEvent.index', UEvent.index);
 		this.powerTree._callInit();
 
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
+	}
+
+	softRefresh() {
+
 	}
 
 	loadHtmlView(url, viewId) {

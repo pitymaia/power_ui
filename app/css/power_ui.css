@@ -199,7 +199,7 @@ html{
 }
 .fakemodal {
     position: relative;
-    margin: 20vh auto;
+    margin: auto;
     padding: 2em;
     border-radius: 1em;
     border-width: 2px;
@@ -208,6 +208,9 @@ html{
     background-color: #ADD8E6;
     box-shadow: 5px 5px 20px 0 purple;
     width: 45em;
+    max-height: 100vh;
+    overflow:auto;
+    overflow-x:hidden;
 }
 .fakemodalback {
     position: absolute;
