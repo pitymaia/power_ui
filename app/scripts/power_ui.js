@@ -107,6 +107,16 @@ class SharedScope {
 			return this.cached[flag];
 		}
 	}
+	// Remove all power inner elements from this.$powerUi.powerTree.allPowerObjsById
+	removeInnerElements() {
+		const childNodes = this.element.childNodes;
+		for (const child of childNodes) {
+			if (child.id && this.ctx.allPowerObjsById[child.id]) {
+				this.ctx.allPowerObjsById[child.id] = null;
+			}
+		}
+		this.element.innerHTML = '';
+	}
 }
 
 
@@ -328,16 +338,6 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	getInnerWithoutChildrenByPowerCss(powerCss) {
 		return this.innerPowerCss.filter(child => child.$powerCss === powerCss && child.parent.id !== this.id);
 	}
-	// Remove all power inner elements from this.$powerUi.powerTree.allPowerObjsById
-	removeInnerElements() {
-		const childNodes = this.element.childNodes;
-		for (const child of childNodes) {
-			if (child.id && this.$powerUi.powerTree.allPowerObjsById[child.id]) {
-				this.$powerUi.powerTree.allPowerObjsById[child.id] = null;
-			}
-		}
-		this.element.innerHTML = '';
-	}
 }
 
 
@@ -451,13 +451,14 @@ class PowerTree {
 		});
 	}
 
-	buildPowerObjects({currentNode, main, view, isInnerCompiler, pending, rootCompiler, parent}) {
+	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
+		let canInstanciatePendings = false;
 		let hasCompiled = false;
 		let currentObjects = [];
 		isInnerCompiler = isInnerCompiler || false;
 		parent = parent || false;
 		let childParent = parent;
-		pending = [];
+		saved = saved || {pending: []};
 		main = main || false;
 		// If currentNode is main the main variable may change to the children and we need save the main for this node in oldMain
 		const oldMain = main;
@@ -491,7 +492,7 @@ class PowerTree {
 						// Select this datasetKey to create a powerObject with currentNode
 						currentObjects.push({
 							datasetKey: datasetKey,
-							node: currentNode,
+							currentElement: currentNode,
 							main: oldMain,
 							view: oldView,
 							rootCompiler: isInnerCompiler ? rootCompiler : null,
@@ -520,7 +521,7 @@ class PowerTree {
 					// Select this datasetKey to create a powerObject with currentNode
 					currentObjects.push({
 						datasetKey: selector.datasetKey,
-						node: currentNode,
+						currentElement: currentNode,
 						main: oldMain,
 						view: oldView,
 						rootCompiler: isInnerCompiler ? rootCompiler : null,
@@ -544,7 +545,7 @@ class PowerTree {
 					main: main,
 					view: view,
 					rootCompiler: rootCompiler,
-					pending: pending,
+					saved: saved,
 					parent: childParent,
 				});
 			} else {
@@ -555,7 +556,7 @@ class PowerTree {
 					main: main,
 					view: view,
 					rootCompiler: rootCompiler,
-					pending: pending,
+					saved: saved,
 					parent: childParent,
 				});
 			}
@@ -567,25 +568,21 @@ class PowerTree {
 			// Has compiled contains the original node.innerHTML and we need save it
 			this.rootCompilers[currentNode.id] = hasCompiled;
 			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
+			for (const item of saved.pending) {
+				this._instanciateObj(item);
+			}
+			// After instanciate clean the pending list
+			saved.pending = [];
 		}
-		if ((currentObjects.length > 0 && !hasCompiled) || (hasCompiled && isInnerCompiler)) {
+		if ((currentObjects.length > 0 && !hasCompiled) || (hasCompiled && !isInnerCompiler)) {
 			for (const item of currentObjects) {
-				this._instanciateObj({
-					currentElement: item.node,
-					datasetKey: item.datasetKey,
-					main: item.main,
-					view: item.view,
-					rootCompiler: item.rootCompiler,
-					isMain: item.isMain,
-					isRootCompiler: item.isRootCompiler,
-					parent: item.parent,
-				});
+				this._instanciateObj(item);
 			}
 			currentObjects = [];
 		} else {
 			// If is some inner compiler save it for instanciate later
 			for (const item of currentObjects) {
-				pending.push(item);
+				saved.pending.push(item);
 			}
 		}
 	}
@@ -684,7 +681,7 @@ class PowerTree {
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
 	}
 
-	sweepDOM({entryNode, callback, isInnerCompiler, main, view, rootCompiler, pending, parent}) {
+	sweepDOM({entryNode, callback, isInnerCompiler, main, view, rootCompiler, saved, parent}) {
 		const isNode = !!entryNode && !!entryNode.nodeType;
 		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
 
@@ -700,7 +697,7 @@ class PowerTree {
 					main: main,
 					view: view,
 					rootCompiler: rootCompiler,
-					pending: pending,
+					saved: saved,
 					parent: parent,
 				});
 			}
@@ -712,7 +709,7 @@ class PowerTree {
 				main: main,
 				view: view,
 				rootCompiler: rootCompiler,
-				pending: pending,
+				saved: saved,
 				parent: parent,
 			});
 		}
@@ -1221,35 +1218,31 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
-		// this.hardRefresh();
-		this.router.removeComponentViews();
-		this.waitingServer = 0;
-		this.router = new Router(this.config, this);
+		this.hardRefresh();
+		// this.router.removeComponentViews();
+		// this.waitingServer = 0;
+		// this.router = new Router(this.config, this);
 	}
 
 	hardRefresh() {
 		const t0 = performance.now();
-		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
+		for (const id of Object.keys(this.powerTree.rootCompilers)) {
+			console.log('id', id, this.powerTree.allPowerObjsById[id]);
 			if (this.powerTree.allPowerObjsById[id]) {
-				for (const attr of Object.keys(this.powerTree.allPowerObjsById[id])) {
-					if (this.powerTree.allPowerObjsById[id] && this.powerTree.allPowerObjsById[id].$rootCompiler) {
-						if (this.powerTree.allPowerObjsById[id][attr].removeInnerElements) {
-							this.powerTree.allPowerObjsById[id][attr].removeInnerElements();
-						}
-						// Recreate it
-						if (attr !== '$shared' && attr !== '$rootCompiler') {
-							const newNode = document.createElement('div');
-							newNode.appendChild(this.powerTree.allPowerObjsById[id][attr].element);
-							this.powerTree.buildTempTreeAndObjects(newNode);
-						}
-					}
-					if (this.powerTree.allPowerObjsById[id][attr].init) {
-						this.powerTree.allPowerObjsById[id][attr].init();
-					}
+				this.powerTree.allPowerObjsById[id]['$shared'].removeInnerElements();
+				const element = document.getElementById(id);
+				element.innerHTML = this.powerTree.rootCompilers[id];
+				// Recreate it
+				this.powerTree.addPowerObject(id);
+			}
+		}
+		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
+			for (const datasetKey of Object.keys(this.powerTree.allPowerObjsById[id])) {
+				if (this.powerTree.allPowerObjsById[id][datasetKey].init) {
+					this.powerTree.allPowerObjsById[id][datasetKey].init();
 				}
 			}
 		}
-		this.powerTree._likeInDOM();
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}

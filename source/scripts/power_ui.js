@@ -143,35 +143,31 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
-		// this.hardRefresh();
-		this.router.removeComponentViews();
-		this.waitingServer = 0;
-		this.router = new Router(this.config, this);
+		this.hardRefresh();
+		// this.router.removeComponentViews();
+		// this.waitingServer = 0;
+		// this.router = new Router(this.config, this);
 	}
 
 	hardRefresh() {
 		const t0 = performance.now();
-		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
+		for (const id of Object.keys(this.powerTree.rootCompilers)) {
+			console.log('id', id, this.powerTree.allPowerObjsById[id]);
 			if (this.powerTree.allPowerObjsById[id]) {
-				for (const attr of Object.keys(this.powerTree.allPowerObjsById[id])) {
-					if (this.powerTree.allPowerObjsById[id] && this.powerTree.allPowerObjsById[id].$rootCompiler) {
-						if (this.powerTree.allPowerObjsById[id][attr].removeInnerElements) {
-							this.powerTree.allPowerObjsById[id][attr].removeInnerElements();
-						}
-						// Recreate it
-						if (attr !== '$shared' && attr !== '$rootCompiler') {
-							const newNode = document.createElement('div');
-							newNode.appendChild(this.powerTree.allPowerObjsById[id][attr].element);
-							this.powerTree.buildTempTreeAndObjects(newNode);
-						}
-					}
-					if (this.powerTree.allPowerObjsById[id][attr].init) {
-						this.powerTree.allPowerObjsById[id][attr].init();
-					}
+				this.powerTree.allPowerObjsById[id]['$shared'].removeInnerElements();
+				const element = document.getElementById(id);
+				element.innerHTML = this.powerTree.rootCompilers[id];
+				// Recreate it
+				this.powerTree.addPowerObject(id);
+			}
+		}
+		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
+			for (const datasetKey of Object.keys(this.powerTree.allPowerObjsById[id])) {
+				if (this.powerTree.allPowerObjsById[id][datasetKey].init) {
+					this.powerTree.allPowerObjsById[id][datasetKey].init();
 				}
 			}
 		}
-		this.powerTree._likeInDOM();
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
