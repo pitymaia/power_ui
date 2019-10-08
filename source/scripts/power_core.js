@@ -206,7 +206,33 @@ class _PowerBasicElement {
 	get parent() {
 		return this.$shared ? this.$shared.parentObj : null;
 	}
+	// Only powerCss objects are children, not pow or pwc attrs
+	get children() {
+		return this._cachedChildren || this._getChildren();
+	}
+	_getChildren() {
+		this._cachedChildren = [];
+		const element = this.element;
+		for (const child of element.children) {
+			if (child.className.includes('power-')) {
+				for (const datasetKey of Object.keys(this.$powerUi.powerTree.allPowerObjsById[child.id])) {
+					if (datasetKey.startsWith('power')) {
+						this._cachedChildren.push(this.$powerUi.powerTree.allPowerObjsById[child.id][datasetKey]);
+					}
+				}
+			}
+		}
+		return this._cachedChildren;
+	}
 
+	get innerPowerCss() {
+		return this._cachedInnerPowerCss || this._getInnerPowerCss();
+	}
+
+	_getInnerPowerCss() {
+		this._cachedInnerPowerCss = this.$powerUi.powerTree._getAllInnerPowerCss(this.element);
+		return this._cachedInnerPowerCss;
+	}
 }
 
 
@@ -704,57 +730,13 @@ class PowerTree {
 	_likeInDOM() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			for (const powerSelector of Object.keys(this.allPowerObjsById[id] || {})) {
-				// // If have multiple powerSelectors need add shared scope
-				// if (Object.keys(this.allPowerObjsById[id] || {}).length > 1) {
-				// 	// Register power attrs and classes sharing the same element
-				// 	this._addSharingScope(id, powerSelector);
-				// }
 				const currentObj = this.allPowerObjsById[id][powerSelector];
 				if ((powerSelector !== '$shared')) { //&& !currentObj.parent) {
 					// Search a powerElement parent of currentObj up DOM if exists
 					const currentParentElement = this._getParentElementFromChildElement(currentObj.element);
-					// Get the main and view elements of the currentObj
-					// const currentMainElement = this._getMainElementFromChildElement(currentObj.element);
-					// const currentViewElement = this._getViewElementFromChildElement(currentObj.element);
-					// // Loop through the list of possible main CSS power class names like power-menu or power-main
-					// // With this we will find the main powerElement that holds the simple DOM node main element
-					// if (currentMainElement) {
-					// 	for (const mainPowerElementConfig of PowerUi._powerElementsConfig.filter(a => a.isMain === true)) {
-					// 		const powerMain = this.allPowerObjsById[currentMainElement.id][mainPowerElementConfig.datasetKey];
-					// 		if (powerMain) {
-					// 			// currentObj.$pwMain = powerMain;
-					// 		}
-					// 	}
-					// }
 
-					// // Add the mainView to element
-					// if (currentViewElement) {
-					// 	const powerView = this.allPowerObjsById[currentViewElement.id]['powerView'];
-					// 	// currentObj.$pwView = powerView;
-					// }
-
-					// If searchParentResult is true and not returns the same element add parent and child
-					// Else it is a rootElement
 					if (currentParentElement && (currentParentElement.id !== currentObj.element.id)) {
-						for (const parentIndex of Object.keys(this.allPowerObjsById[currentParentElement.id] || {})) {
-							// Only add if this is a power class (not some pow or pwc attr)
-							if (parentIndex.includes('power')) {
-								// Add parent element to current power object
-								// const parentObj = this.allPowerObjsById[currentParentElement.id][parentIndex];
-								const parentObj = currentObj.parent;
-								// currentObj.parent = parentObj;
-								// Add current object as child of parentObj
-								// console.log('currentParentElement', currentParentElement, parentObj, currentObj);
-								if (!parentObj.children) {
-									parentObj.children = [];
-								}
-								// Only add if this is a power class (not some pow or pwc attr)
-								// And only if not already added
-								if (currentObj.element.className.includes('power-') && !parentObj.children.find(obj => obj.id === currentObj.id)) {
-									parentObj.children.push(currentObj);
-								}
-							}
-						}
+
 					} else { // This is a rootElement
 						// Only add if this is a power class (not some pow or pwc attr)
 						// And only if not already added
@@ -763,10 +745,6 @@ class PowerTree {
 							// currentObj.parent = null;
 						}
 					}
-				}
-				// Add current object as child of parentObj
-				if (currentObj.element && currentObj.element.className.includes('power-') && !currentObj.innerPowerCss) {
-					currentObj.innerPowerCss = this._getAllInnerPowerCss(currentObj.element);
 				}
 			}
 		}
