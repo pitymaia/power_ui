@@ -156,17 +156,12 @@ class PowerUi extends _PowerUiBase {
 				this.powerTree.allPowerObjsById[id]['$shared'].removeInnerElements();
 				const element = document.getElementById(id);
 				element.innerHTML = this.powerTree.rootCompilers[id];
-				// Recreate it
-				this.powerTree.addPowerObject(id);
 			}
 		}
-		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
-			for (const datasetKey of Object.keys(this.powerTree.allPowerObjsById[id])) {
-				if (this.powerTree.allPowerObjsById[id][datasetKey].init) {
-					this.powerTree.allPowerObjsById[id][datasetKey].init();
-				}
-			}
-		}
+		this.powerTree.allPowerObjsById = {};
+		this.powerTree.buildAll(document, true);
+		this.powerTree._callInit();
+
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}

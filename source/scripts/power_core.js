@@ -116,7 +116,7 @@ class SharedScope {
 			}
 		}
 		this.element.innerHTML = '';
-		this.element.dataset.pwcompiled = false;
+		this.element.dataset.pwhascomp = false;
 	}
 }
 
@@ -411,7 +411,7 @@ class PowerTree {
 		return false;
 	}
 
-	buildAll(node) {
+	buildAll(node, refresh) {
 		node = node || document;
 
 		this.sweepDOM({
@@ -420,11 +420,13 @@ class PowerTree {
 			isInnerCompiler: false,
 		});
 
-		const tempTree = {pending: []};
-		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
-		for (const id of tempTree.pending) {
-			this.addPowerObject(id);
+		if (!refresh) {
+			const tempTree = {pending: []};
+			const body = document.getElementsByTagName('BODY')[0];
+			body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
+			for (const id of tempTree.pending) {
+				this.addPowerObject(id);
+			}
 		}
 	}
 
@@ -481,7 +483,7 @@ class PowerTree {
 							datasetKey: datasetKey,
 							isInnerCompiler: isInnerCompiler,
 						});
-						if (hasCompiled && !rootCompiler) {
+						if (hasCompiled && !isInnerCompiler) {
 							rootCompiler = currentNode;
 							isRootCompiler = true;
 						}
@@ -591,7 +593,7 @@ class PowerTree {
 		// Create a temp version of all powerObjects with compile methods
 		if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isCompiler) {
 			// Check if not already compiled
-			if (!currentNode.getAttribute('data-pwcompiled')) {
+			if (!currentNode.getAttribute('data-pwhascomp') != 'true') {
 				const id = getIdAndCreateIfDontHave(currentNode);
 				const newObj = this.attrsConfig[datasetKey].callback(currentNode);
 				// Add to any element some desired variables
@@ -600,7 +602,7 @@ class PowerTree {
 				// If is the root element save the original innerHTML, if not only return true
 				compiled = !isInnerCompiler ? currentNode.innerHTML : true;
 				newObj.compile();
-				newObj.element.setAttribute('data-pwcompiled', true);
+				newObj.element.setAttribute('data-pwhascomp', true);
 				// Has compiled contains the original node.innerHTML and we need save it
 				if (!isInnerCompiler) {
 					this.rootCompilers[currentNode.id] = compiled;

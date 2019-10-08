@@ -116,7 +116,7 @@ class SharedScope {
 			}
 		}
 		this.element.innerHTML = '';
-		this.element.dataset.pwcompiled = false;
+		this.element.dataset.pwhascomp = false;
 	}
 }
 
@@ -411,7 +411,7 @@ class PowerTree {
 		return false;
 	}
 
-	buildAll(node) {
+	buildAll(node, refresh) {
 		node = node || document;
 
 		this.sweepDOM({
@@ -420,11 +420,13 @@ class PowerTree {
 			isInnerCompiler: false,
 		});
 
-		const tempTree = {pending: []};
-		const body = document.getElementsByTagName('BODY')[0];
-		body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
-		for (const id of tempTree.pending) {
-			this.addPowerObject(id);
+		if (!refresh) {
+			const tempTree = {pending: []};
+			const body = document.getElementsByTagName('BODY')[0];
+			body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
+			for (const id of tempTree.pending) {
+				this.addPowerObject(id);
+			}
 		}
 	}
 
@@ -481,7 +483,7 @@ class PowerTree {
 							datasetKey: datasetKey,
 							isInnerCompiler: isInnerCompiler,
 						});
-						if (hasCompiled && !rootCompiler) {
+						if (hasCompiled && !isInnerCompiler) {
 							rootCompiler = currentNode;
 							isRootCompiler = true;
 						}
@@ -591,7 +593,7 @@ class PowerTree {
 		// Create a temp version of all powerObjects with compile methods
 		if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isCompiler) {
 			// Check if not already compiled
-			if (!currentNode.getAttribute('data-pwcompiled')) {
+			if (!currentNode.getAttribute('data-pwhascomp') != 'true') {
 				const id = getIdAndCreateIfDontHave(currentNode);
 				const newObj = this.attrsConfig[datasetKey].callback(currentNode);
 				// Add to any element some desired variables
@@ -600,7 +602,7 @@ class PowerTree {
 				// If is the root element save the original innerHTML, if not only return true
 				compiled = !isInnerCompiler ? currentNode.innerHTML : true;
 				newObj.compile();
-				newObj.element.setAttribute('data-pwcompiled', true);
+				newObj.element.setAttribute('data-pwhascomp', true);
 				// Has compiled contains the original node.innerHTML and we need save it
 				if (!isInnerCompiler) {
 					this.rootCompilers[currentNode.id] = compiled;
@@ -1234,17 +1236,12 @@ class PowerUi extends _PowerUiBase {
 				this.powerTree.allPowerObjsById[id]['$shared'].removeInnerElements();
 				const element = document.getElementById(id);
 				element.innerHTML = this.powerTree.rootCompilers[id];
-				// Recreate it
-				this.powerTree.addPowerObject(id);
 			}
 		}
-		for (const id of Object.keys(this.powerTree.allPowerObjsById || {})) {
-			for (const datasetKey of Object.keys(this.powerTree.allPowerObjsById[id])) {
-				if (this.powerTree.allPowerObjsById[id][datasetKey].init) {
-					this.powerTree.allPowerObjsById[id][datasetKey].init();
-				}
-			}
-		}
+		this.powerTree.allPowerObjsById = {};
+		this.powerTree.buildAll(document, true);
+		this.powerTree._callInit();
+
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -2626,7 +2623,7 @@ class PowerInterpolation {
 				const id = _Unique.domID('span');
 				const innerTEXT = this.getInterpolationValue(entry);
 				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}"
-					data-pwcompiled="true" id="${id}">${innerTEXT}</span>`;
+					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
 
 				// Regiter any new element on tempTree pending to add after interpolation

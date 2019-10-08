@@ -38,7 +38,7 @@ class PowerInterpolation {
 				const id = _Unique.domID('span');
 				const innerTEXT = this.getInterpolationValue(entry);
 				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}"
-					data-pwcompiled="true" id="${id}">${innerTEXT}</span>`;
+					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
 
 				// Regiter any new element on tempTree pending to add after interpolation
