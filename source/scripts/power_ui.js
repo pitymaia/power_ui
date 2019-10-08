@@ -169,7 +169,6 @@ class PowerUi extends _PowerUiBase {
 
 		this.powerTree.allPowerObjsById = {};
 		this.powerTree.buildAll(node, true);
-		console.log('UEvent.index', UEvent.index);
 		this.powerTree._callInit();
 
 		const t1 = performance.now();

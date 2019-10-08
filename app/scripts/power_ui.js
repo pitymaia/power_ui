@@ -172,7 +172,6 @@ class UEvent {
 		// Remove any old event before add to avoid duplication
 		this.unsubscribe(fn);
 		this.observers.push({fn, ctx, arguments});
-		console.log('observers', this.observers);
 	}
 
 	unsubscribe(fn) {
@@ -257,7 +256,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 		this._events = {};
 		// Hold custom events to dispatch
 		this._DOMEvents = {};
-		// Hold the function to allow remove listeners with the same funciont signature
+		// Hold the function to allow remove listeners with the same function signature
 		this._events_fn = {};
 	}
 
@@ -270,6 +269,7 @@ class _PowerBasicElementWithEvents extends _PowerBasicElement {
 	// This is a subscribe for native and custom envents that broadcast when the event is dispached
 	// If the event doesn't exists create it and subscribe, if it already exists just subscribe
 	subscribe({event, fn, useCapture=true, ...params}) {
+		this.unsubscribe({event: event, fn: fn, useCapture: useCapture, params: params});
 		const ctx = this;
 		// Create the event
 		if (!this._events[event]) {
@@ -384,15 +384,18 @@ class PowerTree {
 	}
 
 	removeAllEvents() {
-		for (const id of Object.keys(UEvent.index || {})) {
-			for (const observer of UEvent.index[id].observers) {
-				const ctx = observer.ctx;
-				for (const eventName of Object.keys(observer.ctx._events || {})) {
-					observer.ctx.unsubscribe({event: eventName, fn: observer.fn});
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
+			for (const datasetKey of Object.keys(this.allPowerObjsById[id] || {})) {
+				if (datasetKey !== '$shared') {
+					for (const eventName of Object.keys(this.allPowerObjsById[id][datasetKey]._events)) {
+						for (const observer of this.allPowerObjsById[id][datasetKey]._events[eventName].observers) {
+							observer.ctx.unsubscribe({event: eventName, fn: observer.fn});
+						}
+					}
 				}
 			}
 		}
-		// UEvent.index = {};
+		UEvent.index = {};
 	}
 
 	getMainDatasetKeys() {
@@ -915,7 +918,6 @@ class _pwMainBasicHover extends _pwBasicHover {
 
 	// Atach the listner/Event to que main element
 	addEventListener(event, callback, useCapture) {
-		// this.$pwMain.element.addEventListener(event, callback, useCapture);
 		this.$pwMain.subscribe({event: event, fn: callback, useCapture: useCapture});
 	}
 }
@@ -995,7 +997,6 @@ class PowMainCssHover extends PowCssHover {
 
 	// Atach the listner/Event to que main element
 	addEventListener(event, callback, useCapture) {
-		// this.$pwMain.element.addEventListener(event, callback, useCapture);
 		this.$pwMain.subscribe({event: event, fn: callback, useCapture: useCapture});
 	}
 
@@ -1266,7 +1267,6 @@ class PowerUi extends _PowerUiBase {
 
 		this.powerTree.allPowerObjsById = {};
 		this.powerTree.buildAll(node, true);
-		console.log('UEvent.index', UEvent.index);
 		this.powerTree._callInit();
 
 		const t1 = performance.now();
