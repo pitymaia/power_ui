@@ -226,7 +226,7 @@ class _PowerBasicElement {
 		const element = this.element;
 		for (const child of element.children) {
 			if (child.className.includes('power-')) {
-				for (const datasetKey of Object.keys(this.$powerUi.powerTree.allPowerObjsById[child.id])) {
+				for (const datasetKey of Object.keys(this.$powerUi.powerTree.allPowerObjsById[child.id] || {})) {
 					if (datasetKey.startsWith('power')) {
 						this._cachedChildren.push(this.$powerUi.powerTree.allPowerObjsById[child.id][datasetKey]);
 					}
@@ -371,7 +371,7 @@ class PowerTree {
 			this.attrsConfig[attr.datasetKey] = attr;
 		}
 
-		this.rootDatasetKeys = Object.keys(this.attrsConfig).filter(i => this.attrsConfig[i].isCompiler);
+		this.rootDatasetKeys = Object.keys(this.attrsConfig || {}).filter(i => this.attrsConfig[i].isCompiler);
 		this.mainDatasetKeys = this.getMainDatasetKeys();
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
