@@ -151,6 +151,8 @@ function changeModel(kind) {
 		app.pwReload();
 	} else if (kind === 'hardRefresh') {
 		app.hardRefresh(document);
+	} else if (kind === 'softRefresh') {
+		app.softRefresh(document);
 	}
 }
 function powerOnly() {

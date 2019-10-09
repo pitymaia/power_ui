@@ -398,6 +398,16 @@ class PowerTree {
 		UEvent.index = {};
 	}
 
+	restoreRootCompilers() {
+		for (const id of Object.keys(this.rootCompilers)) {
+			if (this.allPowerObjsById[id]) {
+				this.allPowerObjsById[id]['$shared'].removeInnerElements();
+				const element = document.getElementById(id);
+				element.innerHTML = this.rootCompilers[id];
+			}
+		}
+	}
+
 	getMainDatasetKeys() {
 		const mainDatasetKeys = [];
 		for (const item of PowerUi._powerElementsConfig) {

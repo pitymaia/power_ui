@@ -398,6 +398,16 @@ class PowerTree {
 		UEvent.index = {};
 	}
 
+	restoreRootCompilers() {
+		for (const id of Object.keys(this.rootCompilers)) {
+			if (this.allPowerObjsById[id]) {
+				this.allPowerObjsById[id]['$shared'].removeInnerElements();
+				const element = document.getElementById(id);
+				element.innerHTML = this.rootCompilers[id];
+			}
+		}
+	}
+
 	getMainDatasetKeys() {
 		const mainDatasetKeys = [];
 		for (const item of PowerUi._powerElementsConfig) {
@@ -1254,13 +1264,7 @@ class PowerUi extends _PowerUiBase {
 
 	hardRefresh({node, view}) {
 		const t0 = performance.now();
-		for (const id of Object.keys(this.powerTree.rootCompilers)) {
-			if (this.powerTree.allPowerObjsById[id]) {
-				this.powerTree.allPowerObjsById[id]['$shared'].removeInnerElements();
-				const element = document.getElementById(id);
-				element.innerHTML = this.powerTree.rootCompilers[id];
-			}
-		}
+		this.powerTree.restoreRootCompilers();
 		// Remove all the events
 		this.powerTree.removeAllEvents();
 
@@ -1273,7 +1277,27 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	softRefresh(node) {
-
+		const t0 = performance.now();
+		this.powerTree.restoreRootCompilers();
+		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
+			if (this.powerTree.allPowerObjsById[id]) {
+				delete this.powerTree.allPowerObjsById[id];
+				const currentNode = document.getElementById(id);
+				const parentElement = this.powerTree._getParentElementFromChildElement(currentNode);
+				// Get the main and view elements of the currentObj
+				const mainElement = this.powerTree._getMainElementFromChildElement(currentNode);
+				const isMain = this.powerTree.datasetIsMain(currentNode.dataset);
+				const viewElement = this.powerTree._getViewElementFromChildElement(currentNode);
+				this.powerTree.buildPowerObjects({
+					currentNode: currentNode,
+					main: mainElement,
+					view: viewElement,
+					parent: parentElement,
+				});
+			}
+		}
+		const t1 = performance.now();
+		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	loadHtmlView(url, viewId) {
@@ -2948,6 +2972,8 @@ function changeModel(kind) {
 		app.pwReload();
 	} else if (kind === 'hardRefresh') {
 		app.hardRefresh(document);
+	} else if (kind === 'softRefresh') {
+		app.softRefresh(document);
 	}
 }
 function powerOnly() {
