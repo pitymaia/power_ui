@@ -398,7 +398,7 @@ class PowerTree {
 		UEvent.index = {};
 	}
 
-	restoreRootCompilers() {
+	resetRootCompilers() {
 		for (const id of Object.keys(this.rootCompilers)) {
 			if (this.allPowerObjsById[id]) {
 				this.allPowerObjsById[id]['$shared'].removeInnerElements();

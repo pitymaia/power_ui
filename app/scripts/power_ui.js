@@ -398,7 +398,7 @@ class PowerTree {
 		UEvent.index = {};
 	}
 
-	restoreRootCompilers() {
+	resetRootCompilers() {
 		for (const id of Object.keys(this.rootCompilers)) {
 			if (this.allPowerObjsById[id]) {
 				this.allPowerObjsById[id]['$shared'].removeInnerElements();
@@ -1264,7 +1264,7 @@ class PowerUi extends _PowerUiBase {
 
 	hardRefresh({node, view}) {
 		const t0 = performance.now();
-		this.powerTree.restoreRootCompilers();
+		this.powerTree.resetRootCompilers();
 		// Remove all the events
 		this.powerTree.removeAllEvents();
 
@@ -1278,7 +1278,7 @@ class PowerUi extends _PowerUiBase {
 
 	softRefresh(node) {
 		const t0 = performance.now();
-		this.powerTree.restoreRootCompilers();
+		this.powerTree.resetRootCompilers();
 		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
 			if (this.powerTree.allPowerObjsById[id]) {
 				delete this.powerTree.allPowerObjsById[id];
