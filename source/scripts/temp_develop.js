@@ -150,7 +150,7 @@ function changeModel(kind) {
 	if (kind === 'pwReload') {
 		app.pwReload();
 	} else if (kind === 'hardRefresh') {
-		app.hardRefresh();
+		app.hardRefresh(document);
 	}
 }
 function powerOnly() {

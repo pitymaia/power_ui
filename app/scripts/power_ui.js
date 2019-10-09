@@ -1252,8 +1252,7 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(this.config, this);
 	}
 
-	hardRefresh(node) {
-		node = node || document;
+	hardRefresh({node, view}) {
 		const t0 = performance.now();
 		for (const id of Object.keys(this.powerTree.rootCompilers)) {
 			if (this.powerTree.allPowerObjsById[id]) {
@@ -1273,7 +1272,7 @@ class PowerUi extends _PowerUiBase {
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	softRefresh() {
+	softRefresh(node) {
 
 	}
 
@@ -2948,7 +2947,7 @@ function changeModel(kind) {
 	if (kind === 'pwReload') {
 		app.pwReload();
 	} else if (kind === 'hardRefresh') {
-		app.hardRefresh();
+		app.hardRefresh(document);
 	}
 }
 function powerOnly() {
