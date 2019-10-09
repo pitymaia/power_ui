@@ -112,6 +112,8 @@ class SharedScope {
 		const childNodes = this.element.childNodes;
 		for (const child of childNodes) {
 			if (child.id && this.ctx.allPowerObjsById[child.id]) {
+				// Remove events of this objects
+				this.ctx.removeEventsOfObject(child.id);
 				delete this.ctx.allPowerObjsById[child.id];
 			}
 		}
@@ -385,15 +387,7 @@ class PowerTree {
 
 	removeAllEvents() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
-			for (const datasetKey of Object.keys(this.allPowerObjsById[id] || {})) {
-				if (datasetKey !== '$shared') {
-					for (const eventName of Object.keys(this.allPowerObjsById[id][datasetKey]._events)) {
-						for (const observer of this.allPowerObjsById[id][datasetKey]._events[eventName].observers) {
-							observer.ctx.unsubscribe({event: eventName, fn: observer.fn});
-						}
-					}
-				}
-			}
+			this.removeEventsOfObject(id);
 		}
 		UEvent.index = {};
 	}
@@ -401,9 +395,24 @@ class PowerTree {
 	resetRootCompilers() {
 		for (const id of Object.keys(this.rootCompilers)) {
 			if (this.allPowerObjsById[id]) {
+				// Remove events of this objects
+				this.removeEventsOfObject(id);
+				// delete all inner this.allPowerObjsById[id]
 				this.allPowerObjsById[id]['$shared'].removeInnerElements();
 				const element = document.getElementById(id);
 				element.innerHTML = this.rootCompilers[id];
+			}
+		}
+	}
+
+	removeEventsOfObject(id) {
+		for (const datasetKey of Object.keys(this.allPowerObjsById[id] || {})) {
+			if (datasetKey !== '$shared') {
+				for (const eventName of Object.keys(this.allPowerObjsById[id][datasetKey]._events)) {
+					for (const observer of this.allPowerObjsById[id][datasetKey]._events[eventName].observers) {
+						observer.ctx.unsubscribe({event: eventName, fn: observer.fn});
+					}
+				}
 			}
 		}
 	}
@@ -825,10 +834,13 @@ class PowerTree {
 	_callInit() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			// Call init for all elements
-			for (const attr of Object.keys(this.allPowerObjsById[id] || {})) {
-				if (this.allPowerObjsById[id][attr].init) {
-					this.allPowerObjsById[id][attr].init();
-				}
+			this._callInitOfObject(id);
+		}
+	}
+	_callInitOfObject(id) {
+		for (const datasetKey of Object.keys(this.allPowerObjsById[id] || {})) {
+			if (this.allPowerObjsById[id][datasetKey].init) {
+				this.allPowerObjsById[id][datasetKey].init();
 			}
 		}
 	}

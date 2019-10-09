@@ -172,20 +172,28 @@ class PowerUi extends _PowerUiBase {
 		const t0 = performance.now();
 		this.powerTree.resetRootCompilers();
 		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
-			if (this.powerTree.allPowerObjsById[id]) {
-				delete this.powerTree.allPowerObjsById[id];
-				const currentNode = document.getElementById(id);
-				const parentElement = this.powerTree._getParentElementFromChildElement(currentNode);
-				// Get the main and view elements of the currentObj
-				const mainElement = this.powerTree._getMainElementFromChildElement(currentNode);
-				const isMain = this.powerTree.datasetIsMain(currentNode.dataset);
-				const viewElement = this.powerTree._getViewElementFromChildElement(currentNode);
-				this.powerTree.buildPowerObjects({
-					currentNode: currentNode,
-					main: mainElement,
-					view: viewElement,
-					parent: parentElement,
-				});
+			delete this.powerTree.allPowerObjsById[id];
+			const currentNode = document.getElementById(id);
+			const parentElement = this.powerTree._getParentElementFromChildElement(currentNode);
+			// Get the main and view elements of the currentObj
+			const mainElement = this.powerTree._getMainElementFromChildElement(currentNode);
+			const isMain = this.powerTree.datasetIsMain(currentNode.dataset);
+			const viewElement = this.powerTree._getViewElementFromChildElement(currentNode);
+			this.powerTree.buildPowerObjects({
+				currentNode: currentNode,
+				main: mainElement,
+				view: viewElement,
+				parent: parentElement,
+			});
+			// Call init for this object
+			this.powerTree._callInitOfObject(id);
+			// Call init for any child object
+			const childNodes = this.powerTree.allPowerObjsById[id].$shared.element.childNodes;
+			for (const child of childNodes) {
+				if (child.id && this.powerTree.allPowerObjsById[child.id]) {
+					// Call init for this object
+					this.powerTree._callInitOfObject(child.id);
+				}
 			}
 		}
 		const t1 = performance.now();
