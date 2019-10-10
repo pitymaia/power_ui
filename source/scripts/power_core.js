@@ -844,6 +844,18 @@ class PowerTree {
 			}
 		}
 	}
+	_callInitForObjectAndInners(id) {
+		// Call init for this object
+		this._callInitOfObject(id);
+		// Call init for any child object
+		const childNodes = this.allPowerObjsById[id].$shared.element.childNodes;
+		for (const child of childNodes) {
+			if (child.id && this.allPowerObjsById[child.id]) {
+				// Call init for this object
+				this._callInitOfObject(child.id);
+			}
+		}
+	}
 }
 // Search powerElement UP on DOM and return the element when testCondition is true or the last powerElement on the tree
 // testCondition is a function to find the element we want, if the condition is false the root/top powerElement is returned

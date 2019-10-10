@@ -185,16 +185,8 @@ class PowerUi extends _PowerUiBase {
 				view: viewElement,
 				parent: parentElement,
 			});
-			// Call init for this object
-			this.powerTree._callInitOfObject(id);
-			// Call init for any child object
-			const childNodes = this.powerTree.allPowerObjsById[id].$shared.element.childNodes;
-			for (const child of childNodes) {
-				if (child.id && this.powerTree.allPowerObjsById[child.id]) {
-					// Call init for this object
-					this.powerTree._callInitOfObject(child.id);
-				}
-			}
+			// Call init for this object and all inner objects
+			this.powerTree._callInitForObjectAndInners(id)
 		}
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
