@@ -127,6 +127,7 @@ class SharedScope {
 class _PowerUiBase {
 	_createPowerTree() {
 		this.powerTree = new PowerTree(this, _PowerUiBase);
+		this.powerTree._callInit();
 	}
 }
 // Hold temp scopes during templating
@@ -360,7 +361,6 @@ class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
 		this.allPowerObjsById = {};
-		this.rootCompilers = {};
 		this.attrsConfig = {};
 
 		for (const attr of _PowerUiBase._powAttrsConfig) {
@@ -382,7 +382,17 @@ class PowerTree {
 		this.mainDatasetKeys = this.getMainDatasetKeys();
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
-		this.buildAll(document);
+		this.buildAndInterpolate(document);
+	}
+
+	get rootCompilers() {
+		const rootCompilers = {};
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
+			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler) {
+				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
+			}
+		}
+		return rootCompilers;
 	}
 
 	removeAllEvents() {
@@ -449,10 +459,8 @@ class PowerTree {
 		}
 		return false;
 	}
-
-	buildAll(node, refresh) {
-		node = node || document;
-
+	// This is the main function to sweep the DOM and instanciate powerObjetcs from it
+	buildAndInterpolate(node, refresh) {
 		this.sweepDOM({
 			entryNode: node,
 			callback: this.buildPowerObjects.bind(this),
@@ -494,7 +502,7 @@ class PowerTree {
 	}
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
-		let canInstanciatePendings = false;
+		// let canInstanciatePendings = false;
 		let hasCompiled = false;
 		let currentObjects = [];
 		isInnerCompiler = isInnerCompiler || false;
@@ -541,6 +549,7 @@ class PowerTree {
 							isMain: isMain,
 							isRootCompiler: isRootCompiler,
 							parent: parent,
+							originalInnerHTML: hasCompiled,
 						});
 						// For now only powerCss objects have .parent
 						// childParent = {node: currentNode, datasetKey: datasetKey};
@@ -627,6 +636,23 @@ class PowerTree {
 		}
 	}
 
+	createAndInitObjectsFromCurrentNode(id) {
+		const currentNode = document.getElementById(id);
+		const parentElement = this._getParentElementFromChildElement(currentNode);
+		// Get the main and view elements of the currentObj
+		const mainElement = this._getMainElementFromChildElement(currentNode);
+		const isMain = this.datasetIsMain(currentNode.dataset);
+		const viewElement = this._getViewElementFromChildElement(currentNode);
+		this.buildPowerObjects({
+			currentNode: currentNode,
+			main: mainElement,
+			view: viewElement,
+			parent: parentElement,
+		});
+		// Call init for this object and all inner objects
+		this._callInitForObjectAndInners(id);
+	}
+
 	_compile({currentNode, datasetKey, isInnerCompiler}) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
@@ -642,16 +668,12 @@ class PowerTree {
 				compiled = !isInnerCompiler ? currentNode.innerHTML : true;
 				newObj.compile();
 				newObj.element.setAttribute('data-pwhascomp', true);
-				// Has compiled contains the original node.innerHTML and we need save it
-				if (!isInnerCompiler) {
-					this.rootCompilers[currentNode.id] = compiled;
-				}
 			}
 		}
 		return compiled;
 	}
 
-	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent}) {
+	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent, originalInnerHTML}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
@@ -676,6 +698,7 @@ class PowerTree {
 		// Register if object is main object or a rootCompiler
 		powerObject.isMain = isMain || null;
 		powerObject.isRootCompiler = isRootCompiler || null;
+		powerObject.originalInnerHTML = (originalInnerHTML && originalInnerHTML !== true) ? originalInnerHTML : null;
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({
 			powerObject: powerObject,
@@ -720,6 +743,10 @@ class PowerTree {
 				parent: parent,
 				ctx: this,
 			});
+		}
+		if (powerObject.isRootCompiler) {
+			this.allPowerObjsById[id].$shared.isRootCompiler = powerObject.isRootCompiler;
+			this.allPowerObjsById[id].$shared.originalInnerHTML = powerObject.originalInnerHTML;
 		}
 		// add the shared scope to all elements
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
@@ -845,6 +872,9 @@ class PowerTree {
 		}
 	}
 	_callInitForObjectAndInners(id) {
+		if (!this.allPowerObjsById[id]) {
+			return;
+		}
 		// Call init for this object
 		this._callInitOfObject(id);
 		// Call init for any child object
@@ -1251,22 +1281,22 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.ready = false;
+		this.initAlreadyRun = false;
 		this.config = config;
 		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+		this.waitingInit = [];
 	}
 
-	init() {
+	initAll() {
 		const t0 = performance.now();
-		// If ready is true that is not the first time this initiate, so wee need clean the events
-		if (this.ready) {
+		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
+		if (this.initAlreadyRun) {
 			this.powerTree.removeAllEvents();
 		}
 		this._createPowerTree();
-		this.powerTree._callInit();
 		this.truth = {};
 		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
@@ -1275,7 +1305,8 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
-		this.ready = true;
+		this.initAlreadyRun = true;
+		this.waitingInit = [];
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -1286,14 +1317,32 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(this.config, this);
 	}
 
+	initNodes(response) {
+		// this.initAll();
+		// return;
+		const t0 = performance.now();
+		for (const item of this.waitingInit) {
+			if (item.node.id !== 'main-view') {
+				console.log('AQUI RODOU!');
+				this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
+			} else {
+				console.log('NÃO RODOU!');
+			}
+		}
+		const t1 = performance.now();
+		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
+		this.waitingInit = []; // TODO REMOVE THIS AFTER CREATE THE REAL INITNODES
+	}
+
 	hardRefresh({node, view}) {
+		node = node || document;
 		const t0 = performance.now();
 		this.powerTree.resetRootCompilers();
 		// Remove all the events
 		this.powerTree.removeAllEvents();
 
 		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAll(node, true);
+		this.powerTree.buildAndInterpolate(node, true);
 		this.powerTree._callInit();
 
 		const t1 = performance.now();
@@ -1305,26 +1354,13 @@ class PowerUi extends _PowerUiBase {
 		this.powerTree.resetRootCompilers();
 		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
 			delete this.powerTree.allPowerObjsById[id];
-			const currentNode = document.getElementById(id);
-			const parentElement = this.powerTree._getParentElementFromChildElement(currentNode);
-			// Get the main and view elements of the currentObj
-			const mainElement = this.powerTree._getMainElementFromChildElement(currentNode);
-			const isMain = this.powerTree.datasetIsMain(currentNode.dataset);
-			const viewElement = this.powerTree._getViewElementFromChildElement(currentNode);
-			this.powerTree.buildPowerObjects({
-				currentNode: currentNode,
-				main: mainElement,
-				view: viewElement,
-				parent: parentElement,
-			});
-			// Call init for this object and all inner objects
-			this.powerTree._callInitForObjectAndInners(id)
+			this.powerTree.createAndInitObjectsFromCurrentNode(id);
 		}
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadHtmlView(url, viewId) {
+	loadHtmlView(url, viewId, state) {
 		const self = this;
 		self.waitingServer = self.waitingServer + 1;
 		this.request({
@@ -1333,20 +1369,28 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			document.getElementById(viewId).innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit();
+			const node = document.getElementById(viewId);
+			node.innerHTML = xhr.responseText;
+			self.waitingInit.push({node: node, viewId: viewId, url: url, state: state});
+			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);
 			self.ifNotWaitingServerCallInit();
 		});
 	}
 
-	ifNotWaitingServerCallInit() {
+	ifNotWaitingServerCallInit(response) {
 		const self = this;
 		setTimeout(function () {
 			self.waitingServer = self.waitingServer - 1;
 			if (self.waitingServer === 0) {
-				self.init();
+				if (self.initAlreadyRun) {
+					console.log('!!! INIT VIEW !!!', self.waitingInit);
+					self.initNodes(response);
+				} else {
+					console.log('!!!!!!!! INIT ALL !!!!!!!!');
+					self.initAll();
+				}
 			}
 		}, 10);
 	}
@@ -2439,7 +2483,7 @@ class Router {
 							const componentViewId = this.loadComponentRoute({routeId: routeId, paramKeys: paramKeys, routerComponentViewId: this.config.routerComponentViewId});
 							this.setComponentRouteState({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute, componentViewId: componentViewId});
 						} else {
-							// If the newComponentRoute it already on the list do nothing
+							// If the newComponentRoute is already on the list do nothing
 							// Only add if it is only on oldComponentRoute list
 							if (!newComponentRoute) {
 								this.currentRoute.componentRoutes.push(oldComponentRoute);
@@ -2479,7 +2523,7 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId);
+			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoute);
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {

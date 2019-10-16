@@ -139,7 +139,7 @@ class Router {
 							const componentViewId = this.loadComponentRoute({routeId: routeId, paramKeys: paramKeys, routerComponentViewId: this.config.routerComponentViewId});
 							this.setComponentRouteState({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute, componentViewId: componentViewId});
 						} else {
-							// If the newComponentRoute it already on the list do nothing
+							// If the newComponentRoute is already on the list do nothing
 							// Only add if it is only on oldComponentRoute list
 							if (!newComponentRoute) {
 								this.currentRoute.componentRoutes.push(oldComponentRoute);
@@ -179,7 +179,7 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId);
+			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoute);
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {

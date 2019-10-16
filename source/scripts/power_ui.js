@@ -119,22 +119,22 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.ready = false;
+		this.initAlreadyRun = false;
 		this.config = config;
 		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+		this.waitingInit = [];
 	}
 
-	init() {
+	initAll() {
 		const t0 = performance.now();
-		// If ready is true that is not the first time this initiate, so wee need clean the events
-		if (this.ready) {
+		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
+		if (this.initAlreadyRun) {
 			this.powerTree.removeAllEvents();
 		}
 		this._createPowerTree();
-		this.powerTree._callInit();
 		this.truth = {};
 		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
@@ -143,7 +143,8 @@ class PowerUi extends _PowerUiBase {
 		if (!this.touchdevice) {
 			this.keyboardManager = new KeyboardManager(this);
 		}
-		this.ready = true;
+		this.initAlreadyRun = true;
+		this.waitingInit = [];
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -154,14 +155,32 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(this.config, this);
 	}
 
+	initNodes(response) {
+		// this.initAll();
+		// return;
+		const t0 = performance.now();
+		for (const item of this.waitingInit) {
+			if (item.node.id !== 'main-view') {
+				console.log('AQUI RODOU!');
+				this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
+			} else {
+				console.log('NÃO RODOU!');
+			}
+		}
+		const t1 = performance.now();
+		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
+		this.waitingInit = []; // TODO REMOVE THIS AFTER CREATE THE REAL INITNODES
+	}
+
 	hardRefresh({node, view}) {
+		node = node || document;
 		const t0 = performance.now();
 		this.powerTree.resetRootCompilers();
 		// Remove all the events
 		this.powerTree.removeAllEvents();
 
 		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAll(node, true);
+		this.powerTree.buildAndInterpolate(node, true);
 		this.powerTree._callInit();
 
 		const t1 = performance.now();
@@ -173,26 +192,13 @@ class PowerUi extends _PowerUiBase {
 		this.powerTree.resetRootCompilers();
 		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
 			delete this.powerTree.allPowerObjsById[id];
-			const currentNode = document.getElementById(id);
-			const parentElement = this.powerTree._getParentElementFromChildElement(currentNode);
-			// Get the main and view elements of the currentObj
-			const mainElement = this.powerTree._getMainElementFromChildElement(currentNode);
-			const isMain = this.powerTree.datasetIsMain(currentNode.dataset);
-			const viewElement = this.powerTree._getViewElementFromChildElement(currentNode);
-			this.powerTree.buildPowerObjects({
-				currentNode: currentNode,
-				main: mainElement,
-				view: viewElement,
-				parent: parentElement,
-			});
-			// Call init for this object and all inner objects
-			this.powerTree._callInitForObjectAndInners(id)
+			this.powerTree.createAndInitObjectsFromCurrentNode(id);
 		}
 		const t1 = performance.now();
 		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadHtmlView(url, viewId) {
+	loadHtmlView(url, viewId, state) {
 		const self = this;
 		self.waitingServer = self.waitingServer + 1;
 		this.request({
@@ -201,20 +207,28 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			document.getElementById(viewId).innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit();
+			const node = document.getElementById(viewId);
+			node.innerHTML = xhr.responseText;
+			self.waitingInit.push({node: node, viewId: viewId, url: url, state: state});
+			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);
 			self.ifNotWaitingServerCallInit();
 		});
 	}
 
-	ifNotWaitingServerCallInit() {
+	ifNotWaitingServerCallInit(response) {
 		const self = this;
 		setTimeout(function () {
 			self.waitingServer = self.waitingServer - 1;
 			if (self.waitingServer === 0) {
-				self.init();
+				if (self.initAlreadyRun) {
+					console.log('!!! INIT VIEW !!!', self.waitingInit);
+					self.initNodes(response);
+				} else {
+					console.log('!!!!!!!! INIT ALL !!!!!!!!');
+					self.initAll();
+				}
 			}
 		}, 10);
 	}

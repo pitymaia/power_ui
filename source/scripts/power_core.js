@@ -127,6 +127,7 @@ class SharedScope {
 class _PowerUiBase {
 	_createPowerTree() {
 		this.powerTree = new PowerTree(this, _PowerUiBase);
+		this.powerTree._callInit();
 	}
 }
 // Hold temp scopes during templating
@@ -360,7 +361,6 @@ class PowerTree {
 	constructor($powerUi, PowerUi) {
 		this.$powerUi = $powerUi;
 		this.allPowerObjsById = {};
-		this.rootCompilers = {};
 		this.attrsConfig = {};
 
 		for (const attr of _PowerUiBase._powAttrsConfig) {
@@ -382,7 +382,17 @@ class PowerTree {
 		this.mainDatasetKeys = this.getMainDatasetKeys();
 
 		// Sweep DOM to create a temp tree with 'pwc', 'pow' and 'power-' DOM elements and create objects from it
-		this.buildAll(document);
+		this.buildAndInterpolate(document);
+	}
+
+	get rootCompilers() {
+		const rootCompilers = {};
+		for (const id of Object.keys(this.allPowerObjsById || {})) {
+			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler) {
+				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
+			}
+		}
+		return rootCompilers;
 	}
 
 	removeAllEvents() {
@@ -449,10 +459,8 @@ class PowerTree {
 		}
 		return false;
 	}
-
-	buildAll(node, refresh) {
-		node = node || document;
-
+	// This is the main function to sweep the DOM and instanciate powerObjetcs from it
+	buildAndInterpolate(node, refresh) {
 		this.sweepDOM({
 			entryNode: node,
 			callback: this.buildPowerObjects.bind(this),
@@ -494,7 +502,7 @@ class PowerTree {
 	}
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
-		let canInstanciatePendings = false;
+		// let canInstanciatePendings = false;
 		let hasCompiled = false;
 		let currentObjects = [];
 		isInnerCompiler = isInnerCompiler || false;
@@ -541,6 +549,7 @@ class PowerTree {
 							isMain: isMain,
 							isRootCompiler: isRootCompiler,
 							parent: parent,
+							originalInnerHTML: hasCompiled,
 						});
 						// For now only powerCss objects have .parent
 						// childParent = {node: currentNode, datasetKey: datasetKey};
@@ -627,6 +636,23 @@ class PowerTree {
 		}
 	}
 
+	createAndInitObjectsFromCurrentNode(id) {
+		const currentNode = document.getElementById(id);
+		const parentElement = this._getParentElementFromChildElement(currentNode);
+		// Get the main and view elements of the currentObj
+		const mainElement = this._getMainElementFromChildElement(currentNode);
+		const isMain = this.datasetIsMain(currentNode.dataset);
+		const viewElement = this._getViewElementFromChildElement(currentNode);
+		this.buildPowerObjects({
+			currentNode: currentNode,
+			main: mainElement,
+			view: viewElement,
+			parent: parentElement,
+		});
+		// Call init for this object and all inner objects
+		this._callInitForObjectAndInners(id);
+	}
+
 	_compile({currentNode, datasetKey, isInnerCompiler}) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
@@ -642,16 +668,12 @@ class PowerTree {
 				compiled = !isInnerCompiler ? currentNode.innerHTML : true;
 				newObj.compile();
 				newObj.element.setAttribute('data-pwhascomp', true);
-				// Has compiled contains the original node.innerHTML and we need save it
-				if (!isInnerCompiler) {
-					this.rootCompilers[currentNode.id] = compiled;
-				}
 			}
 		}
 		return compiled;
 	}
 
-	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent}) {
+	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent, originalInnerHTML}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
@@ -676,6 +698,7 @@ class PowerTree {
 		// Register if object is main object or a rootCompiler
 		powerObject.isMain = isMain || null;
 		powerObject.isRootCompiler = isRootCompiler || null;
+		powerObject.originalInnerHTML = (originalInnerHTML && originalInnerHTML !== true) ? originalInnerHTML : null;
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({
 			powerObject: powerObject,
@@ -720,6 +743,10 @@ class PowerTree {
 				parent: parent,
 				ctx: this,
 			});
+		}
+		if (powerObject.isRootCompiler) {
+			this.allPowerObjsById[id].$shared.isRootCompiler = powerObject.isRootCompiler;
+			this.allPowerObjsById[id].$shared.originalInnerHTML = powerObject.originalInnerHTML;
 		}
 		// add the shared scope to all elements
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
@@ -845,6 +872,9 @@ class PowerTree {
 		}
 	}
 	_callInitForObjectAndInners(id) {
+		if (!this.allPowerObjsById[id]) {
+			return;
+		}
 		// Call init for this object
 		this._callInitOfObject(id);
 		// Call init for any child object
