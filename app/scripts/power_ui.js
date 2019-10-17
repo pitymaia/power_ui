@@ -2348,7 +2348,7 @@ class Router {
 		this.$powerUi = powerUi;
 		this.routes = {};
 		this.oldSecundaryRoutes = [];
-		this.oldMainRoutes = {};
+		this.oldMainRoute = {};
 		this.currentRoutes = {
 			params: [],
 			id: '',
@@ -2467,7 +2467,7 @@ class Router {
 					if (!secundaryRoute) {
 						// Load main route
 						this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
-						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys});
+						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys, route: routeParts.path, viewId: this.config.routerMainViewId});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
 							this.init({secundaryRoute: compRoute});
@@ -2548,9 +2548,11 @@ class Router {
 		secundaryView.innerHTML = '';
 	}
 
-	setMainRouteState({routeId, paramKeys}) {
+	setMainRouteState({routeId, paramKeys, route, viewId}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
+		this.currentRoutes.route = route.replace(this.config.rootRoute, ''); // remove #!/
+		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -2560,8 +2562,8 @@ class Router {
 		const route = {
 			params: [],
 			id: '',
-			route: secundaryRoute.replace(this.config.rootRoute, ''),
-			secundaryViewId: secundaryViewId,
+			route: secundaryRoute.replace(this.config.rootRoute, ''), // remove #!/
+			secundaryViewId: this.routes[routeId].viewId || secundaryViewId,
 		}
 		// Register current route id
 		route.id = routeId;
@@ -2932,6 +2934,11 @@ let app = new PowerUi({
 		},
 		{
 			id: 'power-only2',
+			route: 'power_only/:id/:name/:title',
+			template: 'power_only.html',
+		},
+		{
+			id: 'power-only3',
 			route: 'power_only/:id/:name',
 			// template: 'power_only.html',
 			template: '404.html',
