@@ -156,8 +156,8 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initNodes(response) {
-		this.initAll();
-		return;
+		// this.initAll();
+		// return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			if (item.node.id !== 'main-view') {
@@ -195,7 +195,7 @@ class PowerUi extends _PowerUiBase {
 			this.powerTree.createAndInitObjectsFromCurrentNode(id);
 		}
 		const t1 = performance.now();
-		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
+		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	loadHtmlView(url, viewId, state) {

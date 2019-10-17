@@ -1318,8 +1318,8 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initNodes(response) {
-		this.initAll();
-		return;
+		// this.initAll();
+		// return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			if (item.node.id !== 'main-view') {
@@ -1357,7 +1357,7 @@ class PowerUi extends _PowerUiBase {
 			this.powerTree.createAndInitObjectsFromCurrentNode(id);
 		}
 		const t1 = performance.now();
-		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
+		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	loadHtmlView(url, viewId, state) {
@@ -2478,6 +2478,8 @@ class Router {
 			}
 			this.oldRoutes.secundaryRoutes.push(oldRoute);
 		}
+		console.log('oldRoutes', this.oldRoutes);
+		console.log('currentRoutes', this.currentRoutes);
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
@@ -2492,10 +2494,13 @@ class Router {
 				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
 				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
 				// our route logic is true,
+				console.log('!!!!!!!!! old and current !!!!!!!!', this.oldRoutes, this.currentRoutes);
 				if (routeParts.path.match(regEx)) {
 					if (!secundaryRoute) {
-						// Load main route
-						this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
+						// Load main route only if it is a new route
+						if (this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
+							this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
+						}
 						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys, route: routeParts.path, viewId: this.config.routerMainViewId});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
