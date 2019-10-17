@@ -156,8 +156,8 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initNodes(response) {
-		// this.initAll();
-		// return;
+		this.initAll();
+		return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			if (item.node.id !== 'main-view') {

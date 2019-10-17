@@ -3,11 +3,12 @@ class Router {
 		this.config = config;
 		this.$powerUi = powerUi;
 		this.routes = {};
-		this.oldComponentRoutes = [];
-		this.currentRoute = {
+		this.oldSecundaryRoutes = [];
+		this.oldMainRoutes = {};
+		this.currentRoutes = {
 			params: [],
 			id: '',
-			componentRoutes: [],
+			secundaryRoutes: [],
 		};
 		if (!this.config.rootRoute) {
 			this.config.rootRoute = '#!/';
@@ -33,12 +34,12 @@ class Router {
 				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view in a main view, set the config key "routerMainViewId" to false and a "viewId" flag to each route with a view.');
 			}
 		}
-		// If the user doesn't define an id to use as component view, "component-view" will be used as id
-		if (!this.config.routerComponentViewId && this.config.routerComponentViewId !== false) {
-			this.config.routerComponentViewId = 'component-view';
-			// If there are no element with the id defined to render the component view throw an error
-			if (!document.getElementById(this.config.routerComponentViewId)) {
-				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "component-view" or set your on id in the config using the key "routerComponentViewId" with the choosen id. If you not want render any view in a component view, set the config key "routerComponentViewId" to false and a "viewId" flag to each route with a view.');
+		// If the user doesn't define an id to use as secundary view, "secundary-view" will be used as id
+		if (!this.config.routerSecundaryViewId && this.config.routerSecundaryViewId !== false) {
+			this.config.routerSecundaryViewId = 'secundary-view';
+			// If there are no element with the id defined to render the secundary view throw an error
+			if (!document.getElementById(this.config.routerSecundaryViewId)) {
+				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "secundary-view" or set your on id in the config using the key "routerSecundaryViewId" with the choosen id. If you not want render any view in a secundary view, set the config key "routerSecundaryViewId" to false and a "viewId" flag to each route with a view.');
 			}
 		}
 		// Ensure that the parameters are not empty
@@ -51,8 +52,8 @@ class Router {
 		if (this.config.routerMainViewId === false && template && !viewId) {
 			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
 		}
-		if (this.config.routerComponentViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerComponentViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+		if (this.config.routerSecundaryViewId === false && template && !viewId) {
+			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
 		}
 		// Ensure that the parameters have the correct types
 		if (typeof route !== "string") {
@@ -95,20 +96,21 @@ class Router {
 		}
 	}
 
-	// Copy the current open component route, and init the router with the new route
+	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
-		this.oldComponentRoutes = [];
-		for (const route of this.currentRoute.componentRoutes) {
-			this.oldComponentRoutes.push(route);
+		this.oldSecundaryRoutes = [];
+		for (const route of this.currentRoutes.secundaryRoutes) {
+			this.oldSecundaryRoutes.push(route);
 		}
-		this.currentRoute.componentRoutes = []; // Clean current routes
+		this.currentRoutes.secundaryRoutes = []; // Clean current routes
 		this.init({onHashChange: event});
+		console.log('this.currentRoutes', this.currentRoutes);
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
-	// the componentRoute param allows to manually match component routes
-	init({componentRoute, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(componentRoute || window.location.hash || this.config.rootRoute);
+	// the secundaryRoute param allows to manually match secundary routes
+	init({secundaryRoute, onHashChange}={}) {
+		const routeParts = this.extractRouteParts(secundaryRoute || window.location.hash || this.config.rootRoute);
 
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -118,31 +120,31 @@ class Router {
 				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
 				// our route logic is true,
 				if (routeParts.path.match(regEx)) {
-					if (!componentRoute) {
+					if (!secundaryRoute) {
 						// Load main route
 						this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
 						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys});
-						// Recursively run the init for each possible componentRoute
-						for (const compRoute of routeParts.componentRoutes) {
-							this.init({componentRoute: compRoute});
+						// Recursively run the init for each possible secundaryRoute
+						for (const compRoute of routeParts.secundaryRoutes) {
+							this.init({secundaryRoute: compRoute});
 						}
-						// After create all new component views remove the old ones if needed
-						this.closeOldComponentViews();
+						// After create all new secundary views remove the old ones if needed
+						this.closeOldSecundaryViews();
 						return true;
 					} else {
-						// Load component route if not already open
+						// Load secundary route if not already open
 						// Check if the route already open as old route or as new route
-						const thisRoute = componentRoute.replace(this.config.rootRoute, '');
-						const oldComponentRoute = this.oldComponentRoutes.find(r=>r && r.route === thisRoute);
-						const newComponentRoute = this.currentRoute.componentRoutes.find(r=>r && r.route === thisRoute);
-						if (!oldComponentRoute && !newComponentRoute) {
-							const componentViewId = this.loadComponentRoute({routeId: routeId, paramKeys: paramKeys, routerComponentViewId: this.config.routerComponentViewId});
-							this.setComponentRouteState({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute, componentViewId: componentViewId});
+						const thisRoute = secundaryRoute.replace(this.config.rootRoute, '');
+						const oldSecundaryRoute = this.oldSecundaryRoutes.find(r=>r && r.route === thisRoute);
+						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
+						if (!oldSecundaryRoute && !newSecundaryRoute) {
+							const secundaryViewId = this.loadSecundaryRoute({routeId: routeId, paramKeys: paramKeys, routerSecundaryViewId: this.config.routerSecundaryViewId});
+							this.setSecundaryRouteState({routeId: routeId, paramKeys: paramKeys, secundaryRoute: secundaryRoute, secundaryViewId: secundaryViewId});
 						} else {
-							// If the newComponentRoute is already on the list do nothing
-							// Only add if it is only on oldComponentRoute list
-							if (!newComponentRoute) {
-								this.currentRoute.componentRoutes.push(oldComponentRoute);
+							// If the newSecundaryRoute is already on the list do nothing
+							// Only add if it is only on oldSecundaryRoute list
+							if (!newSecundaryRoute) {
+								this.currentRoutes.secundaryRoutes.push(oldSecundaryRoute);
 							}
 						}
 						console.log('router', this);
@@ -151,24 +153,24 @@ class Router {
 			}
 		}
 		// otherwise
-		// (doesn't run otherwise for component routes)
-		if (!componentRoute) {
+		// (doesn't run otherwise for secundary routes)
+		if (!secundaryRoute) {
 			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
 			window.location.replace(newRoute);
 		}
 	}
 
-	// Only close the old component views that are not also in the currentRoute.componentRoutes
-	closeOldComponentViews() {
-		for (const route of this.oldComponentRoutes) {
-			if (!this.currentRoute.componentRoutes.find(r=>r.route === route.route)) {
-				this.removeComponentView({componentViewId: route.componentViewId});
+	// Only close the old secundary views that are not also in the currentRoutes.secundaryRoutes
+	closeOldSecundaryViews() {
+		for (const route of this.oldSecundaryRoutes) {
+			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
+				this.removeSecundaryView({secundaryViewId: route.secundaryViewId});
 			}
 		}
 	}
 
-	removeComponentView({componentViewId}) {
-		const node = document.getElementById(componentViewId);
+	removeSecundaryView({secundaryViewId}) {
+		const node = document.getElementById(secundaryViewId);
 		node.parentNode.removeChild(node);
 	}
 
@@ -179,66 +181,66 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoute);
+			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
-	loadComponentRoute({routeId, paramKeys, routerComponentViewId}) {
-		// Create a new element to this view and add it to component-view element (where all component views are)
+	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId}) {
+		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		const viewId = getIdAndCreateIfDontHave(newViewNode);
 		newViewNode.id = viewId;
-		document.getElementById(routerComponentViewId).appendChild(newViewNode);
+		document.getElementById(routerSecundaryViewId).appendChild(newViewNode);
 		// Load the route inside the new element view
 		this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: viewId});
 		return viewId;
 	}
 
-	removeComponentViews() {
-		const componentView = document.getElementById(this.config.routerComponentViewId);
-		componentView.innerHTML = '';
+	removeSecundaryViews() {
+		const secundaryView = document.getElementById(this.config.routerSecundaryViewId);
+		secundaryView.innerHTML = '';
 	}
 
 	setMainRouteState({routeId, paramKeys}) {
 		// Register current route id
-		this.currentRoute.id = routeId;
+		this.currentRoutes.id = routeId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
-			this.currentRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
+			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
 		}
 	}
-	setComponentRouteState({routeId, paramKeys, componentRoute, componentViewId}) {
+	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId}) {
 		const route = {
 			params: [],
 			id: '',
-			route: componentRoute.replace(this.config.rootRoute, ''),
-			componentViewId: componentViewId,
+			route: secundaryRoute.replace(this.config.rootRoute, ''),
+			secundaryViewId: secundaryViewId,
 		}
 		// Register current route id
 		route.id = routeId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
-			route.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, componentRoute: componentRoute});
+			route.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, secundaryRoute: secundaryRoute});
 		}
-		this.currentRoute.componentRoutes.push(route);
+		this.currentRoutes.secundaryRoutes.push(route);
 	}
 
 	extractRouteParts(path) {
 		const routeParts = {
 			path: path,
-			componentRoutes: [],
+			secundaryRoutes: [],
 		};
 		if (path.includes('?')) {
 			const splited = path.split('?');
 			routeParts.path = splited[0];
 			for (const part of splited) {
-				if (part.includes('cr=')) {
-					for (const fragment of part.split('cr=')) {
+				if (part.includes('sr=')) {
+					for (const fragment of part.split('sr=')) {
 						if (fragment) {
-							routeParts.componentRoutes.push(this.config.rootRoute + fragment);
+							routeParts.secundaryRoutes.push(this.config.rootRoute + fragment);
 						}
 					}
 				}
@@ -275,20 +277,20 @@ class Router {
 		return route.match(regex);
 	}
 
-	getRouteParamValues({routeId, paramKeys, componentRoute}) {
+	getRouteParamValues({routeId, paramKeys, secundaryRoute}) {
 		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (componentRoute || window.location.hash || this.config.rootRoute).split('/');
+		const hashParts = (secundaryRoute || window.location.hash || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value
-			// Also remove any ?cr=route from the value
-			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?cr=[^]*)/, '')});
+			// Also remove any ?sr=route from the value
+			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?sr=[^]*)/, '')});
 		}
 		return params;
 	}
 
 	getParamValue(key) {
-		const param = this.currentRoute.params.find(p => p.key === key);
+		const param = this.currentRoutes.params.find(p => p.key === key);
 		return param ? param.value : null;
 	}
 }
