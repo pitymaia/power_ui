@@ -2342,18 +2342,23 @@ class Request {
 	}
 }
 
+function getEmptyRouteObjetc() {
+	return {
+		params: [],
+		id: '',
+		viewId: '',
+		route: '',
+		secundaryRoutes: [],
+	};
+}
+
 class Router {
 	constructor(config={}, powerUi) {
 		this.config = config;
 		this.$powerUi = powerUi;
 		this.routes = {};
-		this.oldSecundaryRoutes = [];
-		this.oldMainRoute = {};
-		this.currentRoutes = {
-			params: [],
-			id: '',
-			secundaryRoutes: [],
-		};
+		this.oldRoutes = getEmptyRouteObjetc();
+		this.currentRoutes = getEmptyRouteObjetc();
 		if (!this.config.rootRoute) {
 			this.config.rootRoute = '#!/';
 		}
@@ -2442,13 +2447,37 @@ class Router {
 
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
-		this.oldSecundaryRoutes = [];
-		for (const route of this.currentRoutes.secundaryRoutes) {
-			this.oldSecundaryRoutes.push(route);
-		}
-		this.currentRoutes.secundaryRoutes = []; // Clean current routes
+		// Save a copy of currentRoutes as oldRoutes
+		this.cloneCurrentRoutesAsOldRoutes();
+		// Clean current routes
+		this.currentRoutes = getEmptyRouteObjetc();
 		this.init({onHashChange: event});
-		console.log('this.currentRoutes', this.currentRoutes);
+		console.log('router', this);
+	}
+
+	cloneCurrentRoutesAsOldRoutes() {
+		this.oldRoutes = {
+			params: [],
+			id: this.currentRoutes.id,
+			viewId: this.currentRoutes.viewId,
+			route: this.currentRoutes.route,
+			secundaryRoutes: [],
+		};
+		for (const param of this.currentRoutes.params) {
+			this.oldRoutes.params.push({key: param.key, value: param.value});
+		}
+		for (const route of this.currentRoutes.secundaryRoutes) {
+			const oldRoute = {
+				id: route.id,
+				viewId: route.viewId,
+				route: route.route,
+				params: [],
+			}
+			for (const param of route.params) {
+				oldRoute.params.push({key: param.key, value: param.value});
+			}
+			this.oldRoutes.secundaryRoutes.push(oldRoute);
+		}
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
@@ -2479,7 +2508,7 @@ class Router {
 						// Load secundary route if not already open
 						// Check if the route already open as old route or as new route
 						const thisRoute = secundaryRoute.replace(this.config.rootRoute, '');
-						const oldSecundaryRoute = this.oldSecundaryRoutes.find(r=>r && r.route === thisRoute);
+						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						if (!oldSecundaryRoute && !newSecundaryRoute) {
 							const secundaryViewId = this.loadSecundaryRoute({routeId: routeId, paramKeys: paramKeys, routerSecundaryViewId: this.config.routerSecundaryViewId});
@@ -2491,7 +2520,6 @@ class Router {
 								this.currentRoutes.secundaryRoutes.push(oldSecundaryRoute);
 							}
 						}
-						console.log('router', this);
 					}
 				}
 			}
@@ -2506,9 +2534,9 @@ class Router {
 
 	// Only close the old secundary views that are not also in the currentRoutes.secundaryRoutes
 	closeOldSecundaryViews() {
-		for (const route of this.oldSecundaryRoutes) {
+		for (const route of this.oldRoutes.secundaryRoutes) {
 			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryView({secundaryViewId: route.secundaryViewId});
+				this.removeSecundaryView({secundaryViewId: route.viewId});
 			}
 		}
 	}
@@ -2556,6 +2584,8 @@ class Router {
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
+		} else {
+			this.currentRoutes.params = [];
 		}
 	}
 	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId}) {
@@ -2563,7 +2593,7 @@ class Router {
 			params: [],
 			id: '',
 			route: secundaryRoute.replace(this.config.rootRoute, ''), // remove #!/
-			secundaryViewId: this.routes[routeId].viewId || secundaryViewId,
+			viewId: this.routes[routeId].viewId || secundaryViewId,
 		}
 		// Register current route id
 		route.id = routeId;
@@ -3065,7 +3095,7 @@ function closeModal() {
 	window.location.replace(window.location.hash.split('?')[0]);
 }
 function openModal() {
-	let newHash = '?cr=component/andre/aqueda';
+	let newHash = '?sr=component/andre/aqueda';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
 	}

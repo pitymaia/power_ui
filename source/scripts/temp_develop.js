@@ -172,7 +172,7 @@ function closeModal() {
 	window.location.replace(window.location.hash.split('?')[0]);
 }
 function openModal() {
-	let newHash = '?cr=component/andre/aqueda';
+	let newHash = '?sr=component/andre/aqueda';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
 	}
