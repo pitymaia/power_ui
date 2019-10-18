@@ -154,7 +154,6 @@ class Router {
 					if (!secundaryRoute) {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
-							console.log('!!!!!!!!! NEW ROUTE !!!!!!!!', this.oldRoutes, this.currentRoutes);
 							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId})
 							this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
 						}
@@ -205,7 +204,7 @@ class Router {
 
 	removeSecundaryView({secundaryViewId}) {
 		// Remove all view power Objects and events
-		this.$powerUi.powerTree.removeObjectAndInners(secundaryViewId);
+		this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
 		// Remove all view nodes
 		const node = document.getElementById(secundaryViewId);
 		node.parentNode.removeChild(node);
@@ -216,11 +215,8 @@ class Router {
 		if (!this.$powerUi.powerTree) {
 			return;
 		}
-		console.log('REMOVE MAIN VIEW!');
 		// delete all inner elements and events from this.allPowerObjsById[id]
-		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElements();
-		// Remove all inner nodes
-		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].element.innerHTML = '';
+		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
 
 	loadRoute({routeId, paramKeys, viewId}) {

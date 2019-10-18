@@ -108,18 +108,27 @@ class SharedScope {
 		}
 	}
 	// Remove all power inner elements from this.$powerUi.powerTree.allPowerObjsById
-	removeInnerElements() {
-		console.log('this', this, this.element, document.getElementById(this.id));
+	removeInnerElementsFromPower() {
 		const childNodes = this.element.childNodes;
 		for (const child of childNodes) {
-			if (child.id && this.ctx.allPowerObjsById[child.id]) {
-				// Remove events of this objects
-				this.ctx.removeEventsOfObject(child.id);
-				delete this.ctx.allPowerObjsById[child.id];
-			}
+			this.removeElementAndInnersFromPower(child);
 		}
 		this.element.innerHTML = '';
-		this.element.dataset.pwhascomp = false;
+		delete this.element.dataset.pwhascomp;
+	}
+
+	removeElementAndInnersFromPower(element) {
+		element = element || this.element;
+		if (element.id && this.ctx.allPowerObjsById[element.id]) {
+			// Remove events of this objects
+			this.ctx.removeEventsOfObject(element.id);
+			delete this.ctx.allPowerObjsById[element.id];
+		}
+
+		const childNodes = element.childNodes;
+		for (const child of childNodes) {
+			this.removeElementAndInnersFromPower(child);
+		}
 	}
 }
 
@@ -409,7 +418,7 @@ class PowerTree {
 				// Remove events of this objects
 				this.removeEventsOfObject(id);
 				// delete all inner this.allPowerObjsById[id]
-				this.allPowerObjsById[id]['$shared'].removeInnerElements();
+				this.allPowerObjsById[id]['$shared'].removeInnerElementsFromPower();
 				const element = document.getElementById(id);
 				element.innerHTML = this.rootCompilers[id];
 			}
@@ -426,14 +435,6 @@ class PowerTree {
 				}
 			}
 		}
-	}
-
-	removeObjectAndInners(id) {
-		// delete all inner elements and events from this.allPowerObjsById[id]
-		this.allPowerObjsById[id]['$shared'].removeInnerElements();
-		// Remove events of this object and delete it
-		this.removeEventsOfObject(id);
-		delete this.allPowerObjsById[id];
 	}
 
 	getMainDatasetKeys() {
