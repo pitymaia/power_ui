@@ -109,6 +109,7 @@ class SharedScope {
 	}
 	// Remove all power inner elements from this.$powerUi.powerTree.allPowerObjsById
 	removeInnerElements() {
+		console.log('this', this, this.element, document.getElementById(this.id));
 		const childNodes = this.element.childNodes;
 		for (const child of childNodes) {
 			if (child.id && this.ctx.allPowerObjsById[child.id]) {
@@ -661,7 +662,7 @@ class PowerTree {
 			viewElement: viewElement,
 		}
 	}
-	createAndInitObjectsFromCurrentNode(id) {
+	createAndInitObjectsFromCurrentNode({id, interpolate}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects({
 			currentNode: entryAndConfig.currentNode,
@@ -669,8 +670,14 @@ class PowerTree {
 			view: entryAndConfig.viewElement,
 			parent: entryAndConfig.parentElement,
 		});
+		// Replace any interpolation with pow-bind
+		if (interpolate) {
+			const node = document.getElementById(id);
+			const tempTree = {pending: []};
+			node.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this);
+		}
 		// Call init for this object and all inner objects
-		this._callInitForObjectAndInners(id);
+		this._callInitForObjectAndInners(document.getElementById(id));
 	}
 
 	_compile({currentNode, datasetKey, isInnerCompiler}) {
@@ -891,14 +898,15 @@ class PowerTree {
 			}
 		}
 	}
-	_callInitForObjectAndInners(id) {
+	_callInitForObjectAndInners(element) {
 		// Call init for this object
-		this._callInitOfObject(id);
+		if (element.id) {
+			this._callInitOfObject(element.id);
+		}
 		// Call init for any child object
-		const element = document.getElementById(id);
 		const childNodes = element ? element.childNodes : [];
 		for (const child of childNodes) {
-			this._callInitForObjectAndInners(child.id);
+			this._callInitForObjectAndInners(child);
 		}
 	}
 }
@@ -1341,14 +1349,8 @@ class PowerUi extends _PowerUiBase {
 		// return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
-			this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
+			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id, interpolate: true});
 			console.log('AQUI RODOU!');
-			const node = document.getElementById(item.node.id);
-			const tempTree = {pending: []};
-			node.innerHTML = this.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this.powerTree);
-
-			// Call init for this object and all inner objects
-			console.log('this.powerTree.allPowerObjsById', item.node.id, this.powerTree.allPowerObjsById[item.node.id]);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -1375,7 +1377,7 @@ class PowerUi extends _PowerUiBase {
 		this.powerTree.resetRootCompilers();
 		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
 			delete this.powerTree.allPowerObjsById[id];
-			this.powerTree.createAndInitObjectsFromCurrentNode(id);
+			this.powerTree.createAndInitObjectsFromCurrentNode({id: id});
 		}
 		const t1 = performance.now();
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');

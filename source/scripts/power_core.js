@@ -109,6 +109,7 @@ class SharedScope {
 	}
 	// Remove all power inner elements from this.$powerUi.powerTree.allPowerObjsById
 	removeInnerElements() {
+		console.log('this', this, this.element, document.getElementById(this.id));
 		const childNodes = this.element.childNodes;
 		for (const child of childNodes) {
 			if (child.id && this.ctx.allPowerObjsById[child.id]) {
@@ -661,7 +662,7 @@ class PowerTree {
 			viewElement: viewElement,
 		}
 	}
-	createAndInitObjectsFromCurrentNode(id) {
+	createAndInitObjectsFromCurrentNode({id, interpolate}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects({
 			currentNode: entryAndConfig.currentNode,
@@ -669,8 +670,14 @@ class PowerTree {
 			view: entryAndConfig.viewElement,
 			parent: entryAndConfig.parentElement,
 		});
+		// Replace any interpolation with pow-bind
+		if (interpolate) {
+			const node = document.getElementById(id);
+			const tempTree = {pending: []};
+			node.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this);
+		}
 		// Call init for this object and all inner objects
-		this._callInitForObjectAndInners(id);
+		this._callInitForObjectAndInners(document.getElementById(id));
 	}
 
 	_compile({currentNode, datasetKey, isInnerCompiler}) {
@@ -891,14 +898,15 @@ class PowerTree {
 			}
 		}
 	}
-	_callInitForObjectAndInners(id) {
+	_callInitForObjectAndInners(element) {
 		// Call init for this object
-		this._callInitOfObject(id);
+		if (element.id) {
+			this._callInitOfObject(element.id);
+		}
 		// Call init for any child object
-		const element = document.getElementById(id);
 		const childNodes = element ? element.childNodes : [];
 		for (const child of childNodes) {
-			this._callInitForObjectAndInners(child.id);
+			this._callInitForObjectAndInners(child);
 		}
 	}
 }
