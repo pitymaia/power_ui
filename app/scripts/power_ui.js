@@ -644,18 +644,30 @@ class PowerTree {
 		}
 	}
 
-	createAndInitObjectsFromCurrentNode(id) {
+	// Get node from id with some parent elements like viewElement and config info like isMain
+	getEntryNodeWithParentsAndConfig(id) {
 		const currentNode = document.getElementById(id);
 		const parentElement = this._getParentElementFromChildElement(currentNode);
 		// Get the main and view elements of the currentObj
 		const mainElement = this._getMainElementFromChildElement(currentNode);
 		const isMain = this.datasetIsMain(currentNode.dataset);
 		const viewElement = this._getViewElementFromChildElement(currentNode);
-		this.buildPowerObjects({
+
+		return {
 			currentNode: currentNode,
-			main: mainElement,
-			view: viewElement,
-			parent: parentElement,
+			parentElement: parentElement,
+			mainElement: mainElement,
+			isMain: isMain,
+			viewElement: viewElement,
+		}
+	}
+	createAndInitObjectsFromCurrentNode(id) {
+		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
+		this.buildPowerObjects({
+			currentNode: entryAndConfig.currentNode,
+			main: entryAndConfig.mainElement,
+			view: entryAndConfig.viewElement,
+			parent: entryAndConfig.parentElement,
 		});
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(id);
@@ -880,18 +892,13 @@ class PowerTree {
 		}
 	}
 	_callInitForObjectAndInners(id) {
-		if (!this.allPowerObjsById[id]) {
-			return;
-		}
 		// Call init for this object
 		this._callInitOfObject(id);
 		// Call init for any child object
-		const childNodes = this.allPowerObjsById[id].$shared.element.childNodes;
+		const element = document.getElementById(id);
+		const childNodes = element ? element.childNodes : [];
 		for (const child of childNodes) {
-			if (child.id && this.allPowerObjsById[child.id]) {
-				// Call init for this object
-				this._callInitOfObject(child.id);
-			}
+			this._callInitForObjectAndInners(child.id);
 		}
 	}
 }
@@ -1320,6 +1327,10 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
+		// TODO this is not good, removeSecundaryViews do not remove objects and elements
+		// Is better do not reinstantiate router
+		// And find a way to call initAll(), not initNodes();
+		// Move removeAllEvents from initAll to here
 		this.router.removeSecundaryViews();
 		this.waitingServer = 0;
 		this.router = new Router(this.config, this);
@@ -1330,12 +1341,14 @@ class PowerUi extends _PowerUiBase {
 		// return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
-			if (item.node.id !== 'main-view') {
-				console.log('AQUI RODOU!');
-				this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
-			} else {
-				console.log('NÃO RODOU!');
-			}
+			this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
+			console.log('AQUI RODOU!');
+			const node = document.getElementById(item.node.id);
+			const tempTree = {pending: []};
+			node.innerHTML = this.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this.powerTree);
+
+			// Call init for this object and all inner objects
+			console.log('this.powerTree.allPowerObjsById', item.node.id, this.powerTree.allPowerObjsById[item.node.id]);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);

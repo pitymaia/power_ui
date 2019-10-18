@@ -150,6 +150,10 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
+		// TODO this is not good, removeSecundaryViews do not remove objects and elements
+		// Is better do not reinstantiate router
+		// And find a way to call initAll(), not initNodes();
+		// Move removeAllEvents from initAll to here
 		this.router.removeSecundaryViews();
 		this.waitingServer = 0;
 		this.router = new Router(this.config, this);
@@ -160,12 +164,14 @@ class PowerUi extends _PowerUiBase {
 		// return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
-			if (item.node.id !== 'main-view') {
-				console.log('AQUI RODOU!');
-				this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
-			} else {
-				console.log('NÃO RODOU!');
-			}
+			this.powerTree.createAndInitObjectsFromCurrentNode(item.node.id);
+			console.log('AQUI RODOU!');
+			const node = document.getElementById(item.node.id);
+			const tempTree = {pending: []};
+			node.innerHTML = this.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this.powerTree);
+
+			// Call init for this object and all inner objects
+			console.log('this.powerTree.allPowerObjsById', item.node.id, this.powerTree.allPowerObjsById[item.node.id]);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
