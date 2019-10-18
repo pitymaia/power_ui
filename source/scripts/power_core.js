@@ -427,6 +427,14 @@ class PowerTree {
 		}
 	}
 
+	removeObjectAndInners(id) {
+		// delete all inner elements and events from this.allPowerObjsById[id]
+		this.allPowerObjsById[id]['$shared'].removeInnerElements();
+		// Remove events of this object and delete it
+		this.removeEventsOfObject(id);
+		delete this.allPowerObjsById[id];
+	}
+
 	getMainDatasetKeys() {
 		const mainDatasetKeys = [];
 		for (const item of PowerUi._powerElementsConfig) {
