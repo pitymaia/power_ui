@@ -59,6 +59,11 @@ class _pwMainBasicHover extends _pwBasicHover {
 	addEventListener(event, callback, useCapture) {
 		this.$pwMain.subscribe({event: event, fn: callback, useCapture: useCapture});
 	}
+
+	// Atach the listner/Event to que main element
+	removeEventListener(event, callback, useCapture) {
+		this.$pwMain.unsubscribe({event: event, fn: callback, useCapture: useCapture});
+	}
 }
 
 
@@ -137,6 +142,11 @@ class PowMainCssHover extends PowCssHover {
 	// Atach the listner/Event to que main element
 	addEventListener(event, callback, useCapture) {
 		this.$pwMain.subscribe({event: event, fn: callback, useCapture: useCapture});
+	}
+
+	// Atach the listner/Event to que main element
+	removeEventListener(event, callback, useCapture) {
+		this.$pwMain.unsubscribe({event: event, fn: callback, useCapture: useCapture});
 	}
 
 }

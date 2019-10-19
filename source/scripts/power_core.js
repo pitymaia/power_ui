@@ -112,8 +112,9 @@ class SharedScope {
 		const childNodes = this.element.childNodes;
 		for (const child of childNodes) {
 			this.removeElementAndInnersFromPower(child);
+			this.element.removeChild(child);
 		}
-		this.element.innerHTML = '';
+		// this.element.innerHTML = '';
 		delete this.element.dataset.pwhascomp;
 	}
 

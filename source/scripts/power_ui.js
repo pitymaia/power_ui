@@ -154,7 +154,8 @@ class PowerUi extends _PowerUiBase {
 		// Is better do not reinstantiate router
 		// And find a way to call initAll(), not initNodes();
 		// Move removeAllEvents from initAll to here
-		this.router.removeSecundaryViews();
+
+		// this.router.removeSecundaryViews();
 		this.waitingServer = 0;
 		this.router = new Router(this.config, this);
 	}
@@ -165,7 +166,6 @@ class PowerUi extends _PowerUiBase {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id, interpolate: true});
-			console.log('AQUI RODOU!');
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);

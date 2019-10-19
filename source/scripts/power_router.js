@@ -108,7 +108,6 @@ class Router {
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
 		this.init({onHashChange: event});
-		console.log('router', this);
 	}
 
 	cloneCurrentRoutesAsOldRoutes() {
@@ -134,8 +133,6 @@ class Router {
 			}
 			this.oldRoutes.secundaryRoutes.push(oldRoute);
 		}
-		console.log('oldRoutes', this.oldRoutes);
-		console.log('currentRoutes', this.currentRoutes);
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
@@ -154,7 +151,7 @@ class Router {
 					if (!secundaryRoute) {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
-							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId})
+							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId});
 							this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
 						}
 						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys, route: routeParts.path, viewId: this.config.routerMainViewId});
@@ -205,10 +202,9 @@ class Router {
 	removeSecundaryView({secundaryViewId}) {
 		// Remove all view power Objects and events
 		this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
-		// Remove all view nodes
+		// Remove view node
 		const node = document.getElementById(secundaryViewId);
 		node.parentNode.removeChild(node);
-		console.log('secundaryViewId', secundaryViewId, this.$powerUi.powerTree.allPowerObjsById);
 	}
 
 	removeMainView({viewId}) {
@@ -243,11 +239,6 @@ class Router {
 		// Load the route inside the new element view
 		this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: viewId});
 		return viewId;
-	}
-
-	removeSecundaryViews() {
-		const secundaryView = document.getElementById(this.config.routerSecundaryViewId);
-		secundaryView.innerHTML = '';
 	}
 
 	setMainRouteState({routeId, paramKeys, route, viewId}) {
