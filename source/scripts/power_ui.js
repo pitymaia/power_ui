@@ -147,6 +147,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
+		console.log('app.powerTree.allPowerObjsById["_pow_span_653"]', app.powerTree.allPowerObjsById['_pow_span_653']);
 	}
 
 	pwReload() {
@@ -161,11 +162,9 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initNodes(response) {
-		// this.initAll();
-		// return;
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
-			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id, interpolate: true});
+			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -191,11 +190,12 @@ class PowerUi extends _PowerUiBase {
 		const t0 = performance.now();
 		this.powerTree.resetRootCompilers();
 		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
-			delete this.powerTree.allPowerObjsById[id];
-			this.powerTree.createAndInitObjectsFromCurrentNode({id: id});
+			// delete this.powerTree.allPowerObjsById[id];
+			this.powerTree.createAndInitObjectsFromCurrentNode({id: id, refresh: true});
 		}
 		const t1 = performance.now();
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
+		console.log('app.powerTree.allPowerObjsById["_pow_span_653"]', app.powerTree.allPowerObjsById['_pow_span_653']);
 	}
 
 	loadHtmlView(url, viewId, state) {

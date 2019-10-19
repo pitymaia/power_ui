@@ -483,13 +483,13 @@ class PowerTree {
 			const body = document.getElementsByTagName('BODY')[0];
 			body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
 			for (const id of tempTree.pending) {
-				this.addPowerObject(id);
+				this.addPowBindObject(id);
 			}
 		}
 	}
 
-	// Create individual powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
-	addPowerObject(id) {
+	// Create individual pow-bind powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
+	addPowBindObject(id) {
 		const newNode = document.getElementById(id);
 		// Search a powerElement parent of currentObj up DOM if exists
 		const currentParentElement = this._getParentElementFromChildElement(newNode);
@@ -506,7 +506,7 @@ class PowerTree {
 			datasetKey: 'powBind',
 			main: currentMainElement,
 			view: currentViewElement,
-			parent: {node: newNode, datasetKey: 'powBind'},
+			parent: currentParentElement,
 			isRootCompiler: isRootCompiler,
 			isMain: isMain,
 		});
@@ -655,28 +655,30 @@ class PowerTree {
 		const mainElement = this._getMainElementFromChildElement(currentNode);
 		const isMain = this.datasetIsMain(currentNode.dataset);
 		const viewElement = this._getViewElementFromChildElement(currentNode);
+		// Get any possible rootCompiler
+		const currentRootCompilerElement = this._getRootCompilerElementFromChildElement(currentNode, this);
+		const isInnerCompiler = (currentRootCompilerElement && this.datasetIsCompiler(currentNode.dataset));
 
 		return {
 			currentNode: currentNode,
-			parentElement: parentElement,
-			mainElement: mainElement,
+			parent: parentElement,
+			main: mainElement,
 			isMain: isMain,
-			viewElement: viewElement,
+			view: viewElement,
+			isInnerCompiler: isInnerCompiler,
 		}
 	}
-	createAndInitObjectsFromCurrentNode({id, interpolate}) {
+	createAndInitObjectsFromCurrentNode({id, refresh}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
-		this.buildPowerObjects({
-			currentNode: entryAndConfig.currentNode,
-			main: entryAndConfig.mainElement,
-			view: entryAndConfig.viewElement,
-			parent: entryAndConfig.parentElement,
-		});
+		this.buildPowerObjects(entryAndConfig);
 		// Replace any interpolation with pow-bind
-		if (interpolate) {
+		if (!refresh) {
 			const node = document.getElementById(id);
 			const tempTree = {pending: []};
 			node.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this);
+			for (const id of tempTree.pending) {
+				this.addPowBindObject(id);
+			}
 		}
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
@@ -727,7 +729,7 @@ class PowerTree {
 		// Register if object is main object or a rootCompiler
 		powerObject.isMain = isMain || null;
 		powerObject.isRootCompiler = isRootCompiler || null;
-		powerObject.originalInnerHTML = (originalInnerHTML && originalInnerHTML !== true) ? originalInnerHTML : null;
+		powerObject.originalInnerHTML = (originalInnerHTML && originalInnerHTML !== true) ? originalInnerHTML : '';
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({
 			powerObject: powerObject,
@@ -852,16 +854,16 @@ class PowerTree {
 	}
 
 	_getRootCompilerElementFromChildElement(element, ctx) {
-		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsRootCompilerElement, ctx);
+		const searchResult  = PowerTree._searchUpDOM(element, this._checkIfIsCompilerElement, ctx);
 		if (searchResult.conditionResult) {
 			return searchResult.powerElement;
 		}
 	}
 
-	_checkIfIsRootCompilerElement(element, ctx) {
+	_checkIfIsCompilerElement(element, powerTree) {
 		let found = false;
 		if (element && element.dataset) {
-			if (ctx.datasetIsCompiler(element.dataset)) {
+			if (powerTree.datasetIsCompiler(element.dataset)) {
 				found = true;
 			}
 		}
