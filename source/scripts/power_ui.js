@@ -147,7 +147,6 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
-		console.log('app.powerTree.allPowerObjsById["_pow_span_653"]', app.powerTree.allPowerObjsById['_pow_span_653']);
 	}
 
 	pwReload() {
@@ -195,7 +194,6 @@ class PowerUi extends _PowerUiBase {
 		}
 		const t1 = performance.now();
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
-		console.log('app.powerTree.allPowerObjsById["_pow_span_653"]', app.powerTree.allPowerObjsById['_pow_span_653']);
 	}
 
 	loadHtmlView(url, viewId, state) {
@@ -223,10 +221,8 @@ class PowerUi extends _PowerUiBase {
 			self.waitingServer = self.waitingServer - 1;
 			if (self.waitingServer === 0) {
 				if (self.initAlreadyRun) {
-					console.log('!!! INIT VIEW !!!', self.waitingInit);
 					self.initNodes(response);
 				} else {
-					console.log('!!!!!!!! INIT ALL !!!!!!!!');
 					self.initAll();
 				}
 			}

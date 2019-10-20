@@ -507,8 +507,10 @@ class PowerTree {
 			main: currentMainElement,
 			view: currentViewElement,
 			parent: currentParentElement,
+			rootCompiler: currentRootCompilerElement,
 			isRootCompiler: isRootCompiler,
 			isMain: isMain,
+			originalInnerHTML: newNode.innerHTML,
 		});
 	}
 
