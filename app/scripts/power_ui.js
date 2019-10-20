@@ -1320,13 +1320,13 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.waitingServer = 0;
+		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
-		this.waitingServer = 0;
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
-		this.waitingInit = [];
 	}
 
 	initAll() {
@@ -1345,6 +1345,9 @@ class PowerUi extends _PowerUiBase {
 			this.keyboardManager = new KeyboardManager(this);
 		}
 		this.initAlreadyRun = true;
+		for (const item of this.waitingInit) {
+			document.getElementById(item.node.id).style.visibility = null;
+		}
 		this.waitingInit = [];
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -1365,6 +1368,7 @@ class PowerUi extends _PowerUiBase {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
+			document.getElementById(item.node.id).style.visibility = null;
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -1399,16 +1403,17 @@ class PowerUi extends _PowerUiBase {
 
 	loadHtmlView(url, viewId, state) {
 		const self = this;
+		const view = document.getElementById(viewId);
+		view.style.visibility = 'hidden';
 		self.waitingServer = self.waitingServer + 1;
+		self.waitingInit.push({node: view, viewId: viewId, url: url, state: state});
 		this.request({
 				url: url,
 				method: 'GET',
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			const node = document.getElementById(viewId);
-			node.innerHTML = xhr.responseText;
-			self.waitingInit.push({node: node, viewId: viewId, url: url, state: state});
+			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
 			console.log('loadHtmlView error', response, xhr);
