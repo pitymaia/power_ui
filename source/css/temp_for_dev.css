@@ -132,7 +132,6 @@ section {
     border-width: 5px;
     border-style: solid;
     border-color: black;
-    z-index: 1;
 }
 /*.temp-fixed {
     position: fixed;

@@ -13,10 +13,10 @@
     margin-bottom: 0.5em;
     background-color: #F5F5F5;
     vertical-align: middle;
-    z-index: 900;
+    z-index: 1000;
 }
 .pwdesign-white-smoke .power-dropmenu {
-    z-index: 900;
+    z-index: 1001;
 }
 .pwdesign-white-smoke .power-toggle {
     border-style: solid;
@@ -32,6 +32,7 @@
     top: 0;
     left: 0;
     width: 100%;
+    z-index: 1000;
 }
 /* Menu end*/
 
@@ -121,6 +122,6 @@
 }
 .pwdesign-white-smoke .power-keyboard-position {
     position: relative !important;
-    z-index: 999 !important;
+    z-index: 1999 !important;
 }
 /* keyboard mode on*/
