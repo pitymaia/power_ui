@@ -81,7 +81,7 @@
         <hr />
         <div data-pow-for="cat of cats">
             <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
-                <span data-pow-bind="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+                <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
             </div>
             <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
                 <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
@@ -90,7 +90,7 @@
             </div>
         </div>
         <hr />
-        <div data-pow-bind="'Doces: (' + (cands.length * 2) + ')'"></div>
+        <div data-pow-text="'Doces: (' + (cands.length * 2) + ')'"></div>
         <div data-pow-for="cand of cands">
             <div data-pow-for="content of cand" data-pow-css-hover="pw-orange">
                 <div>{{ getCandNumber(content) }} - doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>

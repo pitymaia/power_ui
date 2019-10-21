@@ -31,13 +31,13 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowBind(template, tempTree, powerTree) {
+	interpolationToPowText(template, tempTree, powerTree) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
 				const innerTEXT = this.getInterpolationValue(entry);
-				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}"
+				const value = `<span data-pow-text="${this.stripInterpolation(entry).trim()}"
 					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
 

@@ -481,15 +481,15 @@ class PowerTree {
 		if (!refresh) {
 			const tempTree = {pending: []};
 			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(body.innerHTML, tempTree, this);
+			body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
 			for (const id of tempTree.pending) {
-				this.addPowBindObject(id);
+				this.addPowTextObject(id);
 			}
 		}
 	}
 
-	// Create individual pow-bind powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
-	addPowBindObject(id) {
+	// Create individual pow-text powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
+	addPowTextObject(id) {
 		const newNode = document.getElementById(id);
 		// Search a powerElement parent of currentObj up DOM if exists
 		const currentParentElement = this._getParentElementFromChildElement(newNode);
@@ -503,7 +503,7 @@ class PowerTree {
 		// Make the instance and add the powerObject into a list ordered by id
 		this._instanciateObj({
 			currentElement: newNode,
-			datasetKey: 'powBind',
+			datasetKey: 'powText',
 			main: currentMainElement,
 			view: currentViewElement,
 			parent: currentParentElement,
@@ -627,7 +627,7 @@ class PowerTree {
 		}
 
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
-		// This will make the interpolation of elements with compile without replace {{}} to <span data-pow-bind></span>
+		// This will make the interpolation of elements with compile without replace {{}} to <span data-pow-text></span>
 		if (hasCompiled && !isInnerCompiler) {
 			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
 			for (const item of saved.pending) {
@@ -673,13 +673,13 @@ class PowerTree {
 	createAndInitObjectsFromCurrentNode({id, refresh}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
-		// Replace any interpolation with pow-bind
+		// Replace any interpolation with pow-text
 		if (!refresh) {
 			const node = document.getElementById(id);
 			const tempTree = {pending: []};
-			node.innerHTML = this.$powerUi.interpolation.interpolationToPowBind(node.innerHTML, tempTree, this);
+			node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
 			for (const id of tempTree.pending) {
-				this.addPowBindObject(id);
+				this.addPowTextObject(id);
 			}
 		}
 		// Call init for this object and all inner objects
@@ -1499,23 +1499,6 @@ class PowerUi extends _PowerUiBase {
 	}
 }
 
-// Replace a value form an attribute when is mouseover some element and undo on mouseout
-class PowBind extends _PowerBasicElementWithEvents {
-    constructor(element) {
-        super(element);
-        this._$pwActive = false;
-    }
-
-    compile() {
-        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powBind);
-    }
-}
-
-// Inject the attr on PowerUi
-_PowerUiBase.injectPow({name: 'data-pow-bind',
-    callback: function(element) {return new PowBind(element);}
-});
-
 // Create DOM elements with all ineerHTML for each "for in" or "for of"
 class PowFor extends _PowerBasicElementWithEvents {
     constructor(element) {
@@ -1623,6 +1606,23 @@ class PowIf extends _PowerBasicElementWithEvents {
 // Inject the attr on PowerUi
 _PowerUiBase.injectPow({name: 'data-pow-if',
     callback: function(element) {return new PowIf(element);}
+});
+
+// Replace a value form an attribute when is mouseover some element and undo on mouseout
+class powText extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+    }
+
+    compile() {
+        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powText);
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-text',
+    callback: function(element) {return new powText(element);}
 });
 
 class AccordionModel {
@@ -2821,13 +2821,13 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowBind(template, tempTree, powerTree) {
+	interpolationToPowText(template, tempTree, powerTree) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
 				const innerTEXT = this.getInterpolationValue(entry);
-				const value = `<span data-pow-bind="${this.stripInterpolation(entry).trim()}"
+				const value = `<span data-pow-text="${this.stripInterpolation(entry).trim()}"
 					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
 
