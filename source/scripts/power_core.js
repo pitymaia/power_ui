@@ -668,6 +668,7 @@ class PowerTree {
 			isMain: isMain,
 			view: viewElement,
 			isInnerCompiler: isInnerCompiler,
+			rootCompiler: currentRootCompilerElement,
 		}
 	}
 	createAndInitObjectsFromCurrentNode({id, refresh}) {
@@ -698,7 +699,8 @@ class PowerTree {
 				newObj.id = id;
 				newObj.$powerUi = this.$powerUi;
 				// If is the root element save the original innerHTML, if not only return true
-				compiled = !isInnerCompiler ? currentNode.innerHTML : true;
+				// pow-text have a compiler with empty value: '' So we need return true if no/empty innerHTML
+				compiled = !isInnerCompiler ? (currentNode.innerHTML || true) : true;
 				newObj.compile();
 				newObj.element.setAttribute('data-pwhascomp', true);
 			}

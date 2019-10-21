@@ -43,7 +43,6 @@ class PowerInterpolation {
 
 				// Regiter any new element on tempTree pending to add after interpolation
 				tempTree.pending.push(id);
-				powerTree.rootCompilers[id] = innerTEXT;
 			}
 		}
 		return template;
