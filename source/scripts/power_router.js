@@ -104,35 +104,49 @@ class Router {
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
 		// Save a copy of currentRoutes as oldRoutes
-		this.cloneCurrentRoutesAsOldRoutes();
+		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
 		this.init({onHashChange: event});
 	}
 
-	cloneCurrentRoutesAsOldRoutes() {
-		this.oldRoutes = {
+	cloneRoutes({source}) {
+		const dest = {
 			params: [],
-			id: this.currentRoutes.id,
-			viewId: this.currentRoutes.viewId,
-			route: this.currentRoutes.route,
+			id: source.id,
+			viewId: source.viewId,
+			route: source.route,
 			secundaryRoutes: [],
 		};
-		for (const param of this.currentRoutes.params) {
-			this.oldRoutes.params.push({key: param.key, value: param.value});
+		for (const param of source.params) {
+			dest.params.push({key: param.key, value: param.value});
 		}
-		for (const route of this.currentRoutes.secundaryRoutes) {
-			const oldRoute = {
+		for (const route of source.secundaryRoutes) {
+			const secundaryRoutes = {
 				id: route.id,
 				viewId: route.viewId,
 				route: route.route,
 				params: [],
 			}
 			for (const param of route.params) {
-				oldRoute.params.push({key: param.key, value: param.value});
+				secundaryRoutes.params.push({key: param.key, value: param.value});
 			}
-			this.oldRoutes.secundaryRoutes.push(oldRoute);
+			dest.secundaryRoutes.push(secundaryRoutes);
 		}
+		return dest;
+	}
+
+	_reload() {
+		const viewId = this.currentRoutes.viewId;
+		this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
+		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
+		this.currentRoutes = getEmptyRouteObjetc();
+		this.removeMainView({viewId})
+		this.closeOldSecundaryViews();
+		this.hashChange();
+		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
+		delete this.savedOldRoutes;
+
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute

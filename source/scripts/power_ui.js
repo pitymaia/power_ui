@@ -153,14 +153,8 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	pwReload() {
-		// TODO this is not good, removeSecundaryViews do not remove objects and elements
-		// Is better do not reinstantiate router
-		// And find a way to call initAll(), not initNodes();
-		// Move removeAllEvents from initAll to here
-
-		// this.router.removeSecundaryViews();
-		this.waitingServer = 0;
-		this.router = new Router(this.config, this);
+		this.initAlreadyRun = false;
+		this.router._reload();
 	}
 
 	initNodes(response) {
