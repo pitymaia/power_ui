@@ -194,7 +194,7 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadHtmlView(url, viewId, state) {
+	loadURLTemplate(url, viewId, state) {
 		const self = this;
 		const view = document.getElementById(viewId);
 		view.style.visibility = 'hidden';
@@ -209,7 +209,7 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
-			console.log('loadHtmlView error', response, xhr);
+			console.log('loadURLTemplate error', response, xhr);
 			self.ifNotWaitingServerCallInit();
 		});
 	}

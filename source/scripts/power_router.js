@@ -236,7 +236,7 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
+			this.$powerUi.loadURLTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {

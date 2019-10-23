@@ -31,7 +31,7 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowText(template, tempTree, powerTree) {
+	interpolationToPowText(template, tempTree) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
@@ -101,7 +101,6 @@ class PowerInterpolation {
 			/Object\./gm,
 			/=>[^]*?/gm,
 			/=>/gm,
-			/localStorage\.[^]*?\)/gm,
 			/localStorage/gm,
 			/window\.[^]*?\)/gm,
 			/window/gm,
@@ -110,17 +109,14 @@ class PowerInterpolation {
 			/while/gm,
 			/cookie/gm,
 			/write/gm,
-			/console\.[^]*?\)/gm,
 			/console/gm,
-			/alert[^]*?\)/gm,
 			/alert\(/gm,
-			/alert /gm,
 			/eval[^]*?\)/gm,
 			/eval\(/gm,
 			/eval /gm,
 			/request/gm,
 			/ajaxRequest/gm,
-			/loadHtmlView/gm,
+			/loadURLTemplate/gm,
 			/XMLHttpRequest/gm,
 			/setRequestHeader/gm,
 			/new[^]*?\)/gm,

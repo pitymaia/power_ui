@@ -1397,7 +1397,7 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadHtmlView(url, viewId, state) {
+	loadURLTemplate(url, viewId, state) {
 		const self = this;
 		const view = document.getElementById(viewId);
 		view.style.visibility = 'hidden';
@@ -1412,7 +1412,7 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
-			console.log('loadHtmlView error', response, xhr);
+			console.log('loadURLTemplate error', response, xhr);
 			self.ifNotWaitingServerCallInit();
 		});
 	}
@@ -2616,7 +2616,7 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadHtmlView(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
+			this.$powerUi.loadURLTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {
@@ -2831,7 +2831,7 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowText(template, tempTree, powerTree) {
+	interpolationToPowText(template, tempTree) {
 		const match = template.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
@@ -2901,7 +2901,6 @@ class PowerInterpolation {
 			/Object\./gm,
 			/=>[^]*?/gm,
 			/=>/gm,
-			/localStorage\.[^]*?\)/gm,
 			/localStorage/gm,
 			/window\.[^]*?\)/gm,
 			/window/gm,
@@ -2910,17 +2909,14 @@ class PowerInterpolation {
 			/while/gm,
 			/cookie/gm,
 			/write/gm,
-			/console\.[^]*?\)/gm,
 			/console/gm,
-			/alert[^]*?\)/gm,
 			/alert\(/gm,
-			/alert /gm,
 			/eval[^]*?\)/gm,
 			/eval\(/gm,
 			/eval /gm,
 			/request/gm,
 			/ajaxRequest/gm,
-			/loadHtmlView/gm,
+			/loadURLTemplate/gm,
 			/XMLHttpRequest/gm,
 			/setRequestHeader/gm,
 			/new[^]*?\)/gm,
