@@ -179,6 +179,17 @@ function openModal() {
 	window.location.replace(window.location.hash + newHash);
 }
 
+function catOfCats() {
+	const catsNode = document.getElementById('catofcats');
+	if (catsNode) {
+		console.log('child', catsNode);
+	}
+	// app._events['ready'].unsubscribe(catOfCats);
+}
+
+app._events['ready'].subscribe(catOfCats);
+
+
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {
 // 		setTimeout(function () {

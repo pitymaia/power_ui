@@ -79,7 +79,7 @@
         <h4 data-pow-if="showIf()">By my if</h4>
         <h4 data-pow-if="showIf()">Another if</h4>
         <hr />
-        <div data-pow-for="cat of cats">
+        <div id="catofcats" data-pow-for="cat of cats">
             <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
                 <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
             </div>

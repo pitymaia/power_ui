@@ -126,6 +126,8 @@ class PowerUi extends _PowerUiBase {
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+		this._events = {};
+		this._events['ready'] = new UEvent();
 	}
 
 	initAll() {
@@ -224,6 +226,7 @@ class PowerUi extends _PowerUiBase {
 				} else {
 					self.initAll();
 				}
+				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
 	}

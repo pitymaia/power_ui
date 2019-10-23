@@ -1329,6 +1329,8 @@ class PowerUi extends _PowerUiBase {
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+		this._events = {};
+		this._events['ready'] = new UEvent();
 	}
 
 	initAll() {
@@ -1427,6 +1429,7 @@ class PowerUi extends _PowerUiBase {
 				} else {
 					self.initAll();
 				}
+				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
 	}
@@ -2821,7 +2824,8 @@ class PowerInterpolation {
 
 	replaceInterpolation(template) {
 		template = this.stripWhiteChars(template);
-		const match = template.match(this.standardRegex());
+		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
+		const match = templateWithoutComments.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const value = this.getInterpolationValue(entry);
@@ -2832,7 +2836,8 @@ class PowerInterpolation {
 	}
 
 	interpolationToPowText(template, tempTree) {
-		const match = template.match(this.standardRegex());
+		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
+		const match = templateWithoutComments.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
@@ -3155,6 +3160,17 @@ function openModal() {
 	}
 	window.location.replace(window.location.hash + newHash);
 }
+
+function catOfCats() {
+	const catsNode = document.getElementById('catofcats');
+	if (catsNode) {
+		console.log('child', catsNode);
+	}
+	// app._events['ready'].unsubscribe(catOfCats);
+}
+
+app._events['ready'].subscribe(catOfCats);
+
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {

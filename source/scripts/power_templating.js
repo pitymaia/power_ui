@@ -21,7 +21,8 @@ class PowerInterpolation {
 
 	replaceInterpolation(template) {
 		template = this.stripWhiteChars(template);
-		const match = template.match(this.standardRegex());
+		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
+		const match = templateWithoutComments.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const value = this.getInterpolationValue(entry);
@@ -32,7 +33,8 @@ class PowerInterpolation {
 	}
 
 	interpolationToPowText(template, tempTree) {
-		const match = template.match(this.standardRegex());
+		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
+		const match = templateWithoutComments.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
