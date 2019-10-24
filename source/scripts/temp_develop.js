@@ -26,40 +26,63 @@
 //  }
 // }
 // let app = new TesteUi();
+
+const someViewTemplate = `<div class="fakemodalback">
+    <div class="fakemodal">
+        <div data-pow-for="cat of cats">
+            <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
+                <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+            </div>
+            <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
+                <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+            </div>
+            <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
+            </div>
+        </div>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>`;
+
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: [
 		{
 			id: 'front-page',
 			route: '/',
-			template: 'front_page.html',
+			templateUrl: 'front_page.html',
 		},
 		{
 			id: 'power-only',
 			route: 'power_only',
-			template: 'power_only.html',
+			templateUrl: 'power_only.html',
+			staticTemplate: false,
 		},
 		{
 			id: 'power-only2',
 			route: 'power_only/:id/:name/:title',
-			template: 'power_only.html',
+			templateUrl: 'power_only.html',
 		},
 		{
 			id: 'power-only3',
 			route: 'power_only/:id/:name',
-			// template: 'power_only.html',
-			template: '404.html',
+			// templateUrl: 'power_only.html',
+			templateUrl: '404.html',
 			viewId: 'component-view',
 		},
 		{
 			id: 'component1',
 			route: 'component/:name/:title',
-			template: 'somecomponent.html',
+			templateUrl: 'somecomponent.html',
+		},
+		{
+			id: 'simple-template',
+			route: 'simple',
+			template: someViewTemplate,
 		},
 		{
 			id: 'otherwise',
 			route: '404',
-			template: '404.html',
+			templateUrl: '404.html',
 		}
 	],
 });
@@ -169,13 +192,31 @@ function gotoIndex() {
 	window.location.replace(app.router.config.rootRoute);
 }
 function closeModal() {
-	window.location.replace(window.location.hash.split('?')[0]);
+	const parts = window.location.hash.split('?');
+	let counter = 0;
+	let newHash = parts[0];
+	for (const part of parts) {
+		if (counter > 0 && counter < parts.length - 1) {
+			newHash = newHash + '?' + part;
+		}
+		counter = counter + 1;
+	}
+	window.location.replace(newHash);
 }
 function openModal() {
 	let newHash = '?sr=component/andre/aqueda';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
 	}
+	window.location.replace(window.location.hash + newHash);
+}
+
+function openSimpleTemplate() {
+	let newHash = '?sr=simple';
+	if (!window.location.hash) {
+		newHash = '#!/' + newHash;
+	}
+	console.log('window.location.hash + newHash', window.location.hash + newHash);
 	window.location.replace(window.location.hash + newHash);
 }
 

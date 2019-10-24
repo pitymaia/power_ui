@@ -1322,7 +1322,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.waitingServer = 0;
+		this.waitingView = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
@@ -1399,12 +1399,12 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadURLTemplate(url, viewId, state) {
+	loadTemplateUrl(url, viewId, state) {
 		const self = this;
 		const view = document.getElementById(viewId);
 		view.style.visibility = 'hidden';
-		self.waitingServer = self.waitingServer + 1;
-		self.waitingInit.push({node: view, viewId: viewId, url: url, state: state});
+		self.waitingView = self.waitingView + 1;
+		self.waitingInit.push({node: view, viewId: viewId, state: state});
 		this.request({
 				url: url,
 				method: 'GET',
@@ -1414,16 +1414,25 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
-			console.log('loadURLTemplate error', response, xhr);
 			self.ifNotWaitingServerCallInit();
 		});
+	}
+
+	loadTemplate(template, viewId, state) {
+		const self = this;
+		const view = document.getElementById(viewId);
+		view.style.visibility = 'hidden';
+		view.innerHTML = template;
+		self.waitingView = self.waitingView + 1;
+		self.waitingInit.push({node: view, viewId: viewId, state: state});
+		self.ifNotWaitingServerCallInit(template);
 	}
 
 	ifNotWaitingServerCallInit(response) {
 		const self = this;
 		setTimeout(function () {
-			self.waitingServer = self.waitingServer - 1;
-			if (self.waitingServer === 0) {
+			self.waitingView = self.waitingView - 1;
+			if (self.waitingView === 0) {
 				if (self.initAlreadyRun) {
 					self.initNodes(response);
 				} else {
@@ -2412,7 +2421,8 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, callback, viewId}) {
+	add({id, route, template, templateUrl, staticTemplate, callback, viewId}) {
+		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
@@ -2435,13 +2445,13 @@ class Router {
 			throw new Error('A route ID must be given');
 		}
 		if (!route && !template && !callback) {
-			throw new Error('route, template or callback must be given');
+			throw new Error('route, template, templateUrl or callback must be given');
 		}
 		if (this.config.routerMainViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
 		}
 		if (this.config.routerSecundaryViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
 		}
 		// Ensure that the parameters have the correct types
 		if (typeof route !== "string") {
@@ -2460,6 +2470,9 @@ class Router {
 			route: this.config.rootRoute + route,
 			callback: callback || null,
 			template: template || null,
+			templateUrl: templateUrl || null,
+			staticTemplate: staticTemplate === false ? false : true,
+			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
@@ -2619,7 +2632,11 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadURLTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
+			if (this.routes[routeId].templateUrl && (this.routes[routeId].staticTemplate === false || this.routes[routeId].templateIsCached === false)) {
+				this.$powerUi.loadTemplateUrl(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes, routeId, this.routes);
+			} else {
+				this.$powerUi.loadTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes, routeId, this.routes);
+			}
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {
@@ -2921,7 +2938,7 @@ class PowerInterpolation {
 			/eval /gm,
 			/request/gm,
 			/ajaxRequest/gm,
-			/loadURLTemplate/gm,
+			/loadTemplateUrl/gm,
 			/XMLHttpRequest/gm,
 			/setRequestHeader/gm,
 			/new[^]*?\)/gm,
@@ -3008,40 +3025,63 @@ PowerUi.injectPowerCss({name: 'power-view', isMain: true});
 //  }
 // }
 // let app = new TesteUi();
+
+const someViewTemplate = `<div class="fakemodalback">
+    <div class="fakemodal">
+        <div data-pow-for="cat of cats">
+            <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
+                <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+            </div>
+            <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
+                <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+            </div>
+            <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
+            </div>
+        </div>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>`;
+
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: [
 		{
 			id: 'front-page',
 			route: '/',
-			template: 'front_page.html',
+			templateUrl: 'front_page.html',
 		},
 		{
 			id: 'power-only',
 			route: 'power_only',
-			template: 'power_only.html',
+			templateUrl: 'power_only.html',
+			staticTemplate: false,
 		},
 		{
 			id: 'power-only2',
 			route: 'power_only/:id/:name/:title',
-			template: 'power_only.html',
+			templateUrl: 'power_only.html',
 		},
 		{
 			id: 'power-only3',
 			route: 'power_only/:id/:name',
-			// template: 'power_only.html',
-			template: '404.html',
+			// templateUrl: 'power_only.html',
+			templateUrl: '404.html',
 			viewId: 'component-view',
 		},
 		{
 			id: 'component1',
 			route: 'component/:name/:title',
-			template: 'somecomponent.html',
+			templateUrl: 'somecomponent.html',
+		},
+		{
+			id: 'simple-template',
+			route: 'simple',
+			template: someViewTemplate,
 		},
 		{
 			id: 'otherwise',
 			route: '404',
-			template: '404.html',
+			templateUrl: '404.html',
 		}
 	],
 });
@@ -3151,13 +3191,31 @@ function gotoIndex() {
 	window.location.replace(app.router.config.rootRoute);
 }
 function closeModal() {
-	window.location.replace(window.location.hash.split('?')[0]);
+	const parts = window.location.hash.split('?');
+	let counter = 0;
+	let newHash = parts[0];
+	for (const part of parts) {
+		if (counter > 0 && counter < parts.length - 1) {
+			newHash = newHash + '?' + part;
+		}
+		counter = counter + 1;
+	}
+	window.location.replace(newHash);
 }
 function openModal() {
 	let newHash = '?sr=component/andre/aqueda';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
 	}
+	window.location.replace(window.location.hash + newHash);
+}
+
+function openSimpleTemplate() {
+	let newHash = '?sr=simple';
+	if (!window.location.hash) {
+		newHash = '#!/' + newHash;
+	}
+	console.log('window.location.hash + newHash', window.location.hash + newHash);
 	window.location.replace(window.location.hash + newHash);
 }
 

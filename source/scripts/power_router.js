@@ -29,7 +29,8 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, callback, viewId}) {
+	add({id, route, template, templateUrl, staticTemplate, callback, viewId}) {
+		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
@@ -52,13 +53,13 @@ class Router {
 			throw new Error('A route ID must be given');
 		}
 		if (!route && !template && !callback) {
-			throw new Error('route, template or callback must be given');
+			throw new Error('route, template, templateUrl or callback must be given');
 		}
 		if (this.config.routerMainViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
 		}
 		if (this.config.routerSecundaryViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, and pass it as "viewId" paramenter to the router.`);
+			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
 		}
 		// Ensure that the parameters have the correct types
 		if (typeof route !== "string") {
@@ -77,6 +78,9 @@ class Router {
 			route: this.config.rootRoute + route,
 			callback: callback || null,
 			template: template || null,
+			templateUrl: templateUrl || null,
+			staticTemplate: staticTemplate === false ? false : true,
+			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
@@ -236,7 +240,11 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			this.$powerUi.loadURLTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes);
+			if (this.routes[routeId].templateUrl && (this.routes[routeId].staticTemplate === false || this.routes[routeId].templateIsCached === false)) {
+				this.$powerUi.loadTemplateUrl(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes, routeId, this.routes);
+			} else {
+				this.$powerUi.loadTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes, routeId, this.routes);
+			}
 		}
 		// If have a callback run it
 		if (this.routes[routeId].callback) {

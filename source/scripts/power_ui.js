@@ -119,7 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.waitingServer = 0;
+		this.waitingView = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
@@ -196,12 +196,12 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadURLTemplate(url, viewId, state) {
+	loadTemplateUrl(url, viewId, state) {
 		const self = this;
 		const view = document.getElementById(viewId);
 		view.style.visibility = 'hidden';
-		self.waitingServer = self.waitingServer + 1;
-		self.waitingInit.push({node: view, viewId: viewId, url: url, state: state});
+		self.waitingView = self.waitingView + 1;
+		self.waitingInit.push({node: view, viewId: viewId, state: state});
 		this.request({
 				url: url,
 				method: 'GET',
@@ -211,16 +211,25 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
-			console.log('loadURLTemplate error', response, xhr);
 			self.ifNotWaitingServerCallInit();
 		});
+	}
+
+	loadTemplate(template, viewId, state) {
+		const self = this;
+		const view = document.getElementById(viewId);
+		view.style.visibility = 'hidden';
+		view.innerHTML = template;
+		self.waitingView = self.waitingView + 1;
+		self.waitingInit.push({node: view, viewId: viewId, state: state});
+		self.ifNotWaitingServerCallInit(template);
 	}
 
 	ifNotWaitingServerCallInit(response) {
 		const self = this;
 		setTimeout(function () {
-			self.waitingServer = self.waitingServer - 1;
-			if (self.waitingServer === 0) {
+			self.waitingView = self.waitingView - 1;
+			if (self.waitingView === 0) {
 				if (self.initAlreadyRun) {
 					self.initNodes(response);
 				} else {

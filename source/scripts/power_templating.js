@@ -118,7 +118,7 @@ class PowerInterpolation {
 			/eval /gm,
 			/request/gm,
 			/ajaxRequest/gm,
-			/loadURLTemplate/gm,
+			/loadTemplateUrl/gm,
 			/XMLHttpRequest/gm,
 			/setRequestHeader/gm,
 			/new[^]*?\)/gm,
