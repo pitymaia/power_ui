@@ -119,7 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.waitingView = 0;
+		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
@@ -196,14 +196,20 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	loadTemplateUrl(url, viewId, state) {
-		const self = this;
+	prepareViewToLoad({viewId}) {
 		const view = document.getElementById(viewId);
+		// Avoid blink uninterpolated data before call compile and interpolate
 		view.style.visibility = 'hidden';
-		self.waitingView = self.waitingView + 1;
-		self.waitingInit.push({node: view, viewId: viewId, state: state});
+		this.waitingViews = this.waitingViews + 1;
+		this.waitingInit.push({node: view, viewId: viewId});
+		return view;
+	}
+
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
+		const self = this;
+		const view = this.prepareViewToLoad({viewId: viewId});
 		this.request({
-				url: url,
+				url: template,
 				method: 'GET',
 				status: "Loading page",
 				withCredentials: false,
@@ -211,25 +217,21 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit();
+			self.ifNotWaitingServerCallInit(response);
 		});
 	}
 
-	loadTemplate(template, viewId, state) {
-		const self = this;
-		const view = document.getElementById(viewId);
-		view.style.visibility = 'hidden';
+	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
+		const view = this.prepareViewToLoad({viewId: viewId});
 		view.innerHTML = template;
-		self.waitingView = self.waitingView + 1;
-		self.waitingInit.push({node: view, viewId: viewId, state: state});
-		self.ifNotWaitingServerCallInit(template);
+		this.ifNotWaitingServerCallInit(template);
 	}
 
 	ifNotWaitingServerCallInit(response) {
 		const self = this;
 		setTimeout(function () {
-			self.waitingView = self.waitingView - 1;
-			if (self.waitingView === 0) {
+			self.waitingViews = self.waitingViews - 1;
+			if (self.waitingViews === 0) {
 				if (self.initAlreadyRun) {
 					self.initNodes(response);
 				} else {

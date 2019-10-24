@@ -241,9 +241,21 @@ class Router {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
 			if (this.routes[routeId].templateUrl && (this.routes[routeId].staticTemplate === false || this.routes[routeId].templateIsCached === false)) {
-				this.$powerUi.loadTemplateUrl(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes, routeId, this.routes);
+				this.$powerUi.loadTemplateUrl({
+					template: this.routes[routeId].template,
+					viewId: this.routes[routeId].viewId || viewId,
+					currentRoutes: this.currentRoutes,
+					routeId: routeId,
+					routes: this.routes,
+				});
 			} else {
-				this.$powerUi.loadTemplate(this.routes[routeId].template, this.routes[routeId].viewId || viewId, this.currentRoutes, routeId, this.routes);
+				this.$powerUi.loadTemplate({
+					template: this.routes[routeId].template,
+					viewId: this.routes[routeId].viewId || viewId,
+					currentRoutes: this.currentRoutes,
+					routeId: routeId,
+					routes: this.routes,
+				});
 			}
 		}
 		// If have a callback run it
