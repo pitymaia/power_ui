@@ -79,7 +79,7 @@ class Router {
 			callback: callback || null,
 			template: template || null,
 			templateUrl: templateUrl || null,
-			staticTemplate: staticTemplate === false ? false : true,
+			staticTemplate: staticTemplate === true ? true : false,
 			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
 		};
@@ -240,7 +240,7 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			if (this.routes[routeId].templateUrl && (this.routes[routeId].staticTemplate === false || this.routes[routeId].templateIsCached === false)) {
+			if (this.routes[routeId].templateUrl && (this.routes[routeId].staticTemplate !== true && this.routes[routeId].templateIsCached !== true)) {
 				this.$powerUi.loadTemplateUrl({
 					template: this.routes[routeId].template,
 					viewId: this.routes[routeId].viewId || viewId,

@@ -216,6 +216,12 @@ class PowerUi extends _PowerUiBase {
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit(response);
+			// Cache this template for new requests if not setted as false
+			const routeConfig = routes[routeId];
+			if (routeConfig.staticTemplate !== true) {
+				routeConfig.template = xhr.responseText;
+				routeConfig.templateIsCached = true;
+			}
 		}).catch(function (response, xhr) {
 			self.ifNotWaitingServerCallInit(response);
 		});
