@@ -88,7 +88,7 @@ class PowerInterpolation {
 		return innerHTML;
 	}
 
-	// TODO: This is not really safe, just good to use during ALPHA and maybe BETA phase of development
+	// TODO: This is not really safe, just good to use during ALPHA phase of development
 	// remove functions, arrow functions, document.*() and window.*(), script and more
 	sanitizeEntry(entry, noLimit) {
 		if (!noLimit && entry.length > 250) {
