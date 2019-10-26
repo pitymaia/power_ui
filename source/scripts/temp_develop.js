@@ -42,6 +42,7 @@ const someViewTemplate = `<div class="fakemodalback">
         <button onclick="closeModal()">Close</button>
     </div>
 </div>`;
+var teste = 'MARAVILHA!';
 
 const t0 = performance.now();
 let app = new PowerUi({
@@ -94,11 +95,16 @@ let oldName = myName;
 function pity() {
     return myName;
 }
+console.log(pity());
+function pity2(name, phase) {
+    return name + ' ' + phase;
+}
 let currentIf = false;
 function showIf() {
 	currentIf = !currentIf;
 	return currentIf;
 }
+
 const cats = [
 	{name: 'Riquinho', gender: 'male'},
 	{name: 'Tico', gender: 'male'},
