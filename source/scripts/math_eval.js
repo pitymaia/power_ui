@@ -32,12 +32,12 @@ class MathEval {
 								+ (/\w$/.test(symbol) ? "\\b" : "") // add a break if it's a name
 				});
 		}
-		last(...a)           { return a[a.length-1] }
-		negation(a)          { return -a }
-		addition(a, b)       { return a + b }
-		subtraction(a, b)    { return a - b }
+		last(...a) { return a[a.length-1] }
+		negation(a) { return -a }
+		addition(a, b) { return a + b }
+		subtraction(a, b) { return a - b }
 		multiplication(a, b) { return a * b }
-		division(a, b)       { return a / b }
+		division(a, b) { return a / b }
 		factorial(a) {
 				if (a%1 || !(+a>=0)) return NaN
 				if (a > 170) return Infinity;
@@ -46,6 +46,7 @@ class MathEval {
 				return b;
 		}
 		calculate(expression) {
+			console.log('EXPRESSITO TO CALCULATE: ', '"' + expression + '"');
 				let match;
 				const values = [],
 						operators = [this._symbols["("].prefix],

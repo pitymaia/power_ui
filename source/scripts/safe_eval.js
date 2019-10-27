@@ -1,100 +1,120 @@
 var teste = 'MARAVILHA';
 var teste2 = 'Segunda';
 var a = 'charA';
+var b = 3;
+
+function two() {
+    return 2;
+}
+
+function me() {
+    return pitinho;
+}
+
+function pity_bom2() {
+    return 'Meu nome é Pity';
+}
+
 // ATENTION the order each patter are apply is very important
+const betweenParenthesesRegex = new RegExp(/\([^]*?\)/g);
 const functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
 const quotedStringRegex = new RegExp(/(["\'`])(?:\\.|[^\\])*?\1/gm);
 const mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
 const varRegex = new RegExp(/\w*[a-zA-Z_$]\w*/gm);
 
-const pitinho = 'Pity o bom'
-const text = `3 + 3 = 6 teste \ ^~/°;:.,!@# teste2 $%\/&*(({}[]ª_-+=| $& \`se isso\` a + "funcion" 2 + 2 * (1 + 1) / 4 pity() pity2('pity', 'o bom')`;
+var pitinho = 'Pity o bom';
+const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 pity_bom2(), me()`;
 
 let newText = text;
-const funcMatchs = newText.match(functionRegex);
-console.log('funcMatchs', funcMatchs);
-let counter = 0;
-for (const func of funcMatchs) {
-    newText = newText.replace(func, '$pwSplit$pwFunc_' + convert(counter) + '$pwSplit');
-    counter = counter + 1;
-}
 
-console.log('newText', newText);
+newText = evaluateFunction(newText);
 
 const stringMatchs = newText.match(quotedStringRegex);
 newText = newText;
-counter = 0;
+let counter = 0;
 for (const string of stringMatchs) {
     newText = newText.replace(string, '$pwSplit$pwString_' + convert(counter) + '$pwSplit');
     counter = counter + 1;
 }
+newText = evalVariables(newText);
+newText = evaluateMath(newText);
 
-console.log('!!!!! BEFORE VAR!!!!', newText);
-
-const varMatchs = text.match(varRegex);
-let newTextWithoutVars = newText;
-counter = 0;
-for (const variable of varMatchs) {
-    newTextWithoutVars = newTextWithoutVars.replace(variable, 'removed');
-    counter = counter + 1;
-}
-
-console.log('newText VAR!!!!', newText);
-
-const mathMatchs = newTextWithoutVars.match(mathExpression);
-counter = 0;
-for (const expression of mathMatchs) {
-    newText = newText.replace(expression, '$pwSplit$pwExpression_' + convert(counter) + '$pwSplit');
-    counter = counter + 1;
-}
-
-newText = fixSpaces(newText, mathMatchs);
-
-console.log('mathMatchs', mathMatchs);
 console.log('!!!!!!!!!!11 FINAL !!!!', newText);
+function evaluateFunction(text) {
+    let changedText = text;
+    const funcMatchs = changedText.match(functionRegex);
 
-const textParts = newText.split('$pwSplit');
+    for (const func of funcMatchs) {
+        // Remove everything between parentheses to get the function name
+        let funcValue = '';
+        const funcMatch = func.match(betweenParenthesesRegex);
+        const funcName = func.replace(funcMatch, '');
 
-identifyVariables(textParts);
-
-function fixSpaces(newText, mathMatchs) {
-    let counter = 0;
-    for (let expression of mathMatchs) {
-        if (expression[expression.length-1] === ' ') {
-            // Remove the space from the expression
-            mathMatchs[counter] = expression.slice(0, -1);
-            // Put the space back on the text
-            newText = newText.replace('$pwExpression_' + convert(counter) + '$pwSplit', '$pwExpression_' + convert(counter) + '$pwSplit ');
+        if (window[funcName] && window[funcName] instanceof Function) {
+            funcValue = window[funcName]();
+            changedText = changedText.replace(func, funcValue);
+            console.log('funcValue', func, funcName, funcValue);
         }
-        counter = counter + 1;
     }
-    return newText;
+
+    return changedText;
 }
 
+function evaluateMath(text) {
+    const mathEval = new MathEval();
+    const mathMatchs = text.match(mathExpression)
+    let changedText = text;
+    for (let expression of mathMatchs) {
+        // the regex let pass some expressions like "2 + 2 - " and also with the final space
+        // So wee fix it by removing any char intil the las number so the new expression is "2 + 2"
+        let needFix = true;
+        while (needFix) {
+            if (expression[expression.length-1] !== ')' && !parseInt(expression[expression.length-1])) {
+                // Remove the space from the expression
+                expression = expression.slice(0, -1);
+            } else {
+                needFix = false;
+            }
+        }
+        const value = mathEval.calculate(expression);
+        changedText = changedText.replace(expression, value);
+    }
 
-function identifyVariables(textParts) {
+    return changedText;
+}
+
+function evalVariables(text) {
+    const originalTextParts = text.split('$pwSplit').filter(i=> i && !i.includes('$pw') && i.replace(' ', ''));
+    let changedText = text;
     // Remove any $pw, spaces and empty parts
-    const newParts = textParts.filter(i=> i && !i.includes('$pw') && i.replace(' ', ''));
-    for (const part of newParts) {
+    let changedTextParts = [...originalTextParts];
+    let partIndex = 0;
+    for (const part of originalTextParts) {
         const varMatchs = part.match(varRegex);
         if (varMatchs) {
             const splitedParts = part.split(' ');
+            let changedSplitedParts = [...splitedParts];
+            let splitedIndex = 0;
             for (const splited of splitedParts) {
                 const finalMatch = splited.match(varRegex);
                 if (splited && finalMatch && finalMatch.length === 1 && finalMatch[0] === splited) {
-                    console.log('splited', splited, finalMatch, window[splited]);
                     if (window[splited]) {
-                        console.log('VARIABLE ' + splited + ' = ', window[splited]);
+                        changedSplitedParts[splitedIndex] = changedSplitedParts[splitedIndex].replace(splited, window[splited]);
                     }
                 }
+                changedTextParts[partIndex] = changedTextParts[partIndex].replace(splitedParts[splitedIndex], changedSplitedParts[splitedIndex]);
+                splitedIndex = splitedIndex + 1;
             }
         }
-        console.log('part', part, varMatchs);
+        changedText = changedText.replace(originalTextParts[partIndex], changedTextParts[partIndex]);
+        partIndex = partIndex + 1;
     }
 
-    console.log('newParts', newParts);
+    console.log('!!!!!!!!! changedText !!!!!!!!!!!', changedText);
+    return changedText;
 }
 
+// Convert number to char
 function convert(num) {
     return num
         .toString()    // convert number to string
