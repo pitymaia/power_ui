@@ -3181,7 +3181,7 @@ function her() {
 
 
 var pitinho = 'Pity o bom';
-const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her())`;
+const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' 'Pi' + 'ty' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her())`;
 
 class SafeEval {
 	constructor() {
@@ -3196,6 +3196,10 @@ class SafeEval {
 
 		// Hold the final values to replace
 		this.dictNames = ['$pwVar_', '$pwNumber_', '$pwString_', '$pwFunc_'];
+		this.createCleanDicts();
+	}
+
+	createCleanDicts() {
 		for (const name of this.dictNames) {
 			this[name] = {};
 		}
@@ -3230,6 +3234,8 @@ class SafeEval {
 
 		// Clean text from helper string
 		newText = newText.replace(/\$pwSplit/gm, '');
+		// Clean the current dicts with values
+		this.createCleanDicts();
 		console.log('!!!!!!!!!!!! ANTES !!!!', text);
 		console.log('!!!!!!!!!!11 FINAL !!!!', newText);
 		return newText;
@@ -3266,7 +3272,7 @@ class SafeEval {
 		for (const string of stringMatchs) {
 			const sufix = this.convert(counter);
 			changedText = changedText.replace(string, '$pwSplit$pwString_' + sufix + '$pwSplit');
-			this.$pwString_[sufix] = string;
+			this.$pwString_[sufix] = string.substring(1, string.length-1);
 			counter = counter + 1;
 		}
 		return changedText;
@@ -3291,9 +3297,9 @@ class SafeEval {
 				} else {
 					// Get the params without the first and last parentheses ()
 					const params = funcMatch[0].substring(1, funcMatch[0].length-1);
-					console.log('FUNC MATCH with params', funcMatch, func, params);
-					const argsList = this.evaluate(params).split(',');
-					console.log('EVAL PARAMS', argsList);
+					// Evaluate the function parameters
+					const recursiveEval = new SafeEval();
+					const argsList = recursiveEval.evaluate(params).split(',');
 					funcValue = this.runFunctionWithArgs(window[funcName], argsList);
 				}
 				if (isNaN(funcValue)) {
