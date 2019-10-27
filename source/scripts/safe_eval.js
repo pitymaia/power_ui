@@ -7,24 +7,37 @@ function two() {
 	return 2;
 }
 
-function me() {
-	return pitinho;
+function me(num) {
+	return pitinho + ' ' + num || '';
 }
 
-function pity_bom2() {
-	return 'Meu nome é Pity';
+function pity_bom2(name) {
+	return name || 'Meu nome é Pity';
+}
+
+function couple(name, name2) {
+	return name + ' and ' + name2;
+}
+
+function you() {
+	return 'André';
+}
+
+function her() {
+	return 'Andréia';
 }
 
 
 var pitinho = 'Pity o bom';
-const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 pity_bom2(), me()`;
+const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her())`;
 
 class SafeEval {
 	constructor() {
 		this.plusSignWithSpaces = new RegExp(/\s*[\+]\s*/gm);
 		this.intFloatRegex = new RegExp(/(\d+(\.\d+)?)/gm);
-		this.betweenParenthesesRegex = new RegExp(/\([^]*?\)/g);
-		this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
+		this.betweenParenthesesRegex = new RegExp(/\([^\)]*\((.*)\)[^\(]*\)|\((.*?)*\)/gm); // Only works with a single function each time
+		// this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
+		this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*\([^\)]*\((.*)\)[^\(]*\)|[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
 		this.quotedStringRegex = new RegExp(/(["\'`])(?:\\.|[^\\])*?\1/gm);
 		this.mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
 		this.varRegex = new RegExp(/\w*[a-zA-Z_$]\w*/gm);
@@ -67,6 +80,7 @@ class SafeEval {
 		newText = newText.replace(/\$pwSplit/gm, '');
 		console.log('!!!!!!!!!!!! ANTES !!!!', text);
 		console.log('!!!!!!!!!!11 FINAL !!!!', newText);
+		return newText;
 	}
 
 	// Concatenate any remaining plus sign (+) by removing it with the surround spaces
@@ -118,7 +132,18 @@ class SafeEval {
 			const funcName = func.replace(funcMatch, '');
 
 			if (window[funcName] && window[funcName] instanceof Function) {
-				funcValue = window[funcName]();
+				// If function have no params
+				if (funcMatch[0] === '()') {
+					// Just call the function
+					funcValue = window[funcName]();
+				} else {
+					// Get the params without the first and last parentheses ()
+					const params = funcMatch[0].substring(1, funcMatch[0].length-1);
+					console.log('FUNC MATCH with params', funcMatch, func, params);
+					const argsList = this.evaluate(params).split(',');
+					console.log('EVAL PARAMS', argsList);
+					funcValue = this.runFunctionWithArgs(window[funcName], argsList);
+				}
 				if (isNaN(funcValue)) {
 					const sufix = this.convert(counter);
 					changedText = changedText.replace(func, '$pwSplit$pwFunc_' + sufix + '$pwSplit');
@@ -131,6 +156,13 @@ class SafeEval {
 		}
 
 		return changedText;
+	}
+
+	runFunctionWithArgs(f) {
+	  // use splice to get all the arguments after 'f'
+	  const args = Array.prototype.splice.call(arguments, 1);
+	  console.log('arguments', arguments, args[0]);
+	  return f.apply(null, args[0]);
 	}
 
 	evaluateMath(text) {
