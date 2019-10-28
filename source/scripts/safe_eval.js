@@ -51,16 +51,16 @@ class SafeEval {
 
 		// Hold the final values to replace
 		this.dictNames = ['$pwVar_', '$pwNumber_', '$pwString_', '$pwFunc_'];
-		this.createCleanDicts();
+		this._createCleanDicts();
 	}
 
-	createCleanDicts() {
+	_createCleanDicts() {
 		for (const name of this.dictNames) {
 			this[name] = {};
 		}
 	}
 
-	replaceValueInDict(text) {
+	_replaceValueInDict(text) {
 		let changedText = text;
 		for (const dictName of this.dictNames) {
 			for (const key of Object.keys(this[dictName] || {})) {
@@ -74,30 +74,30 @@ class SafeEval {
 		// ATENTION the order each patter are apply is very important
 		let newText = text;
 
-		newText = this.evaluateFunction(newText);
+		newText = this._evaluateFunction(newText);
 
-		newText = this.replaceStrings(newText);
+		newText = this._replaceStrings(newText);
 
-		newText = this.evalVariables(newText);
-		newText = this.evaluateMath(newText);
+		newText = this._evalVariables(newText);
+		newText = this._evaluateMath(newText);
 
-		newText = this.replaceNumbers(newText);
+		newText = this._replaceNumbers(newText);
 
-		newText = this.concatenate(newText);
+		newText = this._concatenate(newText);
 
-		newText = this.replaceValueInDict(newText);
+		newText = this._replaceValueInDict(newText);
 
 		// Clean text from helper string
 		newText = newText.replace(/\$pwSplit/gm, '');
 		// Clean the current dicts with values
-		this.createCleanDicts();
+		this._createCleanDicts();
 		console.log('!!!!!!!!!!!! ANTES !!!!', text);
 		console.log('!!!!!!!!!!11 FINAL !!!!', newText);
 		return newText;
 	}
 
 	// Concatenate any remaining plus sign (+) by removing it with the surround spaces
-	concatenate(text) {
+	_concatenate(text) {
 		let changedText = text;
 		const plusMatchs = changedText.match(this.plusSignWithSpaces)  || [];
 		for (const plus of plusMatchs) {
@@ -107,12 +107,12 @@ class SafeEval {
 		return changedText;
 	}
 
-	replaceNumbers(text) {
+	_replaceNumbers(text) {
 		let changedText = text;
 		const numberMatchs = changedText.match(this.intFloatRegex) || [];
 		let counter = 0;
 		for (const number of numberMatchs) {
-			const sufix = this.convert(counter);
+			const sufix = this._convert(counter);
 			changedText = changedText.replace(number, '$pwSplit$pwNumber_' + sufix + '$pwSplit');
 			this.$pwNumber_[sufix] = number;
 			counter = counter + 1;
@@ -120,12 +120,12 @@ class SafeEval {
 		return changedText;
 	}
 
-	replaceStrings(text) {
+	_replaceStrings(text) {
 		let changedText = text;
 		const stringMatchs = changedText.match(this.quotedStringRegex) || [];
 		let counter = 0;
 		for (const string of stringMatchs) {
-			const sufix = this.convert(counter);
+			const sufix = this._convert(counter);
 			changedText = changedText.replace(string, '$pwSplit$pwString_' + sufix + '$pwSplit');
 			this.$pwString_[sufix] = string.substring(1, string.length-1);
 			counter = counter + 1;
@@ -133,7 +133,7 @@ class SafeEval {
 		return changedText;
 	}
 
-	evaluateFunction(text) {
+	_evaluateFunction(text) {
 		let changedText = text;
 		const funcMatchs = changedText.match(this.functionRegex) || [];
 
@@ -170,10 +170,10 @@ class SafeEval {
 					// Evaluate the function parameters
 					const recursiveEval = new SafeEval(true);
 					const argsList = recursiveEval.evaluate(params).split(',');
-					funcValue = this.runFunctionWithArgs(window[funcName], argsList);
+					funcValue = this._runFunctionWithArgs(window[funcName], argsList);
 				}
 				if (isNaN(funcValue)) {
-					const sufix = this.convert(counter);
+					const sufix = this._convert(counter);
 					changedText = changedText.replace(func, '$pwSplit$pwFunc_' + sufix + '$pwSplit');
 					this.$pwFunc_[sufix] = funcValue;
 					counter = counter + 1;
@@ -186,7 +186,7 @@ class SafeEval {
 		return changedText;
 	}
 
-	runFunctionWithArgs(f) {
+	_runFunctionWithArgs(f) {
 		// use splice to get all the arguments after 'f'
 		const args = Array.prototype.splice.call(arguments, 1);
 		const newArgs = [];
@@ -202,7 +202,7 @@ class SafeEval {
 		return f.apply(null, newArgs);
 	}
 
-	evaluateMath(text) {
+	_evaluateMath(text) {
 		const mathEval = new MathEval();
 		const mathMatchs = text.match(this.mathExpression) || [];
 		let changedText = text;
@@ -225,7 +225,7 @@ class SafeEval {
 		return changedText;
 	}
 
-	evalVariables(text) {
+	_evalVariables(text) {
 		const originalTextParts = text.split('$pwSplit').filter(i=> i && !i.includes('$pw') && i.replace(' ', ''));
 		let changedText = text;
 		// Remove any $pw, spaces and empty parts
@@ -249,7 +249,7 @@ class SafeEval {
 						}
 						if (varValue !== undefined) {
 							if (isNaN(varValue)) {
-								const sufix = this.convert(counter);
+								const sufix = this._convert(counter);
 								changedSplitedParts[splitedIndex] = changedSplitedParts[splitedIndex].replace(
 									splited, '$pwSplit$pwVar_' + sufix + '$pwSplit');
 								this.$pwVar_[sufix] = varValue;
@@ -272,7 +272,7 @@ class SafeEval {
 	}
 
 	// Convert number to char
-	convert(num) {
+	_convert(num) {
 		return num
 			.toString()    // convert number to string
 			.split('')     // convert string to array of characters
