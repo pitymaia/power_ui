@@ -123,6 +123,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
+		this.safeEval = new SafeEval();
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();

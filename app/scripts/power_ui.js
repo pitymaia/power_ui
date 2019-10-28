@@ -136,13 +136,16 @@ class SharedScope {
 
 // Abstract Power UI Base class
 class _PowerUiBase {
+	constructor() {
+		// Hold temp scopes during templating
+		this._tempScope = {};
+	}
+
 	_createPowerTree() {
 		this.powerTree = new PowerTree(this, _PowerUiBase);
 		this.powerTree._callInit();
 	}
 }
-// Hold temp scopes during templating
-_PowerUiBase.tempScope = {};
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {
@@ -1326,6 +1329,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
+		this.safeEval = new SafeEval();
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
@@ -1650,111 +1654,111 @@ class MathEval {
 
 // Create DOM elements with all ineerHTML for each "for in" or "for of"
 class PowFor extends _PowerBasicElementWithEvents {
-    constructor(element) {
-        super(element);
-        this._$pwActive = false;
-        this._pwEvaluateValue = '';
-    }
+	constructor(element) {
+		super(element);
+		this._$pwActive = false;
+		this._pwEvaluateValue = '';
+	}
 
-    // element attr allow to recursivelly call it with another element
-    compile(element) {
-        if (!this.element.dataset.powFor) {
-            return;
-        }
-        const scope = {};
-        const parts = this.element.dataset.powFor.split(' ');
-        const item = `\\b(${parts[0]})\\b`;
-        const operation = parts[1];
-        // Remove parts[0]
-        parts.shift();
-        // Remove parts[1]
-        parts.shift();
-        // Recreate the final string to evaluate with the remaining parts
-        let obj = parts.join(' ');
-        if (operation === 'in') {
-            // Verify if user type a dictionary direct on the template
-            const objRegex = '{[^]*?}';
-            if (obj.match(objRegex)) {
-                obj = "this._pwEvaluateValue = " + obj;
-            }
-        }
+	// element attr allow to recursivelly call it with another element
+	compile(element) {
+		if (!this.element.dataset.powFor) {
+			return;
+		}
+		const scope = {};
+		const parts = this.element.dataset.powFor.split(' ');
+		const item = `\\b(${parts[0]})\\b`;
+		const operation = parts[1];
+		// Remove parts[0]
+		parts.shift();
+		// Remove parts[1]
+		parts.shift();
+		// Recreate the final string to evaluate with the remaining parts
+		let obj = parts.join(' ');
+		if (operation === 'in') {
+			// Verify if user type a dictionary direct on the template
+			const objRegex = '{[^]*?}';
+			if (obj.match(objRegex)) {
+				obj = "this._pwEvaluateValue = " + obj;
+			}
+		}
 
-        obj = eval(this.$powerUi.interpolation.sanitizeEntry(obj, true));
+		obj = this.$powerUi.safeEval.evaluate(obj);
 
-        if (operation === 'of') {
-            this.forOf(scope, item, obj);
-        } else {
-            this.forIn(scope, item, obj);
-        }
-    }
+		if (operation === 'of') {
+			this.forOf(scope, item, obj);
+		} else {
+			this.forIn(scope, item, obj);
+		}
+	}
 
-    forOf(scope, selector, obj) {
-        let newHtml = '';
-        let pwIndex = 0;
-        const regexPwIndex = new RegExp('pwIndex', 'gm');
-        for (const item of obj || []) {
-            const scope = _Unique.scopeID();
-            const regex = new RegExp(selector, 'gm');
-            // Replace any pwIndex
-            let currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
-            pwIndex = pwIndex + 1;
-            // Replace any value
-            _PowerUiBase.tempScope[scope] = item;
-            newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
-        }
-        this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
-    }
+	forOf(scope, selector, obj) {
+		let newHtml = '';
+		let pwIndex = 0;
+		const regexPwIndex = new RegExp('pwIndex', 'gm');
+		for (const item of obj || []) {
+			const scope = _Unique.scopeID();
+			const regex = new RegExp(selector, 'gm');
+			// Replace any pwIndex
+			let currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
+			pwIndex = pwIndex + 1;
+			// Replace any value
+			this.$powerUi._tempScope[scope] = item;
+			newHtml = newHtml + currentHtml.replace(regex, `$powerUi._tempScope['${scope}']`);
+		}
+		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
+	}
 
-    forIn(scope, selector, obj) {
-        let newHtml = '';
-        let pwIndex = 0;
-        const regexPwIndex = new RegExp('pwIndex', 'gm');
-        const regexPwKey = new RegExp('pwKey', 'gm');
-        for (const pwKey of Object.keys(obj || {})) {
-            const scope = _Unique.scopeID();
-            const regex = new RegExp(selector, 'gm');
-            // Replace any pwKey
-            let currentHtml = this.element.innerHTML.replace(regexPwKey, `'${pwKey}'`);
-            // Replace any pwIndex
-            currentHtml = currentHtml.replace(regexPwIndex, pwIndex);
-            pwIndex = pwIndex + 1;
-            // Replace any value
-            _PowerUiBase.tempScope[scope] = obj[pwKey];
-            newHtml = newHtml + currentHtml.replace(regex, `_PowerUiBase.tempScope['${scope}']`);
-        }
-        this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
-    }
+	forIn(scope, selector, obj) {
+		let newHtml = '';
+		let pwIndex = 0;
+		const regexPwIndex = new RegExp('pwIndex', 'gm');
+		const regexPwKey = new RegExp('pwKey', 'gm');
+		for (const pwKey of Object.keys(obj || {})) {
+			const scope = _Unique.scopeID();
+			const regex = new RegExp(selector, 'gm');
+			// Replace any pwKey
+			let currentHtml = this.element.innerHTML.replace(regexPwKey, `'${pwKey}'`);
+			// Replace any pwIndex
+			currentHtml = currentHtml.replace(regexPwIndex, pwIndex);
+			pwIndex = pwIndex + 1;
+			// Replace any value
+			this.$powerUi._tempScope[scope] = obj[pwKey];
+			newHtml = newHtml + currentHtml.replace(regex, `$powerUi._tempScope['${scope}']`);
+		}
+		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
+	}
 }
 
 // Inject the attr on PowerUi
 _PowerUiBase.injectPow({name: 'data-pow-for',
-    callback: function(element) {return new PowFor(element);}
+	callback: function(element) {return new PowFor(element);}
 });
 
 // Hide DOM element if value is false
 class PowIf extends _PowerBasicElementWithEvents {
-    constructor(element) {
-        super(element);
-        this._$pwActive = false;
-        this.originalHTML = element.innerHTML;
-    }
+	constructor(element) {
+		super(element);
+		this._$pwActive = false;
+		this.originalHTML = element.innerHTML;
+	}
 
-    compile() {
-        const value = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powIf) == 'true';
-        // Hide if element is false
-        if (value === false) {
-            this.element.style.display = 'none';
-            this.element.innerHTML = '';
-        } else {
-            this.element.style.display = null;
-            this.element.innerHTML = this.originalHTML;
-        }
-    }
+	compile() {
+		const value = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powIf) == 'true';
+		// Hide if element is false
+		if (value === false) {
+			this.element.style.display = 'none';
+			this.element.innerHTML = '';
+		} else {
+			this.element.style.display = null;
+			this.element.innerHTML = this.originalHTML;
+		}
+	}
 }
 
 // Inject the attr on PowerUi
 _PowerUiBase.injectPow({name: 'data-pow-if',
-    callback: function(element) {return new PowIf(element);}
+	callback: function(element) {return new PowIf(element);}
 });
 
 // Replace a value form an attribute when is mouseover some element and undo on mouseout
@@ -3061,69 +3065,13 @@ class PowerInterpolation {
 		return innerHTML;
 	}
 
-	// TODO: This is not really safe, just good to use during ALPHA phase of development
-	// remove functions, arrow functions, document.*() and window.*(), script and more
-	sanitizeEntry(entry, noLimit) {
-		if (!noLimit && entry.length > 250) {
-			console.log('Sorry, for security reasons the expressions used in the template cannot contain more than 250 characters.', entry);
-			return;
-		}
-		const REGEXLIST = [
-			/function[^]*?\)/gm,
-			/function/gm,
-			/defineProperty/gm,
-			/prototype/gm,
-			/Object\./gm,
-			/=>[^]*?/gm,
-			/=>/gm,
-			/localStorage/gm,
-			/window\.[^]*?\)/gm,
-			/window/gm,
-			/document\.[^]*?\)/gm,
-			/document/gm,
-			/while/gm,
-			/cookie/gm,
-			/write/gm,
-			/console/gm,
-			/alert\(/gm,
-			/eval[^]*?\)/gm,
-			/eval\(/gm,
-			/eval /gm,
-			/request/gm,
-			/ajaxRequest/gm,
-			/loadTemplateUrl/gm,
-			/XMLHttpRequest/gm,
-			/setRequestHeader/gm,
-			/new[^]*?\)/gm,
-			/new /gm,
-			/<[^]*?script[^]*?>[^]*?<[^]*?\/[^]*?script[^]*?>/gm,
-			/script/gm,
-			/var [^]*?\=/gm,
-			/var /gm,
-			/let [^]*?\=/gm,
-			/let /gm,
-			/const [^]*?\=/gm,
-			/const /gm,
-		];
-
-		let newEntry = entry;
-
-		for (const regex of REGEXLIST) {
-			const match = newEntry.match(new RegExp(regex));
-			if (match && match.length) {
-				console.log('The template interpolation removes some danger or not allowed entry: ', newEntry);
-				newEntry = '';
-			}
-		}
-		return this.safeString(newEntry);
-	}
-
 	safeEvaluate(entry) {
-		let func;
+		// let func;
 		let result;
 		try {
-			func = new Function("return " + this.sanitizeEntry(entry));
-			result = func();
+			// func = new Function("return " + this.sanitizeEntry(entry));
+			// result = func();
+			result = this.$powerUi.safeEval.evaluate(entry);
 		} catch(e) {
 			result = '';
 		}
@@ -3149,43 +3097,6 @@ class PowerView extends _PowerBasicElementWithEvents {
 }
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-view', isMain: true});
-
-window.teste = 'MARAVILHA';
-window.teste2 = 'Segunda';
-window.a = 'charA';
-window.b = 3;
-
-function two() {
-	return 2;
-}
-
-function me(num) {
-	return pitinho + ' ' + num || '';
-}
-
-function pity_bom2(name) {
-	return name || 'Meu nome é Pity';
-}
-
-function couple(name, name2) {
-	return name + ' and ' + name2;
-}
-
-function couple2(name, name2) {
-	return name() + ' and ' + name2();
-}
-
-function you() {
-	return 'André';
-}
-
-function her() {
-	return 'Andréia';
-}
-
-
-var pitinho = 'Pity o bom';
-const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' 'Pi' + 'ty' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her()) 'couple2:' couple2(her, you)`;
 
 class SafeEval {
 	constructor(funcParamsMode) {
@@ -3243,8 +3154,11 @@ class SafeEval {
 		newText = newText.replace(/\$pwSplit/gm, '');
 		// Clean the current dicts with values
 		this._createCleanDicts();
-		console.log('!!!!!!!!!!!! ANTES !!!!', text);
-		console.log('!!!!!!!!!!11 FINAL !!!!', newText);
+		if (!this.funcParamsMode) {
+			console.log('!!!!!!!!!!!! ANTES !!!!', text);
+			console.log('!!!!!!!!!!11 FINAL !!!!', newText);
+		}
+
 		return newText;
 	}
 
@@ -3433,10 +3347,71 @@ class SafeEval {
 			.map(c => String.fromCharCode(c))   // convert char codes to strings
 			.join('');     // join values together
 	}
-}
 
-const safeEval = new SafeEval();
-safeEval.evaluate(text);
+	// remove functions, arrow functions, document.*() and window.*(), script and more
+	sanitizeEntry(entry, noLimit) {
+		if (!noLimit && entry.length > 250) {
+			console.log('Sorry, for security reasons the expressions used in the template cannot contain more than 250 characters.', entry);
+			return;
+		}
+		const REGEXLIST = [
+			/function[^]*?\)/gm,
+			/function /gm,
+			/defineProperty/gm,
+			/prototype/gm,
+			/Object\./gm,
+			/=>[^]*?/gm,
+			/=>/gm,
+			/localStorage/gm,
+			/window[^]*?\)/gm,
+			/window[^]*?\]/gm,
+			/window /gm,
+			/window\./gm,
+			/this[^]*?\)/gm,
+			/this[^]*?\]/gm,
+			/this /gm,
+			/this\./gm,
+			/document[^]*?\)/gm,
+			/document /gm,
+			/document\./gm,
+			/while[^]*?\)/gm,
+			/while /gm,
+			/cookie/gm,
+			/write[^]*?\)/gm,
+			/write /gm,
+			/alert[^]*?\)/gm,
+			/eval[^]*?\)/gm,
+			/eval\(/gm,
+			/eval /gm,
+			/request[^]*?\)/gm,
+			/request /gm,
+			/ajaxRequest/gm,
+			/loadTemplateUrl/gm,
+			/XMLHttpRequest/gm,
+			/setRequestHeader/gm,
+			/new[^]*?\)/gm,
+			/new /gm,
+			/script/gm,
+			/var [^]*?\=/gm,
+			/var /gm,
+			/let [^]*?\=/gm,
+			/let /gm,
+			/const [^]*?\=/gm,
+			/const /gm,
+		];
+
+		let newEntry = entry;
+
+		for (const regex of REGEXLIST) {
+			const match = newEntry.match(new RegExp(regex));
+			if (match && match.length) {
+				console.log('The template interpolation removes some danger or not allowed entry: ', newEntry);
+				newEntry = '';
+			}
+		}
+		return newEntry;
+	}
+}
 
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
@@ -3468,19 +3443,19 @@ safeEval.evaluate(text);
 // let app = new TesteUi();
 
 const someViewTemplate = `<div class="fakemodalback">
-    <div class="fakemodal">
-        <div data-pow-for="cat of cats">
-            <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
-                <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
-            </div>
-            <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
-                <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
-            </div>
-            <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
-            </div>
-        </div>
-        <button onclick="closeModal()">Close</button>
-    </div>
+	<div class="fakemodal">
+		<div data-pow-for="cat of cats">
+			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
+				<span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+			</div>
+			<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
+				<span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+			</div>
+			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
+			</div>
+		</div>
+		<button onclick="closeModal()">Close</button>
+	</div>
 </div>`;
 var teste = 'MARAVILHA!';
 
@@ -3533,11 +3508,11 @@ console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 let oldName = myName;
 function pity() {
-    return myName;
+	return myName;
 }
 console.log(pity());
 function pity2(name, phase) {
-    return name + ' ' + phase;
+	return name + ' ' + phase;
 }
 let currentIf = false;
 function showIf() {

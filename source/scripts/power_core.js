@@ -136,13 +136,16 @@ class SharedScope {
 
 // Abstract Power UI Base class
 class _PowerUiBase {
+	constructor() {
+		// Hold temp scopes during templating
+		this._tempScope = {};
+	}
+
 	_createPowerTree() {
 		this.powerTree = new PowerTree(this, _PowerUiBase);
 		this.powerTree._callInit();
 	}
 }
-// Hold temp scopes during templating
-_PowerUiBase.tempScope = {};
 // The list of pow-attributes with the callback to the classes
 _PowerUiBase._powAttrsConfig = [];
 _PowerUiBase.injectPow = function (powAttr) {

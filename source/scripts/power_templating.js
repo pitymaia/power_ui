@@ -88,69 +88,13 @@ class PowerInterpolation {
 		return innerHTML;
 	}
 
-	// TODO: This is not really safe, just good to use during ALPHA phase of development
-	// remove functions, arrow functions, document.*() and window.*(), script and more
-	sanitizeEntry(entry, noLimit) {
-		if (!noLimit && entry.length > 250) {
-			console.log('Sorry, for security reasons the expressions used in the template cannot contain more than 250 characters.', entry);
-			return;
-		}
-		const REGEXLIST = [
-			/function[^]*?\)/gm,
-			/function/gm,
-			/defineProperty/gm,
-			/prototype/gm,
-			/Object\./gm,
-			/=>[^]*?/gm,
-			/=>/gm,
-			/localStorage/gm,
-			/window\.[^]*?\)/gm,
-			/window/gm,
-			/document\.[^]*?\)/gm,
-			/document/gm,
-			/while/gm,
-			/cookie/gm,
-			/write/gm,
-			/console/gm,
-			/alert\(/gm,
-			/eval[^]*?\)/gm,
-			/eval\(/gm,
-			/eval /gm,
-			/request/gm,
-			/ajaxRequest/gm,
-			/loadTemplateUrl/gm,
-			/XMLHttpRequest/gm,
-			/setRequestHeader/gm,
-			/new[^]*?\)/gm,
-			/new /gm,
-			/<[^]*?script[^]*?>[^]*?<[^]*?\/[^]*?script[^]*?>/gm,
-			/script/gm,
-			/var [^]*?\=/gm,
-			/var /gm,
-			/let [^]*?\=/gm,
-			/let /gm,
-			/const [^]*?\=/gm,
-			/const /gm,
-		];
-
-		let newEntry = entry;
-
-		for (const regex of REGEXLIST) {
-			const match = newEntry.match(new RegExp(regex));
-			if (match && match.length) {
-				console.log('The template interpolation removes some danger or not allowed entry: ', newEntry);
-				newEntry = '';
-			}
-		}
-		return this.safeString(newEntry);
-	}
-
 	safeEvaluate(entry) {
-		let func;
+		// let func;
 		let result;
 		try {
-			func = new Function("return " + this.sanitizeEntry(entry));
-			result = func();
+			// func = new Function("return " + this.sanitizeEntry(entry));
+			// result = func();
+			result = this.$powerUi.safeEval.evaluate(entry);
 		} catch(e) {
 			result = '';
 		}

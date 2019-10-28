@@ -28,19 +28,19 @@
 // let app = new TesteUi();
 
 const someViewTemplate = `<div class="fakemodalback">
-    <div class="fakemodal">
-        <div data-pow-for="cat of cats">
-            <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
-                <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
-            </div>
-            <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
-                <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
-            </div>
-            <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
-            </div>
-        </div>
-        <button onclick="closeModal()">Close</button>
-    </div>
+	<div class="fakemodal">
+		<div data-pow-for="cat of cats">
+			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
+				<span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+			</div>
+			<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
+				<span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+			</div>
+			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
+			</div>
+		</div>
+		<button onclick="closeModal()">Close</button>
+	</div>
 </div>`;
 var teste = 'MARAVILHA!';
 
@@ -93,11 +93,11 @@ console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 let oldName = myName;
 function pity() {
-    return myName;
+	return myName;
 }
 console.log(pity());
 function pity2(name, phase) {
-    return name + ' ' + phase;
+	return name + ' ' + phase;
 }
 let currentIf = false;
 function showIf() {

@@ -1,40 +1,3 @@
-window.teste = 'MARAVILHA';
-window.teste2 = 'Segunda';
-window.a = 'charA';
-window.b = 3;
-
-function two() {
-	return 2;
-}
-
-function me(num) {
-	return pitinho + ' ' + num || '';
-}
-
-function pity_bom2(name) {
-	return name || 'Meu nome é Pity';
-}
-
-function couple(name, name2) {
-	return name + ' and ' + name2;
-}
-
-function couple2(name, name2) {
-	return name() + ' and ' + name2();
-}
-
-function you() {
-	return 'André';
-}
-
-function her() {
-	return 'Andréia';
-}
-
-
-var pitinho = 'Pity o bom';
-const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' 'Pi' + 'ty' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her()) 'couple2:' couple2(her, you)`;
-
 class SafeEval {
 	constructor(funcParamsMode) {
 		// Allow determine if is evaluating funcion parameters to deal with callback functions pass as parameters
@@ -91,8 +54,11 @@ class SafeEval {
 		newText = newText.replace(/\$pwSplit/gm, '');
 		// Clean the current dicts with values
 		this._createCleanDicts();
-		console.log('!!!!!!!!!!!! ANTES !!!!', text);
-		console.log('!!!!!!!!!!11 FINAL !!!!', newText);
+		if (!this.funcParamsMode) {
+			console.log('!!!!!!!!!!!! ANTES !!!!', text);
+			console.log('!!!!!!!!!!11 FINAL !!!!', newText);
+		}
+
 		return newText;
 	}
 
@@ -281,7 +247,68 @@ class SafeEval {
 			.map(c => String.fromCharCode(c))   // convert char codes to strings
 			.join('');     // join values together
 	}
-}
 
-const safeEval = new SafeEval();
-safeEval.evaluate(text);
+	// remove functions, arrow functions, document.*() and window.*(), script and more
+	sanitizeEntry(entry, noLimit) {
+		if (!noLimit && entry.length > 250) {
+			console.log('Sorry, for security reasons the expressions used in the template cannot contain more than 250 characters.', entry);
+			return;
+		}
+		const REGEXLIST = [
+			/function[^]*?\)/gm,
+			/function /gm,
+			/defineProperty/gm,
+			/prototype/gm,
+			/Object\./gm,
+			/=>[^]*?/gm,
+			/=>/gm,
+			/localStorage/gm,
+			/window[^]*?\)/gm,
+			/window[^]*?\]/gm,
+			/window /gm,
+			/window\./gm,
+			/this[^]*?\)/gm,
+			/this[^]*?\]/gm,
+			/this /gm,
+			/this\./gm,
+			/document[^]*?\)/gm,
+			/document /gm,
+			/document\./gm,
+			/while[^]*?\)/gm,
+			/while /gm,
+			/cookie/gm,
+			/write[^]*?\)/gm,
+			/write /gm,
+			/alert[^]*?\)/gm,
+			/eval[^]*?\)/gm,
+			/eval\(/gm,
+			/eval /gm,
+			/request[^]*?\)/gm,
+			/request /gm,
+			/ajaxRequest/gm,
+			/loadTemplateUrl/gm,
+			/XMLHttpRequest/gm,
+			/setRequestHeader/gm,
+			/new[^]*?\)/gm,
+			/new /gm,
+			/script/gm,
+			/var [^]*?\=/gm,
+			/var /gm,
+			/let [^]*?\=/gm,
+			/let /gm,
+			/const [^]*?\=/gm,
+			/const /gm,
+		];
+
+		let newEntry = entry;
+
+		for (const regex of REGEXLIST) {
+			const match = newEntry.match(new RegExp(regex));
+			if (match && match.length) {
+				console.log('The template interpolation removes some danger or not allowed entry: ', newEntry);
+				newEntry = '';
+			}
+		}
+		return newEntry;
+	}
+}
