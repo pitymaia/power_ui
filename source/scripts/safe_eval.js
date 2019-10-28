@@ -19,6 +19,10 @@ function couple(name, name2) {
 	return name + ' and ' + name2;
 }
 
+function couple2(name, name2) {
+	return name() + ' and ' + name2();
+}
+
 function you() {
 	return 'André';
 }
@@ -29,10 +33,13 @@ function her() {
 
 
 var pitinho = 'Pity o bom';
-const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' 'Pi' + 'ty' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her())`;
+const text = `3 + 3 = 6 + 3 - b teste \ 'caralho' 'Pi' + 'ty' teste2 pitinho teste2 'dfggdfg' two() + two() = 4 \`se isso\` 2 + 2 * 1 + 1 / 4 a + "funcion" 2 + 2 * (1 + 1) / 4 'pity_bom2:' pity_bom2('Meu nome é bom'), 'me:' me(5*5), 'couple:' couple(you(), her()) 'couple2:' couple2(her, you)`;
 
 class SafeEval {
-	constructor() {
+	constructor(funcParamsMode) {
+		// Allow determine if is evaluating funcion parameters to deal with callback functions pass as parameters
+		this.funcParamsMode = funcParamsMode ? true : false;
+		// Regex
 		this.plusSignWithSpaces = new RegExp(/\s*[\+]\s*/gm);
 		this.intFloatRegex = new RegExp(/(\d+(\.\d+)?)/gm);
 		this.betweenParenthesesRegex = new RegExp(/\([^\)]*\((.*)\)[^\(]*\)|\((.*?)*\)/gm); // Only works with a single function each time
@@ -144,9 +151,24 @@ class SafeEval {
 					funcValue = window[funcName]();
 				} else {
 					// Get the params without the first and last parentheses ()
-					const params = funcMatch[0].substring(1, funcMatch[0].length-1);
+					let params = funcMatch[0].substring(1, funcMatch[0].length-1);
+					// Temporarily replace any string to remove spaces from params
+					const stringMatchs = params.match(this.quotedStringRegex) || [];
+					let counter = 0;
+					for (const string of stringMatchs) {
+						params = params.replace(string, '$pwTemp_' + counter);
+						counter = counter + 1;
+					}
+					// Remove any spaces
+					params = params.replace(/\s/g, '');
+					// Add the strings back to params
+					counter = 0;
+					for (const string of stringMatchs) {
+						params = params.replace('$pwTemp_' + counter, string);
+						counter = counter + 1;
+					}
 					// Evaluate the function parameters
-					const recursiveEval = new SafeEval();
+					const recursiveEval = new SafeEval(true);
 					const argsList = recursiveEval.evaluate(params).split(',');
 					funcValue = this.runFunctionWithArgs(window[funcName], argsList);
 				}
@@ -165,10 +187,19 @@ class SafeEval {
 	}
 
 	runFunctionWithArgs(f) {
-	  // use splice to get all the arguments after 'f'
-	  const args = Array.prototype.splice.call(arguments, 1);
-	  console.log('arguments', arguments, args[0]);
-	  return f.apply(null, args[0]);
+		// use splice to get all the arguments after 'f'
+		const args = Array.prototype.splice.call(arguments, 1);
+		const newArgs = [];
+		for (const arg of args[0]) {
+			// Pass callback function as arguments
+			if (arg.includes('$pwFuncName_')) {
+				const functionName = arg.replace('$pwFuncName_', '');
+				newArgs.push(window[functionName]);
+			} else {
+				newArgs.push(arg);
+			}
+		}
+		return f.apply(null, newArgs);
 	}
 
 	evaluateMath(text) {
@@ -204,13 +235,18 @@ class SafeEval {
 		for (const part of originalTextParts) {
 			const varMatchs = part.match(this.varRegex) || [];
 			if (varMatchs) {
-				const splitedParts = part.split(' ');
+				const splitedParts = part.split(/[\s,]+/); // Split space or comma
 				let changedSplitedParts = [...splitedParts];
 				let splitedIndex = 0;
 				for (const splited of splitedParts) {
 					const finalMatch = splited.match(this.varRegex) || [];
 					if (splited && finalMatch && finalMatch.length === 1 && finalMatch[0] === splited) {
-						const varValue = window[splited];
+						let varValue = '';
+						if (this.funcParamsMode && window[splited] && window[splited] instanceof Function) {
+							varValue = `$pwFuncName_${splited}`;
+						} else {
+							varValue = window[splited];
+						}
 						if (varValue !== undefined) {
 							if (isNaN(varValue)) {
 								const sufix = this.convert(counter);
