@@ -50,7 +50,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			pwIndex = pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = item;
-			newHtml = newHtml + currentHtml.replace(regex, `$powerUi._tempScope['${scope}']`);
+			newHtml = newHtml + currentHtml.replace(regex, `_tempScope['${scope}']`);
 		}
 		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
 	}
@@ -70,7 +70,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			pwIndex = pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = obj[pwKey];
-			newHtml = newHtml + currentHtml.replace(regex, `$powerUi._tempScope['${scope}']`);
+			newHtml = newHtml + currentHtml.replace(regex, `_tempScope['${scope}']`);
 		}
 		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
 	}
