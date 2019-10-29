@@ -18,15 +18,16 @@
     </div>
     <p>Qual o seu nome? <span data-pow-text="pity()"></span></p>
     <p>Qual o seu nome 2? {{ pity() }}</p>
-    <!-- <p>teste.pity.obj: {{ teste.pity.obj }}</p>
+    <p>teste.pity.obj: {{ teste.pity.obj }}</p>
     <p>teste["pity"]['obj']: {{ teste["pity"]['obj'] }}</p>
     <p>'teste["pity"]["obj"]': {{ 'teste["pity"]["obj"]' }}</p>
     <p>teste["pity"].obj: {{ teste["pity"].obj }}</p>
     <p>teste["pity"][variable]: {{ teste["pity"][variable] }}</p>
     <p>piii.pity.pity: {{ piii.pity.pity }}</p>
+    <p>piii[`pity`]['pity']: {{ piii[`pity`]['pity'] }}</p>
     <p>obj.obj.obj: {{ obj.obj.obj }}</p>
-    <p>teste[piii.pity.pity][obj.obj.obj]: {{ teste[piii.pity.pity][obj.obj.obj] }}</p> -->
-    <p>teste[piii.pity.pity][obj["obj"]["obj"]]: {{ teste[piii.pity.pity][obj["obj"]["obj"]] }}</p>
+    <p>teste[piii.pity.pity][obj.obj.obj]: {{ teste[piii.pity.pity][obj.obj.obj] }}</p>
+    <p>teste[piii['pity'].pity][obj["obj"]["obj"]]: {{ teste[piii['pity'].pity][obj["obj"]["obj"]] }}</p>
     <script src="vendors/jquery-3.2.1.slim.min.js"></script>
     <script src="vendors/popper.min.js"></script>
     <script src="vendors/bootstrap.min.js"></script>

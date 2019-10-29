@@ -39,9 +39,7 @@ class SafeEval {
 
 	// Find a giver var in controller, app or temp scope
 	getVarInScope({name, scope}) {
-		console.log('name: ', name, 'scope: ', scope);
 		if (scope) {
-			console.log('scope[name]', 'name', name, scope[name]);
 			return scope[name];
 		} else {
 			return this.$powerUi[name];
@@ -67,33 +65,24 @@ class SafeEval {
 						// TODO: Need deals with the case if the object key is a variable
 						if(!quotes.includes(part[0])) {
 							// Evaluate the function parameters
-							console.log('%%%%% ANTES ', part, 'counter', counter);
 							const recursiveEval = new SafeEval({$powerUi: this.$powerUi});
 							part = recursiveEval.evaluate(part);
-							console.log('$$$$$ DEPOIS ', part);
 						}
 						value = this.getVarInScope({name: part.replace(/[\"\'\`]/gm, ''), scope: value});
-						console.log('?????? VALUE ', value);
 					}
 					counter = counter + 1;
 				}
 				// Add quotes to value so its not evaluate as variable anymore
 				value = `"${value}"`;
 				changedText = changedText.replace(match, value);
-				console.log('????? É DICIONARIO !!!!', match, dictParts, 'changedText', changedText);
-			} else {
-				console.log('???? É STRING !!!!', match);
 			}
 		}
-
-		// console.log('TEXT', text);
 
 		return changedText;
 	}
 
 	// Get part of both kinds of dicts (house.room.asset) or (house["room"]["asset"])
 	getDictParts(expression) {
-		console.log('expression', expression, expression[0]);
 		const parts = [];
 		let part = '';
 		let brackets = 0;
@@ -115,6 +104,9 @@ class SafeEval {
 				if (char === ']' && brackets > 0) {
 					lastDivider = ']';
 					brackets = brackets - 1;
+					if (brackets !== 0) {
+						part = part + char;
+					}
 				} else if (char !== '.' && char !== '[' && char !== ']') {
 					part = part + char;
 				} else if (char === ']' && brackets === 0) {
@@ -125,8 +117,10 @@ class SafeEval {
 			}
 
 			if (char === '[') {
-				parts.push(part);
-				part = '';
+				if (brackets === 0) {
+					parts.push(part);
+					part = '';
+				}
 				brackets = brackets + 1;
 			}
 		}
@@ -136,7 +130,6 @@ class SafeEval {
 		}
 
 		parts.push(part);
-		console.log('PARTES', parts);
 		return parts;
 	}
 
