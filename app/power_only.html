@@ -962,9 +962,9 @@
     <br />
     <div class="power-main">
         <div id="botoes_teste" data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões absolutos</div>
-        <button onclick="openModal()">Open Modal</button>
-        <button onclick="openSimpleTemplate()">Open simple template</button>
-        <button onclick="gotoIndex()">Back to home</button>
+        <button onclick="app.openModal()">Open Modal</button>
+        <button onclick="app.openSimpleTemplate()">Open simple template</button>
+        <button onclick="app.gotoIndex()">Back to home</button>
         <button id='show-button' class="power-action temp-fixed" data-power-target="show">Show <span class="power-status fa" data-power-active="fa-caret-down" data-power-inactive="fa-caret-right"></span></button>
         <nav id="show"
              class="power-dropmenu"
@@ -1073,7 +1073,7 @@
 <br />
 <div class="power-main" style="width:10em;">
     <div data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões first</div>
-    <button onclick="gotoIndex()">Back to home</button>
+    <button onclick="app.gotoIndex()">Back to home</button>
     <button id="bt-show" class="power-action temp-fixed" data-power-target="showv">Show <span class="power-status fa" data-power-active="fa-caret-down" data-power-inactive="fa-caret-right"></span></button>
     <nav id="showv"
          class="power-dropmenu"
@@ -1125,9 +1125,9 @@
         Esse aqui é footer. <span data-pow-text="pity()"></span>
     </footer>
 </section>
-    <button onclick="changeModel('pwReload')">Change and reload</button>
-    <button onclick="changeModel('hardRefresh')">Change and hardRefresh</button>
-    <button onclick="changeModel('softRefresh')">Change and softRefresh</button>
+    <button onclick="app.changeModel('pwReload')">Change and reload</button>
+    <button onclick="app.changeModel('hardRefresh')">Change and hardRefresh</button>
+    <button onclick="app.changeModel('softRefresh')">Change and softRefresh</button>
     <span>Aqui temos uma interpolação de 2 + 2: </span>
     {{ 2 + 2 }}
 <div class="power-accordion" id="my-accordion" data-multiple-sections-open="false">

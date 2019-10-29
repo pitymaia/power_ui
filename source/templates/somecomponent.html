@@ -122,16 +122,18 @@
         <hr />
         <p data-pow-css-hover="pw-orange">Algum conteúdo de component</p>
         <p>{{ pity() }} 2 + 2 é igual a {{ 2+2 }} e não {{ 2+1 }} {{' teste se' + ' isso é verdade: ' + 'nice evaluate function'}} {{ 2+2 }}</p>
-        <p>2 + 2 é igual a {{
-            2+2
-            }}  e não {{ 2+1 }}
+        <p>2 + 2 é igual a {{2+2 "teste.pity.obj" }}  teste["pity"]["obj"]: {{ teste["pity"]["obj"] }}
+        </p>
+        <p>teste["lu"]["obj"] {{ teste["lu"]["obj"] }} </p>
+        <p>'teste["lu"]["obj"]': {{ 'teste["lu"]["obj"]' }}</p>
+        <p> e não {{ 2+1 "[sdf]" }}
             My age = {{30 + 1 + 8}}
             <br />2 * 5 ={{ 2*5 }}
         </p>
-        <button onclick="changeModel('pwReload')">Change and reload</button>
-        <button onclick="changeModel('hardRefresh')">Change and hardRefresh</button>
-        <button onclick="changeModel('softRefresh')">Change and softRefresh</button>
-        <button onclick="openSimpleTemplate()">Open simple template</button>
-        <button onclick="closeModal()">Close</button>
+        <button onclick="app.changeModel('pwReload')">Change and reload</button>
+        <button onclick="app.changeModel('hardRefresh')">Change and hardRefresh</button>
+        <button onclick="app.changeModel('softRefresh')">Change and softRefresh</button>
+        <button onclick="app.openSimpleTemplate()">Open simple template</button>
+        <button onclick="app.closeModal()">Close</button>
     </div>
 </div>

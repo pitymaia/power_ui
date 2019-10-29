@@ -46,7 +46,6 @@ class MathEval {
 				return b;
 		}
 		calculate(expression) {
-			console.log('EXPRESSITO TO CALCULATE: ', '"' + expression + '"');
 				let match;
 				const values = [],
 						operators = [this._symbols["("].prefix],

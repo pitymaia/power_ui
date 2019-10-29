@@ -92,20 +92,20 @@ console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 let oldName = myName;
-function pity() {
+app.pity = function() {
 	return myName;
 }
-console.log(pity());
-function pity2(name, phase) {
+console.log(app.pity());
+app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
 }
 let currentIf = false;
-function showIf() {
+app.showIf = function() {
 	currentIf = !currentIf;
 	return currentIf;
 }
 
-const cats = [
+app.cats = [
 	{name: 'Riquinho', gender: 'male'},
 	{name: 'Tico', gender: 'male'},
 	{name: 'Drew', gender: 'male'},
@@ -119,25 +119,25 @@ const cats = [
 	{name: 'Florzinha', gender: 'female'},
 	{name: 'Laylita', gender: 'female'},
 ];
-const cands = [
+app.cands = [
 	['bala', 'chiclete'],
 	['brigadeiro', 'cajuzinho'],
 	['bolo', 'torta'],
 ];
 
-const flowers = {
+app.flowers = {
 	Rose: 'Pink',
 	Orchidy: 'White',
 	Violet: 'Blue',
 }
-const languages = {
+app.languages = {
 	good: {name: 'Python', kind: 'Not typed'},
 	hard: {name: 'Java', kind: 'Typed'},
 	bad: {name: 'EcmaScript', kind: 'Not typed'},
 	old: {name: 'COBOL', kind: 'Not typed'},
 	cool: {name: 'C++', kind: 'typed'},
 }
-function getCandNumber(currentCand) {
+app.getCandNumber = function(currentCand) {
 	let count = 1;
 	let position = 0;
 	for (const group of cands) {
@@ -155,7 +155,7 @@ function getCandNumber(currentCand) {
 		count = count + 1;
 	}
 }
-function changeModel(kind) {
+app.changeModel = function(kind) {
 	if (oldName === myName) {
 		myName = 'My name is Bond, James Bond!';
 	} else {
@@ -191,13 +191,13 @@ function changeModel(kind) {
 		app.softRefresh(document);
 	}
 }
-function powerOnly() {
+app.powerOnly = function() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
 }
-function gotoIndex() {
+app.gotoIndex = function() {
 	window.location.replace(app.router.config.rootRoute);
 }
-function closeModal() {
+app.closeModal = function() {
 	const parts = window.location.hash.split('?');
 	let counter = 0;
 	let newHash = parts[0];
@@ -209,7 +209,7 @@ function closeModal() {
 	}
 	window.location.replace(newHash);
 }
-function openModal() {
+app.openModal = function() {
 	let newHash = '?sr=component/andre/aqueda';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
@@ -217,7 +217,7 @@ function openModal() {
 	window.location.replace(window.location.hash + newHash);
 }
 
-function openSimpleTemplate() {
+app.openSimpleTemplate = function() {
 	let newHash = '?sr=simple';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
@@ -226,7 +226,7 @@ function openSimpleTemplate() {
 	window.location.replace(window.location.hash + newHash);
 }
 
-function catOfCats() {
+app.catOfCats = function() {
 	const catsNode = document.getElementById('catofcats');
 	if (catsNode) {
 		console.log('child', catsNode);
@@ -234,7 +234,7 @@ function catOfCats() {
 	// app._events['ready'].unsubscribe(catOfCats);
 }
 
-app._events['ready'].subscribe(catOfCats);
+app._events['ready'].subscribe(app.catOfCats);
 
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {

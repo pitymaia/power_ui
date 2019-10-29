@@ -1325,11 +1325,13 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.variable = 'obj';
+		this.teste = {pity: {obj: true}, lu: {obj: false}};
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.config = config;
-		this.safeEval = new SafeEval();
+		this.safeEval = new SafeEval({$powerUi: this});
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
@@ -1567,7 +1569,6 @@ class MathEval {
 				return b;
 		}
 		calculate(expression) {
-			console.log('EXPRESSITO TO CALCULATE: ', '"' + expression + '"');
 				let match;
 				const values = [],
 						operators = [this._symbols["("].prefix],
@@ -3099,17 +3100,21 @@ class PowerView extends _PowerBasicElementWithEvents {
 PowerUi.injectPowerCss({name: 'power-view', isMain: true});
 
 class SafeEval {
-	constructor(funcParamsMode) {
+	constructor({funcParamsMode, $powerUi}) {
+		this.$powerUi = $powerUi;
 		// Allow determine if is evaluating funcion parameters to deal with callback functions pass as parameters
 		this.funcParamsMode = funcParamsMode ? true : false;
 		// Regex
+		// this.dictionaryRegex = new RegExp(/([^ ])+\.([^ ])+/gm);
+		this.dictionaryRegex = new RegExp(/([^ ])+\.([^ ])+|([^ ])*\[([^\]]*)\]([^ ])*/gm);
 		this.plusSignWithSpaces = new RegExp(/\s*[\+]\s*/gm);
 		this.intFloatRegex = new RegExp(/(\d+(\.\d+)?)/gm);
 		this.betweenParenthesesRegex = new RegExp(/\([^\)]*\((.*)\)[^\(]*\)|\((.*?)*\)/gm); // Only works with a single function each time
 		// this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
 		this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*\([^\)]*\((.*)\)[^\(]*\)|[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
 		this.quotedStringRegex = new RegExp(/(["\'`])(?:\\.|[^\\])*?\1/gm);
-		this.mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
+		// this.mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
+		this.mathExpression = new RegExp(/[^\D]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
 		this.varRegex = new RegExp(/\w*[a-zA-Z_$]\w*/gm);
 
 		// Hold the final values to replace
@@ -3133,11 +3138,103 @@ class SafeEval {
 		return changedText;
 	}
 
+	// Find a giver var in controller, app or temp scope
+	getVarInScope({name, scope}) {
+		console.log('name: ', name, 'scope: ', scope);
+		if (scope) {
+			console.log('scope[name]', 'name', name, scope[name]);
+			return scope[name];
+		} else {
+			return this.$powerUi[name];
+		}
+	}
+
+	_evaluateDictionary(text) {
+		let changedText = text;
+		const quotes = ["'", "`", '"', '['];
+
+		const dictMatch = text.match(this.dictionaryRegex) || [];
+
+		for (const match of dictMatch) {
+			let value = null;
+			// dictionaryRegex may get quoted string, so only evaluate if not a quoted string
+			if (!quotes.includes(match[0]) && !quotes.includes(match[match.length-1])) {
+				const dictParts = this.getDictParts(match);
+				let counter = 0;
+				for (let part of dictParts) {
+					if (counter === 0) {
+						value = this.getVarInScope({name: part});
+					} else {
+						// TODO: Need deals with the case if the object key is a variable
+						if(!quotes.includes(part[0])) {
+							// Evaluate the function parameters
+							const recursiveEval = new SafeEval({$powerUi: this.$powerUi});
+							console.log('%%%%% ANTES ', part);
+							part = recursiveEval.evaluate(part);
+							console.log('$$$$$ DEPOIS ', part);
+						}
+						value = this.getVarInScope({name: part.replace(/[\"\'\`]/gm, ''), scope: value});
+					}
+					counter = counter + 1;
+				}
+				console.log('????? É DICIONARIO !!!!', match, dictParts);
+				changedText = changedText.replace(match, value);
+			} else {
+				console.log('???? É STRING !!!!', match);
+			}
+		}
+
+		// console.log('TEXT', text);
+
+		return changedText;
+	}
+
+	// Get part of both kinds of dicts (house.room.asset) or (house["room"]["asset"])
+	getDictParts(expression) {
+		console.log('expression', expression, expression[0]);
+		const parts = [];
+		let part = '';
+		let brackets = 0;
+		for (const char of expression) {
+			// If using dot notation add quotes to the part name if not the first one
+			if (char === '.' && brackets === 0) {
+				if (parts.length > 0) {
+					part = `"${part}"`;
+				}
+				parts.push(part);
+				part = '';
+			} else if (char === ']' && brackets === 0) {
+				part = part + char;
+				parts.push(part);
+				part = '';
+			} else {
+				if (char === ']' && brackets > 0) {
+					brackets = brackets - 1;
+				} else if (char !== '.' && char !== '[' && char !== ']') {
+					part = part + char;
+				} else if (char === ']' && brackets === 0) {
+					part = part + char;
+				}
+			}
+
+			if (char === '[') {
+				parts.push(part);
+				part = '';
+				brackets = brackets + 1;
+			}
+		}
+		parts.push(part);
+		console.log('PARTES', parts);
+		return parts;
+	}
+
 	evaluate(text) {
 		// ATENTION the order each patter are apply is very important
 		let newText = text;
 
 		newText = this._evaluateFunction(newText);
+
+		newText = this._evaluateDictionary(newText);
 
 		newText = this._replaceStrings(newText);
 
@@ -3154,10 +3251,6 @@ class SafeEval {
 		newText = newText.replace(/\$pwSplit/gm, '');
 		// Clean the current dicts with values
 		this._createCleanDicts();
-		if (!this.funcParamsMode) {
-			console.log('!!!!!!!!!!!! ANTES !!!!', text);
-			console.log('!!!!!!!!!!11 FINAL !!!!', newText);
-		}
 
 		return newText;
 	}
@@ -3209,12 +3302,12 @@ class SafeEval {
 			let funcValue = '';
 			const funcMatch = func.match(this.betweenParenthesesRegex) || [];
 			const funcName = func.replace(funcMatch, '');
-
-			if (window[funcName] && window[funcName] instanceof Function) {
+			const funcObject = this.getVarInScope({name: funcName});
+			if (funcObject && funcObject instanceof Function) {
 				// If function have no params
 				if (funcMatch[0] === '()') {
 					// Just call the function
-					funcValue = window[funcName]();
+					funcValue = funcObject();
 				} else {
 					// Get the params without the first and last parentheses ()
 					let params = funcMatch[0].substring(1, funcMatch[0].length-1);
@@ -3234,9 +3327,9 @@ class SafeEval {
 						counter = counter + 1;
 					}
 					// Evaluate the function parameters
-					const recursiveEval = new SafeEval(true);
+					const recursiveEval = new SafeEval({funcParamsMode: true, $powerUi: this.$powerUi});
 					const argsList = recursiveEval.evaluate(params).split(',');
-					funcValue = this._runFunctionWithArgs(window[funcName], argsList);
+					funcValue = this._runFunctionWithArgs(funcObject, argsList);
 				}
 				if (isNaN(funcValue)) {
 					const sufix = this._convert(counter);
@@ -3259,8 +3352,9 @@ class SafeEval {
 		for (const arg of args[0]) {
 			// Pass callback function as arguments
 			if (arg.includes('$pwFuncName_')) {
-				const functionName = arg.replace('$pwFuncName_', '');
-				newArgs.push(window[functionName]);
+				const funcName = arg.replace('$pwFuncName_', '');
+				const funcObject = this.getVarInScope({name: funcName});
+				newArgs.push(funcObject);
 			} else {
 				newArgs.push(arg);
 			}
@@ -3308,10 +3402,11 @@ class SafeEval {
 					const finalMatch = splited.match(this.varRegex) || [];
 					if (splited && finalMatch && finalMatch.length === 1 && finalMatch[0] === splited) {
 						let varValue = '';
-						if (this.funcParamsMode && window[splited] && window[splited] instanceof Function) {
+						const varObject = this.getVarInScope({name: splited});
+						if (this.funcParamsMode && varObject && varObject instanceof Function) {
 							varValue = `$pwFuncName_${splited}`;
 						} else {
-							varValue = window[splited];
+							varValue = varObject;
 						}
 						if (varValue !== undefined) {
 							if (isNaN(varValue)) {
@@ -3332,8 +3427,6 @@ class SafeEval {
 			changedText = changedText.replace(originalTextParts[partIndex], changedTextParts[partIndex]);
 			partIndex = partIndex + 1;
 		}
-
-		console.log('!!!!!!!!! changedText !!!!!!!!!!!', changedText);
 		return changedText;
 	}
 
@@ -3507,20 +3600,20 @@ console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 let oldName = myName;
-function pity() {
+app.pity = function() {
 	return myName;
 }
-console.log(pity());
-function pity2(name, phase) {
+console.log(app.pity());
+app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
 }
 let currentIf = false;
-function showIf() {
+app.showIf = function() {
 	currentIf = !currentIf;
 	return currentIf;
 }
 
-const cats = [
+app.cats = [
 	{name: 'Riquinho', gender: 'male'},
 	{name: 'Tico', gender: 'male'},
 	{name: 'Drew', gender: 'male'},
@@ -3534,25 +3627,25 @@ const cats = [
 	{name: 'Florzinha', gender: 'female'},
 	{name: 'Laylita', gender: 'female'},
 ];
-const cands = [
+app.cands = [
 	['bala', 'chiclete'],
 	['brigadeiro', 'cajuzinho'],
 	['bolo', 'torta'],
 ];
 
-const flowers = {
+app.flowers = {
 	Rose: 'Pink',
 	Orchidy: 'White',
 	Violet: 'Blue',
 }
-const languages = {
+app.languages = {
 	good: {name: 'Python', kind: 'Not typed'},
 	hard: {name: 'Java', kind: 'Typed'},
 	bad: {name: 'EcmaScript', kind: 'Not typed'},
 	old: {name: 'COBOL', kind: 'Not typed'},
 	cool: {name: 'C++', kind: 'typed'},
 }
-function getCandNumber(currentCand) {
+app.getCandNumber = function(currentCand) {
 	let count = 1;
 	let position = 0;
 	for (const group of cands) {
@@ -3570,7 +3663,7 @@ function getCandNumber(currentCand) {
 		count = count + 1;
 	}
 }
-function changeModel(kind) {
+app.changeModel = function(kind) {
 	if (oldName === myName) {
 		myName = 'My name is Bond, James Bond!';
 	} else {
@@ -3606,13 +3699,13 @@ function changeModel(kind) {
 		app.softRefresh(document);
 	}
 }
-function powerOnly() {
+app.powerOnly = function() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
 }
-function gotoIndex() {
+app.gotoIndex = function() {
 	window.location.replace(app.router.config.rootRoute);
 }
-function closeModal() {
+app.closeModal = function() {
 	const parts = window.location.hash.split('?');
 	let counter = 0;
 	let newHash = parts[0];
@@ -3624,7 +3717,7 @@ function closeModal() {
 	}
 	window.location.replace(newHash);
 }
-function openModal() {
+app.openModal = function() {
 	let newHash = '?sr=component/andre/aqueda';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
@@ -3632,7 +3725,7 @@ function openModal() {
 	window.location.replace(window.location.hash + newHash);
 }
 
-function openSimpleTemplate() {
+app.openSimpleTemplate = function() {
 	let newHash = '?sr=simple';
 	if (!window.location.hash) {
 		newHash = '#!/' + newHash;
@@ -3641,7 +3734,7 @@ function openSimpleTemplate() {
 	window.location.replace(window.location.hash + newHash);
 }
 
-function catOfCats() {
+app.catOfCats = function() {
 	const catsNode = document.getElementById('catofcats');
 	if (catsNode) {
 		console.log('child', catsNode);
@@ -3649,7 +3742,7 @@ function catOfCats() {
 	// app._events['ready'].unsubscribe(catOfCats);
 }
 
-app._events['ready'].subscribe(catOfCats);
+app._events['ready'].subscribe(app.catOfCats);
 
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
