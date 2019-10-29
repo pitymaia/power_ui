@@ -90,7 +90,7 @@
             </div>
         </div>
         <hr />
-        <div data-pow-text="'Doces: (' + (cands.length * 2) + ')'"></div>
+        <div>Doces: (<span data-pow-text="cands.length * 2"></span>)</div>
         <div data-pow-for="cand of cands">
             <div data-pow-for="content of cand" data-pow-css-hover="pw-orange">
                 <div>{{ getCandNumber(content) }} - doce: {{ content }} <span data-pow-if="content === 'brigadeiro'">(Gostoso!)</span></div>

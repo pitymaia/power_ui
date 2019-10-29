@@ -29,7 +29,10 @@ class PowFor extends _PowerBasicElementWithEvents {
 			}
 		}
 
-		obj = this.$powerUi.safeEval.evaluate(obj);
+		console.log('obj ANTES:', obj);
+		// obj = this.$powerUi.safeEval.evaluate(obj);
+		obj = this.$powerUi.safeEval.getVarInScope({name: obj});
+		console.log('obj DEPOIS: scope', scope, 'item', item, 'obj', obj);
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);
@@ -39,6 +42,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 	}
 
 	forOf(scope, selector, obj) {
+		console.log('selector', selector);
 		let newHtml = '';
 		let pwIndex = 0;
 		const regexPwIndex = new RegExp('pwIndex', 'gm');

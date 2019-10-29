@@ -140,9 +140,7 @@ class SafeEval {
 		newText = this._evaluateFunction(newText);
 
 		newText = this._evaluateDictionary(newText);
-
 		newText = this._replaceStrings(newText);
-
 		newText = this._evalVariables(newText);
 		newText = this._evaluateMath(newText);
 
