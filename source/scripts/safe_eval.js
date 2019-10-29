@@ -67,17 +67,20 @@ class SafeEval {
 						// TODO: Need deals with the case if the object key is a variable
 						if(!quotes.includes(part[0])) {
 							// Evaluate the function parameters
+							console.log('%%%%% ANTES ', part, 'counter', counter);
 							const recursiveEval = new SafeEval({$powerUi: this.$powerUi});
-							console.log('%%%%% ANTES ', part);
 							part = recursiveEval.evaluate(part);
 							console.log('$$$$$ DEPOIS ', part);
 						}
 						value = this.getVarInScope({name: part.replace(/[\"\'\`]/gm, ''), scope: value});
+						console.log('?????? VALUE ', value);
 					}
 					counter = counter + 1;
 				}
-				console.log('????? É DICIONARIO !!!!', match, dictParts);
+				// Add quotes to value so its not evaluate as variable anymore
+				value = `"${value}"`;
 				changedText = changedText.replace(match, value);
+				console.log('????? É DICIONARIO !!!!', match, dictParts, 'changedText', changedText);
 			} else {
 				console.log('???? É STRING !!!!', match);
 			}
@@ -94,10 +97,12 @@ class SafeEval {
 		const parts = [];
 		let part = '';
 		let brackets = 0;
+		let lastDivider = '';
 		for (const char of expression) {
-			// If using dot notation add quotes to the part name if not the first one
 			if (char === '.' && brackets === 0) {
-				if (parts.length > 0) {
+				lastDivider = '.';
+				// If using dot notation add quotes to the part name if not the first one
+				if (parts.length !== 0 && !part.includes('.') && !part.includes('[')) {
 					part = `"${part}"`;
 				}
 				parts.push(part);
@@ -108,10 +113,13 @@ class SafeEval {
 				part = '';
 			} else {
 				if (char === ']' && brackets > 0) {
+					lastDivider = ']';
 					brackets = brackets - 1;
 				} else if (char !== '.' && char !== '[' && char !== ']') {
 					part = part + char;
 				} else if (char === ']' && brackets === 0) {
+					part = part + char;
+				} else if (brackets > 0) {
 					part = part + char;
 				}
 			}
@@ -122,6 +130,11 @@ class SafeEval {
 				brackets = brackets + 1;
 			}
 		}
+		// If using dot notation add quotes to the part name if not the first one
+		if (lastDivider === '.' && parts.length !== 0 && !part.includes('.') && !part.includes('[')) {
+			part = `"${part}"`;
+		}
+
 		parts.push(part);
 		console.log('PARTES', parts);
 		return parts;

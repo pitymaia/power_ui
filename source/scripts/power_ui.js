@@ -120,6 +120,8 @@ class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
 		this.variable = 'obj';
+		this.obj = {obj: {obj: 'obj'}};
+		this.piii = {pity: {pity: 'pity'}};
 		this.teste = {pity: {obj: true}, lu: {obj: false}};
 		this.waitingViews = 0;
 		this.waitingInit = [];
