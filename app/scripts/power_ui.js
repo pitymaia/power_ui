@@ -2992,7 +2992,7 @@ class PowerInterpolation {
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template) {
-		return this.compile(`${this.startSymbol} ${template} ${this.endSymbol}`);
+		return this.compile(`${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`);
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -3020,7 +3020,7 @@ class PowerInterpolation {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
 				const innerTEXT = this.getInterpolationValue(entry);
-				const value = `<span data-pow-text="${this.stripInterpolation(entry).trim()}"
+				const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
 					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
 
