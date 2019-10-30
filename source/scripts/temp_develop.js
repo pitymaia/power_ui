@@ -39,7 +39,7 @@ const someViewTemplate = `<div class="fakemodalback">
 			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
 			</div>
 		</div>
-		<button onclick="closeModal()">Close</button>
+		<button onclick="app.closeModal()">Close</button>
 	</div>
 </div>`;
 var teste = 'MARAVILHA!';
@@ -129,6 +129,8 @@ app.flowers = {
 	Rose: 'Pink',
 	Orchidy: 'White',
 	Violet: 'Blue',
+	Daisy: 'Yellow',
+
 }
 app.languages = {
 	good: {name: 'Python', kind: 'Not typed'},
@@ -164,24 +166,24 @@ app.changeModel = function(kind) {
 		oldName = changeName;
 	}
 	if (myName == 'My name is Bond, James Bond!') {
-		languages.garbage = {name: 'PHP', kind: 'Not typed'};
+		app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
 	} else {
-		delete languages.garbage;
+		delete app.languages.garbage;
 	}
-	console.log(myName, pity(), 'currentIf', currentIf);
-	if (cats.length === 12) {
-		console.log('12 gatos', cats[10]);
-		cats[10].name = 'Luke';
-		cats[10].gender = 'male';
-		cats.push({name: 'Floquinho', gender: 'male'});
-		cats.push({name: '4 gatinhos', gender: 'unknow'});
-		cands.push(['caramelo', 'pirulito']);
-		cands.push(['pipoca', 'cocada']);
+	console.log(myName, app.pity(), 'currentIf', currentIf);
+	if (app.cats.length === 12) {
+		console.log('12 gatos', app.cats[10]);
+		app.cats[10].name = 'Luke';
+		app.cats[10].gender = 'male';
+		app.cats.push({name: 'Floquinho', gender: 'male'});
+		app.cats.push({name: '4 gatinhos', gender: 'unknow'});
+		app.cands.push(['caramelo', 'pirulito']);
+		app.cands.push(['pipoca', 'cocada']);
 	} else {
-		cats[10].name = 'Florzinha';
-		cats[10].gender = 'female';
-		cats.pop();
-		cands.pop();
+		app.cats[10].name = 'Florzinha';
+		app.cats[10].gender = 'female';
+		app.cats.pop();
+		app.cands.pop();
 	}
 	if (kind === 'pwReload') {
 		app.pwReload();

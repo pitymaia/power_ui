@@ -7,8 +7,9 @@ class PowIf extends _PowerBasicElementWithEvents {
 	}
 
 	compile() {
-		const value = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powIf) == 'true';
+		const value = this.$powerUi.safeEval.evaluate(this.element.dataset.powIf) == 'true';
 		// Hide if element is false
+		console.log('value', value, this.element.dataset.powIf);
 		if (value === false) {
 			this.element.style.display = 'none';
 			this.element.innerHTML = '';

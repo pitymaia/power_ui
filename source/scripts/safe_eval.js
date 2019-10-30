@@ -15,6 +15,7 @@ class SafeEval {
 		// this.mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
 		this.mathExpression = new RegExp(/[^\D]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
 		this.varRegex = new RegExp(/\w*[a-zA-Z_$]\w*/gm);
+		this.equalRegex = new RegExp(/([^ ]+) (?:===|==) ([^ \n])+|([^ !<>]+)(?:===|==)([^ \n=!><])+/gm);
 
 		// Hold the final values to replace
 		this.dictNames = ['$pwVar_', '$pwNumber_', '$pwString_', '$pwFunc_'];
@@ -152,10 +153,29 @@ class SafeEval {
 
 		// Clean text from helper string
 		newText = newText.replace(/\$pwSplit/gm, '');
+
+		newText = this._evaluateTruth(newText);
+
 		// Clean the current dicts with values
 		this._createCleanDicts();
 
 		return newText;
+	}
+
+	_evaluateTruth(text) {
+		let changedText = text;
+		const equalMatchs = changedText.match(this.equalRegex)  || [];
+		let value = '';
+
+		for (const expression of equalMatchs) {
+			const parts = expression.split(/(?:===|==)/gm)
+			if (parts.length === 2) {
+				value = parts[0].trim() === parts[1].trim();
+			}
+			changedText = changedText.replace(expression, value);
+		}
+
+		return changedText;
 	}
 
 	// Concatenate any remaining plus sign (+) by removing it with the surround spaces
