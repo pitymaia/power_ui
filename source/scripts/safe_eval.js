@@ -13,7 +13,7 @@ class SafeEval {
 		this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*\([^\)]*\((.*)\)[^\(]*\)|[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
 		this.quotedStringRegex = new RegExp(/(["\'`])(?:\\.|[^\\])*?\1/gm);
 		// this.mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
-		this.mathExpression = new RegExp(/[^\D]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
+		this.mathExpression = new RegExp(/[^\D]( ){0,}([!^+-/*()\d]( ){0,}[0-9()]*( ){0,})*/gm);
 		this.varRegex = new RegExp(/\w*[a-zA-Z_$]\w*/gm);
 		this.equalRegex = new RegExp(/([^ ]+) (?:===|==) ([^ \n])+|([^ !<>]+)(?:===|==)([^ \n=!><])+/gm);
 
@@ -47,7 +47,7 @@ class SafeEval {
 		}
 	}
 
-	_evaluateDictionary(text) {
+	_evaluateDictionary(text, asObj) {
 		let changedText = text;
 		const quotes = ["'", "`", '"', '['];
 
@@ -65,13 +65,16 @@ class SafeEval {
 					} else {
 						// TODO: Need deals with the case if the object key is a variable
 						if(!quotes.includes(part[0])) {
-							// Evaluate the function parameters
+							// Evaluate the variable key
 							const recursiveEval = new SafeEval({$powerUi: this.$powerUi});
 							part = recursiveEval.evaluate(part);
 						}
 						value = this.getVarInScope({name: part.replace(/[\"\'\`]/gm, ''), scope: value});
 					}
 					counter = counter + 1;
+				}
+				if (asObj) {
+					return value;
 				}
 				// Add quotes to value so its not evaluate as variable anymore
 				value = `"${value}"`;
@@ -153,13 +156,34 @@ class SafeEval {
 
 		// Clean text from helper string
 		newText = newText.replace(/\$pwSplit/gm, '');
-
 		newText = this._evaluateTruth(newText);
 
 		// Clean the current dicts with values
 		this._createCleanDicts();
 
 		return newText;
+	}
+
+	getObject(name) {
+		let obj = name;
+
+		const funcMatchs = obj.match(this.functionRegex) || [];
+		if (funcMatchs.length) {
+			obj = this._evaluateFunction(obj);
+			return obj;
+		}
+
+		const dictMatch = obj.match(this.dictionaryRegex) || [];
+		if (dictMatch.length) {
+			obj = this._evaluateDictionary(obj, true);
+			return obj;
+		}
+
+		let valueKey = this._evalVariables(obj).replace(/\$pwSplit/gm, '');
+		valueKey = valueKey.replace(/\$pwVar_/gm, '');
+		obj = this.$pwVar_[valueKey];
+
+		return obj;
 	}
 
 	_evaluateTruth(text) {
@@ -304,7 +328,6 @@ class SafeEval {
 			const value = mathEval.calculate(expression);
 			changedText = changedText.replace(expression, value);
 		}
-
 		return changedText;
 	}
 

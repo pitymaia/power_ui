@@ -99,10 +99,10 @@ console.log(app.pity());
 app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
 }
-let currentIf = false;
+app.currentIf = false;
 app.showIf = function() {
-	currentIf = !currentIf;
-	return currentIf;
+	app.currentIf = !app.currentIf;
+	return app.currentIf;
 }
 
 app.cats = [
@@ -140,22 +140,16 @@ app.languages = {
 	cool: {name: 'C++', kind: 'typed'},
 }
 app.getCandNumber = function(currentCand) {
-	let count = 1;
-	let position = 0;
-	for (const group of cands) {
-		let innerCount = 0;
+	app.candCounter = 1;
+	for (const group of app.cands) {
 		for (const cand of group) {
 			if (cand === currentCand) {
-				position = count;
-				return position;
+				return app.candCounter;
 			}
-			if (innerCount === 0) {
-				count = count + 1;
-				innerCount = innerCount + 1;
-			}
+			app.candCounter = app.candCounter + 1;
 		}
-		count = count + 1;
 	}
+	return app.candCounter;
 }
 app.changeModel = function(kind) {
 	if (oldName === myName) {
@@ -170,9 +164,8 @@ app.changeModel = function(kind) {
 	} else {
 		delete app.languages.garbage;
 	}
-	console.log(myName, app.pity(), 'currentIf', currentIf);
+	app.showIf();
 	if (app.cats.length === 12) {
-		console.log('12 gatos', app.cats[10]);
 		app.cats[10].name = 'Luke';
 		app.cats[10].gender = 'male';
 		app.cats.push({name: 'Floquinho', gender: 'male'});

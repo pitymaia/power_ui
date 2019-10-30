@@ -1686,10 +1686,8 @@ class PowFor extends _PowerBasicElementWithEvents {
 			}
 		}
 
-		console.log('obj ANTES:', obj);
-		// obj = this.$powerUi.safeEval.evaluate(obj);
-		obj = this.$powerUi.safeEval.getVarInScope({name: obj});
-		console.log('obj DEPOIS: scope', scope, 'item', item, 'obj', obj);
+		const safeEval = new SafeEval({$powerUi: this.$powerUi});
+		obj = safeEval.getObject(obj);
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);
@@ -1699,7 +1697,6 @@ class PowFor extends _PowerBasicElementWithEvents {
 	}
 
 	forOf(scope, selector, obj) {
-		console.log('selector', selector);
 		let newHtml = '';
 		let pwIndex = 0;
 		const regexPwIndex = new RegExp('pwIndex', 'gm');
@@ -1753,7 +1750,6 @@ class PowIf extends _PowerBasicElementWithEvents {
 	compile() {
 		const value = this.$powerUi.safeEval.evaluate(this.element.dataset.powIf) == 'true';
 		// Hide if element is false
-		console.log('value', value, this.element.dataset.powIf);
 		if (value === false) {
 			this.element.style.display = 'none';
 			this.element.innerHTML = '';
@@ -3121,7 +3117,7 @@ class SafeEval {
 		this.functionRegex = new RegExp(/[a-zA-Z_$][a-zA-Z_$0-9 ]*\([^\)]*\((.*)\)[^\(]*\)|[a-zA-Z_$][a-zA-Z_$0-9 ]*(\([^]*?\))/gm);
 		this.quotedStringRegex = new RegExp(/(["\'`])(?:\\.|[^\\])*?\1/gm);
 		// this.mathExpression = new RegExp(/[^A-Za-zÀ-ÖØ-öø-ÿ\n '"`=$&%#@_\-\\|?~,.;:!°\[\]!^+-/*(){}ª]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
-		this.mathExpression = new RegExp(/[^\D]( ){0,}([!^+-/*()]( ){0,}[0-9()]*( ){0,})*/gm);
+		this.mathExpression = new RegExp(/[^\D]( ){0,}([!^+-/*()\d]( ){0,}[0-9()]*( ){0,})*/gm);
 		this.varRegex = new RegExp(/\w*[a-zA-Z_$]\w*/gm);
 		this.equalRegex = new RegExp(/([^ ]+) (?:===|==) ([^ \n])+|([^ !<>]+)(?:===|==)([^ \n=!><])+/gm);
 
@@ -3155,7 +3151,7 @@ class SafeEval {
 		}
 	}
 
-	_evaluateDictionary(text) {
+	_evaluateDictionary(text, asObj) {
 		let changedText = text;
 		const quotes = ["'", "`", '"', '['];
 
@@ -3173,13 +3169,16 @@ class SafeEval {
 					} else {
 						// TODO: Need deals with the case if the object key is a variable
 						if(!quotes.includes(part[0])) {
-							// Evaluate the function parameters
+							// Evaluate the variable key
 							const recursiveEval = new SafeEval({$powerUi: this.$powerUi});
 							part = recursiveEval.evaluate(part);
 						}
 						value = this.getVarInScope({name: part.replace(/[\"\'\`]/gm, ''), scope: value});
 					}
 					counter = counter + 1;
+				}
+				if (asObj) {
+					return value;
 				}
 				// Add quotes to value so its not evaluate as variable anymore
 				value = `"${value}"`;
@@ -3261,13 +3260,34 @@ class SafeEval {
 
 		// Clean text from helper string
 		newText = newText.replace(/\$pwSplit/gm, '');
-
 		newText = this._evaluateTruth(newText);
 
 		// Clean the current dicts with values
 		this._createCleanDicts();
 
 		return newText;
+	}
+
+	getObject(name) {
+		let obj = name;
+
+		const funcMatchs = obj.match(this.functionRegex) || [];
+		if (funcMatchs.length) {
+			obj = this._evaluateFunction(obj);
+			return obj;
+		}
+
+		const dictMatch = obj.match(this.dictionaryRegex) || [];
+		if (dictMatch.length) {
+			obj = this._evaluateDictionary(obj, true);
+			return obj;
+		}
+
+		let valueKey = this._evalVariables(obj).replace(/\$pwSplit/gm, '');
+		valueKey = valueKey.replace(/\$pwVar_/gm, '');
+		obj = this.$pwVar_[valueKey];
+
+		return obj;
 	}
 
 	_evaluateTruth(text) {
@@ -3412,7 +3432,6 @@ class SafeEval {
 			const value = mathEval.calculate(expression);
 			changedText = changedText.replace(expression, value);
 		}
-
 		return changedText;
 	}
 
@@ -3638,10 +3657,10 @@ console.log(app.pity());
 app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
 }
-let currentIf = false;
+app.currentIf = false;
 app.showIf = function() {
-	currentIf = !currentIf;
-	return currentIf;
+	app.currentIf = !app.currentIf;
+	return app.currentIf;
 }
 
 app.cats = [
@@ -3679,22 +3698,16 @@ app.languages = {
 	cool: {name: 'C++', kind: 'typed'},
 }
 app.getCandNumber = function(currentCand) {
-	let count = 1;
-	let position = 0;
-	for (const group of cands) {
-		let innerCount = 0;
+	app.candCounter = 1;
+	for (const group of app.cands) {
 		for (const cand of group) {
 			if (cand === currentCand) {
-				position = count;
-				return position;
+				return app.candCounter;
 			}
-			if (innerCount === 0) {
-				count = count + 1;
-				innerCount = innerCount + 1;
-			}
+			app.candCounter = app.candCounter + 1;
 		}
-		count = count + 1;
 	}
+	return app.candCounter;
 }
 app.changeModel = function(kind) {
 	if (oldName === myName) {
@@ -3709,9 +3722,8 @@ app.changeModel = function(kind) {
 	} else {
 		delete app.languages.garbage;
 	}
-	console.log(myName, app.pity(), 'currentIf', currentIf);
+	app.showIf();
 	if (app.cats.length === 12) {
-		console.log('12 gatos', app.cats[10]);
 		app.cats[10].name = 'Luke';
 		app.cats[10].gender = 'male';
 		app.cats.push({name: 'Floquinho', gender: 'male'});
