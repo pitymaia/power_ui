@@ -1669,7 +1669,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 		const scope = {};
-		const parts = this.element.dataset.powFor.split(' ');
+		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
 		// Remove parts[0]
@@ -1708,7 +1708,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			pwIndex = pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = item;
-			newHtml = newHtml + currentHtml.replace(regex, `_tempScope['${scope}']`);
+			newHtml = newHtml + currentHtml.replace(regex, encodeURIComponent(`_tempScope['${scope}']`));
 		}
 		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
 	}
@@ -1748,7 +1748,7 @@ class PowIf extends _PowerBasicElementWithEvents {
 	}
 
 	compile() {
-		const value = this.$powerUi.safeEval.evaluate(this.element.dataset.powIf) == 'true';
+		const value = this.$powerUi.safeEval.evaluate(decodeURIComponent(this.element.dataset.powIf)) == 'true';
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
@@ -3075,7 +3075,7 @@ class PowerInterpolation {
 		try {
 			// func = new Function("return " + this.sanitizeEntry(entry));
 			// result = func();
-			result = this.$powerUi.safeEval.evaluate(entry);
+			result = this.$powerUi.safeEval.evaluate(decodeURIComponent(entry));
 		} catch(e) {
 			result = '';
 		}

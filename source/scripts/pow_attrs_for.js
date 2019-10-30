@@ -12,7 +12,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 		const scope = {};
-		const parts = this.element.dataset.powFor.split(' ');
+		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
 		// Remove parts[0]
@@ -51,7 +51,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			pwIndex = pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = item;
-			newHtml = newHtml + currentHtml.replace(regex, `_tempScope['${scope}']`);
+			newHtml = newHtml + currentHtml.replace(regex, encodeURIComponent(`_tempScope['${scope}']`));
 		}
 		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
 	}
