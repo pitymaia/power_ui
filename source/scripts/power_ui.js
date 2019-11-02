@@ -119,14 +119,10 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.variable = 'obj';
-		this.obj = {obj: {obj: 'obj'}};
-		this.piii = {pity: {pity: 'pity'}};
-		this.teste = {pity: {obj: true}, lu: {obj: false}};
+		this.config = config;
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this.config = config;
 		this.safeEval = new SafeEval({$powerUi: this});
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);

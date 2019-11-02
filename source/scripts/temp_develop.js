@@ -105,6 +105,11 @@ app.showIf = function() {
 	return app.currentIf;
 }
 
+app.variable = 'obj';
+app.obj = {obj: {obj: 'obj'}};
+app.piii = {pity: {pity: 'pity'}};
+app.teste = {pity: {obj: true}, lu: {obj: false}};
+
 app.cats = [
 	{name: 'Riquinho', gender: 'male'},
 	{name: 'Tico', gender: 'male'},
@@ -231,6 +236,17 @@ app.catOfCats = function() {
 
 app._events['ready'].subscribe(app.catOfCats);
 
+app.num = function (num) {
+	return num;
+}
+
+new PowerLexer({text: ` 2+ 2 =4
+
+
+	`});
+new PowerLexer({text: '5 + app.num(5)'});
+
+new PowerLexer({text: '     "  5 +  app.num(5) "'});
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {
