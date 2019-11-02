@@ -240,13 +240,16 @@ app.num = function (num) {
 	return num;
 }
 
+new PowerLexer({text: '     "  5 +  app.num(5) "'});
+new PowerLexer({text: '   pity1 '});
+
 new PowerLexer({text: ` 2+ 2 =4
 
 
 	`});
 new PowerLexer({text: '5 + app.num(5)'});
 
-new PowerLexer({text: '     "  5 +  app.num(5) "'});
+
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {

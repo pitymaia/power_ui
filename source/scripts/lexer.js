@@ -4,7 +4,7 @@ class PowerLexer {
 		this.tokensTable = tokensTable || [
 			{name: 'blank', values: [' ', '\t', '\n']},
 			{name: 'escape', values: ['\\']},
-			{name: 'ambiguous', values: ['!', '&', '?', ':']},
+			{name: 'especial', values: ['_', '$']},
 			{name: 'quote', values: ['"', '`', "'"]},
 			{name: 'separator', values: ['(', ')', '[', ']', '{', '}', '.']},
 			{name: 'operator', values: ['+', '-', '*', '/', '%', '^', '|', '=', '<', '>']},
@@ -17,6 +17,7 @@ class PowerLexer {
 				'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
 				'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 			},
+			{name: 'ambiguous', values: ['!', '&', '?', ':']},
 		];
 
 		this.syntaxHelper = this.emptySyntaxHelper();
@@ -45,38 +46,72 @@ class PowerLexer {
 	}
 
 	identifySyntaxElements(token) {
+		let found = false;
 		if (this.syntaxHelper.discardEmpty && token.name === 'blank') {
 			return;
 		}
-
-		this.caseString(token);
+		if (!found && (this.syntaxHelper.candidate === 'string' || this.syntaxHelper.candidate === null)) {
+			found = this.caseString(token);
+		}
+		if (!found && (this.syntaxHelper.candidate === 'variable' || this.syntaxHelper.candidate === null)) {
+			found = this.caseVariable(token);
+		}
 	}
 
 	emptySyntaxHelper() {
+		const self = this;
 		return {
 			discardEmpty: true,
+			candidate: null,
 			open: null,
 			escape: null,
 			elementTokens: [],
 			nodes: [],
+			reset: function () {
+				self.syntaxHelper.open = null;
+				self.syntaxHelper.discardEmpty = true;
+				self.syntaxHelper.candidate === null;
+			},
+		}
+	}
+
+	caseVariable(token) {
+		if ((token.name === 'letter' || token.name === 'especial') && !this.syntaxHelper.open && !this.syntaxHelper.candidate) {
+			this.syntaxHelper.discardEmpty = false;
+			this.syntaxHelper.open = token.value;
+			this.syntaxHelper.candidate = 'variable';
+			this.syntaxHelper.elementTokens.push(token);
+		} else if ((token.name === 'letter' || token.name === 'especial' || token.name === 'number') && this.syntaxHelper.open) {
+			this.syntaxHelper.elementTokens.push(token);
+		} else if (token.name === 'blank' && this.syntaxHelper.open) {
+			let varName = '';
+			for (const t of this.syntaxHelper.elementTokens) {
+				varName = varName + t.value;
+			}
+			this.syntaxHelper.nodes.push({syntax: 'variable', tokens: this.syntaxHelper.elementTokens, varName: varName});
+			this.syntaxHelper.reset();
+			console.log('IS VARIABLE:', this.syntaxHelper.nodes[0].varName, this.syntaxHelper.nodes);
+		} else {
+
 		}
 	}
 
 	caseString(token) {
-		if (token.name === 'quote' && !this.syntaxHelper.open) {
+		if (token.name === 'quote' && !this.syntaxHelper.open && !this.syntaxHelper.candidate) {
 			this.syntaxHelper.discardEmpty = false;
 			this.syntaxHelper.open = token.value;
+			this.syntaxHelper.candidate = 'string';
 			this.syntaxHelper.elementTokens.push(token);
 		} else if (token.name === 'quote' && (token.value !== this.syntaxHelper.open || this.syntaxHelper.escape === true)) {
 			this.syntaxHelper.elementTokens.push(token);
 		} else if (token.name === 'quote' && (token.value === this.syntaxHelper.open && this.syntaxHelper.escape === null)) {
 			this.syntaxHelper.elementTokens.push(token);
-			this.syntaxHelper.open = null;
 			let string = '';
 			for (const t of this.syntaxHelper.elementTokens) {
 				string = string + t.value;
 			}
 			this.syntaxHelper.nodes.push({syntax: 'string', tokens: this.syntaxHelper.elementTokens, value: string});
+			this.syntaxHelper.reset();
 			console.log('IS ISTRING:', this.syntaxHelper.nodes[0].value, this.syntaxHelper.nodes);
 		} else if (this.syntaxHelper.open) {
 			this.syntaxHelper.elementTokens.push(token);
