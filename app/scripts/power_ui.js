@@ -1519,9 +1519,51 @@ class PowerUi extends _PowerUiBase {
 	}
 }
 
+class SyntaxTree {
+	constructor() {
+		this.discardEmpty = true;
+		this.candidate = null;
+		this.open = null;
+		this.escape = null;
+		this.currentTokens = [];
+		this.nodes = [];
+	}
+
+	resetTempAttrs() {
+		this.open = null;
+		this.discardEmpty = true;
+		this.candidate === null;
+	}
+}
+
 class PowerLexer {
 	constructor({text, tokensTable}) {
 		this.originalText = String(text);
+		this.syntaxTree = new SyntaxTree();
+		this.tokens = [];
+	}
+
+	scan() {
+		for (const char of this.originalText) {
+			const token = this.convertToToken(char);
+			this.tokens.push(token);
+		}
+	}
+
+	convertToToken(char) {
+		for (const kind of this.tokensTable) {
+			if (kind.values.includes(char)) {
+				return {name: kind.name, value: char};
+			}
+		}
+
+		return {name: 'undefined', value: char};
+	}
+}
+
+class PowerTemplateLexer extends PowerLexer{
+	constructor({text, tokensTable}) {
+		super({text, tokensTable});
 		this.tokensTable = tokensTable || [
 			{name: 'blank', values: [' ', '\t', '\n']},
 			{name: 'escape', values: ['\\']},
@@ -1540,103 +1582,105 @@ class PowerLexer {
 			},
 			{name: 'ambiguous', values: ['!', '&', '?', ':']},
 		];
-
-		this.syntaxHelper = this.emptySyntaxHelper();
 		this.scan();
 	}
 
 	scan() {
 		console.log('originalText', this.originalText);
-		const tokens = [];
+		let counter = 0;
 		for (const char of this.originalText) {
 			const token = this.convertToToken(char);
-			tokens.push(token);
-			const syntax = this.identifySyntaxElements(token);
+			this.tokens.push(token);
+			this.identifySyntaxElements(token, counter);
+			counter = counter + 1;
 		}
-		console.log('tokens', tokens);
 	}
 
-	convertToToken(char) {
-		for (const kind of this.tokensTable) {
-			if (kind.values.includes(char)) {
-				return {name: kind.name, value: char};
-			}
-		}
-
-		return {name: 'undefined', value: char};
-	}
-
-	identifySyntaxElements(token) {
+	identifySyntaxElements(token, counter) {
 		let found = false;
-		if (this.syntaxHelper.discardEmpty && token.name === 'blank') {
+		if (this.syntaxTree.discardEmpty && token.name === 'blank') {
 			return;
 		}
-		if (!found && (this.syntaxHelper.candidate === 'string' || this.syntaxHelper.candidate === null)) {
+		if (!found && (this.syntaxTree.candidate === 'string' || this.syntaxTree.candidate === null)) {
 			found = this.caseString(token);
+			// If the string name ends before have a quote
+			// Any wrong syntax is cast as string, so the string can end without a final quote
+			if (!found && this.syntaxTree.candidate === 'string' && counter === this.originalText.length -1) {
+				this.setAsString();
+			}
 		}
-		if (!found && (this.syntaxHelper.candidate === 'variable' || this.syntaxHelper.candidate === null)) {
+		if (!found && (this.syntaxTree.candidate === 'variable' || this.syntaxTree.candidate === null)) {
 			found = this.caseVariable(token);
+			// If the variable name ends before have a space or enter
+			if (!found && this.syntaxTree.candidate === 'variable' && counter === this.originalText.length -1) {
+				this.setAsVar();
+			}
 		}
-	}
-
-	emptySyntaxHelper() {
-		const self = this;
-		return {
-			discardEmpty: true,
-			candidate: null,
-			open: null,
-			escape: null,
-			elementTokens: [],
-			nodes: [],
-			reset: function () {
-				self.syntaxHelper.open = null;
-				self.syntaxHelper.discardEmpty = true;
-				self.syntaxHelper.candidate === null;
-			},
+		if (!found && (this.syntaxTree.candidate === 'function' || this.syntaxTree.candidate === null)) {
+			console.log('maybe is a function', token.value);
+			// found = this.caseString(token);
 		}
 	}
 
 	caseVariable(token) {
-		if ((token.name === 'letter' || token.name === 'especial') && !this.syntaxHelper.open && !this.syntaxHelper.candidate) {
-			this.syntaxHelper.discardEmpty = false;
-			this.syntaxHelper.open = token.value;
-			this.syntaxHelper.candidate = 'variable';
-			this.syntaxHelper.elementTokens.push(token);
-		} else if ((token.name === 'letter' || token.name === 'especial' || token.name === 'number') && this.syntaxHelper.open) {
-			this.syntaxHelper.elementTokens.push(token);
-		} else if (token.name === 'blank' && this.syntaxHelper.open) {
-			let varName = '';
-			for (const t of this.syntaxHelper.elementTokens) {
-				varName = varName + t.value;
-			}
-			this.syntaxHelper.nodes.push({syntax: 'variable', tokens: this.syntaxHelper.elementTokens, varName: varName});
-			this.syntaxHelper.reset();
-			console.log('IS VARIABLE:', this.syntaxHelper.nodes[0].varName, this.syntaxHelper.nodes);
+		if ((token.name === 'letter' || token.name === 'especial') && !this.syntaxTree.open && !this.syntaxTree.candidate) {
+			this.syntaxTree.discardEmpty = false;
+			this.syntaxTree.open = token.value;
+			this.syntaxTree.candidate = 'variable';
+			this.syntaxTree.currentTokens.push(token);
+		} else if ((token.name === 'letter' || token.name === 'especial' || token.name === 'number') && this.syntaxTree.open) {
+			this.syntaxTree.currentTokens.push(token);
+		} else if (token.name === 'blank' && this.syntaxTree.open) {
+			this.setAsVar();
+			return true;
+		// This maybe a dictionary
+		} else if (token.name === 'separator' && (token.value === '.' || token.value === '[') && this.syntaxTree.open) {
+			this.syntaxTree.candidate = 'dictionary';
+		// This maybe a function
+		} else if (token.name === 'separator' && (token.value === '(') && this.syntaxTree.open) {
+			this.syntaxTree.candidate = 'function';
+		// If have any other kind of char set this as a string
 		} else {
-
+			this.syntaxTree.currentTokens.push(token);
+			this.syntaxTree.candidate = 'string';
 		}
 	}
 
-	caseString(token) {
-		if (token.name === 'quote' && !this.syntaxHelper.open && !this.syntaxHelper.candidate) {
-			this.syntaxHelper.discardEmpty = false;
-			this.syntaxHelper.open = token.value;
-			this.syntaxHelper.candidate = 'string';
-			this.syntaxHelper.elementTokens.push(token);
-		} else if (token.name === 'quote' && (token.value !== this.syntaxHelper.open || this.syntaxHelper.escape === true)) {
-			this.syntaxHelper.elementTokens.push(token);
-		} else if (token.name === 'quote' && (token.value === this.syntaxHelper.open && this.syntaxHelper.escape === null)) {
-			this.syntaxHelper.elementTokens.push(token);
-			let string = '';
-			for (const t of this.syntaxHelper.elementTokens) {
-				string = string + t.value;
-			}
-			this.syntaxHelper.nodes.push({syntax: 'string', tokens: this.syntaxHelper.elementTokens, value: string});
-			this.syntaxHelper.reset();
-			console.log('IS ISTRING:', this.syntaxHelper.nodes[0].value, this.syntaxHelper.nodes);
-		} else if (this.syntaxHelper.open) {
-			this.syntaxHelper.elementTokens.push(token);
+	setAsVar() {
+		let varName = '';
+		for (const t of this.syntaxTree.currentTokens) {
+			varName = varName + t.value;
 		}
+		this.syntaxTree.nodes.push({syntax: 'variable', tokens: this.syntaxTree.currentTokens, varName: varName});
+		this.syntaxTree.resetTempAttrs();
+		console.log('IS VARIABLE:', this.syntaxTree.nodes[0].varName, this.syntaxTree.nodes);
+	}
+
+	caseString(token) {
+		if (token.name === 'quote' && !this.syntaxTree.open && !this.syntaxTree.candidate) {
+			this.syntaxTree.discardEmpty = false;
+			this.syntaxTree.open = token.value;
+			this.syntaxTree.candidate = 'string';
+			this.syntaxTree.currentTokens.push(token);
+		} else if (token.name === 'quote' && (token.value !== this.syntaxTree.open || this.syntaxTree.escape === true)) {
+			this.syntaxTree.currentTokens.push(token);
+		} else if (token.name === 'quote' && (token.value === this.syntaxTree.open && this.syntaxTree.escape === null)) {
+			this.syntaxTree.currentTokens.push(token);
+			this.setAsString();
+			return true;
+		} else if (this.syntaxTree.open) {
+			this.syntaxTree.currentTokens.push(token);
+		}
+	}
+
+	setAsString() {
+		let string = '';
+		for (const t of this.syntaxTree.currentTokens) {
+			string = string + t.value;
+		}
+		this.syntaxTree.nodes.push({syntax: 'string', tokens: this.syntaxTree.currentTokens, value: string});
+		this.syntaxTree.resetTempAttrs();
+		console.log('IS ISTRING:', this.syntaxTree.nodes[0].value, this.syntaxTree.nodes);
 	}
 }
 
@@ -3915,14 +3959,10 @@ app.num = function (num) {
 	return num;
 }
 
-new PowerLexer({text: '     "  5 +  app.num(5) "'});
-new PowerLexer({text: '   pity1 '});
-
-new PowerLexer({text: ` 2+ 2 =4
-
-
-	`});
-new PowerLexer({text: '5 + app.num(5)'});
+new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
+new PowerTemplateLexer({text: '   pity1 '});
+new PowerTemplateLexer({text: 'pity1'});
+new PowerTemplateLexer({text: 'pity;()'});
 
 
 

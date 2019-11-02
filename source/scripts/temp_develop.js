@@ -240,14 +240,10 @@ app.num = function (num) {
 	return num;
 }
 
-new PowerLexer({text: '     "  5 +  app.num(5) "'});
-new PowerLexer({text: '   pity1 '});
-
-new PowerLexer({text: ` 2+ 2 =4
-
-
-	`});
-new PowerLexer({text: '5 + app.num(5)'});
+new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
+new PowerTemplateLexer({text: '   pity1 '});
+new PowerTemplateLexer({text: 'pity1'});
+new PowerTemplateLexer({text: 'pity;()'});
 
 
 
