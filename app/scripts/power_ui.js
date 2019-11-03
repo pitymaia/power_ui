@@ -1597,6 +1597,7 @@ class PowerTemplateLexer extends PowerLexer{
 	}
 
 	identifySyntaxElements(token, counter) {
+		// console.log('TOKEN', token.value, token);
 		let found = false;
 		if (this.syntaxTree.discardEmpty && token.name === 'blank') {
 			return;
@@ -1664,10 +1665,16 @@ class PowerTemplateLexer extends PowerLexer{
 			this.syntaxTree.currentTokens.push(token);
 		} else if (token.name === 'quote' && (token.value !== this.syntaxTree.open || this.syntaxTree.escape === true)) {
 			this.syntaxTree.currentTokens.push(token);
+			this.syntaxTree.escape = null;
 		} else if (token.name === 'quote' && (token.value === this.syntaxTree.open && this.syntaxTree.escape === null)) {
 			this.syntaxTree.currentTokens.push(token);
 			this.setAsString();
 			return true;
+		} else if (token.name === 'escape' && this.syntaxTree.escape === null) {
+			this.syntaxTree.escape = true;
+		} else if (token.name === 'escape' && this.syntaxTree.escape === true) {
+			this.syntaxTree.currentTokens.push(token);
+			this.syntaxTree.escape = null;
 		} else if (this.syntaxTree.open) {
 			this.syntaxTree.currentTokens.push(token);
 		}
@@ -3960,9 +3967,11 @@ app.num = function (num) {
 }
 
 new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
+new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 new PowerTemplateLexer({text: '   pity1 '});
 new PowerTemplateLexer({text: 'pity1'});
-new PowerTemplateLexer({text: 'pity;()'});
+new PowerTemplateLexer({text: 'pity;:?'});
+new PowerTemplateLexer({text: 'pity()'});
 
 
 
