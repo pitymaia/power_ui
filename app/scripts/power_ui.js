@@ -1521,15 +1521,17 @@ class PowerUi extends _PowerUiBase {
 
 class SyntaxTree {
 	constructor() {
-		this.discardEmpty = true;
+		this.nodes = [];
+		this.escape = false;
 		this.candidate = false;
 		this.open = false;
-		this.escape = false;
+		this.discardEmpty = true;
 		this.currentTokens = [];
-		this.nodes = [];
+		this.currentNodeIndex = false;
 	}
 
 	resetTempAttrs() {
+		this.currentNodeIndex = false;
 		this.open = false;
 		this.discardEmpty = true;
 		this.candidate = false;
@@ -1595,6 +1597,8 @@ class PowerTemplateLexer extends PowerLexer{
 			this.identifySyntaxElements(token, counter);
 			counter = counter + 1;
 		}
+
+		console.log('this.syntaxTree', this.syntaxTree);
 	}
 
 	identifySyntaxElements(token, counter) {
@@ -1611,33 +1615,29 @@ class PowerTemplateLexer extends PowerLexer{
 				this.setAsString();
 			}
 		}
-		if (!found && (this.syntaxTree.candidate === 'variable' || this.syntaxTree.candidate === false)) {
-			found = this.caseVariable(token);
+		if (!found && (this.syntaxTree.candidate === 'variable' || this.syntaxTree.candidate === 'dotDict' || this.syntaxTree.candidate === false)) {
+			found = this.caseVariableOrDictNode(token);
 			// If the variable name ends before have a space or enter
-			if (!found && this.syntaxTree.candidate === 'variable' && counter === this.originalText.length -1) {
-				this.setAsVar();
+			if (!found && counter === this.originalText.length -1) {
+				this.setAsVarOrDictNode({end: true});
 				found = true;
 			}
 		}
-		if (!found && (this.syntaxTree.candidate === 'dotDict' || this.syntaxTree.candidate === false)) {
-			console.log('maybe is a dot dictionary');
-			found = this.caseDotDict(token);
-		}
-		if (!found && (this.syntaxTree.candidate === 'braketDict' || this.syntaxTree.candidate === false)) {
-			console.log('maybe is a braket dictionary');
-			// found = this.caseString(token);
-		}
+		// if (!found && (this.syntaxTree.candidate === 'dotDict' || this.syntaxTree.candidate === false)) {
+		// 	console.log('maybe is a dot dictionary');
+		// 	found = this.caseDotDict(token);
+		// }
+		// if (!found && (this.syntaxTree.candidate === 'braketDict' || this.syntaxTree.candidate === false)) {
+		// 	console.log('maybe is a braket dictionary');
+		// 	// found = this.caseString(token);
+		// }
 		if (!found && (this.syntaxTree.candidate === 'function' || this.syntaxTree.candidate === false)) {
 			console.log('maybe is a function');
 			// found = this.caseString(token);
 		}
 	}
 
-	caseDotDict(token) {
-		console.log('first dotDict', '"'+token.value+'"', this.tokens);
-	}
-
-	caseVariable(token) {
+	caseVariableOrDictNode(token) {
 		if ((token.name === 'letter' || token.name === 'especial') && !this.syntaxTree.open && !this.syntaxTree.candidate) {
 			this.syntaxTree.discardEmpty = false;
 			this.syntaxTree.open = token.value;
@@ -1646,12 +1646,13 @@ class PowerTemplateLexer extends PowerLexer{
 		} else if ((token.name === 'letter' || token.name === 'especial' || token.name === 'number') && this.syntaxTree.open) {
 			this.syntaxTree.currentTokens.push(token);
 		} else if (token.name === 'blank' && this.syntaxTree.open) {
-			this.setAsVar();
+			this.setAsVarOrDictNode({end: true});
 			return true;
 		// This maybe a dictionary
 		} else if (token.name === 'separator' && (token.value === '.' || token.value === '[') && this.syntaxTree.open) {
 			if (token.value === '.') {
 				this.syntaxTree.candidate = 'dotDict';
+				this.setDotDictNode({end: false});
 			} else {
 				this.syntaxTree.candidate = 'braketDict';
 			}
@@ -1665,6 +1666,38 @@ class PowerTemplateLexer extends PowerLexer{
 		}
 	}
 
+	setDotDictNode({end}) {
+		let varName = '';
+		for (const t of this.syntaxTree.currentTokens) {
+			varName = varName + t.value;
+		}
+		if (this.syntaxTree.currentNodeIndex === false) {
+			this.syntaxTree.nodes.push({
+				syntax: 'dictionary',
+				nodes: [{
+					syntax: 'variable',
+					tokens: this.syntaxTree.currentTokens,
+					label: varName,
+					separator: '.',
+				}],
+			});
+			this.syntaxTree.currentNodeIndex = this.syntaxTree.nodes.length - 1;
+		} else {
+			this.syntaxTree.nodes[this.syntaxTree.currentNodeIndex].nodes.push({
+				syntax: 'variable',
+				tokens: this.syntaxTree.currentTokens,
+				label: varName,
+				separator: end ? null : '.',
+			})
+		}
+		this.syntaxTree.currentTokens = [];
+
+		if (end) {
+			this.syntaxTree.currentNodeIndex = false;
+			console.log('IS DICT:', this.syntaxTree.currentNodeIndex, this.syntaxTree.nodes[this.syntaxTree.nodes.length-1], this.syntaxTree.nodes);
+		}
+	}
+
 	setAsVar() {
 		let varName = '';
 		for (const t of this.syntaxTree.currentTokens) {
@@ -1673,6 +1706,14 @@ class PowerTemplateLexer extends PowerLexer{
 		this.syntaxTree.nodes.push({syntax: 'variable', tokens: this.syntaxTree.currentTokens, label: varName});
 		this.syntaxTree.resetTempAttrs();
 		console.log('IS VARIABLE:', this.syntaxTree.nodes[this.syntaxTree.nodes.length-1], this.syntaxTree.nodes);
+	}
+
+	setAsVarOrDictNode({end}) {
+		if (this.syntaxTree.candidate === 'variable') {
+			this.setAsVar();
+		} else {
+			this.setDotDictNode({end: end});
+		}
 	}
 
 	caseString(token) {
@@ -3986,12 +4027,12 @@ app.num = function (num) {
 	return num;
 }
 
-new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
-new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
-new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
+// new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
+// new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
+// new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
 new PowerTemplateLexer({text: 'pity1'});
-new PowerTemplateLexer({text: 'pity;:?'});
-new PowerTemplateLexer({text: 'pity.pato '});
+// new PowerTemplateLexer({text: 'pity;:?'});
+new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
 
 
