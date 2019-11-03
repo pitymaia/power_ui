@@ -1671,6 +1671,7 @@ class PowerTemplateLexer extends PowerLexer{
 		for (const t of this.syntaxTree.currentTokens) {
 			varName = varName + t.value;
 		}
+		// If is the first node
 		if (this.syntaxTree.currentNodeIndex === false) {
 			this.syntaxTree.nodes.push({
 				syntax: 'dictionary',
