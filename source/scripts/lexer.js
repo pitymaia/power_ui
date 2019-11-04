@@ -5,19 +5,18 @@ class SyntaxTree {
 }
 
 class StringPattern {
-	constructor(listner) {
-		this.listner = listner;
+	constructor(listener) {
+		this.listener = listener;
 		this.openQuote = null;
 		this.escape = false;
 	}
 
 	// Condition to start check if is a string
-	firstToken(token) {
+	firstToken({token, counter}) {
 		if (['quote'].includes(token.name)) {
 			this.openQuote = token.value;
-			this.listner.candidates = this.listner.candidates.filter(c=> c.name === 'string');
-			this.listner.checking = 'middleTokens';
-			console.log('string is true', token, this.listner);
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'string');
+			this.listener.selector = '2';
 			return true;
 		} else {
 			return false;
@@ -25,7 +24,7 @@ class StringPattern {
 	}
 
 	// middle tokens condition
-	middleTokens(token) {
+	middleTokens({token, counter}) {
 		if (token.value !== this.openQuote && token.name !== 'end') {
 			if (token.name === 'escape') {
 				this.escape = true;
@@ -36,37 +35,46 @@ class StringPattern {
 				this.escape = false;
 			} else {
 				this.openQuote = null;
-				this.listner.checking = 'endToken';
+				this.listener.selector = '3';
 			}
 			return true;
 		} else {
-			console.log('string is false', token);
 			return false;
 		}
 	}
 
 	// end condition
-	endToken(token) {
-		if (['end', 'blank'].includes(token.name)) {
-			console.log('string is end', token, this.listner);
-			return true;
+	endToken({token, counter}) {
+		if (['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
+			return false;
 		}
 	}
 }
 
 class EmptyPattern {
-	constructor(listner) {
-		this.listner = listner;
+	constructor(listener) {
+		this.listener = listener;
 	}
 
 	// Condition to start check if is empty chars
-	firstToken(token) {
+	firstToken({token, counter}) {
 		if (['blank'].includes(token.name)) {
 			console.log('empty is true', token);
-			listner.candidates
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'empty');
+			this.listener.selector = '2';
 			return true;
 		} else {
-			console.log('empty is false', token);
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		if (['blank'].includes(token.name)) {
+			return true;
+		} else {
+			this.listener.nextPattern({syntax: 'empty', token: token, counter: counter});
 			return false;
 		}
 	}
@@ -75,35 +83,54 @@ class EmptyPattern {
 class TokensListener {
 	constructor() {
 		this.nodes = [];
-		this.firstToken = true;
 		this.currentTokens = [];
-		this.start = null;
-		this.end = null;
+		this.currentLabel = '';
+		this.start = 0;
 		this.patterns = [
 			{name: 'empty', obj: EmptyPattern},
 			{name: 'string', obj: StringPattern},
 		];
 		this.candidates = [];
-		this.checking = 'firstToken';
+		this.checking = {
+			'1': 'firstToken',
+			'2': 'middleTokens',
+			'3': 'endToken',
+		};
+		this.selector = '1';
 
 		this.resetCandidates();
 	}
 
 	read({token, counter}) {
 		for (const candidate of this.candidates) {
-			if (candidate.instance[this.checking](token)) {
+			if (candidate.instance[this.checking[this.selector]]({token: token, counter: counter})) {
+				this.currentTokens.push(token);
+				this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
 				return;
 			}
 		}
 	}
 
-	nextPattern() {
+	nextPattern({token, counter, syntax}) {
+		this.nodes.push({
+			syntax: syntax,
+			label: this.currentLabel,
+			tokens: this.currentTokens,
+			start: this.start,
+			end: counter,
+		});
+		console.log('this.nodes: ', this.nodes, 'token', token.name, this.currentTokens);
+		this.start = counter +1;
 		this.currentTokens = [];
-		this.start = null;
-		this.end = null;
+		this.currentLabel = '';
+		this.selector = '1';
+		this.resetCandidates();
+
+		this.read({token, counter});
 	}
 
 	resetCandidates() {
+		this.candidates = [];
 		for (const candidate of this.patterns) {
 			this.candidates.push({name: candidate.name, instance: new candidate.obj(this)});
 		}
