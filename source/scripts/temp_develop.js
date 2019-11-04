@@ -243,9 +243,9 @@ app.num = function (num) {
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'pity1'});
+new PowerTemplateLexer({text: '"pity1"'});
 // new PowerTemplateLexer({text: 'pity;:?'});
-new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
+// new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
 
 

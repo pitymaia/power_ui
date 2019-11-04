@@ -1,20 +1,112 @@
 class SyntaxTree {
 	constructor() {
-		this.nodes = [];
+		this.tokensListener = new TokensListener();
+	}
+}
+
+class StringPattern {
+	constructor(listner) {
+		this.listner = listner;
+		this.openQuote = null;
 		this.escape = false;
-		this.candidate = false;
-		this.open = false;
-		this.discardEmpty = true;
-		this.currentTokens = [];
-		this.currentNodeIndex = false;
 	}
 
-	resetTempAttrs() {
-		this.currentNodeIndex = false;
-		this.open = false;
-		this.discardEmpty = true;
-		this.candidate = false;
+	// Condition to start check if is a string
+	firstToken(token) {
+		if (['quote'].includes(token.name)) {
+			this.openQuote = token.value;
+			this.listner.candidates = this.listner.candidates.filter(c=> c.name === 'string');
+			this.listner.checking = 'middleTokens';
+			console.log('string is true', token, this.listner);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens(token) {
+		if (token.value !== this.openQuote && token.name !== 'end') {
+			if (token.name === 'escape') {
+				this.escape = true;
+			}
+			return true;
+		} else if (token.value === this.openQuote) {
+			if (token.name === 'escape') {
+				this.escape = false;
+			} else {
+				this.openQuote = null;
+				this.listner.checking = 'endToken';
+			}
+			return true;
+		} else {
+			console.log('string is false', token);
+			return false;
+		}
+	}
+
+	// end condition
+	endToken(token) {
+		if (['end', 'blank'].includes(token.name)) {
+			console.log('string is end', token, this.listner);
+			return true;
+		}
+	}
+}
+
+class EmptyPattern {
+	constructor(listner) {
+		this.listner = listner;
+	}
+
+	// Condition to start check if is empty chars
+	firstToken(token) {
+		if (['blank'].includes(token.name)) {
+			console.log('empty is true', token);
+			listner.candidates
+			return true;
+		} else {
+			console.log('empty is false', token);
+			return false;
+		}
+	}
+}
+
+class TokensListener {
+	constructor() {
+		this.nodes = [];
+		this.firstToken = true;
 		this.currentTokens = [];
+		this.start = null;
+		this.end = null;
+		this.patterns = [
+			{name: 'empty', obj: EmptyPattern},
+			{name: 'string', obj: StringPattern},
+		];
+		this.candidates = [];
+		this.checking = 'firstToken';
+
+		this.resetCandidates();
+	}
+
+	read({token, counter}) {
+		for (const candidate of this.candidates) {
+			if (candidate.instance[this.checking](token)) {
+				return;
+			}
+		}
+	}
+
+	nextPattern() {
+		this.currentTokens = [];
+		this.start = null;
+		this.end = null;
+	}
+
+	resetCandidates() {
+		for (const candidate of this.patterns) {
+			this.candidates.push({name: candidate.name, instance: new candidate.obj(this)});
+		}
 	}
 }
 
@@ -30,6 +122,7 @@ class PowerLexer {
 			const token = this.convertToToken(char);
 			this.tokens.push(token);
 		}
+		this.tokens.push({name: 'end', value: null});
 	}
 
 	convertToToken(char) {
@@ -63,6 +156,7 @@ class PowerTemplateLexer extends PowerLexer{
 				'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 			},
 			{name: 'ambiguous', values: ['!', '&', '?', ':']},
+			{name: 'end', values: [null]},
 		];
 		this.scan();
 	}
@@ -73,161 +167,14 @@ class PowerTemplateLexer extends PowerLexer{
 		for (const char of this.originalText) {
 			const token = this.convertToToken(char);
 			this.tokens.push(token);
-			this.identifySyntaxElements(token, counter);
+			this.syntaxTree.tokensListener.read({token: token, counter: counter});
 			counter = counter + 1;
 		}
-
+		// Add an end token to the stream end
+		const token = this.convertToToken(null);
+		this.tokens.push(token);
+		this.syntaxTree.tokensListener.read({token: token, counter: counter});
 		console.log('this.syntaxTree', this.syntaxTree);
 	}
 
-	identifySyntaxElements(token, counter) {
-		// console.log('TOKEN', token.value, token);
-		let found = false;
-		if (this.syntaxTree.discardEmpty && token.name === 'blank') {
-			return;
-		}
-		if (!found && (this.syntaxTree.candidate === 'string' || this.syntaxTree.candidate === false)) {
-			found = this.caseString(token);
-			// If the string name ends before have a quote
-			// Any wrong syntax is cast as string, so the string can end without a final quote
-			if (!found && this.syntaxTree.candidate === 'string' && counter === this.originalText.length -1) {
-				this.setAsString();
-			}
-		}
-		if (!found && (this.syntaxTree.candidate === 'variable' || this.syntaxTree.candidate === 'dotDict' || this.syntaxTree.candidate === false)) {
-			found = this.caseVariableOrDictNode(token);
-			// If the variable name ends before have a space or enter
-			if (!found && counter === this.originalText.length -1) {
-				this.setAsVarOrDictNode({end: true});
-				found = true;
-			}
-		}
-		// if (!found && (this.syntaxTree.candidate === 'dotDict' || this.syntaxTree.candidate === false)) {
-		// 	console.log('maybe is a dot dictionary');
-		// 	found = this.caseDotDict(token);
-		// }
-		// if (!found && (this.syntaxTree.candidate === 'braketDict' || this.syntaxTree.candidate === false)) {
-		// 	console.log('maybe is a braket dictionary');
-		// 	// found = this.caseString(token);
-		// }
-		if (!found && (this.syntaxTree.candidate === 'function' || this.syntaxTree.candidate === false)) {
-			console.log('maybe is a function');
-			// found = this.caseString(token);
-		}
-	}
-
-	caseVariableOrDictNode(token) {
-		if ((token.name === 'letter' || token.name === 'especial') && !this.syntaxTree.open && !this.syntaxTree.candidate) {
-			this.syntaxTree.discardEmpty = false;
-			this.syntaxTree.open = token.value;
-			this.syntaxTree.candidate = 'variable';
-			this.syntaxTree.currentTokens.push(token);
-		} else if ((token.name === 'letter' || token.name === 'especial' || token.name === 'number') && this.syntaxTree.open) {
-			this.syntaxTree.currentTokens.push(token);
-		} else if (token.name === 'blank' && this.syntaxTree.open) {
-			this.setAsVarOrDictNode({end: true});
-			return true;
-		// This maybe a dictionary
-		} else if (token.name === 'separator' && (token.value === '.' || token.value === '[') && this.syntaxTree.open) {
-			if (token.value === '.') {
-				this.syntaxTree.candidate = 'dotDict';
-				this.setDotDictNode({end: false});
-			} else {
-				this.syntaxTree.candidate = 'braketDict';
-			}
-		// This maybe a function
-		} else if (token.name === 'separator' && (token.value === '(') && this.syntaxTree.open) {
-			this.syntaxTree.candidate = 'function';
-		// If have any other kind of char set this as a string
-		} else {
-			this.syntaxTree.currentTokens.push(token);
-			this.syntaxTree.candidate = 'string';
-		}
-	}
-
-	setDotDictNode({end}) {
-		let varName = '';
-		for (const t of this.syntaxTree.currentTokens) {
-			varName = varName + t.value;
-		}
-		// If is the first node
-		if (this.syntaxTree.currentNodeIndex === false) {
-			this.syntaxTree.nodes.push({
-				syntax: 'dictionary',
-				nodes: [{
-					syntax: 'variable',
-					tokens: this.syntaxTree.currentTokens,
-					label: varName,
-					separator: '.',
-				}],
-			});
-			this.syntaxTree.currentNodeIndex = this.syntaxTree.nodes.length - 1;
-		} else {
-			this.syntaxTree.nodes[this.syntaxTree.currentNodeIndex].nodes.push({
-				syntax: 'variable',
-				tokens: this.syntaxTree.currentTokens,
-				label: varName,
-				separator: end ? null : '.',
-			})
-		}
-		this.syntaxTree.currentTokens = [];
-
-		if (end) {
-			this.syntaxTree.currentNodeIndex = false;
-			console.log('IS DICT:', this.syntaxTree.currentNodeIndex, this.syntaxTree.nodes[this.syntaxTree.nodes.length-1], this.syntaxTree.nodes);
-		}
-	}
-
-	setAsVar() {
-		let varName = '';
-		for (const t of this.syntaxTree.currentTokens) {
-			varName = varName + t.value;
-		}
-		this.syntaxTree.nodes.push({syntax: 'variable', tokens: this.syntaxTree.currentTokens, label: varName});
-		this.syntaxTree.resetTempAttrs();
-		console.log('IS VARIABLE:', this.syntaxTree.nodes[this.syntaxTree.nodes.length-1], this.syntaxTree.nodes);
-	}
-
-	setAsVarOrDictNode({end}) {
-		if (this.syntaxTree.candidate === 'variable') {
-			this.setAsVar();
-		} else {
-			this.setDotDictNode({end: end});
-		}
-	}
-
-	caseString(token) {
-		if (token.name === 'quote' && !this.syntaxTree.open && !this.syntaxTree.candidate) {
-			this.syntaxTree.discardEmpty = false;
-			this.syntaxTree.open = token.value;
-			this.syntaxTree.candidate = 'string';
-			this.syntaxTree.currentTokens.push(token);
-		} else if (token.name === 'quote' && (token.value !== this.syntaxTree.open || this.syntaxTree.escape === true)) {
-			this.syntaxTree.currentTokens.push(token);
-			this.syntaxTree.escape = false;
-		} else if (token.name === 'quote' && (token.value === this.syntaxTree.open && this.syntaxTree.escape === false)) {
-			this.syntaxTree.currentTokens.push(token);
-			this.syntaxTree.open = ' '; // Set open to space so it's end in the next blank char
-		} else if (token.name === 'blank' && this.syntaxTree.open === ' ') {
-			this.setAsString();
-			return true;
-		} else if (token.name === 'escape' && this.syntaxTree.escape === false) {
-			this.syntaxTree.escape = true;
-		} else if (token.name === 'escape' && this.syntaxTree.escape === true) {
-			this.syntaxTree.currentTokens.push(token);
-			this.syntaxTree.escape = false;
-		} else if (this.syntaxTree.open || this.syntaxTree.open === ' ') {
-			this.syntaxTree.currentTokens.push(token);
-		}
-	}
-
-	setAsString() {
-		let string = '';
-		for (const t of this.syntaxTree.currentTokens) {
-			string = string + t.value;
-		}
-		this.syntaxTree.nodes.push({syntax: 'string', tokens: this.syntaxTree.currentTokens, label: string});
-		this.syntaxTree.resetTempAttrs();
-		console.log('IS ISTRING:', this.syntaxTree.nodes[this.syntaxTree.nodes.length-1], this.syntaxTree.nodes);
-	}
 }
