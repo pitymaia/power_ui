@@ -1537,7 +1537,7 @@ class StringPattern {
 		if (['quote'].includes(token.name)) {
 			this.openQuote = token.value;
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'string');
-			this.listener.selector = '2';
+			this.listener.checking = 'middleTokens';
 			return true;
 		} else {
 			return false;
@@ -1556,7 +1556,7 @@ class StringPattern {
 				this.escape = false;
 			} else {
 				this.openQuote = null;
-				this.listener.selector = '3';
+				this.listener.checking = 'endToken';
 			}
 			return true;
 		} else {
@@ -1580,10 +1580,10 @@ class EmptyPattern {
 
 	// Condition to start check if is empty chars
 	firstToken({token, counter}) {
-		if (['blank'].includes(token.name)) {
+		if (token.name === 'blank') {
 			console.log('empty is true', token);
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'empty');
-			this.listener.selector = '2';
+			this.listener.checking = 'middleTokens';
 			return true;
 		} else {
 			return false;
@@ -1592,7 +1592,7 @@ class EmptyPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		if (['blank'].includes(token.name)) {
+		if (token.name === 'blank') {
 			return true;
 		} else {
 			this.listener.nextPattern({syntax: 'empty', token: token, counter: counter});
@@ -1612,19 +1612,14 @@ class TokensListener {
 			{name: 'string', obj: StringPattern},
 		];
 		this.candidates = [];
-		this.checking = {
-			'1': 'firstToken',
-			'2': 'middleTokens',
-			'3': 'endToken',
-		};
-		this.selector = '1';
+		this.checking = 'firstToken';
 
 		this.resetCandidates();
 	}
 
 	read({token, counter}) {
 		for (const candidate of this.candidates) {
-			if (candidate.instance[this.checking[this.selector]]({token: token, counter: counter})) {
+			if (candidate.instance[this.checking]({token: token, counter: counter})) {
 				this.currentTokens.push(token);
 				this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
 				return;
@@ -1641,10 +1636,10 @@ class TokensListener {
 			end: counter,
 		});
 		console.log('this.nodes: ', this.nodes, 'token', token.name, this.currentTokens);
-		this.start = counter +1;
+		this.start = counter;
 		this.currentTokens = [];
 		this.currentLabel = '';
-		this.selector = '1';
+		this.checking = 'firstToken';
 		this.resetCandidates();
 
 		this.read({token, counter});
@@ -4005,7 +4000,8 @@ app.num = function (num) {
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: ' "pity1" "pity2"'});
+new PowerTemplateLexer({text: '  "pity1"   "pity2"      "puxa"'});
+console.log('  "pity1"   "pity2"      "puxa"'.slice(2, 9), '  "pity1"   "pity2"      "puxa"'.slice(25, 31));
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
