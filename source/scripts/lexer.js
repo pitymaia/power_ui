@@ -45,7 +45,7 @@ class StringPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (['blank', 'end'].includes(token.name)) {
+		if (['blank', 'end', 'calc_operator'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
 			return false;
 		}
@@ -72,8 +72,51 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end'].includes(token.name)) {
+		} else if (['blank', 'end', 'calc_operator'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition are only to INVALID syntaxe
+	// wait for some blank or end token and register the current stream as invalid
+	endToken({token, counter}) {
+		if (['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			return true;
+		}
+	}
+}
+
+class NumberPattern {
+	constructor(listener) {
+		this.listener = listener;
+	}
+
+	// Condition to start check if is empty chars
+	firstToken({token, counter}) {
+		if (token.name === 'number') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'number');
+			this.listener.checking = 'middleTokens';
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		if (token.name === 'number') {
+			return true;
+		} else if (['blank', 'end', 'calc_operator'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'number', token: token, counter: counter});
 			return false;
 		} else {
 			// Invalid!
@@ -122,7 +165,11 @@ class MathOpsPattern {
 			this.listener.checking = 'endToken';
 			this.doubleOperators = true;
 			return true;
-		} else if (['blank', 'end'].includes(token.name)) {
+		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
+			console.log('endToken', token);
+			this.listener.nextPattern({syntax: 'calc_operator', token: token, counter: counter});
+			return false;
+		} else if (token.name === 'quote' && this.doubleOperators === false && this.openOperator === '+') {
 			console.log('endToken', token);
 			this.listener.nextPattern({syntax: 'calc_operator', token: token, counter: counter});
 			return false;
@@ -139,7 +186,7 @@ class MathOpsPattern {
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
 		console.log('MathOpsPattern endToken', token);
-		if (this.doubleOperators === true && ['blank', 'end'].includes(token.name)) {
+		if (this.doubleOperators === true && ['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'calc_operator', token: token, counter: counter});
 			return false;
 		} else if (['blank', 'end'].includes(token.name)) {
@@ -188,6 +235,7 @@ class TokensListener {
 			{name: 'empty', obj: EmptyPattern},
 			{name: 'string', obj: StringPattern},
 			{name: 'variable', obj: VariablePattern},
+			{name: 'number', obj: NumberPattern},
 			{name: 'calc_operator', obj: MathOpsPattern},
 		];
 		this.candidates = [];
