@@ -1599,6 +1599,23 @@ class VariablePattern {
 			console.log('endToken', token);
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
+		} else {
+			console.log('INVALID Token', token);
+			// Invalid!
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition are only to INVALID syntaxe
+	// wait for some blank or end token and register the current stream as invalid
+	endToken({token, counter}) {
+		if (['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
@@ -4030,7 +4047,7 @@ app.num = function (num) {
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: '  "pity1"   "pity2"      puxa saco???'});
+new PowerTemplateLexer({text: '  "pity1"   "pity2"      puxa saco/'});
 console.log('  "pity1"   "pity2"      "puxa"'.slice(2, 9), '  "pity1"   "pity2"      "puxa"'.slice(25, 31));
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});

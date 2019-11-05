@@ -78,6 +78,23 @@ class VariablePattern {
 			console.log('endToken', token);
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
+		} else {
+			console.log('INVALID Token', token);
+			// Invalid!
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition are only to INVALID syntaxe
+	// wait for some blank or end token and register the current stream as invalid
+	endToken({token, counter}) {
+		if (['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
