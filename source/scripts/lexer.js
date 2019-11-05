@@ -52,6 +52,36 @@ class StringPattern {
 	}
 }
 
+class VariablePattern {
+	constructor(listener) {
+		this.listener = listener;
+	}
+
+	// Condition to start check if is empty chars
+	firstToken({token, counter}) {
+		if (['letter', 'especial'].includes(token.name)) {
+			console.log('firstToken', token);
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'variable');
+			this.listener.checking = 'middleTokens';
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		console.log('middleTokens', token);
+		if (['letter', 'especial', 'number'].includes(token.name)) {
+			return true;
+		} else if (['blank', 'end'].includes(token.name)) {
+			console.log('endToken', token);
+			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
+			return false;
+		}
+	}
+}
+
 class EmptyPattern {
 	constructor(listener) {
 		this.listener = listener;
@@ -60,7 +90,6 @@ class EmptyPattern {
 	// Condition to start check if is empty chars
 	firstToken({token, counter}) {
 		if (token.name === 'blank') {
-			console.log('empty is true', token);
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'empty');
 			this.listener.checking = 'middleTokens';
 			return true;
@@ -89,6 +118,7 @@ class TokensListener {
 		this.patterns = [
 			{name: 'empty', obj: EmptyPattern},
 			{name: 'string', obj: StringPattern},
+			{name: 'variable', obj: VariablePattern},
 		];
 		this.candidates = [];
 		this.checking = 'firstToken';
@@ -114,7 +144,6 @@ class TokensListener {
 			start: this.start,
 			end: counter,
 		});
-		console.log('this.nodes: ', this.nodes, 'token', token.name, this.currentTokens);
 		this.start = counter;
 		this.currentTokens = [];
 		this.currentLabel = '';
@@ -197,6 +226,7 @@ class PowerTemplateLexer extends PowerLexer{
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
 		console.log('this.syntaxTree', this.syntaxTree);
+		console.log('NODES: ', this.syntaxTree.tokensListener.nodes);
 	}
 
 }
