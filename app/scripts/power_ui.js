@@ -1566,7 +1566,7 @@ class StringPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (['blank', 'end', 'calc_operator'].includes(token.name)) {
+		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
 			return false;
 		}
@@ -1593,7 +1593,7 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end', 'calc_operator'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
 		} else {
@@ -1636,7 +1636,7 @@ class NumberPattern {
 	middleTokens({token, counter}) {
 		if (token.name === 'number') {
 			return true;
-		} else if (['blank', 'end', 'calc_operator'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'number', token: token, counter: counter});
 			return false;
 		} else {
@@ -1659,7 +1659,7 @@ class NumberPattern {
 	}
 }
 
-class MathOpsPattern {
+class OperationPattern {
 	constructor(listener) {
 		this.listener = listener;
 		this.openOperator = null;
@@ -1668,9 +1668,9 @@ class MathOpsPattern {
 
 	// Condition to start check if is empty chars
 	firstToken({token, counter}) {
-		if (token.name === 'calc_operator') {
-			console.log('MathOpsPattern firstToken', token);
-			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'calc_operator');
+		if (token.name === 'operation') {
+			console.log('OperationPattern firstToken', token);
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'operation');
 			this.openOperator = token.value;
 			this.listener.checking = 'middleTokens';
 			return true;
@@ -1681,18 +1681,18 @@ class MathOpsPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('MathOpsPattern middleTokens', token);
-		if (token.name === 'calc_operator' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
+		console.log('OperationPattern middleTokens', token);
+		if (token.name === 'operation' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
 			this.listener.checking = 'endToken';
 			this.doubleOperators = true;
 			return true;
 		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
 			console.log('endToken', token);
-			this.listener.nextPattern({syntax: 'calc_operator', token: token, counter: counter});
+			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else if (token.name === 'quote' && this.doubleOperators === false && this.openOperator === '+') {
 			console.log('endToken', token);
-			this.listener.nextPattern({syntax: 'calc_operator', token: token, counter: counter});
+			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else {
 			console.log('INVALID Token', token);
@@ -1706,9 +1706,8 @@ class MathOpsPattern {
 	// end condition are only to INVALID syntaxe
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
-		console.log('MathOpsPattern endToken', token);
 		if (this.doubleOperators === true && ['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'calc_operator', token: token, counter: counter});
+			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else if (['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
@@ -1716,6 +1715,210 @@ class MathOpsPattern {
 		} else {
 			return true;
 		}
+	}
+}
+
+class EqualPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.one = null;
+		this.two = null;
+		this.three = null;
+		this.invalid = false;
+	}
+
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+		if (token.name === 'equal') {
+			console.log('firstToken', token);
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'equal');
+			this.listener.checking = 'middleTokens';
+			this.one = token.value;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		// Second operator
+		if (this.two === null) {
+			if (token.name === 'equal') {
+				this.two = token.value;
+				// The only valid value after a leading = is another = (2 == 2)
+				return true;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				// wait for some blank or end token and register the current stream as invalid
+				this.listener.checking = 'endToken';
+				return true;
+			}
+		} else {
+			if (token.name === 'equal') {
+				this.three = token.value;
+				this.listener.checking = 'endToken';
+				console.log('FINAL = : ', this.one, this.two, this.three, this.invalid);
+				return true;
+			// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
+			} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+				this.listener.nextPattern({syntax: 'equal', token: token, counter: counter});
+				return false;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				// wait for some blank or end token and register the current stream as invalid
+				this.listener.checking = 'endToken';
+				return true;
+			}
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'equal', token: token, counter: counter});
+			return false;
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			return true;
+		}
+	}
+}
+
+class MinorThanPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.invalid = false;
+	}
+
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+			console.log('firstToken minor-than', token);
+		if (token.name === 'minor-than') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'minor-than');
+			this.listener.checking = 'middleTokens';
+			this.one = token.value;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		if (token.name === 'equal') {
+			this.listener.checking = 'endToken';
+			return true;
+		// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
+		} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'minor-than', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'minor-or-equal', token: token, counter: counter});
+			return false;
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
+	}
+}
+
+class GreaterThanPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.invalid = false;
+	}
+
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+			console.log('firstToken greater-than', token);
+		if (token.name === 'greater-than') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'greater-than');
+			this.listener.checking = 'middleTokens';
+			this.one = token.value;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		if (token.name === 'equal') {
+			this.listener.checking = 'endToken';
+			return true;
+		// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
+		} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'greater-than', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'greater-or-equal', token: token, counter: counter});
+			return false;
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
+	}
+}
+
+class NotPattern {
+	constructor(listener) {
+		this.listener = listener;
+	}
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+	}
+}
+
+class AndPattern {
+	constructor(listener) {
+		this.listener = listener;
+	}
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+	}
+}
+
+class OrPattern {
+	constructor(listener) {
+		this.listener = listener;
+	}
+	// Condition to start check first operator
+	firstToken({token, counter}) {
 	}
 }
 
@@ -1757,7 +1960,14 @@ class TokensListener {
 			{name: 'string', obj: StringPattern},
 			{name: 'variable', obj: VariablePattern},
 			{name: 'number', obj: NumberPattern},
-			{name: 'calc_operator', obj: MathOpsPattern},
+			{name: 'operation', obj: OperationPattern},
+			{name: 'equal', obj: EqualPattern},
+			{name: 'minor-than', obj: MinorThanPattern},
+			{name: 'greater-than', obj: GreaterThanPattern},
+			{name: 'NOT', obj: NotPattern},
+			{name: 'AND', obj: AndPattern},
+			{name: 'OR', obj: OrPattern},
+
 		];
 		this.candidates = [];
 		this.checking = 'firstToken';
@@ -1835,8 +2045,14 @@ class PowerTemplateLexer extends PowerLexer{
 			{name: 'especial', values: ['_', '$']},
 			{name: 'quote', values: ['"', '`', "'"]},
 			{name: 'separator', values: ['(', ')', '[', ']', '{', '}', '.']},
-			{name: 'calc_operator', values: ['+', '-', '*', '/', '%', '^']},
-			{name: 'logic_operator', values: ['|', '=', '<', '>']},
+			{name: 'operation', values: ['+', '-', '*', '/', '%']},
+			{name: 'equal', values: ['=']},
+			{name: 'minor-than', values: ['<']},
+			{name: 'greater-than', values: ['>']},
+			{name: 'NOT', values: ['!']},
+			{name: 'AND', values: ['&']},
+			{name: 'OR', values: ['|']},
+			{name: 'short-hand', values: ['?', ':']},
 			{name: 'number', values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']},
 			{name: 'letter', values: [
 				'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
@@ -1846,7 +2062,6 @@ class PowerTemplateLexer extends PowerLexer{
 				'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
 				'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 			},
-			{name: 'ambiguous', values: ['!', '&', '?', ':']},
 			{name: 'end', values: [null]},
 		];
 		this.scan();
@@ -4149,9 +4364,9 @@ app.num = function (num) {
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: ' "pity1"+"pity2" "pity" + "lu" pity*lu'});
+new PowerTemplateLexer({text: '2>1 1 > 2 '});
 console.log('  "pity1"   "pity2"      "puxa"'.slice(2, 9), '  "pity1"   "pity2"      "puxa"'.slice(25, 31));
-console.log(2*-4);
+console.log('sdfsdf'<!1, 1 == 'a');
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
