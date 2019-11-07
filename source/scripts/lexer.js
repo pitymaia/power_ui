@@ -45,7 +45,7 @@ class StringPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT'].includes(token.name)) {
+		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
 			return false;
 		}
@@ -72,7 +72,7 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
 		} else {
@@ -115,7 +115,7 @@ class NumberPattern {
 	middleTokens({token, counter}) {
 		if (token.name === 'number') {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'number', token: token, counter: counter});
 			return false;
 		} else {
@@ -383,7 +383,6 @@ class NotPattern {
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		if (token.name === 'NOT') {
-			console.log('firstToken NOT', token);
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'NOT');
 			this.listener.checking = 'middleTokens';
 			this.one = token.value;
@@ -415,11 +414,9 @@ class NotPattern {
 			this.three = token.value;
 			if (this.two === '=' && token.name === 'equal') {
 				this.listener.checking = 'endToken';
-				console.log('FINAL = : ', this.one, this.two, this.three, this.invalid);
 				return true;
 			// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
 			} else if (this.two === '=' && ['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
-				console.log('TOKEN', this.one, this.two, token);
 				this.listener.nextPattern({syntax: 'NOT-equal', token: token, counter: counter});
 				return false;
 			} else if (this.two === '!' && ['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
@@ -461,19 +458,95 @@ class NotPattern {
 class AndPattern {
 	constructor(listener) {
 		this.listener = listener;
+		this.invalid = false;
 	}
+
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+		if (token.name === 'AND') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'AND');
+			this.listener.checking = 'middleTokens';
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		if (token.name === 'AND') {
+			this.listener.checking = 'endToken';
+			return true;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'AND', token: token, counter: counter});
+			return false;
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
 	}
 }
 
 class OrPattern {
 	constructor(listener) {
-		this.listener = listener;
-	}
-	// Condition to start check first operator
-	firstToken({token, counter}) {
-	}
+			this.listener = listener;
+			this.invalid = false;
+		}
+
+		// Condition to start check first operator
+		firstToken({token, counter}) {
+			if (token.name === 'OR') {
+				this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'OR');
+				this.listener.checking = 'middleTokens';
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		// middle tokens condition
+		middleTokens({token, counter}) {
+			if (token.name === 'OR') {
+				this.listener.checking = 'endToken';
+				return true;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				// wait for some blank or end token and register the current stream as invalid
+				this.listener.checking = 'endToken';
+				return true;
+			}
+		}
+
+		// end condition
+		endToken({token, counter}) {
+			if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+				this.listener.nextPattern({syntax: 'OR', token: token, counter: counter});
+				return false;
+			} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				return true;
+			}
+		}
 }
 
 class EmptyPattern {
