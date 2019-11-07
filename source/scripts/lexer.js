@@ -45,7 +45,7 @@ class StringPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR'].includes(token.name)) {
+		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
 			return false;
 		}
@@ -72,7 +72,7 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
 		} else {
@@ -115,7 +115,7 @@ class NumberPattern {
 	middleTokens({token, counter}) {
 		if (token.name === 'number') {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'number', token: token, counter: counter});
 			return false;
 		} else {
@@ -185,7 +185,7 @@ class OperationPattern {
 	// end condition are only to INVALID syntaxe
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
-		if (this.doubleOperators === true && ['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
+		if (this.doubleOperators === true && ['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else if (['blank', 'end'].includes(token.name)) {
@@ -241,7 +241,7 @@ class EqualPattern {
 				console.log('FINAL = : ', this.one, this.two, this.three, this.invalid);
 				return true;
 			// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
-			} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+			} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.nextPattern({syntax: 'equal', token: token, counter: counter});
 				return false;
 			} else {
@@ -256,7 +256,7 @@ class EqualPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'equal', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -292,7 +292,7 @@ class MinorThanPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
-		} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+		} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'minor-than', token: token, counter: counter});
 			return false;
 		} else {
@@ -306,7 +306,7 @@ class MinorThanPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT' , 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'minor-or-equal', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -344,7 +344,7 @@ class GreaterThanPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
-		} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+		} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'greater-than', token: token, counter: counter});
 			return false;
 		} else {
@@ -358,7 +358,7 @@ class GreaterThanPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'greater-or-equal', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -400,7 +400,7 @@ class NotPattern {
 				this.two = token.value;
 				// The only valid value after a leading = is another = (2 == 2)
 				return true;
-			} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
+			} else if (['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
 				this.listener.nextPattern({syntax: 'NOT', token: token, counter: counter});
 				return false;
 			} else {
@@ -416,10 +416,10 @@ class NotPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
-			} else if (this.two === '=' && ['blank', 'end', 'letter', 'especial', 'number', 'NOT'].includes(token.name)) {
+			} else if (this.two === '=' && ['blank', 'end', 'letter', 'especial', 'number', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.nextPattern({syntax: 'NOT-equal', token: token, counter: counter});
 				return false;
-			} else if (this.two === '!' && ['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
+			} else if (this.two === '!' && ['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
 				this.listener.checking = 'endToken';
 				this.listener.nextPattern({syntax: 'NOT-NOT', token: token, counter: counter});
 				return false;
@@ -438,10 +438,10 @@ class NotPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && this.three === '=' && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+		if (this.invalid === false && this.three === '=' && ['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'NOT-equal', token: token, counter: counter});
 			return false;
-		} else if (this.invalid === false && this.three === '!' && ['blank', 'end', 'letter', 'number', 'especial'].includes(token.name)) {
+		} else if (this.invalid === false && this.three === '!' && ['blank', 'end', 'letter', 'number', 'especial', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'NOT-NOT', token: token, counter: counter});
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
@@ -488,7 +488,7 @@ class AndPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'AND', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -535,13 +535,44 @@ class OrPattern {
 
 		// end condition
 		endToken({token, counter}) {
-			if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT'].includes(token.name)) {
+			if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.nextPattern({syntax: 'OR', token: token, counter: counter});
 				return false;
 			} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
 				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 				return false;
 			} else {
+				// Invalid!
+				this.invalid = true;
+				return true;
+			}
+		}
+}
+
+class ShortHandPattern {
+	constructor(listener) {
+			this.listener = listener;
+		}
+
+		// Condition to start check first operator
+		firstToken({token, counter}) {
+			if (token.name === 'short-hand') {
+				this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'short-hand');
+				this.listener.checking = 'endToken';
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		// end condition
+		endToken({token, counter}) {
+			if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
+				this.listener.nextPattern({syntax: 'short-hand', token: token, counter: counter});
+				return false;
+			} else {
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
 				// Invalid!
 				this.invalid = true;
 				return true;
@@ -594,6 +625,7 @@ class TokensListener {
 			{name: 'NOT', obj: NotPattern},
 			{name: 'AND', obj: AndPattern},
 			{name: 'OR', obj: OrPattern},
+			{name: 'short-hand', obj: ShortHandPattern},
 
 		];
 		this.candidates = [];
