@@ -1619,6 +1619,7 @@ class VariablePattern {
 class NumberPattern {
 	constructor(listener) {
 		this.listener = listener;
+		this.float = false;
 	}
 
 	// Condition to start check if is empty chars
@@ -1634,10 +1635,18 @@ class NumberPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		if (token.name === 'number') {
+		if (this.float === false && token.name === 'number') {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'number', token: token, counter: counter});
+		} else if (this.float === false && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'integer', token: token, counter: counter});
+			return false;
+		} else if (this.float === false && token.value === '.') {
+			this.float = true;
+			return true;
+		} else if (this.float === true && token.name === 'number') {
+			return true;
+		} else if (this.float === true && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'float', token: token, counter: counter});
 			return false;
 		} else {
 			// Invalid!
@@ -4544,9 +4553,9 @@ app.num = function (num) {
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'a?"b":c'});
+new PowerTemplateLexer({text: '123.456?2.52:33'});
 console.log('  "pity1"   "pity2"      "puxa"'.slice(2, 9), '  "pity1"   "pity2"      "puxa"'.slice(25, 31));
-console.log('aqui:', false ? 'b' : 'c');
+console.log('aqui:', 2, 33, 2.55, 2.1325);
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 

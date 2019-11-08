@@ -98,6 +98,7 @@ class VariablePattern {
 class NumberPattern {
 	constructor(listener) {
 		this.listener = listener;
+		this.float = false;
 	}
 
 	// Condition to start check if is empty chars
@@ -113,10 +114,18 @@ class NumberPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		if (token.name === 'number') {
+		if (this.float === false && token.name === 'number') {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'number', token: token, counter: counter});
+		} else if (this.float === false && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'integer', token: token, counter: counter});
+			return false;
+		} else if (this.float === false && token.value === '.') {
+			this.float = true;
+			return true;
+		} else if (this.float === true && token.name === 'number') {
+			return true;
+		} else if (this.float === true && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'float', token: token, counter: counter});
 			return false;
 		} else {
 			// Invalid!
