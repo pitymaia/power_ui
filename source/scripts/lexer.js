@@ -604,15 +604,23 @@ class ObjectPattern {
 		this.invalid = false;
 		this.nodes = [];
 		this.currentOpenChar = null;
+		this.currentParams = '';
 	}
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		// The open char of the current node
-		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1];
-		if (token.name === '(') {
-			this.listener.checking = 'middleTokens';
-			return true;
+		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
+		console.log('FUNCTION', this.currentOpenChar, token.value);
+		if (this.currentOpenChar === '(') {
+			if (token.value === ')') {
+				this.listener.checking = 'endToken';
+				return true;
+			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
+				this.listener.checking = 'middleTokens';
+				this.currentParams = this.currentParams + token.value;
+				return true;
+			}
 		} else {
 			return false;
 		}
@@ -620,9 +628,17 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		if (token.name === 'OR') {
-			this.listener.checking = 'endToken';
-			return true;
+		console.log('middleTokens FUNCTION', token.value);
+		if (this.currentOpenChar === '(') {
+			if (token.value === ')') {
+				this.listener.checking = 'endToken';
+				return true;
+			// This is a functions with parameters, so allow any valid char
+			// TODO need add options to allow function inside function parameter
+			} else if (['blank', 'escape', 'especial', 'quote', 'separator', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter'].includes(token.name)) {
+				this.currentParams = this.currentParams + token.value;
+				return true;
+			}
 		} else {
 			// Invalid!
 			this.invalid = true;
@@ -634,9 +650,12 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'OR', token: token, counter: counter});
-			return false;
+		if (this.invalid === false ) {
+			if (this.currentOpenChar === '(' && ['blank', 'end', 'operator'].includes(token.name)) {
+				console.log('PARAMETERS', this.currentParams);
+				this.listener.nextPattern({syntax: 'function', token: token, counter: counter});
+				return false;
+			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
@@ -779,6 +798,7 @@ class PowerTemplateLexer extends PowerLexer{
 			{name: 'NOT', values: ['!']},
 			{name: 'AND', values: ['&']},
 			{name: 'OR', values: ['|']},
+			{name: 'comma', values: ','},
 			{name: 'short-hand', values: ['?', ':']},
 			{name: 'number', values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']},
 			{name: 'letter', values: [
