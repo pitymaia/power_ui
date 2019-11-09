@@ -45,7 +45,7 @@ class StringPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+		if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
 			return false;
 		}
@@ -73,13 +73,14 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
 		// If is some dictionary or function
 		} else if (token.name === 'separator' && ['.', '[', '('].includes(token.value)) {
 			console.log('VariablePattern', token);
 			this.listener.checking = 'firstToken';
+			this.listener.firstNodeLabel = this.listener.currentLabel;
 			this.listener.candidates = [{name: 'object', instance: new ObjectPattern(this.listener)}];
 			return true;
 		} else {
@@ -123,7 +124,7 @@ class NumberPattern {
 	middleTokens({token, counter}) {
 		if (this.float === false && token.name === 'number') {
 			return true;
-		} else if (this.float === false && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+		} else if (this.float === false && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'integer', token: token, counter: counter});
 			return false;
 		} else if (this.float === false && token.value === '.') {
@@ -131,7 +132,7 @@ class NumberPattern {
 			return true;
 		} else if (this.float === true && token.name === 'number') {
 			return true;
-		} else if (this.float === true && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand'].includes(token.name)) {
+		} else if (this.float === true && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'float', token: token, counter: counter});
 			return false;
 		} else {
@@ -596,6 +597,39 @@ class ShortHandPattern {
 		}
 }
 
+class CommaPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.invalid = false;
+	}
+
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+		if (token.name === 'comma') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'comma');
+			this.listener.checking = 'endToken';
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false && ['blank', 'end', 'especial', 'quote', 'separator', 'operation', 'quote', 'equal', 'NOT', 'comma', 'number', 'letter'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'comma', token: token, counter: counter});
+			return false;
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
+	}
+}
+
 // dot notation dictionary (user.age) bracket notation dictionary (user['age']) dictionary with methods (user.getAge())
 // functions (getAge()) and chain functions (getUser().getAge())
 class ObjectPattern {
@@ -605,6 +639,7 @@ class ObjectPattern {
 		this.nodes = [];
 		this.currentOpenChar = null;
 		this.currentParams = '';
+		this.innerOpenedFunctions = 0;
 	}
 
 	// Condition to start check first operator
@@ -630,13 +665,23 @@ class ObjectPattern {
 	middleTokens({token, counter}) {
 		console.log('middleTokens FUNCTION', token.value);
 		if (this.currentOpenChar === '(') {
-			if (token.value === ')') {
+			if (token.value === ')' && this.innerOpenedFunctions === 0) {
 				this.listener.checking = 'endToken';
 				return true;
 			// This is a functions with parameters, so allow any valid char
 			// TODO need add options to allow function inside function parameter
-			} else if (['blank', 'escape', 'especial', 'quote', 'separator', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter'].includes(token.name)) {
+			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
+				return true;
+			} else if (token.name === 'separator') {
+				this.currentParams = this.currentParams + token.value;
+
+				if (token.value === '(') {
+					this.innerOpenedFunctions = this.innerOpenedFunctions + 1;
+				} else if (token.value === ')') {
+					this.innerOpenedFunctions = this.innerOpenedFunctions - 1;
+				}
+
 				return true;
 			}
 		} else {
@@ -652,8 +697,10 @@ class ObjectPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '(' && ['blank', 'end', 'operator'].includes(token.name)) {
-				console.log('PARAMETERS', this.currentParams);
-				this.listener.nextPattern({syntax: 'function', token: token, counter: counter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				console.log('PARAMETERS', this.currentParams, parameters);
+				this.listener.currentLabel = this.listener.firstNodeLabel;
+				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
 				return false;
 			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -712,6 +759,7 @@ class TokensListener {
 			{name: 'NOT', obj: NotPattern},
 			{name: 'AND', obj: AndPattern},
 			{name: 'OR', obj: OrPattern},
+			{name: 'comma', obj: CommaPattern},
 			{name: 'short-hand', obj: ShortHandPattern},
 			// {name: 'object', obj: ObjectPattern}, this is a secundary detector
 		];
@@ -731,13 +779,14 @@ class TokensListener {
 		}
 	}
 
-	nextPattern({token, counter, syntax}) {
+	nextPattern({token, counter, syntax, parameters}) {
 		this.nodes.push({
 			syntax: syntax,
 			label: this.currentLabel,
 			tokens: this.currentTokens,
 			start: this.start,
 			end: counter,
+			parameters: parameters || [],
 		});
 		this.start = counter;
 		this.currentTokens = [];
@@ -812,6 +861,8 @@ class PowerTemplateLexer extends PowerLexer{
 			{name: 'end', values: [null]},
 		];
 		this.scan();
+
+		return this.syntaxTree.tokensListener.nodes;
 	}
 
 	scan() {
