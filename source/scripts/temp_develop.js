@@ -240,12 +240,19 @@ app.num = function (num) {
 	return num;
 }
 
+function a (u) {
+	return 'c'+u;
+}
+
+function b (t) {
+	return a.bind(t);
+}
+const c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'cristina."andre"'});
-console.log('  "pity1"   "pity2"      "puxa"'.slice(2, 9), '  "pity1"   "pity2"      "puxa"'.slice(25, 31));
-console.log('aqui:');
+new PowerTemplateLexer({text: 'boyFriends((), merda())'});
+console.log('aqui:', b()('s'), c['d']['e']);
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 

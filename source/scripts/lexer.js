@@ -59,7 +59,7 @@ class StringPattern {
 	}
 }
 
-// It also detect objects (dictionary and function) and change for ObjectPattern when detect it
+// It also detect objects (dictionary and function) and change for FunctionPattern when detect it
 class VariablePattern {
 	constructor(listener) {
 		this.listener = listener;
@@ -83,12 +83,17 @@ class VariablePattern {
 		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma', 'dot'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
-		// If is some dictionary or function
-		} else if (token.name === 'separator' && ['[', '('].includes(token.value)) {
-			console.log('VariablePattern', token);
+		// If is some function
+		} else if (token.value === '(') {
 			this.listener.checking = 'firstToken';
 			this.listener.firstNodeLabel = this.listener.currentLabel;
-			this.listener.candidates = [{name: 'object', instance: new ObjectPattern(this.listener)}];
+			this.listener.candidates = [{name: 'function', instance: new FunctionPattern(this.listener)}];
+			return true;
+		// If is some dictionary
+		} else if (token.value === '[') {
+			this.listener.checking = 'firstToken';
+			this.listener.firstNodeLabel = this.listener.currentLabel;
+			this.listener.candidates = [{name: 'function', instance: new DictionaryPattern(this.listener)}];
 			return true;
 		} else {
 			// Invalid!
@@ -670,9 +675,8 @@ class DotPattern {
 	}
 }
 
-// dot notation dictionary (user.age) bracket notation dictionary (user['age']) dictionary with methods (user.getAge())
-// functions (getAge()) and chain functions (getUser().getAge())
-class ObjectPattern {
+// functions (getAge()) and chain functions (getUser().getAge()) dictionary with methods (user.getAge())
+class FunctionPattern {
 	constructor(listener) {
 		this.listener = listener;
 		this.invalid = false;
@@ -739,9 +743,91 @@ class ObjectPattern {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '(' && ['blank', 'end', 'operator'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams});
-				console.log('PARAMETERS', this.currentParams, parameters);
 				this.listener.currentLabel = this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
+				return false;
+			}
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
+	}
+}
+
+// bracket notation dictionary (user['age'])
+class DictionaryPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.invalid = false;
+		this.nodes = [];
+		this.currentOpenChar = null;
+		this.currentParams = '';
+		this.innerOpenedDicts = 0;
+	}
+
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+		// The open char of the current node
+		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
+		console.log('DICTIONARY', this.currentOpenChar, token.value);
+		if (this.currentOpenChar === '[') {
+			if (token.value === ']') {
+				this.listener.checking = 'endToken';
+				return true;
+			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
+				this.listener.checking = 'middleTokens';
+				this.currentParams = this.currentParams + token.value;
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		// FUNCTION
+		if (this.currentOpenChar === '[') {
+			if (token.value === ']' && this.innerOpenedDicts === 0) {
+				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				this.listener.currentLabel = this.listener.firstNodeLabel;
+				this.listener.nextPattern({syntax: 'dictionary', token: token, counter: counter, parameters: parameters});
+				return false;
+			// This is a dictionary with parameters, so allow any valid char
+			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
+				this.currentParams = this.currentParams + token.value;
+				return true;
+			} else if (token.name === 'separator') {
+				this.currentParams = this.currentParams + token.value;
+
+				if (token.value === '[') {
+					this.innerOpenedDicts = this.innerOpenedDicts + 1;
+				} else if (token.value === ']') {
+					this.innerOpenedDicts = this.innerOpenedDicts - 1;
+				}
+
+				return true;
+			}
+		} else {
+			// Invalid!
+			this.invalid = true;
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false ) {
+			if (this.currentOpenChar === '[' && ['blank', 'end', 'operator'].includes(token.name)) {
+				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				this.listener.currentLabel = this.listener.firstNodeLabel;
+				this.listener.nextPattern({syntax: 'dictionary', token: token, counter: counter, parameters: parameters});
 				return false;
 			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -803,7 +889,8 @@ class TokensListener {
 			{name: 'comma', obj: CommaPattern},
 			{name: 'dot', obj: DotPattern},
 			{name: 'short-hand', obj: ShortHandPattern},
-			// {name: 'object', obj: ObjectPattern}, this is a secundary detector
+			// {name: 'function', obj: FunctionPattern}, // this is a secundary detector
+			// {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
 		];
 		this.candidates = [];
 		this.checking = 'firstToken';
