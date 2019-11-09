@@ -243,7 +243,7 @@ app.num = function (num) {
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'andre(cristina(3, bruna(ana, andreia), 2+2)) pity() pity(2+2, 2.55)'});
+new PowerTemplateLexer({text: 'cristina."andre"'});
 console.log('  "pity1"   "pity2"      "puxa"'.slice(2, 9), '  "pity1"   "pity2"      "puxa"'.slice(25, 31));
 console.log('aqui:');
 // new PowerTemplateLexer({text: 'pity;:?'});
