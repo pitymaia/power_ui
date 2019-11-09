@@ -663,14 +663,15 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('middleTokens FUNCTION', token.value);
+		// FUNCTION
 		if (this.currentOpenChar === '(') {
 			if (token.value === ')' && this.innerOpenedFunctions === 0) {
-				this.listener.checking = 'endToken';
-				return true;
+				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				this.listener.currentLabel = this.listener.firstNodeLabel;
+				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
+				return false;
 			// This is a functions with parameters, so allow any valid char
-			// TODO need add options to allow function inside function parameter
-			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation'].includes(token.name)) {
+			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
 				return true;
 			} else if (token.name === 'separator') {
