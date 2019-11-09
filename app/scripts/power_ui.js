@@ -2220,6 +2220,11 @@ class FunctionPattern {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				return true;
+			} else if (token.value === '(') {
+				this.innerOpenedFunctions = this.innerOpenedFunctions + 1;
+				console.log('!!!!!!!!!!!!!!! AQUI !!!!!!!!!!!!!!!!!!!!', this.innerOpenedFunctions);
+				this.currentParams = this.currentParams + token.value;
+				this.listener.checking = 'middleTokens';
 			}
 		} else {
 			return false;
@@ -2237,6 +2242,7 @@ class FunctionPattern {
 				return false;
 			// This is a functions with parameters, so allow any valid char
 			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
+				console.log('!!!!!!!!!!!!!!! NEXT !!!!!!!!!!!!!!!!!!!!', this.innerOpenedFunctions);
 				this.currentParams = this.currentParams + token.value;
 				return true;
 			} else if (token.name === 'separator') {
@@ -2255,6 +2261,7 @@ class FunctionPattern {
 			this.invalid = true;
 			// wait for some blank or end token and register the current stream as invalid
 			this.listener.checking = 'endToken';
+			console.log('!!!!!!!!!!!!!!! INVALID !!!!!!!!!!!!!!!!!!!!');
 			return true;
 		}
 	}
@@ -4821,8 +4828,8 @@ const c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'boyFriends((), merda())'});
-console.log('aqui:', b()('s'), c['d']['e']);
+new PowerTemplateLexer({text: 'merda())'});
+console.log('aqui:', b((2), a()), c['d']['e']);
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
