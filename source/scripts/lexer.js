@@ -701,7 +701,6 @@ class FunctionPattern {
 				return true;
 			} else if (token.value === '(') {
 				this.innerOpenedFunctions = this.innerOpenedFunctions + 1;
-				console.log('!!!!!!!!!!!!!!! AQUI !!!!!!!!!!!!!!!!!!!!', this.innerOpenedFunctions);
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
 			}
@@ -721,7 +720,6 @@ class FunctionPattern {
 				return false;
 			// This is a functions with parameters, so allow any valid char
 			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
-				console.log('!!!!!!!!!!!!!!! NEXT !!!!!!!!!!!!!!!!!!!!', this.innerOpenedFunctions);
 				this.currentParams = this.currentParams + token.value;
 				return true;
 			} else if (token.name === 'separator') {
@@ -740,7 +738,6 @@ class FunctionPattern {
 			this.invalid = true;
 			// wait for some blank or end token and register the current stream as invalid
 			this.listener.checking = 'endToken';
-			console.log('!!!!!!!!!!!!!!! INVALID !!!!!!!!!!!!!!!!!!!!');
 			return true;
 		}
 	}
@@ -780,15 +777,19 @@ class DictionaryPattern {
 	firstToken({token, counter}) {
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
-		console.log('DICTIONARY', this.currentOpenChar, token.value);
 		if (this.currentOpenChar === '[') {
 			if (token.value === ']') {
 				this.listener.checking = 'endToken';
+				this.invalid = true;
 				return true;
 			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				return true;
+			} else if (token.value === '[') {
+				this.innerOpenedFunctions = this.innerOpenedDicts + 1;
+				this.currentParams = this.currentParams + token.value;
+				this.listener.checking = 'middleTokens';
 			}
 		} else {
 			return false;
