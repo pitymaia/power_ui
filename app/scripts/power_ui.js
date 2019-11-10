@@ -1520,8 +1520,8 @@ class PowerUi extends _PowerUiBase {
 }
 
 class SyntaxTree {
-	constructor() {
-		this.tokensListener = new TokensListener();
+	constructor({counter}) {
+		this.tokensListener = new TokensListener({counter: counter});
 	}
 }
 
@@ -2204,6 +2204,7 @@ class FunctionPattern {
 		this.nodes = [];
 		this.currentOpenChar = null;
 		this.currentParams = '';
+		this.currentParamsCounter = null; //Allow pass the couter to the params
 		this.innerOpenedFunctions = 0;
 	}
 
@@ -2219,11 +2220,17 @@ class FunctionPattern {
 			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
 				return true;
 			} else if (token.value === '(') {
 				this.innerOpenedFunctions = this.innerOpenedFunctions + 1;
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
 			}
 		} else {
 			return false;
@@ -2235,16 +2242,24 @@ class FunctionPattern {
 		// FUNCTION
 		if (this.currentOpenChar === '(') {
 			if (token.value === ')' && this.innerOpenedFunctions === 0) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
 				this.listener.currentLabel = this.listener.firstNodeLabel;
+				this.listener.currentTokens.push(token);
+				counter = counter + 1;
 				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
 				return false;
 			// This is a functions with parameters, so allow any valid char
 			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
 				return true;
 			} else if (token.name === 'separator') {
 				this.currentParams = this.currentParams + token.value;
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
 
 				if (token.value === '(') {
 					this.innerOpenedFunctions = this.innerOpenedFunctions + 1;
@@ -2267,7 +2282,7 @@ class FunctionPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '(' && ['blank', 'end', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
 				this.listener.currentLabel = this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
 				return false;
@@ -2322,7 +2337,7 @@ class DictionaryPattern {
 		// FUNCTION
 		if (this.currentOpenChar === '[') {
 			if (token.value === ']' && this.innerOpenedDicts === 0) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: counter});
 				this.listener.currentLabel = this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: 'dictionary', token: token, counter: counter, parameters: parameters});
 				return false;
@@ -2354,7 +2369,7 @@ class DictionaryPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '[' && ['blank', 'end', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: counter});
 				this.listener.currentLabel = this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: 'dictionary', token: token, counter: counter, parameters: parameters});
 				return false;
@@ -2398,11 +2413,11 @@ class EmptyPattern {
 }
 
 class TokensListener {
-	constructor() {
+	constructor({counter}) {
 		this.nodes = [];
 		this.currentTokens = [];
 		this.currentLabel = '';
-		this.start = 0;
+		this.start = counter;
 		this.patterns = [
 			{name: 'empty', obj: EmptyPattern},
 			{name: 'string', obj: StringPattern},
@@ -2432,7 +2447,7 @@ class TokensListener {
 			if (candidate.instance[this.checking]({token: token, counter: counter})) {
 				this.currentTokens.push(token);
 				this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
-				return;
+				break;
 			}
 		}
 	}
@@ -2464,9 +2479,9 @@ class TokensListener {
 }
 
 class PowerLexer {
-	constructor({text, tokensTable}) {
+	constructor({text, tokensTable, counter}) {
 		this.originalText = String(text);
-		this.syntaxTree = new SyntaxTree();
+		this.syntaxTree = new SyntaxTree({counter: counter});
 		this.tokens = [];
 	}
 
@@ -2490,8 +2505,9 @@ class PowerLexer {
 }
 
 class PowerTemplateLexer extends PowerLexer{
-	constructor({text, tokensTable}) {
-		super({text, tokensTable});
+	constructor({text, tokensTable, counter}) {
+		super({text: text, tokensTable: tokensTable, counter: counter || 0});
+		this.counter = counter || 0;
 		this.tokensTable = tokensTable || [
 			{name: 'blank', values: [' ', '\t', '\n']},
 			{name: 'escape', values: ['\\']},
@@ -2526,7 +2542,7 @@ class PowerTemplateLexer extends PowerLexer{
 
 	scan() {
 		console.log('originalText', this.originalText);
-		let counter = 0;
+		let counter = this.counter;
 		for (const char of this.originalText) {
 			const token = this.convertToToken(char);
 			this.tokens.push(token);
@@ -4829,8 +4845,8 @@ const c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'merda[a]'});
-console.log('aqui:');
+new PowerTemplateLexer({text: 'merda(a+b, c+d) p(pity(ana))'});
+console.log('aqui:', 'merda(a+b, c+d) p(pity(ana))'.slice(23,26));
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
