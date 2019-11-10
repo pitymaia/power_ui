@@ -2206,13 +2206,13 @@ class FunctionPattern {
 		this.currentParams = '';
 		this.currentParamsCounter = null; //Allow pass the couter to the params
 		this.innerOpenedFunctions = 0;
+		this.anonymous = false;
 	}
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
-		console.log('FUNCTION', this.currentOpenChar, token);
 		if (this.currentOpenChar === '(') {
 			if (token.value === ')') {
 				this.listener.checking = 'endToken';
@@ -2241,16 +2241,13 @@ class FunctionPattern {
 	// middle tokens condition
 	middleTokens({token, counter}) {
 		// FUNCTION
-		console.log('a', token);
 		if (this.currentOpenChar === '(') {
 			if (token.value === ')' && this.innerOpenedFunctions === 0) {
-				console.log('0', token);
 				this.listener.checking = 'endToken';
 				return true;
 			// This is a functions with parameters, so allow any valid char
 			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
-				console.log('1', token, this.innerOpenedFunctions, this.currentParams);
 				if (this.currentParamsCounter === null) {
 					this.currentParamsCounter = counter;
 				}
@@ -2262,11 +2259,9 @@ class FunctionPattern {
 				}
 				return true;
 			} else if (this.innerOpenedFunctions >= 0 && token.name === 'end') {
-				console.log('3', token);
 				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 				return false;
 			} else {
-				console.log('4', token);
 				// Invalid!
 				this.invalid = true;
 				// wait for some blank or end token and register the current stream as invalid
@@ -2284,14 +2279,34 @@ class FunctionPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('endToken', token);
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '(' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				console.log('aqui', token);
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
-				this.listener.currentLabel = this.listener.firstNodeLabel;
-				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
+				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
+				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				return false;
+			// Allow invoke a second function
+			} else if (token.value === '(') {
+				// MANUALLY CREATE THE CURRENT NODE
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
+				this.listener.nodes.push({
+					syntax: this.anonymous ? 'anonymousFunc' : 'function',
+					label: this.listener.currentLabel,
+					tokens: this.listener.currentTokens,
+					start: this.listener.start,
+					end: counter,
+					parameters: parameters || [],
+				});
+				this.listener.start = counter;
+				this.listener.currentTokens = [];
+				this.currentParams = [];
+				this.listener.currentLabel = '';
+				this.listener.firstNodeLabel = '';
+
+				this.anonymous = true;
+				this.listener.checking = 'middleTokens';
+				return true;
 			} else {
 				// Invalid!
 				this.invalid = true;
@@ -4851,12 +4866,13 @@ function a (u) {
 function b (t) {
 	return a.bind(t);
 }
-const c = {d: {e: 'f'}};
+window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'merda(2).bosta(mole.dura(verde.claro))'});
+new PowerTemplateLexer({text: 'merda(2)(3)().novo()()'});
 console.log('aqui:', 'merda(2).bosta(mole.dura(verde.claro))'.slice(25,36));
+console.log('window.c', window['c']);
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
