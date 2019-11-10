@@ -251,8 +251,8 @@ const c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'merda(a+b, c+d) p(pity(ana))'});
-console.log('aqui:', 'merda(a+b, c+d) p(pity(ana))'.slice(23,26));
+new PowerTemplateLexer({text: 'merda(2).bosta(mole.dura(verde.claro))'});
+console.log('aqui:', 'merda(2).bosta(mole.dura(verde.claro))'.slice(25,36));
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 

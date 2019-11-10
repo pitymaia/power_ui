@@ -2212,7 +2212,7 @@ class FunctionPattern {
 	firstToken({token, counter}) {
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
-		console.log('FUNCTION', this.currentOpenChar, token.value);
+		console.log('FUNCTION', this.currentOpenChar, token);
 		if (this.currentOpenChar === '(') {
 			if (token.value === ')') {
 				this.listener.checking = 'endToken';
@@ -2231,6 +2231,7 @@ class FunctionPattern {
 				if (this.currentParamsCounter === null) {
 					this.currentParamsCounter = counter;
 				}
+				return true;
 			}
 		} else {
 			return false;
@@ -2240,23 +2241,16 @@ class FunctionPattern {
 	// middle tokens condition
 	middleTokens({token, counter}) {
 		// FUNCTION
+		console.log('a', token);
 		if (this.currentOpenChar === '(') {
 			if (token.value === ')' && this.innerOpenedFunctions === 0) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
-				this.listener.currentLabel = this.listener.firstNodeLabel;
-				this.listener.currentTokens.push(token);
-				counter = counter + 1;
-				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
-				return false;
-			// This is a functions with parameters, so allow any valid char
-			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
-				this.currentParams = this.currentParams + token.value;
-				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
-				}
+				console.log('0', token);
+				this.listener.checking = 'endToken';
 				return true;
-			} else if (token.name === 'separator') {
+			// This is a functions with parameters, so allow any valid char
+			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
+				console.log('1', token, this.innerOpenedFunctions, this.currentParams);
 				if (this.currentParamsCounter === null) {
 					this.currentParamsCounter = counter;
 				}
@@ -2266,7 +2260,17 @@ class FunctionPattern {
 				} else if (token.value === ')') {
 					this.innerOpenedFunctions = this.innerOpenedFunctions - 1;
 				}
-
+				return true;
+			} else if (this.innerOpenedFunctions >= 0 && token.name === 'end') {
+				console.log('3', token);
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			} else {
+				console.log('4', token);
+				// Invalid!
+				this.invalid = true;
+				// wait for some blank or end token and register the current stream as invalid
+				this.listener.checking = 'endToken';
 				return true;
 			}
 		} else {
@@ -2280,12 +2284,18 @@ class FunctionPattern {
 
 	// end condition
 	endToken({token, counter}) {
+		console.log('endToken', token);
 		if (this.invalid === false ) {
-			if (this.currentOpenChar === '(' && ['blank', 'end', 'operator'].includes(token.name)) {
+			if (this.currentOpenChar === '(' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
+				console.log('aqui', token);
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
 				this.listener.currentLabel = this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: 'function', token: token, counter: counter, parameters: parameters});
 				return false;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				return true;
 			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
@@ -4845,8 +4855,8 @@ const c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'merda(a+b, c+d) p(pity(ana))'});
-console.log('aqui:', 'merda(a+b, c+d) p(pity(ana))'.slice(23,26));
+new PowerTemplateLexer({text: 'merda(2).bosta(mole.dura(verde.claro))'});
+console.log('aqui:', 'merda(2).bosta(mole.dura(verde.claro))'.slice(25,36));
 // new PowerTemplateLexer({text: 'pity;:?'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
