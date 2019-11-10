@@ -1698,7 +1698,6 @@ class OperationPattern {
 	// Condition to start check if is empty chars
 	firstToken({token, counter}) {
 		if (token.name === 'operation') {
-			console.log('OperationPattern firstToken', token);
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'operation');
 			this.openOperator = token.value;
 			this.listener.checking = 'middleTokens';
@@ -1710,21 +1709,17 @@ class OperationPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('OperationPattern middleTokens', token);
 		if (token.name === 'operation' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
 			this.listener.checking = 'endToken';
 			this.doubleOperators = true;
 			return true;
 		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
-			console.log('endToken', token);
 			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else if (token.name === 'quote' && this.doubleOperators === false && this.openOperator === '+') {
-			console.log('endToken', token);
 			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else {
-			console.log('INVALID Token', token);
 			// Invalid!
 			// wait for some blank or end token and register the current stream as invalid
 			this.listener.checking = 'endToken';
@@ -1759,7 +1754,6 @@ class EqualPattern {
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		if (token.name === 'equal') {
-			console.log('firstToken', token);
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'equal');
 			this.listener.checking = 'middleTokens';
 			this.one = token.value;
@@ -1788,7 +1782,6 @@ class EqualPattern {
 			if (token.name === 'equal') {
 				this.three = token.value;
 				this.listener.checking = 'endToken';
-				console.log('FINAL = : ', this.one, this.two, this.three, this.invalid);
 				return true;
 			// JS syntax allows ! (not operator) after an equality test without spaces: false==!true (evaluate as true)
 			} else if (['blank', 'end', 'letter', 'especial', 'number', 'NOT', 'quote'].includes(token.name)) {
@@ -2246,7 +2239,7 @@ class FunctionPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			// This is a functions with parameters, so allow any valid char
-			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+			} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
 					this.currentParamsCounter = counter;
@@ -2331,7 +2324,9 @@ class DictionaryPattern {
 		this.nodes = [];
 		this.currentOpenChar = null;
 		this.currentParams = '';
+		this.currentParamsCounter = null; //Allow pass the couter to the params
 		this.innerOpenedDicts = 0;
+		this.anonymous = false;
 	}
 
 	// Condition to start check first operator
@@ -2346,11 +2341,18 @@ class DictionaryPattern {
 			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
 				return true;
 			} else if (token.value === '[') {
-				this.innerOpenedFunctions = this.innerOpenedDicts + 1;
+				this.innerOpenedDicts = this.innerOpenedDicts + 1;
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
+				return true;
 			}
 		} else {
 			return false;
@@ -2362,23 +2364,29 @@ class DictionaryPattern {
 		// FUNCTION
 		if (this.currentOpenChar === '[') {
 			if (token.value === ']' && this.innerOpenedDicts === 0) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: counter});
-				this.listener.currentLabel = this.listener.firstNodeLabel;
-				this.listener.nextPattern({syntax: 'dictionary', token: token, counter: counter, parameters: parameters});
-				return false;
-			// This is a dictionary with parameters, so allow any valid char
-			} else if (['blank', 'escape', 'especial', 'quote', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot'].includes(token.name)) {
-				this.currentParams = this.currentParams + token.value;
+				this.listener.checking = 'endToken';
 				return true;
-			} else if (token.name === 'separator') {
+			// This is a functions with parameters, so allow any valid char
+			} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter;
+				}
 
 				if (token.value === '[') {
 					this.innerOpenedDicts = this.innerOpenedDicts + 1;
 				} else if (token.value === ']') {
 					this.innerOpenedDicts = this.innerOpenedDicts - 1;
 				}
-
+				return true;
+			} else if (this.innerOpenedDicts >= 0 && token.name === 'end') {
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				// wait for some blank or end token and register the current stream as invalid
+				this.listener.checking = 'endToken';
 				return true;
 			}
 		} else {
@@ -2393,11 +2401,45 @@ class DictionaryPattern {
 	// end condition
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
-			if (this.currentOpenChar === '[' && ['blank', 'end', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: counter});
-				this.listener.currentLabel = this.listener.firstNodeLabel;
-				this.listener.nextPattern({syntax: 'dictionary', token: token, counter: counter, parameters: parameters});
+			if (this.currentOpenChar === '[' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				if (this.haveInvalidParams(parameters)) {
+					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+					return false;
+				}
+				this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+				this.listener.nextPattern({syntax: this.anonymous ? 'dictNode' : 'dictionary', token: token, counter: counter, parameters: parameters});
 				return false;
+			// Allow invoke a second function
+			} else if (token.value === '[') {
+				// MANUALLY CREATE THE CURRENT NODE
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				if (this.haveInvalidParams(parameters)) {
+					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+					return false;
+				}
+				this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+				this.listener.nodes.push({
+					syntax: this.anonymous ? 'dictNode' : 'dictionary',
+					label: this.listener.currentLabel,
+					tokens: this.listener.currentTokens,
+					start: this.listener.start,
+					end: counter,
+					parameters: parameters || [],
+				});
+				this.listener.start = counter;
+				this.listener.currentTokens = [];
+				this.currentParams = [];
+				this.listener.currentLabel = '';
+				this.listener.firstNodeLabel = '';
+
+				this.anonymous = true;
+				this.listener.checking = 'middleTokens';
+				return true;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				return true;
 			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
@@ -2407,6 +2449,35 @@ class DictionaryPattern {
 			this.invalid = true;
 			return true;
 		}
+	}
+
+	haveInvalidParams(parameters) {
+		let invalid = false;
+		// Dictionary can't have empty key
+		if (parameters.length === 0) {
+			invalid = true;
+			return invalid;
+		} else {
+			// Do some validation to see if have valid keys
+			let hasSomeValidToken = false;
+			for (const param of parameters) {
+				if (param.syntax === 'invalid') {
+					invalid = true;
+					return invalid;
+				} else {
+					for (const token of param.tokens) {
+						if (['number', 'letter', 'quote', 'especial'].includes(token.name)) {
+							hasSomeValidToken = true;
+						}
+					}
+				}
+			}
+			if (hasSomeValidToken === false) {
+				invalid = true;
+				return invalid;
+			}
+		}
+		return invalid;
 	}
 }
 
@@ -2566,7 +2637,6 @@ class PowerTemplateLexer extends PowerLexer{
 	}
 
 	scan() {
-		console.log('originalText', this.originalText);
 		let counter = this.counter;
 		for (const char of this.originalText) {
 			const token = this.convertToToken(char);
@@ -2578,8 +2648,7 @@ class PowerTemplateLexer extends PowerLexer{
 		const token = this.convertToToken(null);
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
-		console.log('this.syntaxTree', this.syntaxTree);
-		console.log('NODES: ', this.syntaxTree.tokensListener.nodes);
+		console.log('NODES', this.syntaxTree.tokensListener.nodes);
 	}
 
 }
@@ -4870,7 +4939,7 @@ window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: 'merda(2)(3)().novo()()'});
+new PowerTemplateLexer({text: 'merda[0][+52]["dfdf"]'});
 console.log('aqui:', 'merda(2).bosta(mole.dura(verde.claro))'.slice(25,36));
 console.log('window.c', window['c']);
 // new PowerTemplateLexer({text: 'pity;:?'});
