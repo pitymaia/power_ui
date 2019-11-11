@@ -64,7 +64,7 @@ class PowerTemplateLexer extends PowerLexer{
 		];
 		this.scan();
 
-		return this.syntaxTree.tokensListener.nodes;
+		return this.syntaxTree.nodes;
 	}
 
 	scan() {
