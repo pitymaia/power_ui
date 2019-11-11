@@ -753,14 +753,14 @@ class FunctionPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '(' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				return false;
 			// Allow invoke a second function
 			} else if (token.value === '(') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
 				this.listener.syntaxTree.nodes.push({
 					syntax: this.anonymous ? 'anonymousFunc' : 'function',
@@ -887,7 +887,7 @@ class DictionaryPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '[' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.haveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 					return false;
@@ -898,7 +898,7 @@ class DictionaryPattern {
 			// Allow invoke a second function
 			} else if (token.value === '[') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.haveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 					return false;

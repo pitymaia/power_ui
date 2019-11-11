@@ -1521,8 +1521,68 @@ class PowerUi extends _PowerUiBase {
 
 class SyntaxTree {
 	constructor({counter}) {
+		this.currentNode = -1;
 		this.nodes = [];
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
+	}
+
+	// Forward to and return the next node that are not empty
+	forwardNextNode() {
+		this.currentNode = this.currentNode + 1;
+		if (this.currentNode >= this.nodes.length) {
+			return null;
+		}
+		let node = this.nodes[this.currentNode];
+		if (node.syntax === 'empty') {
+			return this.forwardNextNode();
+		} else {
+			return node;
+		}
+	}
+	// Rewind to and return the previous node that are not empty
+	rewindPreviousNode() {
+		this.currentNode = this.currentNode - 1;
+		if (this.currentNode <= -1) {
+			return null;
+		}
+		let node = this.nodes[this.currentNode];
+		if (node.syntax === 'empty' && this.currentNode > 0) {
+			return this.rewindPreviousNode();
+		} else if (node.syntax === 'empty' && this.currentNode === 0) {
+			return null;
+		} else {
+			return node;
+		}
+	}
+
+	// Return the previous not empty node from currentNode
+	getPreviousNode(currentNode) {
+		currentNode = currentNode !== undefined ? currentNode - 1 : this.currentNode - 1;
+		if (currentNode <= -1) {
+			return null;
+		}
+		let node = this.nodes[currentNode];
+		if (node.syntax === 'empty' && currentNode > 0) {
+			return this.getPreviousNode(currentNode);
+		} else if (node.syntax === 'empty' && currentNode === 0) {
+			return null;
+		} else {
+			return node;
+		}
+	}
+
+	// Return the next not empty node from currentNode
+	getNextNode(currentNode) {
+		currentNode = currentNode !== undefined ? currentNode + 1 : this.currentNode + 1;
+		if (currentNode >= this.nodes.length) {
+			return null;
+		}
+		let node = this.nodes[currentNode];
+		if (node.syntax === 'empty') {
+			return this.getNextNode(currentNode);
+		} else {
+			return node;
+		}
 	}
 }
 
@@ -1584,8 +1644,6 @@ class PowerTemplateLexer extends PowerLexer{
 			{name: 'end', values: [null]},
 		];
 		this.scan();
-
-		return this.syntaxTree.nodes;
 	}
 
 	scan() {
@@ -2427,14 +2485,14 @@ class FunctionPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '(' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				return false;
 			// Allow invoke a second function
 			} else if (token.value === '(') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
 				this.listener.syntaxTree.nodes.push({
 					syntax: this.anonymous ? 'anonymousFunc' : 'function',
@@ -2561,7 +2619,7 @@ class DictionaryPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (this.currentOpenChar === '[' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.haveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 					return false;
@@ -2572,7 +2630,7 @@ class DictionaryPattern {
 			// Allow invoke a second function
 			} else if (token.value === '[') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter});
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.haveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 					return false;
@@ -4954,9 +5012,17 @@ window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-new PowerTemplateLexer({text: '   pity1 +"pity2"+pity4 + "oi" + " " + "pity" + "pity5" +pity3 + "pity" + pity + merda[0][+52]["dfdf"]'});
+const lexer = new PowerTemplateLexer({text: '   pity1 +"pity2"+2.5 + "oi"'});
 console.log('aqui:', 'merda(2).bosta(mole.dura(verde.claro))'.slice(25,36));
-console.log('window.c', window['c']);
+
+console.log('node', lexer.syntaxTree.forwardNextNode());
+console.log('node2', lexer.syntaxTree.forwardNextNode());
+
+console.log('get next', lexer.syntaxTree.getNextNode());
+console.log('get previous', lexer.syntaxTree.getPreviousNode());
+console.log('node', lexer.syntaxTree.rewindPreviousNode());
+
+
 // new PowerTemplateLexer({text: 'pity[.]'});
 // new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
