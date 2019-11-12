@@ -25,26 +25,54 @@ class SyntaxTree {
 	// X float
 	// X {name: 'operation', obj: OperationPattern},
 	// X {name: 'equal', obj: EqualPattern},
-	// {name: 'minor-than', obj: MinorThanPattern},
-	// {name: 'greater-than', obj: GreaterThanPattern},
+	// X {name: 'minor-than', obj: MinorThanPattern},
+	// X {name: 'greater-than', obj: GreaterThanPattern},
+	// {name: 'function', obj: FunctionPattern}, // this is a secundary detector
+	// anonymousFunc
+	// {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
+	// dictNode
 	// {name: 'NOT', obj: NotPattern},
 	// NOT-NOT
 	// NOT-equal
 	// {name: 'AND', obj: AndPattern},
 	// {name: 'OR', obj: OrPattern},
 	// {name: 'comma', obj: CommaPattern},
-	// X {name: 'dot', obj: DotPattern},
 	// {name: 'short-hand', obj: ShortHandPattern},
+	// X {name: 'dot', obj: DotPattern},
 	// X {name: 'parentheses', obj: ParentesesPattern}
-	// {name: 'function', obj: FunctionPattern}, // this is a secundary detector
-	// anonymousFunc
-	// {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
-	// dictNode
+
+	greaterThanValidation({nextNode, currentNode}) {
+		if (['variable', 'parentheses', 'function',
+			'float', 'integer', 'dictionary',
+			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
+			return true;
+		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
+			return true;
+		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	minorThanValidation({nextNode, currentNode}) {
+		if (['variable', 'parentheses', 'function',
+			'float', 'integer', 'dictionary',
+			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
+			return true;
+		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
+			return true;
+		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	equalValidation({nextNode, currentNode}) {
-		if (['short-hand', 'variable', 'parentheses',
+		if (['variable', 'parentheses', 'function',
 			'float', 'integer', 'dictionary',
-			'function', 'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
+			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
@@ -58,7 +86,7 @@ class SyntaxTree {
 	operationValidation({nextNode, currentNode}) {
 		if (['NOT', 'NOT-NOT', 'float',
 			'integer', 'variable', 'dictionary',
-			'parentheses', 'function', 'short-hand'].includes(nextNode.syntax)) {
+			'parentheses', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
