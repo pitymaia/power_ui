@@ -3,6 +3,73 @@ class SyntaxTree {
 		this.currentNode = -1;
 		this.nodes = [];
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
+		this.validAfter = {
+			variable: this.variableValidation,
+			dictionary: this.dictyonaryValidation,
+			string: this.stringValidation,
+			parentheses: this.parenthesesValidation,
+			dot: this.dotValidation,
+		}
+	}
+
+	// Return true if the next node is valid after a given syntax
+	isNextValidAfter(syntax) {
+		return true;
+	}
+	// X {name: 'string', obj: StringPattern},
+	// X {name: 'variable', obj: VariablePattern},
+	// {name: 'number', obj: NumberPattern},
+	// {name: 'operation', obj: OperationPattern},
+	// {name: 'equal', obj: EqualPattern},
+	// {name: 'minor-than', obj: MinorThanPattern},
+	// {name: 'greater-than', obj: GreaterThanPattern},
+	// {name: 'NOT', obj: NotPattern},
+	// NOT-NOT
+	// NOT-equal
+	// {name: 'AND', obj: AndPattern},
+	// {name: 'OR', obj: OrPattern},
+	// {name: 'comma', obj: CommaPattern},
+	// X {name: 'dot', obj: DotPattern},
+	// {name: 'short-hand', obj: ShortHandPattern},
+	// X {name: 'parentheses', obj: ParentesesPattern}
+	// {name: 'function', obj: FunctionPattern}, // this is a secundary detector
+	// anonymousFunc
+	// {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
+	// dictNode
+
+	variableValidation(node) {
+		if (node.syntax === 'dot' || node.syntax === 'operation') {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	stringValidation(node) {
+		if (['NOT', 'NOT-NOT', 'string', 'variable',
+			'dictionary', 'function', 'parentheses',
+			'number', 'especial', 'anonymousFunc',
+			'dot', 'comma', 'dictNode'].includes(node.syntax)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	parenthesesValidation(node) {
+		if (node.syntax === 'anonymousFunc' || node.syntax === 'dot' || node.syntax === 'operation') {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	dotValidation(node) {
+		if (node.syntax === 'function' || node.syntax === 'variable' || node.syntax === 'dictionary') {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	checkAndPrioritizeSyntax() {
