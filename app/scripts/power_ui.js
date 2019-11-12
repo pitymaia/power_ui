@@ -1526,6 +1526,15 @@ class SyntaxTree {
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 	}
 
+	checkSyntax() {
+		let expression = '';
+		while (this.forwardNextNode() !== null) {
+			console.log('current node', this.getCurrentNode());
+			expression = expression + (this.getCurrentNode() ? this.getCurrentNode().label : '');
+		}
+		console.log('Expression', expression);
+	}
+
 	// Forward to and return the next node that are not empty
 	forwardNextNode() {
 		this.currentNode = this.currentNode + 1;
@@ -1553,6 +1562,10 @@ class SyntaxTree {
 		} else {
 			return node;
 		}
+	}
+
+	getCurrentNode() {
+		return this.nodes[this.currentNode];
 	}
 
 	// Return the previous not empty node from currentNode
@@ -1685,6 +1698,7 @@ class TokensListener {
             {name: 'comma', obj: CommaPattern},
             {name: 'dot', obj: DotPattern},
             {name: 'short-hand', obj: ShortHandPattern},
+            {name: 'parentheses', obj: ParentesesPattern}
             // {name: 'function', obj: FunctionPattern}, // this is a secundary detector
             // {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
         ];
@@ -2394,6 +2408,109 @@ class DotPattern {
 	}
 }
 
+class ParentesesPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.invalid = false;
+		this.nodes = [];
+		this.currentOpenChar = null;
+		this.currentParams = '';
+		this.currentParamsCounter = null; //Allow pass the couter to the params
+		this.innerOpenedParenteses = 0;
+		this.anonymous = false;
+	}
+
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+		// The open char of the current node
+		this.currentOpenChar = token.value;
+		if (this.currentOpenChar === '(') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'parentheses');
+			this.listener.checking = 'middleTokens';
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		console.log('PARENTESES MIDDLETOKENS', token);
+		if (token.value === ')' && this.innerOpenedParenteses === 0) {
+			this.listener.checking = 'endToken';
+			return true;
+		// This is a functions with parameters, so allow any valid char
+		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+			this.currentParams = this.currentParams + token.value;
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
+
+			if (token.value === '(') {
+				this.innerOpenedParenteses = this.innerOpenedParenteses + 1;
+			} else if (token.value === ')') {
+				this.innerOpenedParenteses = this.innerOpenedParenteses - 1;
+			}
+			return true;
+		} else if (this.innerOpenedParenteses >= 0 && token.name === 'end') {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition
+	endToken({token, counter}) {
+		console.log('PARENTESES ENDTOKENS', token);
+		if (this.invalid === false ) {
+			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'parentheses', token: token, counter: counter, parameters: parameters});
+				return false;
+			// Allow invoke a second function
+			} else if (token.value === '(') {
+				// MANUALLY CREATE THE CURRENT NODE
+				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				this.listener.syntaxTree.nodes.push({
+					syntax: this.anonymous ? 'anonymousFunc' : 'parentheses',
+					label: this.listener.currentLabel,
+					tokens: this.listener.currentTokens,
+					start: this.listener.start,
+					end: counter,
+					parameters: parameters || [],
+				});
+				this.listener.start = counter;
+				this.listener.currentTokens = [];
+				this.currentParams = [];
+				this.listener.currentLabel = '';
+
+				this.anonymous = true;
+				this.listener.checking = 'middleTokens';
+				return true;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				return true;
+			}
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
+	}
+}
+
 // functions (getAge()) and chain functions (getUser().getAge()) dictionary with methods (user.getAge())
 class FunctionPattern {
 	constructor(listener) {
@@ -2419,7 +2536,7 @@ class FunctionPattern {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
+					this.currentParamsCounter = counter || null;
 				}
 				return true;
 			} else if (token.value === '(') {
@@ -2427,7 +2544,7 @@ class FunctionPattern {
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
 				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
+					this.currentParamsCounter = counter || null;
 				}
 				return true;
 			} else {
@@ -2453,7 +2570,7 @@ class FunctionPattern {
 			} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
+					this.currentParamsCounter = counter || null;
 				}
 
 				if (token.value === '(') {
@@ -2553,7 +2670,7 @@ class DictionaryPattern {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
+					this.currentParamsCounter = counter || null;
 				}
 				return true;
 			} else if (token.value === '[') {
@@ -2561,7 +2678,7 @@ class DictionaryPattern {
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
 				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
+					this.currentParamsCounter = counter || null;
 				}
 				return true;
 			} else {
@@ -2587,7 +2704,7 @@ class DictionaryPattern {
 			} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter;
+					this.currentParamsCounter = counter || null;
 				}
 
 				if (token.value === '[') {
@@ -5012,15 +5129,10 @@ window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-const lexer = new PowerTemplateLexer({text: '   pity1 +"pity2"+2.5 + "oi"'});
-console.log('aqui:', 'merda(2).bosta(mole.dura(verde.claro))'.slice(25,36));
+const lexer = new PowerTemplateLexer({text: '   pity1 +"pity2" + andre(2) +2.5 + "oi" + (2 + fun(2))()'});
+console.log('aqui:', (2+2));
 
-console.log('node', lexer.syntaxTree.forwardNextNode());
-console.log('node2', lexer.syntaxTree.forwardNextNode());
-
-console.log('get next', lexer.syntaxTree.getNextNode());
-console.log('get previous', lexer.syntaxTree.getPreviousNode());
-console.log('node', lexer.syntaxTree.rewindPreviousNode());
+lexer.syntaxTree.checkSyntax();
 
 
 // new PowerTemplateLexer({text: 'pity[.]'});

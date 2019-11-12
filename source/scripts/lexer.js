@@ -5,6 +5,15 @@ class SyntaxTree {
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 	}
 
+	checkSyntax() {
+		let expression = '';
+		while (this.forwardNextNode() !== null) {
+			console.log('current node', this.getCurrentNode());
+			expression = expression + (this.getCurrentNode() ? this.getCurrentNode().label : '');
+		}
+		console.log('Expression', expression);
+	}
+
 	// Forward to and return the next node that are not empty
 	forwardNextNode() {
 		this.currentNode = this.currentNode + 1;
@@ -32,6 +41,10 @@ class SyntaxTree {
 		} else {
 			return node;
 		}
+	}
+
+	getCurrentNode() {
+		return this.nodes[this.currentNode];
 	}
 
 	// Return the previous not empty node from currentNode
@@ -164,6 +177,7 @@ class TokensListener {
             {name: 'comma', obj: CommaPattern},
             {name: 'dot', obj: DotPattern},
             {name: 'short-hand', obj: ShortHandPattern},
+            {name: 'parentheses', obj: ParentesesPattern}
             // {name: 'function', obj: FunctionPattern}, // this is a secundary detector
             // {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
         ];
