@@ -1526,7 +1526,7 @@ class SyntaxTree {
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 	}
 
-	checkSyntax() {
+	checkAndPrioritizeSyntax() {
 		let expression = '';
 		while (this.forwardNextNode() !== null) {
 			console.log('current node', this.getCurrentNode());
@@ -2438,7 +2438,6 @@ class ParentesesPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('PARENTESES MIDDLETOKENS', token);
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
 			this.listener.checking = 'endToken';
 			return true;
@@ -2469,7 +2468,6 @@ class ParentesesPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('PARENTESES ENDTOKENS', token);
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
@@ -2776,7 +2774,6 @@ class DictionaryPattern {
 				return true;
 			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
-			console.log('!!!!!!!!!!!!! 3', token);
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
@@ -5129,10 +5126,10 @@ window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-const lexer = new PowerTemplateLexer({text: '   pity1 +"pity2" + andre(2) +2.5 + "oi" + (2 + fun(2))()'});
+const lexer = new PowerTemplateLexer({text: '   pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
 console.log('aqui:', (2+2));
 
-lexer.syntaxTree.checkSyntax();
+lexer.syntaxTree.checkAndPrioritizeSyntax();
 
 
 // new PowerTemplateLexer({text: 'pity[.]'});

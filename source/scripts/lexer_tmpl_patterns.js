@@ -692,7 +692,6 @@ class ParentesesPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('PARENTESES MIDDLETOKENS', token);
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
 			this.listener.checking = 'endToken';
 			return true;
@@ -723,7 +722,6 @@ class ParentesesPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('PARENTESES ENDTOKENS', token);
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
@@ -1030,7 +1028,6 @@ class DictionaryPattern {
 				return true;
 			}
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
-			console.log('!!!!!!!!!!!!! 3', token);
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {

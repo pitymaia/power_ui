@@ -251,10 +251,10 @@ window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-const lexer = new PowerTemplateLexer({text: '   pity1 +"pity2" + andre(2) +2.5 + "oi" + (2 + fun(2))()'});
+const lexer = new PowerTemplateLexer({text: '   pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
 console.log('aqui:', (2+2));
 
-lexer.syntaxTree.checkSyntax();
+lexer.syntaxTree.checkAndPrioritizeSyntax();
 
 
 // new PowerTemplateLexer({text: 'pity[.]'});

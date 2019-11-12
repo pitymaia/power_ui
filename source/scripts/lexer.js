@@ -5,7 +5,7 @@ class SyntaxTree {
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 	}
 
-	checkSyntax() {
+	checkAndPrioritizeSyntax() {
 		let expression = '';
 		while (this.forwardNextNode() !== null) {
 			console.log('current node', this.getCurrentNode());
