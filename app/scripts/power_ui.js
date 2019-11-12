@@ -1530,6 +1530,9 @@ class SyntaxTree {
 			string: this.stringValidation,
 			parentheses: this.parenthesesValidation,
 			dot: this.dotValidation,
+			integer: this.numberValidation,
+			float: this.numberValidation,
+			operation: this.operationValidation,
 		}
 	}
 
@@ -1539,9 +1542,10 @@ class SyntaxTree {
 	}
 	// X {name: 'string', obj: StringPattern},
 	// X {name: 'variable', obj: VariablePattern},
-	// {name: 'number', obj: NumberPattern},
-	// {name: 'operation', obj: OperationPattern},
-	// {name: 'equal', obj: EqualPattern},
+	// X integer
+	// X float
+	// X {name: 'operation', obj: OperationPattern},
+	// X {name: 'equal', obj: EqualPattern},
 	// {name: 'minor-than', obj: MinorThanPattern},
 	// {name: 'greater-than', obj: GreaterThanPattern},
 	// {name: 'NOT', obj: NotPattern},
@@ -1558,35 +1562,75 @@ class SyntaxTree {
 	// {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
 	// dictNode
 
-	variableValidation(node) {
-		if (node.syntax === 'dot' || node.syntax === 'operation') {
+	equalValidation({nextNode, currentNode}) {
+		if (['short-hand', 'variable', 'parentheses',
+			'float', 'integer', 'dictionary',
+			'function', 'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
+			return true;
+		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
+			return true;
+		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	stringValidation(node) {
+	operationValidation({nextNode, currentNode}) {
+		if (['NOT', 'NOT-NOT', 'float',
+			'integer', 'variable', 'dictionary',
+			'parentheses', 'function', 'short-hand'].includes(nextNode.syntax)) {
+			return true;
+		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
+			return true;
+		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	variableValidation(nextNode) {
+		if (['dot', 'operation', 'NOT-equal',
+			'equal', 'minor-than', 'minor-than',
+			'AND', 'OR' , 'short-hand'].includes(nextNode.syntax)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	numberValidation(nextNode) {
+		if (['operation', 'NOT-equal', 'equal',
+			'minor-than', 'minor-than', 'AND',
+			'OR' , 'short-hand'].includes(nextNode.syntax)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	stringValidation(nextNode) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
 			'dictionary', 'function', 'parentheses',
 			'number', 'especial', 'anonymousFunc',
-			'dot', 'comma', 'dictNode'].includes(node.syntax)) {
+			'dot', 'comma', 'dictNode', 'short-hand'].includes(nextNode.syntax)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
-	parenthesesValidation(node) {
-		if (node.syntax === 'anonymousFunc' || node.syntax === 'dot' || node.syntax === 'operation') {
+	parenthesesValidation(nextNode) {
+		if (['anonymousFunc', 'dot', 'operation', 'short-hand'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	dotValidation(node) {
-		if (node.syntax === 'function' || node.syntax === 'variable' || node.syntax === 'dictionary') {
+	dotValidation(nextNode) {
+		if (['function', 'variable', 'dictionary'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -5193,8 +5237,8 @@ window.c = {d: {e: 'f'}};
 // new PowerTemplateLexer({text: '     "  5 +  app.num(5) "'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-const lexer = new PowerTemplateLexer({text: '   pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
-console.log('aqui:', 'pity' * 'luciano');
+const lexer = new PowerTemplateLexer({text: ' "" + pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
+console.log('aqui:', true === -2);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 
