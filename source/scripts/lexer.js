@@ -12,6 +12,14 @@ class SyntaxTree {
 			integer: this.numberValidation,
 			float: this.numberValidation,
 			operation: this.operationValidation,
+			equal: this.equalityValidation,
+			'NOT-equal': this.equalityValidation,
+			'greater-than': this.equalityValidation,
+			'minor-than': this.equalityValidation,
+			function: this.objectValidation,
+			anonymousFunc: this.objectValidation,
+			dictionary: this.objectValidation,
+			dictNode: this.objectValidation,
 		}
 	}
 
@@ -27,13 +35,13 @@ class SyntaxTree {
 	// X {name: 'equal', obj: EqualPattern},
 	// X {name: 'minor-than', obj: MinorThanPattern},
 	// X {name: 'greater-than', obj: GreaterThanPattern},
-	// {name: 'function', obj: FunctionPattern}, // this is a secundary detector
-	// anonymousFunc
-	// {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
-	// dictNode
+	// X NOT-equal
+	// X {name: 'function', obj: FunctionPattern}, // this is a secundary detector
+	// X anonymousFunc
+	// X {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
+	// X dictNode
 	// {name: 'NOT', obj: NotPattern},
 	// NOT-NOT
-	// NOT-equal
 	// {name: 'AND', obj: AndPattern},
 	// {name: 'OR', obj: OrPattern},
 	// {name: 'comma', obj: CommaPattern},
@@ -41,35 +49,18 @@ class SyntaxTree {
 	// X {name: 'dot', obj: DotPattern},
 	// X {name: 'parentheses', obj: ParentesesPattern}
 
-	greaterThanValidation({nextNode, currentNode}) {
-		if (['variable', 'parentheses', 'function',
-			'float', 'integer', 'dictionary',
-			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
-			return true;
-		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
-			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+	// Functions and dictionaries
+	objectValidation(nextNode) {
+		if (['operation', 'anonymousFunc', 'short-hand',
+			'NOT-equal', 'equal', 'minor-than', 'minor-than',
+			'dot', 'AND', 'OR', 'dictNode'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	minorThanValidation({nextNode, currentNode}) {
-		if (['variable', 'parentheses', 'function',
-			'float', 'integer', 'dictionary',
-			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
-			return true;
-		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
-			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	equalValidation({nextNode, currentNode}) {
+	equalityValidation({nextNode, currentNode}) {
 		if (['variable', 'parentheses', 'function',
 			'float', 'integer', 'dictionary',
 			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
