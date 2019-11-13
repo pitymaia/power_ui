@@ -120,8 +120,8 @@ class SyntaxTree {
 	stringValidation({nextNode}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
 			'dictionary', 'function', 'parentheses',
-			'number', 'especial', 'anonymousFunc',
-			'dot', 'comma', 'dictNode', 'short-hand', 'end'].includes(nextNode.syntax)) {
+			'integer', 'float', 'especial', 'anonymousFunc',
+			'dot', 'comma', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
 		} else {
 			return true;
