@@ -853,7 +853,7 @@ class FunctionPattern {
 	// end condition
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
-			if (this.currentOpenChar === '(' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
+			if (this.currentOpenChar === '(' && ['blank', 'end', 'dot', 'operator', 'comma'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
 				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
