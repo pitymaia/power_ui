@@ -777,7 +777,7 @@ class ObjectPattern {
 		if (this.currentOpenChar === '[' || this.currentOpenChar === '(') {
 			if (token.value === ']' || token.value === ')') {
 				this.listener.checking = 'endToken';
-				this.invalid = token.value === ']' // Dict cant be empty but function can be;
+				this.invalid = token.value === ']' // Dict can't be empty but function can be;
 				return true;
 			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.checking = 'middleTokens';
