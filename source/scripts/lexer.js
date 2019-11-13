@@ -308,8 +308,7 @@ class TokensListener {
             {name: 'dot', obj: DotPattern},
             {name: 'short-hand', obj: ShortHandPattern},
             {name: 'parentheses', obj: ParentesesPattern}
-            // {name: 'function', obj: FunctionPattern}, // this is a secundary detector
-            // {name: 'dictionary, obj: DictionaryPattern'}, // this is a secundary detector
+            // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
         ];
         this.candidates = [];
         this.checking = 'firstToken';
