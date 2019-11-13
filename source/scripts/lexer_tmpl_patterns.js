@@ -180,7 +180,7 @@ class OperationPattern {
 			this.listener.checking = 'endToken';
 			this.doubleOperators = true;
 			return true;
-		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name)) {
+		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name) || token.value === '(') {
 			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
 		} else if (token.name === 'quote' && this.doubleOperators === false && this.openOperator === '+') {
