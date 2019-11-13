@@ -947,7 +947,7 @@ class DictionaryPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		// FUNCTION
+		// Dictionary
 		if (this.currentOpenChar === '[') {
 			if (token.value === ']' && this.innerOpenedDicts === 0) {
 				this.listener.checking = 'endToken';
@@ -987,7 +987,7 @@ class DictionaryPattern {
 	// end condition
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
-			if (this.currentOpenChar === '[' && ['blank', 'end', 'dot', 'operator'].includes(token.name)) {
+			if (this.currentOpenChar === '[' && ['blank', 'end', 'dot', 'operator', 'comma'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.haveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
