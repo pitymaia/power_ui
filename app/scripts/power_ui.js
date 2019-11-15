@@ -1550,11 +1550,6 @@ class SyntaxTree {
 		}
 	}
 
-	// Return true if the next node is valid after a given syntax
-	isNextValidAfterCurrent({currentNode, nextNode}) {
-		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
-	}
-
 	orAndNotShortHandValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
 			'float', 'dictionary', 'parentheses',
@@ -1665,25 +1660,39 @@ class SyntaxTree {
 		}
 	}
 
-	checkAndPrioritizeSyntax(nodes) {
+	// Return true if the next node is valid after a given syntax
+	isNextValidAfterCurrent({currentNode, nextNode}) {
+		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
+	}
+
+	checkAndPrioritizeSyntax(nodes, expression) {
 		nodes = nodes || this.nodes;
 		nodes = this.filterNodes(nodes);
-		let expression = '';
+		expression = expression || '';
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
-		while (index <= nodesLastIndex) {
+		let isValid = true;
+		while (index <= nodesLastIndex && isValid) {
 			const currentNode = this.getCurrentNode({index: index, nodes});
-			console.log('isValid?', this.isNextValidAfterCurrent({currentNode: currentNode, nextNode: this.getNextNode({index: index, nodes}) || {syntax: 'end'}}), 'current node', currentNode);
-			expression = expression + (this.getCurrentNode({index: index, nodes}) ? this.getCurrentNode({index: index, nodes}).label : '');
+			isValid = this.isNextValidAfterCurrent({
+				currentNode: currentNode,
+				nextNode: this.getNextNode({index: index, nodes}),
+			});
+
+			if (isValid === false) {
+				throw `PowerUI template invalid syntax: "${currentNode.label}" at ${expression}.`;
+			} else {
+				expression = expression + currentNode.label;
+			}
 
 			// recursively check the parameters
 			if (currentNode.parameters.length) {
-				this.checkAndPrioritizeSyntax(currentNode.parameters);
+				isValid = this.checkAndPrioritizeSyntax(currentNode.parameters, expression);
 			}
 
 			index = index + 1;
 		}
-		console.log('Expression', expression);
+		return isValid;
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -1785,7 +1794,6 @@ class PowerTemplateLexer extends PowerLexer{
 		const token = this.convertToToken(null);
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
-		console.log('NODES', this.syntaxTree.nodes);
 	}
 
 }
@@ -5130,7 +5138,7 @@ function b (t) {
 	return a.bind(t);
 }
 window.c = {d: {e: b}};
-const lexer = new PowerTemplateLexer({text: '    c["d"]["e"](2+2)(a(a+b+a[c]))["d"] +3+  c("d")()["e"]()()["d"][333]'});
+const lexer = new PowerTemplateLexer({text: '    c["d"]["e"](2+2)(a(a- b+a[c]))["d"] +3+  c("d")()["e"]()()["d"][333 a]'});
 // const lexer = new PowerTemplateLexer({text: 'testVar+"some string" + 2+1 +(a+b)'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});

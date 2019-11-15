@@ -29,11 +29,6 @@ class SyntaxTree {
 		}
 	}
 
-	// Return true if the next node is valid after a given syntax
-	isNextValidAfterCurrent({currentNode, nextNode}) {
-		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
-	}
-
 	orAndNotShortHandValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
 			'float', 'dictionary', 'parentheses',
@@ -144,25 +139,39 @@ class SyntaxTree {
 		}
 	}
 
-	checkAndPrioritizeSyntax(nodes) {
+	// Return true if the next node is valid after a given syntax
+	isNextValidAfterCurrent({currentNode, nextNode}) {
+		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
+	}
+
+	checkAndPrioritizeSyntax(nodes, expression) {
 		nodes = nodes || this.nodes;
 		nodes = this.filterNodes(nodes);
-		let expression = '';
+		expression = expression || '';
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
-		while (index <= nodesLastIndex) {
+		let isValid = true;
+		while (index <= nodesLastIndex && isValid) {
 			const currentNode = this.getCurrentNode({index: index, nodes});
-			console.log('isValid?', this.isNextValidAfterCurrent({currentNode: currentNode, nextNode: this.getNextNode({index: index, nodes}) || {syntax: 'end'}}), 'current node', currentNode);
-			expression = expression + (this.getCurrentNode({index: index, nodes}) ? this.getCurrentNode({index: index, nodes}).label : '');
+			isValid = this.isNextValidAfterCurrent({
+				currentNode: currentNode,
+				nextNode: this.getNextNode({index: index, nodes}),
+			});
+
+			if (isValid === false) {
+				throw `PowerUI template invalid syntax: "${currentNode.label}" at ${expression}.`;
+			} else {
+				expression = expression + currentNode.label;
+			}
 
 			// recursively check the parameters
 			if (currentNode.parameters.length) {
-				this.checkAndPrioritizeSyntax(currentNode.parameters);
+				isValid = this.checkAndPrioritizeSyntax(currentNode.parameters, expression);
 			}
 
 			index = index + 1;
 		}
-		console.log('Expression', expression);
+		return isValid;
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -264,7 +273,6 @@ class PowerTemplateLexer extends PowerLexer{
 		const token = this.convertToToken(null);
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
-		console.log('NODES', this.syntaxTree.nodes);
 	}
 
 }
