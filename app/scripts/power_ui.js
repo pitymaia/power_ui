@@ -1552,7 +1552,7 @@ class SyntaxTree {
 
 	// Return true if the next node is valid after a given syntax
 	isNextValidAfterCurrent({currentNode, nextNode}) {
-		return this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode});
+		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
 	}
 
 	orAndNotShortHandValidation({nextNode}) {
