@@ -159,7 +159,7 @@ class SyntaxTree {
 			});
 
 			if (isValid === false) {
-				throw `PowerUI template invalid syntax: "${currentNode.label}" at ${expression}.`;
+				throw `PowerUI template invalid syntax: "${currentNode.label}" nearby ${expression}.`;
 			} else {
 				expression = expression + currentNode.label;
 			}
