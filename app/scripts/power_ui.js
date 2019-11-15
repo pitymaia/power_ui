@@ -2713,7 +2713,7 @@ class ObjectPattern {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'dictNode' : 'dictionary', token: token, counter: counter, parameters: parameters});
 				} else {
-					this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
+					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				}
 				return false;
@@ -2800,7 +2800,7 @@ class ObjectPattern {
 
 	createAnonymousFuncNode({token, counter}) {
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-		this.listener.currentLabel = this.anonymous ? 'anonymous' : this.listener.firstNodeLabel;
+		this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 		this.listener.syntaxTree.nodes.push({
 			syntax: this.anonymous ? 'anonymousFunc' : 'function',
 			label: this.listener.currentLabel,
