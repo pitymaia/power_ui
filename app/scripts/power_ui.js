@@ -1665,77 +1665,51 @@ class SyntaxTree {
 		}
 	}
 
-	checkAndPrioritizeSyntax() {
+	checkAndPrioritizeSyntax(nodes) {
+		nodes = nodes || this.nodes;
+		nodes = this.filterNodes(nodes);
 		let expression = '';
-		while (this.forwardNextNode() !== null) {
-			const currentNode = this.getCurrentNode();
-			console.log('isValid?', this.isNextValidAfterCurrent({currentNode: currentNode, nextNode: this.getNextNode() || {syntax: 'end'}}), 'current node', currentNode);
-			expression = expression + (this.getCurrentNode() ? this.getCurrentNode().label : '');
+		let index = 0;
+		const nodesLastIndex = nodes.length - 1;
+		while (index <= nodesLastIndex) {
+			const currentNode = this.getCurrentNode({index: index, nodes});
+			console.log('isValid?', this.isNextValidAfterCurrent({currentNode: currentNode, nextNode: this.getNextNode({index: index, nodes}) || {syntax: 'end'}}), 'current node', currentNode);
+			expression = expression + (this.getCurrentNode({index: index, nodes}) ? this.getCurrentNode({index: index, nodes}).label : '');
+
+			// recursively check the parameters
+			if (currentNode.parameters.length) {
+				this.checkAndPrioritizeSyntax(currentNode.parameters);
+			}
+
+			index = index + 1;
 		}
 		console.log('Expression', expression);
 	}
 
-	// Forward to and return the next node that are not empty
-	forwardNextNode() {
-		this.currentNode = this.currentNode + 1;
-		if (this.currentNode >= this.nodes.length) {
-			return null;
-		}
-		let node = this.nodes[this.currentNode];
-		if (node.syntax === 'empty') {
-			return this.forwardNextNode();
-		} else {
-			return node;
-		}
-	}
-	// Rewind to and return the previous node that are not empty
-	rewindPreviousNode() {
-		this.currentNode = this.currentNode - 1;
-		if (this.currentNode <= -1) {
-			return null;
-		}
-		let node = this.nodes[this.currentNode];
-		if (node.syntax === 'empty' && this.currentNode > 0) {
-			return this.rewindPreviousNode();
-		} else if (node.syntax === 'empty' && this.currentNode === 0) {
-			return null;
-		} else {
-			return node;
-		}
+	getCurrentNode({index, nodes}) {
+		return nodes[index];
 	}
 
-	getCurrentNode() {
-		return this.nodes[this.currentNode];
+	// Return the previous node from node list
+	getPreviousNode({index, nodes}) {
+		return nodes[index - 1] || {syntax: 'end'};
 	}
 
-	// Return the previous not empty node from currentNode
-	getPreviousNode(currentNode) {
-		currentNode = currentNode !== undefined ? currentNode - 1 : this.currentNode - 1;
-		if (currentNode <= -1) {
-			return null;
-		}
-		let node = this.nodes[currentNode];
-		if (node.syntax === 'empty' && currentNode > 0) {
-			return this.getPreviousNode(currentNode);
-		} else if (node.syntax === 'empty' && currentNode === 0) {
-			return null;
-		} else {
-			return node;
-		}
+	// Return the next node from node list
+	getNextNode({index, nodes}) {
+		return nodes[index + 1] || {syntax: 'end'};
 	}
 
-	// Return the next not empty node from currentNode
-	getNextNode(currentNode) {
-		currentNode = currentNode !== undefined ? currentNode + 1 : this.currentNode + 1;
-		if (currentNode >= this.nodes.length) {
-			return null;
+	filterNodes(nodes) {
+		const filteredNodes = [];
+		let counter = nodes.length -1;
+		while (nodes[counter]) {
+			if (nodes[counter].syntax !== 'empty') {
+				filteredNodes.unshift(nodes[counter]);
+			}
+			counter = counter - 1;
 		}
-		let node = this.nodes[currentNode];
-		if (node.syntax === 'empty') {
-			return this.getNextNode(currentNode);
-		} else {
-			return node;
-		}
+		return filteredNodes;
 	}
 }
 
@@ -5156,8 +5130,8 @@ function b (t) {
 	return a.bind(t);
 }
 window.c = {d: {e: b}};
-// const lexer = new PowerTemplateLexer({text: 'c["d"]["e"]()()["d"] +  c("d")()["e"]()()["d"][333]'});
-const lexer = new PowerTemplateLexer({text: 'testVar+"some string" + 2+1 +(a+b)'});
+const lexer = new PowerTemplateLexer({text: '    c["d"]["e"](2+2)(a(a+b+a[c]))["d"] +3+  c("d")()["e"]()()["d"][333]'});
+// const lexer = new PowerTemplateLexer({text: 'testVar+"some string" + 2+1 +(a+b)'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
 // const lexer = new PowerTemplateLexer({text: 'b() c["d"]["e"][g] pity() "" + pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
