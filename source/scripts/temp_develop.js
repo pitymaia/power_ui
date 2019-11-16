@@ -249,14 +249,15 @@ function b (t) {
 }
 window.c = {d: {e: b}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: '!a !== teste : e'});
-console.log('aqui:', a() === 1 || 10 * 0 === 0 ? (5 + 1 + (4/2)) : (50 + 5 + (100/3)));
+const lexer = new PowerTemplateLexer({text: 'a["r"][2].teste.teste2'});
+// const lexer = new PowerTemplateLexer({text: 'pity[.]'});
+// const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
+
+console.log('aqui:', a() === 1 ? 2 * 3 : 3 * 3);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 
 
-// new PowerTemplateLexer({text: 'pity[.]'});
-// new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
 
 

@@ -1521,12 +1521,12 @@ class PowerUi extends _PowerUiBase {
 
 class SyntaxTree {
 	constructor({counter}) {
-		this.currentNode = -1;
+		this.currentPriority = 0;
 		this.nodes = [];
+		this.tree = [];
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 		this.validAfter = {
 			variable: this.variableValidation,
-			dictionary: this.dictyonaryValidation,
 			string: this.stringValidation,
 			parentheses: this.parenthesesValidation,
 			dot: this.dotValidation,
@@ -1681,11 +1681,12 @@ class SyntaxTree {
 		nodes = nodes || this.nodes;
 		nodes = this.filterNodes(nodes);
 		expression = expression || '';
+
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
 		let isValid = true;
 
-		// Validade the first element
+		// Validade the first node
 		isValid = this.firstNodeValidation({node: this.getCurrentNode({index: 0, nodes})});
 
 		if (isValid === false) {
@@ -1710,10 +1711,24 @@ class SyntaxTree {
 				isValid = this.checkAndPrioritizeSyntax(currentNode.parameters, expression);
 			}
 
+			this.createExpressionGroups(currentNode);
+
 			index = index + 1;
 		}
 		console.log('nodes', nodes);
 		return isValid;
+	}
+
+	createExpressionGroups(currentNode) {
+		this.CURRENT_EXPRESSION_NODES = [];
+		const EXPRESSION_GROUPS = [];
+
+		// Convert
+		if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
+
+		} else {
+			this.CURRENT_EXPRESSION_NODES.push(currentNode);
+		}
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -5162,14 +5177,15 @@ function b (t) {
 }
 window.c = {d: {e: b}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: '!a !== teste : e'});
-console.log('aqui:', a() === 1 || 10 * 0 === 0 ? (5 + 1 + (4/2)) : (50 + 5 + (100/3)));
+const lexer = new PowerTemplateLexer({text: 'a["r"][2].teste.teste2'});
+// const lexer = new PowerTemplateLexer({text: 'pity[.]'});
+// const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
+
+console.log('aqui:', a() === 1 ? 2 * 3 : 3 * 3);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 
 
-// new PowerTemplateLexer({text: 'pity[.]'});
-// new PowerTemplateLexer({text: 'pity1 pity.pato.marreco boa.ruim'});
 
 
 
