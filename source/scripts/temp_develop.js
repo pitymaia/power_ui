@@ -248,12 +248,12 @@ function b (t) {
 	return a.bind(t);
 }
 window.c = {d: {e: b}};
-const lexer = new PowerTemplateLexer({text: '    c["d"]["e"](2+2)(a(a b+a[c]))["d"] +3+  c("d")()["e"]()()["d"][333 a]'});
+const lexer = new PowerTemplateLexer({text: '2++2'});
 // const lexer = new PowerTemplateLexer({text: 'testVar+"some string" + 2+1 +(a+b)'});
 // new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
 // new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
 // const lexer = new PowerTemplateLexer({text: 'b() c["d"]["e"][g] pity() "" + pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
-console.log('aqui:', c["d"]["e"]()()["d"]);
+// console.log('aqui:', 2++2);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

@@ -159,6 +159,7 @@ class OperationPattern {
 	constructor(listener) {
 		this.listener = listener;
 		this.openOperator = null;
+		this.lastOperator = null;
 		this.doubleOperators = false;
 	}
 
@@ -179,6 +180,7 @@ class OperationPattern {
 		if (token.name === 'operation' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
 			this.listener.checking = 'endToken';
 			this.doubleOperators = true;
+			this.lastOperator = token.value;
 			return true;
 		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name) || token.value === '(') {
 			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
@@ -197,10 +199,10 @@ class OperationPattern {
 	// end condition are only to INVALID syntaxe
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
-		if (this.doubleOperators === true && ['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
+		if (this.doubleOperators === true && this.lastOperator !== token.value && ['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
 			return false;
-		} else if (['blank', 'end'].includes(token.name)) {
+		} else if (['blank', 'end'].includes(token.name) || (this.doubleOperators === true && this.lastOperator === token.value)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
@@ -844,7 +846,7 @@ class ObjectPattern {
 	// end condition
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
-			if (['blank', 'end', 'dot', 'operator', 'comma'].includes(token.name)) {
+			if (['blank', 'end', 'dot', 'operator', 'comma', 'operation'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.currentOpenChar === '[' && this.dictHaveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
