@@ -1550,6 +1550,18 @@ class SyntaxTree {
 		}
 	}
 
+	firstNodeValidation({node}) {
+		if (['dot', 'dictNode', 'anonymousFunc',
+			'AND', 'OR', 'NOT-equal', 'short-hand',
+			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
+			return false;
+		} else if (node.syntax === 'operation' && (node.label !== '+' || node.label !== '-')) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	orAndNotShortHandValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
 			'float', 'dictionary', 'parentheses',
@@ -1588,7 +1600,7 @@ class SyntaxTree {
 	equalityValidation({nextNode, currentNode}) {
 		if (['variable', 'parentheses', 'function',
 			'float', 'integer', 'dictionary',
-			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
+			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
@@ -1672,6 +1684,14 @@ class SyntaxTree {
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
 		let isValid = true;
+
+		// Validade the first element
+		isValid = this.firstNodeValidation({node: this.getCurrentNode({index: 0, nodes})});
+
+		if (isValid === false) {
+			throw `PowerUI template invalid syntax: "${nodes[0].label}" starting the expression.`;
+		}
+
 		while (index <= nodesLastIndex && isValid) {
 			const currentNode = this.getCurrentNode({index: index, nodes});
 			isValid = this.isNextValidAfterCurrent({
@@ -1692,6 +1712,7 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
+		console.log('nodes', nodes);
 		return isValid;
 	}
 
@@ -2511,7 +2532,7 @@ class DotPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['especial', 'quote', 'letter'].includes(token.name)) {
+		if (this.invalid === false && ['especial', 'quote', 'letter', 'blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'dot', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -5140,12 +5161,9 @@ function b (t) {
 	return a.bind(t);
 }
 window.c = {d: {e: b}};
-const lexer = new PowerTemplateLexer({text: '2++2'});
-// const lexer = new PowerTemplateLexer({text: 'testVar+"some string" + 2+1 +(a+b)'});
-// new PowerTemplateLexer({text: '"5 + \\"teste\\" + \\"/\\" + app.num(5)"'});
-// new PowerTemplateLexer({text: '   pity1 "pity2" pity4 "pity5"pity3 "pity pity " '});
-// const lexer = new PowerTemplateLexer({text: 'b() c["d"]["e"][g] pity() "" + pity1."pity2" andre(2) b.a[werewr] + (2 + (3 - 1))()'});
-// console.log('aqui:', 2++2);
+// const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
+const lexer = new PowerTemplateLexer({text: '!a !== teste : e'});
+console.log('aqui:', a() === 1 || 10 * 0 === 0 ? (5 + 1 + (4/2)) : (50 + 5 + (100/3)));
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

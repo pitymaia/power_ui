@@ -29,6 +29,18 @@ class SyntaxTree {
 		}
 	}
 
+	firstNodeValidation({node}) {
+		if (['dot', 'dictNode', 'anonymousFunc',
+			'AND', 'OR', 'NOT-equal', 'short-hand',
+			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
+			return false;
+		} else if (node.syntax === 'operation' && (node.label !== '+' || node.label !== '-')) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	orAndNotShortHandValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
 			'float', 'dictionary', 'parentheses',
@@ -67,7 +79,7 @@ class SyntaxTree {
 	equalityValidation({nextNode, currentNode}) {
 		if (['variable', 'parentheses', 'function',
 			'float', 'integer', 'dictionary',
-			'NOT', 'NOT-NOT'].includes(nextNode.syntax)) {
+			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
@@ -151,6 +163,14 @@ class SyntaxTree {
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
 		let isValid = true;
+
+		// Validade the first element
+		isValid = this.firstNodeValidation({node: this.getCurrentNode({index: 0, nodes})});
+
+		if (isValid === false) {
+			throw `PowerUI template invalid syntax: "${nodes[0].label}" starting the expression.`;
+		}
+
 		while (index <= nodesLastIndex && isValid) {
 			const currentNode = this.getCurrentNode({index: index, nodes});
 			isValid = this.isNextValidAfterCurrent({
@@ -171,6 +191,7 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
+		console.log('nodes', nodes);
 		return isValid;
 	}
 

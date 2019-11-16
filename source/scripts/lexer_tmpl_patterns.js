@@ -644,7 +644,7 @@ class DotPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['especial', 'quote', 'letter'].includes(token.name)) {
+		if (this.invalid === false && ['especial', 'quote', 'letter', 'blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'dot', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
