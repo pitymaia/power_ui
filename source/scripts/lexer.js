@@ -195,7 +195,6 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
-		console.log('nodes', nodes);
 		return isValid;
 	}
 

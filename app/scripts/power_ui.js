@@ -1716,7 +1716,6 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
-		console.log('nodes', nodes);
 		return isValid;
 	}
 
@@ -2718,6 +2717,7 @@ class ObjectPattern {
 		// dict function node
 		} else if (this.currentOpenChar === '.' && token.value === ')' && this.innerOpenedObjects === 0) {
 			this.anonymous = false;
+			this.currentParams = this.currentParams + token.value;
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
@@ -2735,11 +2735,11 @@ class ObjectPattern {
 			return true;
 		// May is a DOT nodeDict or a nodeDictFunction, so collect the label
 		} else if (this.currentOpenChar === '.' && ['especial', 'number', 'letter'].includes(token.name)) {
-			this.listener.currentLabel = this.listener.currentLabel + token.value;
 			this.currentParams = this.currentParams + token.value;
-			console.log('this.currentLabel', this.listener.currentLabel);
+			return true;
 		// This is a nodeDictFunction, so collect the parameters
 		} else if (this.currentOpenChar === '.' && token.value === '(') {
+			this.currentParams = this.currentParams + token.value;
 			this.colectingParams = true;
 			return true;
 		// This is a DOT nodeDict
@@ -2780,9 +2780,9 @@ class ObjectPattern {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				} else {
-					console.log('parameters', parameters);
-					this.listener.currentLabel = this.listener.currentLabel.split('(')[0];
-					this.listener.currentLabel = this.listener.currentLabel.slice(1, this.listener.currentLabel.length);
+					console.log('dictNodeFunction parameters', parameters, this.currentParams);
+					// this.listener.currentLabel = this.listener.currentLabel.split('(')[0];
+					// this.listener.currentLabel = this.listener.currentLabel.slice(1, this.listener.currentLabel.length);
 					this.listener.nextPattern({syntax: 'dictNodeFunction', token: token, counter: counter, parameters: parameters});
 				}
 				return false;
@@ -5200,7 +5200,7 @@ function b (t) {
 }
 window.c = {d: {e: b}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'muito.mesmo.pity.bom'});
+const lexer = new PowerTemplateLexer({text: 'muito.mesmo.pity.bom(2+2)'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 

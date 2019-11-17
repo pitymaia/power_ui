@@ -249,7 +249,7 @@ function b (t) {
 }
 window.c = {d: {e: b}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'muito.mesmo.pity.bom'});
+const lexer = new PowerTemplateLexer({text: 'muito.mesmo.pity.bom(2+2)'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 
