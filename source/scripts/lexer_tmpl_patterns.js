@@ -635,7 +635,7 @@ class DotPattern {
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		// If is some dictNode
-		if (token.name === 'dot') {
+		if (token.name === 'dot' || token.value === '[') {
 			this.listener.checking = 'firstToken';
 			this.listener.firstNodeLabel = this.listener.currentLabel;
 			const instance = new ObjectPattern(this.listener);
@@ -802,6 +802,7 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
+		console.log('middleTokens', this.currentOpenChar, token, this.currentParams);
 		// Dictionary
 		if (this.currentOpenChar === '[' && token.value === ']' && this.innerOpenedObjects === 0) {
 			this.listener.checking = 'endToken';
@@ -823,7 +824,7 @@ class ObjectPattern {
 				this.currentParamsCounter = counter || null;
 			}
 
-			if ((this.currentOpenChar === '[' && token.value === '[') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === '(')) {
+			if (((this.currentOpenChar === '[' || this.currentOpenChar === '.') && token.value === '[') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === '(')) {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
 			} else if ((this.currentOpenChar === '[' && token.value === ']') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === ')')) {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
@@ -839,7 +840,7 @@ class ObjectPattern {
 			this.colectingParams = true;
 			return true;
 		// This is a DOT nodeDict
-		} else if (this.currentOpenChar === '.' && this.innerOpenedObjects === 0 && (token.name === 'end' || token.name === 'dot')) {
+		} else if (this.currentOpenChar === '.' && this.innerOpenedObjects === 0 && (token.name === 'end' || token.name === 'dot' || token.value === '[')) {
 			// Convert parameter to string
 			this.currentParams = `"${this.currentParams}"`;
 			const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
@@ -850,7 +851,6 @@ class ObjectPattern {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
-			console.log('invalid', token, this.currentOpenChar, this.currentParams);
 			// Invalid!
 			this.invalid = true;
 			// wait for some blank or end token and register the current stream as invalid
@@ -861,8 +861,9 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
+		console.log('!!!!!!!!!!!!! endToken!', token, this.currentOpenChar, this.listener.currentLabel);
 		if (this.invalid === false ) {
-			if (['blank', 'end', 'operator', 'comma', 'operation'].includes(token.name)) {
+			if (['blank', 'end', 'operator', 'comma', 'operation', 'dot'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.currentOpenChar === '[' && this.dictHaveInvalidParams(parameters)) {
 					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
@@ -876,18 +877,18 @@ class ObjectPattern {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				} else {
-					console.log('dictNodeFunction parameters', parameters, this.currentParams);
 					this.listener.nextPattern({syntax: 'dictNodeFunction', token: token, counter: counter, parameters: parameters});
 				}
 				return false;
 			// Allow invoke dictionary node
-			} else if (this.currentOpenChar === '[' && (token.value === '[' || token.value === '(' || token.value === '.')) {
+			} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && (token.value === '[' || token.value === '(' || token.value === '.')) {
 				// MANUALLY CREATE THE DICTIONAY NODE
 				this.createDictionaryNode({token: token, counter: counter});
 				this.currentOpenChar = token.value;
 				return true;
 			// Allow invoke function node
 			} else if ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && (token.value === '[' || token.value === '(' || token.value === '.')) {
+				console.log('!!!!!!!!!!!!! AQUI!', token, this.currentOpenChar, this.listener.currentLabel);
 				// MANUALLY CREATE THE FUNCTION NODE
 				this.createAnonymousFuncNode({token: token, counter: counter});
 				this.currentOpenChar = token.value;

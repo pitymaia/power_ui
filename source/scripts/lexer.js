@@ -341,6 +341,7 @@ class TokensListener {
             {name: 'OR', obj: OrPattern},
             {name: 'comma', obj: CommaPattern},
             {name: 'dot', obj: DotPattern},
+            {name: 'separator', obj: DotPattern},
             {name: 'short-hand', obj: ShortHandPattern},
             {name: 'parentheses', obj: ParentesesPattern}
             // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
@@ -370,6 +371,7 @@ class TokensListener {
             end: counter,
             parameters: parameters || [],
         });
+        console.log('last', this.syntaxTree.nodes, 'ESSE', token);
         this.start = counter;
         this.currentTokens = [];
         this.currentLabel = '';
