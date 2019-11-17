@@ -825,7 +825,7 @@ class ObjectPattern {
 
 			if ((this.currentOpenChar === '[' && token.value === '[') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === '(')) {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if ((this.currentOpenChar === '[' && token.value === ']') || (this.currentOpenChar === '(' && token.value === ')')) {
+			} else if ((this.currentOpenChar === '[' && token.value === ']') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === ')')) {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
@@ -877,8 +877,6 @@ class ObjectPattern {
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				} else {
 					console.log('dictNodeFunction parameters', parameters, this.currentParams);
-					// this.listener.currentLabel = this.listener.currentLabel.split('(')[0];
-					// this.listener.currentLabel = this.listener.currentLabel.slice(1, this.listener.currentLabel.length);
 					this.listener.nextPattern({syntax: 'dictNodeFunction', token: token, counter: counter, parameters: parameters});
 				}
 				return false;
@@ -889,7 +887,7 @@ class ObjectPattern {
 				this.currentOpenChar = token.value;
 				return true;
 			// Allow invoke function node
-			} else if (this.currentOpenChar === '(' && (token.value === '[' || token.value === '(' || token.value === '.')) {
+			} else if ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && (token.value === '[' || token.value === '(' || token.value === '.')) {
 				// MANUALLY CREATE THE FUNCTION NODE
 				this.createAnonymousFuncNode({token: token, counter: counter});
 				this.currentOpenChar = token.value;
@@ -964,10 +962,11 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
+		console.log('createAnonymousFuncNode', this.currentParams);
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-		this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+		this.listener.currentLabel = this.listener.currentLabel;
 		this.listener.syntaxTree.nodes.push({
-			syntax: this.anonymous ? 'anonymousFunc' : 'function',
+			syntax: this.currentOpenChar === '.' ? 'dictNodeFunction' : 'anonymousFunc',
 			label: this.listener.currentLabel,
 			tokens: this.listener.currentTokens,
 			start: this.listener.start,

@@ -1588,8 +1588,9 @@ class SyntaxTree {
 	}
 
 	// Functions and dictionaries
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	objectValidation({nextNode}) {
-		if (['operation', 'anonymousFunc', 'short-hand',
+		if (['operation', 'anonymousFunc', 'short-hand', 'comma',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
 			'dot', 'AND', 'OR', 'dictNode', 'dictNodeFunction', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -1626,8 +1627,9 @@ class SyntaxTree {
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	variableValidation({nextNode}) {
-		if (['dot', 'operation', 'NOT-equal',
+		if (['dot', 'operation', 'NOT-equal', 'comma',
 			'equal', 'minor-than', 'minor-than',
 			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -1636,8 +1638,9 @@ class SyntaxTree {
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	numberValidation({nextNode}) {
-		if (['operation', 'NOT-equal', 'equal',
+		if (['operation', 'NOT-equal', 'equal', 'comma',
 			'minor-than', 'minor-than', 'AND',
 			'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -1646,19 +1649,21 @@ class SyntaxTree {
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	stringValidation({nextNode}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
 			'dictionary', 'function', 'parentheses',
 			'integer', 'float', 'especial', 'anonymousFunc',
-			'dot', 'comma', 'dictNode'].includes(nextNode.syntax)) {
+			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	parenthesesValidation({nextNode}) {
-		if (['anonymousFunc', 'dot', 'operation', 'short-hand', 'end'].includes(nextNode.syntax)) {
+		if (['anonymousFunc', 'dot', 'operation', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -1702,6 +1707,7 @@ class SyntaxTree {
 			});
 
 			if (isValid === false) {
+				console.log('currentNode', currentNode);
 				throw `PowerUI template invalid syntax: "${currentNode.label}" nearby ${expression}.`;
 			} else {
 				expression = expression + currentNode.label;
@@ -2729,7 +2735,7 @@ class ObjectPattern {
 
 			if ((this.currentOpenChar === '[' && token.value === '[') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === '(')) {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if ((this.currentOpenChar === '[' && token.value === ']') || (this.currentOpenChar === '(' && token.value === ')')) {
+			} else if ((this.currentOpenChar === '[' && token.value === ']') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === ')')) {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
@@ -2781,8 +2787,6 @@ class ObjectPattern {
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 				} else {
 					console.log('dictNodeFunction parameters', parameters, this.currentParams);
-					// this.listener.currentLabel = this.listener.currentLabel.split('(')[0];
-					// this.listener.currentLabel = this.listener.currentLabel.slice(1, this.listener.currentLabel.length);
 					this.listener.nextPattern({syntax: 'dictNodeFunction', token: token, counter: counter, parameters: parameters});
 				}
 				return false;
@@ -2793,7 +2797,7 @@ class ObjectPattern {
 				this.currentOpenChar = token.value;
 				return true;
 			// Allow invoke function node
-			} else if (this.currentOpenChar === '(' && (token.value === '[' || token.value === '(' || token.value === '.')) {
+			} else if ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && (token.value === '[' || token.value === '(' || token.value === '.')) {
 				// MANUALLY CREATE THE FUNCTION NODE
 				this.createAnonymousFuncNode({token: token, counter: counter});
 				this.currentOpenChar = token.value;
@@ -2868,10 +2872,11 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
+		console.log('createAnonymousFuncNode', this.currentParams);
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-		this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+		this.listener.currentLabel = this.listener.currentLabel;
 		this.listener.syntaxTree.nodes.push({
-			syntax: this.anonymous ? 'anonymousFunc' : 'function',
+			syntax: this.currentOpenChar === '.' ? 'dictNodeFunction' : 'anonymousFunc',
 			label: this.listener.currentLabel,
 			tokens: this.listener.currentTokens,
 			start: this.listener.start,
@@ -5198,13 +5203,13 @@ function a (u) {
 function b (t) {
 	return a.bind(t);
 }
-window.c = {d: {e: b}};
+window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'muito.mesmo.pity.bom(2+2)'});
+const lexer = new PowerTemplateLexer({text: 'muito[mesmo][pity].bom(ruim(2-1, 5+2), 2+1)(1-1+a(5*2))'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 
-console.log('aqui:', a() === 1 ? 2 * 3 : 3 * 3);
+console.log('aqui:', window.c['d'].e()());
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

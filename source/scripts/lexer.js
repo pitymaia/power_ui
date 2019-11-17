@@ -67,8 +67,9 @@ class SyntaxTree {
 	}
 
 	// Functions and dictionaries
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	objectValidation({nextNode}) {
-		if (['operation', 'anonymousFunc', 'short-hand',
+		if (['operation', 'anonymousFunc', 'short-hand', 'comma',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
 			'dot', 'AND', 'OR', 'dictNode', 'dictNodeFunction', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -105,8 +106,9 @@ class SyntaxTree {
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	variableValidation({nextNode}) {
-		if (['dot', 'operation', 'NOT-equal',
+		if (['dot', 'operation', 'NOT-equal', 'comma',
 			'equal', 'minor-than', 'minor-than',
 			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -115,8 +117,9 @@ class SyntaxTree {
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	numberValidation({nextNode}) {
-		if (['operation', 'NOT-equal', 'equal',
+		if (['operation', 'NOT-equal', 'equal', 'comma',
 			'minor-than', 'minor-than', 'AND',
 			'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -125,19 +128,21 @@ class SyntaxTree {
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	stringValidation({nextNode}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
 			'dictionary', 'function', 'parentheses',
 			'integer', 'float', 'especial', 'anonymousFunc',
-			'dot', 'comma', 'dictNode'].includes(nextNode.syntax)) {
+			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
+	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	parenthesesValidation({nextNode}) {
-		if (['anonymousFunc', 'dot', 'operation', 'short-hand', 'end'].includes(nextNode.syntax)) {
+		if (['anonymousFunc', 'dot', 'operation', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -181,6 +186,7 @@ class SyntaxTree {
 			});
 
 			if (isValid === false) {
+				console.log('currentNode', currentNode);
 				throw `PowerUI template invalid syntax: "${currentNode.label}" nearby ${expression}.`;
 			} else {
 				expression = expression + currentNode.label;
