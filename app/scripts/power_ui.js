@@ -1830,6 +1830,7 @@ class PowerTemplateLexer extends PowerLexer{
 		const token = this.convertToToken(null);
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
+		console.log('this.syntaxTree', this.syntaxTree);
 	}
 
 }
@@ -1977,11 +1978,11 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma', 'dot'].includes(token.name)) {
+		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
 		// If is some function or dictionary
-		} else if (token.value === '(' || token.value === '[') {
+		} else if (token.value === '(' || token.value === '[' || token.name === 'dot') {
 			this.listener.checking = 'firstToken';
 			this.listener.firstNodeLabel = this.listener.currentLabel;
 			this.listener.candidates = [{name: 'object', instance: new ObjectPattern(this.listener)}];
@@ -2677,9 +2678,10 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+		console.log('firstToken', token, this.currentOpenChar);
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
-		if (this.currentOpenChar === '[' || this.currentOpenChar === '(') {
+		if (this.currentOpenChar === '[' || this.currentOpenChar === '(' || this.currentOpenChar === '.') {
 			if (token.value === ']' || token.value === ')') {
 				this.listener.checking = 'endToken';
 				this.invalid = token.value === ']' // Dict can't be empty but function can be;
@@ -2713,6 +2715,7 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
+		console.log('firstToken', token, this.currentOpenChar);
 		// Dictionary
 		if (this.currentOpenChar === '[' && token.value === ']' && this.innerOpenedObjects === 0) {
 			this.listener.checking = 'endToken';
@@ -2734,7 +2737,14 @@ class ObjectPattern {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
-		} else if (this.innerOpenedObjects >= 0 && token.name === 'end') {
+		// This is a DOT dictionary
+		} else if (this.currentOpenChar === '.' && this.innerOpenedObjects === 0 && (token.name === 'end' || tokeb.name === 'dot')) {
+			console.log('!!!! AQUI !!!!');
+			const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+			this.listener.nextPattern({syntax: this.anonymous ? 'dictNode' : 'dictionary', token: token, counter: counter, parameters: parameters});
+			return false;
+		} else if (this.currentOpenChar !== '.' && this.innerOpenedObjects >= 0 && token.name === 'end') {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
@@ -2758,6 +2768,7 @@ class ObjectPattern {
 				if (this.currentOpenChar === '[') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'dictNode' : 'dictionary', token: token, counter: counter, parameters: parameters});
+					return false;
 				} else {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
@@ -5177,7 +5188,7 @@ function b (t) {
 }
 window.c = {d: {e: b}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'a["r"][2].teste.teste2'});
+const lexer = new PowerTemplateLexer({text: 'pity.bom'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 

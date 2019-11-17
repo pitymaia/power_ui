@@ -309,6 +309,7 @@ class PowerTemplateLexer extends PowerLexer{
 		const token = this.convertToToken(null);
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
+		console.log('this.syntaxTree', this.syntaxTree);
 	}
 
 }
