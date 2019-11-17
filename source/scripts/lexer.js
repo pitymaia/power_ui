@@ -186,7 +186,6 @@ class SyntaxTree {
 			});
 
 			if (isValid === false) {
-				console.log('currentNode', currentNode);
 				throw `PowerUI template invalid syntax: "${currentNode.label}" nearby ${expression}.`;
 			} else {
 				expression = expression + currentNode.label;
@@ -340,8 +339,8 @@ class TokensListener {
             {name: 'AND', obj: AndPattern},
             {name: 'OR', obj: OrPattern},
             {name: 'comma', obj: CommaPattern},
-            {name: 'dot', obj: DotPattern},
-            {name: 'separator', obj: DotPattern},
+            {name: 'dot', obj: DictPattern},
+            {name: 'separator', obj: DictPattern},
             {name: 'short-hand', obj: ShortHandPattern},
             {name: 'parentheses', obj: ParentesesPattern}
             // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
@@ -371,7 +370,6 @@ class TokensListener {
             end: counter,
             parameters: parameters || [],
         });
-        console.log('last', this.syntaxTree.nodes, 'ESSE', token);
         this.start = counter;
         this.currentTokens = [];
         this.currentLabel = '';

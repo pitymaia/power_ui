@@ -626,7 +626,7 @@ class CommaPattern {
 }
 
 // If is some dictNode
-class DotPattern {
+class DictPattern {
 	constructor(listener) {
 		this.listener = listener;
 		this.invalid = false;
@@ -635,12 +635,13 @@ class DotPattern {
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		// If is some dictNode
-		if (token.name === 'dot' || token.value === '[') {
+		if (token.name === 'dot' || token.value === '[' || this.listener.cadidateIsDict) {
 			this.listener.checking = 'firstToken';
 			this.listener.firstNodeLabel = this.listener.currentLabel;
 			const instance = new ObjectPattern(this.listener);
 			instance.anonymous = true;
 			this.listener.candidates = [{name: 'object', instance: instance}];
+			this.listener.cadidateIsDict = false;
 
 			return true;
 		} else {
@@ -665,7 +666,7 @@ class ParentesesPattern {
 	firstToken({token, counter}) {
 		// The open char of the current node
 		this.currentOpenChar = token.value;
-		if (this.currentOpenChar === '(') {
+		if (this.currentOpenChar === '(' && !this.listener.cadidateIsDict) {
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'parentheses');
 			this.listener.checking = 'middleTokens';
 			if (this.currentParamsCounter === null) {
@@ -765,14 +766,14 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
-		console.log('firstToken', token, this.currentOpenChar);
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
-		if (this.currentOpenChar === '[' || this.currentOpenChar === '(' || this.currentOpenChar === '.') {
-			if (token.value === ']' || token.value === ')') {
+		if (this.currentOpenChar === '(') {
+			// Is a simple function without parameters
+			if (token.value === ')') {
 				this.listener.checking = 'endToken';
-				this.invalid = token.value === ']' // Dict can't be empty but function can be;
 				return true;
+			// Collect the function parameters and got to middleTokens
 			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'quote'].includes(token.name)) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
@@ -780,7 +781,7 @@ class ObjectPattern {
 					this.currentParamsCounter = counter || null;
 				}
 				return true;
-			} else if ((this.currentOpenChar === '[' && token.value === '[') || (this.currentOpenChar === '(' && token.value === '(')) {
+			} else if (this.currentOpenChar === '(' && token.value === '(') {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
@@ -802,52 +803,24 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('middleTokens', this.currentOpenChar, token, this.currentParams);
-		// Dictionary
-		if (this.currentOpenChar === '[' && token.value === ']' && this.innerOpenedObjects === 0) {
-			this.listener.checking = 'endToken';
-			return true;
 		// Function
-		} else if (this.currentOpenChar === '(' && token.value === ')' && this.innerOpenedObjects === 0) {
-			this.listener.checking = 'endToken';
-			return true;
-		// dict function node
-		} else if (this.currentOpenChar === '.' && token.value === ')' && this.innerOpenedObjects === 0) {
-			this.anonymous = false;
-			this.currentParams = this.currentParams + token.value;
+		if (this.currentOpenChar === '(' && token.value === ')' && this.innerOpenedObjects === 0) {
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if ((this.currentOpenChar !== '.' || this.colectingParams === true) && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
 			}
 
-			if (((this.currentOpenChar === '[' || this.currentOpenChar === '.') && token.value === '[') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === '(')) {
+			if (token.value === '(') {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if ((this.currentOpenChar === '[' && token.value === ']') || ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && token.value === ')')) {
+			} else if (token.value === ')') {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
-		// May is a DOT nodeDict or a nodeDictFunction, so collect the label
-		} else if (this.currentOpenChar === '.' && ['especial', 'number', 'letter'].includes(token.name)) {
-			this.currentParams = this.currentParams + token.value;
-			return true;
-		// This is a nodeDictFunction, so collect the parameters
-		} else if (this.currentOpenChar === '.' && token.value === '(') {
-			this.currentParams = this.currentParams + token.value;
-			this.colectingParams = true;
-			return true;
-		// This is a DOT nodeDict
-		} else if (this.currentOpenChar === '.' && this.innerOpenedObjects === 0 && (token.name === 'end' || token.name === 'dot' || token.value === '[')) {
-			// Convert parameter to string
-			this.currentParams = `"${this.currentParams}"`;
-			const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
-			this.listener.nextPattern({syntax: this.anonymous ? 'dictNode' : 'dictionary', token: token, counter: counter, parameters: parameters});
-			return false;
-		} else if (this.currentOpenChar !== '.' && this.innerOpenedObjects >= 0 && token.name === 'end') {
+		} else if (this.currentOpenChar === '(' && this.innerOpenedObjects >= 0 && token.name === 'end') {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
@@ -861,37 +834,26 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('!!!!!!!!!!!!! endToken!', token, this.currentOpenChar, this.listener.currentLabel);
+		console.log('endToken', token, this.currentOpenChar, this.anonymous);
 		if (this.invalid === false ) {
-			if (['blank', 'end', 'operator', 'comma', 'operation', 'dot'].includes(token.name)) {
+			// If is a function and end the nodes
+			if (['blank', 'end', 'operator', 'comma', 'operation'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-				if (this.currentOpenChar === '[' && this.dictHaveInvalidParams(parameters)) {
-					this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
-					return false;
-				}
-				if (this.currentOpenChar === '[') {
-					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
-					this.listener.nextPattern({syntax: this.anonymous ? 'dictNode' : 'dictionary', token: token, counter: counter, parameters: parameters});
-					return false;
-				} else if (this.currentOpenChar === '(') {
+				if (this.currentOpenChar === '(') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
+					return false;
 				} else {
-					this.listener.nextPattern({syntax: 'dictNodeFunction', token: token, counter: counter, parameters: parameters});
+					// Invalid!
+					this.invalid = true;
+					return true;
 				}
-				return false;
-			// Allow invoke dictionary node
-			} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && (token.value === '[' || token.value === '(' || token.value === '.')) {
-				// MANUALLY CREATE THE DICTIONAY NODE
-				this.createDictionaryNode({token: token, counter: counter});
-				this.currentOpenChar = token.value;
-				return true;
-			// Allow invoke function node
-			} else if ((this.currentOpenChar === '(' || this.currentOpenChar === '.') && (token.value === '[' || token.value === '(' || token.value === '.')) {
-				console.log('!!!!!!!!!!!!! AQUI!', token, this.currentOpenChar, this.listener.currentLabel);
+			// If there is an anonymous function after last dict or function
+			} else if (token.value === '(') {
+				this.listener.checking = 'middleTokens';
+				this.currentOpenChar === '(';
 				// MANUALLY CREATE THE FUNCTION NODE
 				this.createAnonymousFuncNode({token: token, counter: counter});
-				this.currentOpenChar = token.value;
 				return true;
 			} else {
 				// Invalid!
@@ -963,11 +925,11 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
-		console.log('createAnonymousFuncNode', this.currentParams);
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-		this.listener.currentLabel = this.listener.currentLabel;
+		this.listener.currentLabel = (this.anonymous === true) ? this.listener.currentLabel : this.listener.firstNodeLabel;
+		console.log("CURRENT LABEL", this.listener.currentLabel, this.listener.firstNodeLabel, this.anonymous);
 		this.listener.syntaxTree.nodes.push({
-			syntax: this.currentOpenChar === '.' ? 'dictNodeFunction' : 'anonymousFunc',
+			syntax: (this.anonymous === true) ? 'anonymousFunc' : 'function',
 			label: this.listener.currentLabel,
 			tokens: this.listener.currentTokens,
 			start: this.listener.start,
