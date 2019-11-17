@@ -20,6 +20,7 @@ class SyntaxTree {
 			anonymousFunc: this.objectValidation,
 			dictionary: this.objectValidation,
 			dictNode: this.objectValidation,
+			dictNodeFunction: this.objectValidation,
 			comma: this.commaValidation,
 			AND: this.orAndNotShortHandValidation,
 			OR: this.orAndNotShortHandValidation,
@@ -69,7 +70,7 @@ class SyntaxTree {
 	objectValidation({nextNode}) {
 		if (['operation', 'anonymousFunc', 'short-hand',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
-			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax)) {
+			'dot', 'AND', 'OR', 'dictNode', 'dictNodeFunction', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -309,7 +310,7 @@ class PowerTemplateLexer extends PowerLexer{
 		const token = this.convertToToken(null);
 		this.tokens.push(token);
 		this.syntaxTree.tokensListener.read({token: token, counter: counter});
-		console.log('this.syntaxTree', this.syntaxTree);
+		console.log('this.syntaxTree', this.syntaxTree.nodes);
 	}
 
 }
