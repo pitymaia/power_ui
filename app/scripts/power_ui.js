@@ -1539,9 +1539,7 @@ class SyntaxTree {
 			'minor-than': this.equalityValidation,
 			function: this.objectValidation,
 			anonymousFunc: this.objectValidation,
-			dictionary: this.objectValidation,
 			dictNode: this.objectValidation,
-			dictNodeFunction: this.objectValidation,
 			comma: this.commaValidation,
 			AND: this.orAndNotShortHandValidation,
 			OR: this.orAndNotShortHandValidation,
@@ -1552,7 +1550,7 @@ class SyntaxTree {
 	}
 
 	firstNodeValidation({node}) {
-		if (['dot', 'dictNode', 'anonymousFunc',
+		if (['dot', 'anonymousFunc',
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
 			return false;
@@ -1565,7 +1563,7 @@ class SyntaxTree {
 
 	orAndNotShortHandValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
-			'float', 'dictionary', 'parentheses',
+			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
@@ -1577,7 +1575,7 @@ class SyntaxTree {
 
 	commaValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
-			'float', 'dictionary', 'parentheses',
+			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
@@ -1592,7 +1590,7 @@ class SyntaxTree {
 	objectValidation({nextNode}) {
 		if (['operation', 'anonymousFunc', 'short-hand', 'comma',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
-			'dot', 'AND', 'OR', 'dictNode', 'dictNodeFunction', 'end'].includes(nextNode.syntax)) {
+			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -1601,7 +1599,7 @@ class SyntaxTree {
 
 	equalityValidation({nextNode, currentNode}) {
 		if (['variable', 'parentheses', 'function',
-			'float', 'integer', 'dictionary',
+			'float', 'integer', 'dictNode',
 			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
@@ -1615,7 +1613,7 @@ class SyntaxTree {
 
 	operationValidation({nextNode, currentNode}) {
 		if (['NOT', 'NOT-NOT', 'float',
-			'integer', 'variable', 'dictionary',
+			'integer', 'variable', 'dictNode',
 			'parentheses', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
@@ -1652,7 +1650,7 @@ class SyntaxTree {
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	stringValidation({nextNode}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
-			'dictionary', 'function', 'parentheses',
+			'dictNode', 'function', 'parentheses',
 			'integer', 'float', 'especial', 'anonymousFunc',
 			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
@@ -1671,7 +1669,7 @@ class SyntaxTree {
 	}
 
 	dotValidation({nextNode}) {
-		if (['function', 'variable', 'dictionary'].includes(nextNode.syntax)) {
+		if (['function', 'variable', 'dictNode'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -2706,6 +2704,23 @@ class ObjectPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			}
+		// If is a bracket dictionary
+		} else if (this.currentOpenChar === '[') {
+			// When a bracket dict is detect we already have the first node and the open bracket
+			// Get the node label without the bracket and convert it to STRING to create the first node
+			this.listener.firstNodeLabel = this.listener.currentLabel;
+			this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
+
+			// MANUALLY CREATE THE DICTIONAY NODE
+			this.createDictionaryNode({token: token, counter: counter});
+
+			// After create the first node set to collect the params inside the brackets to create the second node with it
+			this.currentParams = this.currentParams + token.value;
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
+			return true;
+			console.log('[ AQUI: ', token, this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1), firstNode);
 		} else {
 			return false;
 		}
@@ -2733,6 +2748,26 @@ class ObjectPattern {
 		} else if (this.currentOpenChar === '(' && this.innerOpenedObjects >= 0 && token.name === 'end') {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
+		// dictNode
+		} else if  (this.currentOpenChar === '[' && token.value === ']' && this.innerOpenedObjects === 0) {
+			this.listener.checking = 'endToken';
+			return true;
+		// This is a dictNode with parameters, so allow any valid char
+		} else if (this.currentOpenChar === '[' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+			this.currentParams = this.currentParams + token.value;
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
+
+			if (token.value === '[') {
+				this.innerOpenedObjects = this.innerOpenedObjects + 1;
+			} else if (token.value === ']') {
+				this.innerOpenedObjects = this.innerOpenedObjects - 1;
+			}
+			return true;
+		} else if (this.currentOpenChar === '[' && this.innerOpenedObjects >= 0 && token.name === 'end') {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
 		} else {
 			// Invalid!
 			this.invalid = true;
@@ -2744,26 +2779,36 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('endToken', token, this.currentOpenChar, this.anonymous);
+		console.log('endToken', token, this.currentOpenChar, this.anonymous, this.currentOpenChar);
 		if (this.invalid === false ) {
-			// If is a function and end the nodes
+			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operation'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.currentOpenChar === '(') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 					return false;
+				} else if (this.currentOpenChar === '[') {
+					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+					this.listener.nextPattern({syntax: 'dictNode', token: token, counter: counter, parameters: parameters});
+					return false;
 				} else {
 					// Invalid!
 					this.invalid = true;
 					return true;
 				}
-			// If there is an anonymous function after last dict or function
-			} else if (token.value === '(') {
+			// If there is an anonymous function after another function
+			} else if (this.currentOpenChar === '(' && (token.value === '(' || token.value === '[')) {
 				this.listener.checking = 'middleTokens';
-				this.currentOpenChar === '(';
 				// MANUALLY CREATE THE FUNCTION NODE
 				this.createAnonymousFuncNode({token: token, counter: counter});
+				this.currentOpenChar = token.value;
+				return true;
+			// If there is another dictNode or function after last dictNode
+			} else if (this.currentOpenChar === '[' && (token.value === '[' || token.value === '(')) {
+				// MANUALLY CREATE THE DICTIONAY NODE
+				this.createDictionaryNode({token: token, counter: counter});
+				this.currentOpenChar = token.value;
 				return true;
 			} else {
 				// Invalid!
@@ -2811,14 +2856,15 @@ class ObjectPattern {
 
 	createDictionaryNode({token, counter}) {
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+		console.log('createDictionaryNode', this.listener.firstNodeLabel, parameters, this.currentParams, this.listener.currentTokens);
 		if (this.dictHaveInvalidParams(parameters)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		}
-		this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+		// this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 		this.listener.syntaxTree.nodes.push({
-			syntax: this.anonymous ? 'dictNode' : 'dictionary',
-			label: this.listener.currentLabel,
+			syntax: 'dictNode',
+			label: this.listener.firstNodeLabel ? this.listener.firstNodeLabel : this.listener.currentLabel,
 			tokens: this.listener.currentTokens,
 			start: this.listener.start,
 			end: counter,
@@ -5168,11 +5214,10 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity(a(2+2))(2+2)()()'});
+const lexer = new PowerTemplateLexer({text: 'pity["obom" + mesmo][novo][2+2](pity[a()])[pity[s]]+pity()[2+2+pity(2, pity[a])]()()["final"][sdfs](dfgg)(dfg)'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
-const testett = 'pity(a(2+2))(2+2)()()';
-console.log('aqui:', testett.slice(12,17));
+console.log('aqui:');
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

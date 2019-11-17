@@ -18,9 +18,7 @@ class SyntaxTree {
 			'minor-than': this.equalityValidation,
 			function: this.objectValidation,
 			anonymousFunc: this.objectValidation,
-			dictionary: this.objectValidation,
 			dictNode: this.objectValidation,
-			dictNodeFunction: this.objectValidation,
 			comma: this.commaValidation,
 			AND: this.orAndNotShortHandValidation,
 			OR: this.orAndNotShortHandValidation,
@@ -31,7 +29,7 @@ class SyntaxTree {
 	}
 
 	firstNodeValidation({node}) {
-		if (['dot', 'dictNode', 'anonymousFunc',
+		if (['dot', 'anonymousFunc',
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
 			return false;
@@ -44,7 +42,7 @@ class SyntaxTree {
 
 	orAndNotShortHandValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
-			'float', 'dictionary', 'parentheses',
+			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
@@ -56,7 +54,7 @@ class SyntaxTree {
 
 	commaValidation({nextNode}) {
 		if (['string', 'variable', 'integer',
-			'float', 'dictionary', 'parentheses',
+			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
@@ -71,7 +69,7 @@ class SyntaxTree {
 	objectValidation({nextNode}) {
 		if (['operation', 'anonymousFunc', 'short-hand', 'comma',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
-			'dot', 'AND', 'OR', 'dictNode', 'dictNodeFunction', 'end'].includes(nextNode.syntax)) {
+			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -80,7 +78,7 @@ class SyntaxTree {
 
 	equalityValidation({nextNode, currentNode}) {
 		if (['variable', 'parentheses', 'function',
-			'float', 'integer', 'dictionary',
+			'float', 'integer', 'dictNode',
 			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
@@ -94,7 +92,7 @@ class SyntaxTree {
 
 	operationValidation({nextNode, currentNode}) {
 		if (['NOT', 'NOT-NOT', 'float',
-			'integer', 'variable', 'dictionary',
+			'integer', 'variable', 'dictNode',
 			'parentheses', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
@@ -131,7 +129,7 @@ class SyntaxTree {
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	stringValidation({nextNode}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
-			'dictionary', 'function', 'parentheses',
+			'dictNode', 'function', 'parentheses',
 			'integer', 'float', 'especial', 'anonymousFunc',
 			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
@@ -150,7 +148,7 @@ class SyntaxTree {
 	}
 
 	dotValidation({nextNode}) {
-		if (['function', 'variable', 'dictionary'].includes(nextNode.syntax)) {
+		if (['function', 'variable', 'dictNode'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;

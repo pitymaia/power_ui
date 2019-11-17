@@ -249,11 +249,10 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity(a(2+2))(2+2)()()'});
+const lexer = new PowerTemplateLexer({text: 'pity["obom" + mesmo][novo][2+2](pity[a()])[pity[s]]+pity()[2+2+pity(2, pity[a])]()()["final"][sdfs](dfgg)(dfg)'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
-const testett = 'pity(a(2+2))(2+2)()()';
-console.log('aqui:', testett.slice(12,17));
+console.log('aqui:');
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 
