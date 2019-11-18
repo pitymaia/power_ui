@@ -2780,7 +2780,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
-		} else if (this.currentOpenChar === '.' && ['blank', 'end', 'operator', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
 			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			// Set parenthesesPattern to create an anonymous function after this dictionary
@@ -5253,12 +5253,13 @@ function a (u) {
 function b (t) {
 	return a.bind(t);
 }
-window.c = {d: {e: function() {return function() {return 'eu';};}}};
+window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'teste.sdfsd)'});
-console.log('aqui:');
+const lexer = new PowerTemplateLexer({text: 'teste.2sdfsd'});
+
+console.log('aqui:', window.c['2d'].e);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

@@ -247,12 +247,13 @@ function a (u) {
 function b (t) {
 	return a.bind(t);
 }
-window.c = {d: {e: function() {return function() {return 'eu';};}}};
+window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'teste.sdfsd)'});
-console.log('aqui:');
+const lexer = new PowerTemplateLexer({text: 'teste.2sdfsd'});
+
+console.log('aqui:', window.c['2d'].e);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

@@ -872,7 +872,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
-		} else if (this.currentOpenChar === '.' && ['blank', 'end', 'operator', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
 			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			// Set parenthesesPattern to create an anonymous function after this dictionary
