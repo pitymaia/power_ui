@@ -249,9 +249,9 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity.o.bom.muito[caralho]["novo"]().teste'});
+// const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-// const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
+const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().(marreco) + boa.ruim'});
 console.log('aqui:');
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();

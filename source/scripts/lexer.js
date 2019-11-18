@@ -340,7 +340,7 @@ class TokensListener {
             {name: 'dot', obj: DictPattern},
             {name: 'separator', obj: DictPattern},
             {name: 'short-hand', obj: ShortHandPattern},
-            {name: 'parentheses', obj: ParentesesPattern}
+            {name: 'parentheses', obj: parenthesesPattern}
             // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
         ];
         this.candidates = [];
@@ -360,7 +360,6 @@ class TokensListener {
     }
 
     nextPattern({token, counter, syntax, parameters}) {
-    	console.log('nextPattern', token, counter, syntax, parameters);
         this.syntaxTree.nodes.push({
             syntax: syntax,
             label: this.currentLabel,

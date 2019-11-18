@@ -1861,7 +1861,7 @@ class TokensListener {
             {name: 'dot', obj: DictPattern},
             {name: 'separator', obj: DictPattern},
             {name: 'short-hand', obj: ShortHandPattern},
-            {name: 'parentheses', obj: ParentesesPattern}
+            {name: 'parentheses', obj: parenthesesPattern}
             // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
         ];
         this.candidates = [];
@@ -1881,7 +1881,6 @@ class TokensListener {
     }
 
     nextPattern({token, counter, syntax, parameters}) {
-    	console.log('nextPattern', token, counter, syntax, parameters);
         this.syntaxTree.nodes.push({
             syntax: syntax,
             label: this.currentLabel,
@@ -2558,7 +2557,8 @@ class DictPattern {
 	}
 }
 
-class ParentesesPattern {
+// Create a parentheses or anonymous function
+class parenthesesPattern {
 	constructor(listener) {
 		this.listener = listener;
 		this.invalid = false;
@@ -2574,12 +2574,20 @@ class ParentesesPattern {
 	firstToken({token, counter}) {
 		// The open char of the current node
 		this.currentOpenChar = token.value;
-		if (this.currentOpenChar === '(') {
+		if (this.currentOpenChar === '(' && !this.listener.isAnonymousFunc) {
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'parentheses');
 			this.listener.checking = 'middleTokens';
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
 			}
+			return true;
+		} else if (this.listener.isAnonymousFunc === true) {
+			this.listener.checking = 'firstToken';
+			this.listener.firstNodeLabel = this.listener.currentLabel;
+			const instance = new ObjectPattern(this.listener);
+			instance.anonymous = true;
+			this.listener.candidates = [{name: 'object', instance: instance}];
+			this.listener.isAnonymousFunc = false;
 			return true;
 		} else {
 			return false;
@@ -2708,6 +2716,8 @@ class ObjectPattern {
 		} else if (this.currentOpenChar === '[' || this.currentOpenChar === '.') {
 			// When a bracket dict is detect we already have the first node and the open bracket
 			// Get the node label without the bracket and convert it to STRING to create the first node
+			// If bracket or dot are detected from DictPattern it may come with a single bracket or dot as
+			// currentLabel, in that case with don't want manually create a dict node now
 			if (this.listener.currentLabel !== '.' && this.listener.currentLabel !== '[') {
 				this.listener.firstNodeLabel = this.listener.currentLabel;
 				this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
@@ -2752,12 +2762,17 @@ class ObjectPattern {
 			return false;
 		// bracket dictNode
 		} else if  (this.currentOpenChar === '[' && token.value === ']' && this.innerOpenedObjects === 0) {
+			this.invalid = this.currentParams.length ? false : true; // dictNodes can't be empty []
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
 		} else if (this.currentOpenChar === '.' && ['blank', 'end', 'operator', 'operation', 'dot', 'separator'].includes(token.name)) {
 			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+			// Set parenthesesPattern to create an anonymous function after this dictionary
+			if (token.value === '(') {
+				this.listener.isAnonymousFunc = true;
+			}
 			this.listener.nextPattern({syntax: 'dictNode', token: token, counter: counter, parameters: parameters});
 			return false;
 		// This is a dictNode with parameters, so allow any valid char
@@ -2796,7 +2811,7 @@ class ObjectPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
-			if (['blank', 'end', 'operator', 'comma', 'operation'].includes(token.name)) {
+			if (['blank', 'end', 'operator', 'comma', 'operation', 'dot'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.currentOpenChar === '(') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
@@ -2870,7 +2885,6 @@ class ObjectPattern {
 
 	createDictionaryNode({token, counter}) {
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
-		console.log('createDictionaryNode', this.listener.firstNodeLabel, parameters, this.currentParams, this.listener.currentTokens);
 		if (this.dictHaveInvalidParams(parameters)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
@@ -2897,7 +2911,6 @@ class ObjectPattern {
 	createAnonymousFuncNode({token, counter}) {
 		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 		this.listener.currentLabel = (this.anonymous === true) ? this.listener.currentLabel : this.listener.firstNodeLabel;
-		console.log("CURRENT LABEL", this.listener.currentLabel, this.listener.firstNodeLabel, this.anonymous);
 		this.listener.syntaxTree.nodes.push({
 			syntax: (this.anonymous === true) ? 'anonymousFunc' : 'function',
 			label: this.listener.currentLabel,
@@ -5228,9 +5241,9 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity.o.bom.muito[caralho]["novo"]().teste'});
+// const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-// const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
+const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().(marreco) + boa.ruim'});
 console.log('aqui:');
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
