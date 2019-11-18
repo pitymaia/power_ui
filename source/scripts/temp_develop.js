@@ -251,7 +251,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'pity()[sd].4pity.oidf'});
+const lexer = new PowerTemplateLexer({text: 'a[sdf[sdf(sdfdf)]].pity()().s33sdfiou'});
 
 console.log('aqui:', window.c['2d'].e);
 

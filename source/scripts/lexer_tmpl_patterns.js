@@ -782,6 +782,16 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+
+		// Invalidade any dict ending in: [ ( .
+		if (token.value === null) {
+			const lastToken = this.listener.currentTokens[this.listener.currentTokens.length -1];
+			const second = token;
+			if (lastToken.value === '(' || lastToken.value === '[' || lastToken.value === '.') {
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			}
+		}
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
 		if (this.currentOpenChar === '(') {

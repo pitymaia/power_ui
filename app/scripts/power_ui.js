@@ -2690,6 +2690,16 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+
+		// Invalidade any dict ending in: [ ( .
+		if (token.value === null) {
+			const lastToken = this.listener.currentTokens[this.listener.currentTokens.length -1];
+			const second = token;
+			if (lastToken.value === '(' || lastToken.value === '[' || lastToken.value === '.') {
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			}
+		}
 		// The open char of the current node
 		this.currentOpenChar = this.listener.currentTokens[this.listener.currentTokens.length - 1].value;
 		if (this.currentOpenChar === '(') {
@@ -5277,7 +5287,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'pity()[sd].4pity.oidf'});
+const lexer = new PowerTemplateLexer({text: 'a[sdf[sdf(sdfdf)]].pity()().s33sdfiou'});
 
 console.log('aqui:', window.c['2d'].e);
 
