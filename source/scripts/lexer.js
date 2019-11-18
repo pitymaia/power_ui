@@ -11,7 +11,7 @@ class SyntaxTree {
 			dot: this.dotValidation,
 			integer: this.numberValidation,
 			float: this.numberValidation,
-			operation: this.operationValidation,
+			operator: this.operationValidation,
 			equal: this.equalityValidation,
 			'NOT-equal': this.equalityValidation,
 			'greater-than': this.equalityValidation,
@@ -33,7 +33,7 @@ class SyntaxTree {
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
 			return false;
-		} else if (node.syntax === 'operation' && (node.label !== '+' || node.label !== '-')) {
+		} else if (node.syntax === 'operator' && (node.label !== '+' || node.label !== '-')) {
 			return false;
 		} else {
 			return true;
@@ -45,7 +45,7 @@ class SyntaxTree {
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'function'].includes(nextNode.syntax)) {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -57,7 +57,7 @@ class SyntaxTree {
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -67,7 +67,7 @@ class SyntaxTree {
 	// Functions and dictionaries
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	objectValidation({nextNode}) {
-		if (['operation', 'anonymousFunc', 'short-hand', 'comma',
+		if (['operator', 'anonymousFunc', 'short-hand', 'comma',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
 			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -83,7 +83,7 @@ class SyntaxTree {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -97,7 +97,7 @@ class SyntaxTree {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -106,7 +106,7 @@ class SyntaxTree {
 
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	variableValidation({nextNode}) {
-		if (['dot', 'operation', 'NOT-equal', 'comma',
+		if (['dot', 'operator', 'NOT-equal', 'comma',
 			'equal', 'minor-than', 'minor-than',
 			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -117,7 +117,7 @@ class SyntaxTree {
 
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	numberValidation({nextNode}) {
-		if (['operation', 'NOT-equal', 'equal', 'comma',
+		if (['operator', 'NOT-equal', 'equal', 'comma',
 			'minor-than', 'minor-than', 'AND',
 			'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -140,7 +140,7 @@ class SyntaxTree {
 
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	parenthesesValidation({nextNode}) {
-		if (['anonymousFunc', 'dot', 'operation', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
+		if (['anonymousFunc', 'dot', 'operator', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -276,7 +276,7 @@ class PowerTemplateLexer extends PowerLexer{
 			{name: 'especial', values: ['_', '$']},
 			{name: 'quote', values: ['"', '`', "'"]},
 			{name: 'separator', values: ['(', ')', '[', ']']},
-			{name: 'operation', values: ['+', '-', '*', '/', '%']},
+			{name: 'operator', values: ['+', '-', '*', '/', '%']},
 			{name: 'equal', values: ['=']},
 			{name: 'minor-than', values: ['<']},
 			{name: 'greater-than', values: ['>']},
@@ -329,7 +329,7 @@ class TokensListener {
 			{name: 'string', obj: StringPattern},
 			{name: 'variable', obj: VariablePattern},
 			{name: 'number', obj: NumberPattern},
-			{name: 'operation', obj: OperationPattern},
+			{name: 'operator', obj: OperationPattern},
 			{name: 'equal', obj: EqualPattern},
 			{name: 'minor-than', obj: MinorThanPattern},
 			{name: 'greater-than', obj: GreaterThanPattern},

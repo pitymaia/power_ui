@@ -1532,7 +1532,7 @@ class SyntaxTree {
 			dot: this.dotValidation,
 			integer: this.numberValidation,
 			float: this.numberValidation,
-			operation: this.operationValidation,
+			operator: this.operationValidation,
 			equal: this.equalityValidation,
 			'NOT-equal': this.equalityValidation,
 			'greater-than': this.equalityValidation,
@@ -1554,7 +1554,7 @@ class SyntaxTree {
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
 			return false;
-		} else if (node.syntax === 'operation' && (node.label !== '+' || node.label !== '-')) {
+		} else if (node.syntax === 'operator' && (node.label !== '+' || node.label !== '-')) {
 			return false;
 		} else {
 			return true;
@@ -1566,7 +1566,7 @@ class SyntaxTree {
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'function'].includes(nextNode.syntax)) {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -1578,7 +1578,7 @@ class SyntaxTree {
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -1588,7 +1588,7 @@ class SyntaxTree {
 	// Functions and dictionaries
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	objectValidation({nextNode}) {
-		if (['operation', 'anonymousFunc', 'short-hand', 'comma',
+		if (['operator', 'anonymousFunc', 'short-hand', 'comma',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
 			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -1604,7 +1604,7 @@ class SyntaxTree {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -1618,7 +1618,7 @@ class SyntaxTree {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
 			return true;
-		} else if (nextNode.syntax === 'operation' && (nextNode.label === '+' || nextNode.label === '-')) {
+		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
 			return true;
 		} else {
 			return false;
@@ -1627,7 +1627,7 @@ class SyntaxTree {
 
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	variableValidation({nextNode}) {
-		if (['dot', 'operation', 'NOT-equal', 'comma',
+		if (['dot', 'operator', 'NOT-equal', 'comma',
 			'equal', 'minor-than', 'minor-than',
 			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -1638,7 +1638,7 @@ class SyntaxTree {
 
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	numberValidation({nextNode}) {
-		if (['operation', 'NOT-equal', 'equal', 'comma',
+		if (['operator', 'NOT-equal', 'equal', 'comma',
 			'minor-than', 'minor-than', 'AND',
 			'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
 			return true;
@@ -1661,7 +1661,7 @@ class SyntaxTree {
 
 	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
 	parenthesesValidation({nextNode}) {
-		if (['anonymousFunc', 'dot', 'operation', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
+		if (['anonymousFunc', 'dot', 'operator', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
 			return true;
 		} else {
 			return false;
@@ -1797,7 +1797,7 @@ class PowerTemplateLexer extends PowerLexer{
 			{name: 'especial', values: ['_', '$']},
 			{name: 'quote', values: ['"', '`', "'"]},
 			{name: 'separator', values: ['(', ')', '[', ']']},
-			{name: 'operation', values: ['+', '-', '*', '/', '%']},
+			{name: 'operator', values: ['+', '-', '*', '/', '%']},
 			{name: 'equal', values: ['=']},
 			{name: 'minor-than', values: ['<']},
 			{name: 'greater-than', values: ['>']},
@@ -1850,7 +1850,7 @@ class TokensListener {
 			{name: 'string', obj: StringPattern},
 			{name: 'variable', obj: VariablePattern},
 			{name: 'number', obj: NumberPattern},
-			{name: 'operation', obj: OperationPattern},
+			{name: 'operator', obj: OperationPattern},
 			{name: 'equal', obj: EqualPattern},
 			{name: 'minor-than', obj: MinorThanPattern},
 			{name: 'greater-than', obj: GreaterThanPattern},
@@ -1948,10 +1948,10 @@ class StringPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
+		if (this.invalid === false && ['blank', 'end', 'operator', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'string', token: token, counter: counter});
 			return false;
-		} else if (this.invalid === true && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
+		} else if (this.invalid === true && ['blank', 'end', 'operator', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
@@ -1982,7 +1982,7 @@ class VariablePattern {
 	middleTokens({token, counter}) {
 		if (['letter', 'especial', 'number'].includes(token.name)) {
 			return true;
-		} else if (['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
+		} else if (['blank', 'end', 'operator', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'variable', token: token, counter: counter});
 			return false;
 		// If is some function or dictionary
@@ -2032,7 +2032,7 @@ class NumberPattern {
 	middleTokens({token, counter}) {
 		if (this.float === false && token.name === 'number') {
 			return true;
-		} else if (this.float === false && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
+		} else if (this.float === false && ['blank', 'end', 'operator', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'integer', token: token, counter: counter});
 			return false;
 		} else if (this.float === false && token.value === '.') {
@@ -2040,7 +2040,7 @@ class NumberPattern {
 			return true;
 		} else if (this.float === true && token.name === 'number') {
 			return true;
-		} else if (this.float === true && ['blank', 'end', 'operation', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
+		} else if (this.float === true && ['blank', 'end', 'operator', 'equal', 'greater-than', 'minor-than', 'NOT', 'AND', 'OR', 'short-hand', 'comma'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'float', token: token, counter: counter});
 			return false;
 		} else {
@@ -2073,8 +2073,8 @@ class OperationPattern {
 
 	// Condition to start check if is empty chars
 	firstToken({token, counter}) {
-		if (token.name === 'operation') {
-			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'operation');
+		if (token.name === 'operator') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'operator');
 			this.openOperator = token.value;
 			this.listener.checking = 'middleTokens';
 			return true;
@@ -2085,16 +2085,16 @@ class OperationPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		if (token.name === 'operation' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
+		if (token.name === 'operator' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
 			this.listener.checking = 'endToken';
 			this.doubleOperators = true;
 			this.lastOperator = token.value;
 			return true;
 		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name) || token.value === '(') {
-			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
+			this.listener.nextPattern({syntax: 'operator', token: token, counter: counter});
 			return false;
 		} else if (token.name === 'quote' && this.doubleOperators === false && this.openOperator === '+') {
-			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
+			this.listener.nextPattern({syntax: 'operator', token: token, counter: counter});
 			return false;
 		} else {
 			// Invalid!
@@ -2108,7 +2108,7 @@ class OperationPattern {
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
 		if (this.doubleOperators === true && this.lastOperator !== token.value && ['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'operation', token: token, counter: counter});
+			this.listener.nextPattern({syntax: 'operator', token: token, counter: counter});
 			return false;
 		} else if (['blank', 'end'].includes(token.name) || (this.doubleOperators === true && this.lastOperator === token.value)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
@@ -2519,7 +2519,7 @@ class CommaPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		if (this.invalid === false && ['blank', 'end', 'especial', 'separator', 'operation', 'quote', 'equal', 'NOT', 'comma', 'number', 'letter'].includes(token.name)) {
+		if (this.invalid === false && ['blank', 'end', 'especial', 'separator', 'operator', 'quote', 'equal', 'NOT', 'comma', 'number', 'letter'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'comma', token: token, counter: counter});
 			return false;
 		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
@@ -2605,10 +2605,11 @@ class parenthesesPattern {
 	// middle tokens condition
 	middleTokens({token, counter}) {
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
+			console.log('CLOSE');
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -2634,6 +2635,7 @@ class parenthesesPattern {
 
 	// end condition
 	endToken({token, counter}) {
+		console.log('after CLOSE endToken', token);
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
@@ -2775,7 +2777,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -2796,7 +2798,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
-		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
+		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operator', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
 			// Variable name can't start with a number
 			if ((this.listener.currentTokens.length >= 2 &&
 				this.listener.currentTokens[0].name === 'dot' &&
@@ -2820,7 +2822,7 @@ class ObjectPattern {
 			this.listener.nextPattern({syntax: 'dictNode', token: token, counter: counter, parameters: parameters});
 			return false;
 		// This is a dictNode with parameters, so allow any valid char
-		} else if (this.currentOpenChar === '[' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '[' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -2855,7 +2857,7 @@ class ObjectPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
-			if (['blank', 'end', 'operator', 'comma', 'operation', 'dot'].includes(token.name)) {
+			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
 				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
 				if (this.currentOpenChar === '(') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
@@ -5287,9 +5289,9 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'a[sdf[sdf(sdfdf)]].pity()().s33sdfiou'});
+const lexer = new PowerTemplateLexer({text: '2+2*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)'});
 
-console.log('aqui:', window.c['2d'].e);
+console.log('aqui:', 2+2*5-2+3-3*2*8/2+3*5);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 

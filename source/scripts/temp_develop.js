@@ -251,9 +251,9 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'a[sdf[sdf(sdfdf)]].pity()().s33sdfiou'});
+const lexer = new PowerTemplateLexer({text: '2+2*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)'});
 
-console.log('aqui:', window.c['2d'].e);
+console.log('aqui:', 2+2*5-2+3-3*2*8/2+3*5);
 
 lexer.syntaxTree.checkAndPrioritizeSyntax();
 
