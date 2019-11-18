@@ -823,6 +823,12 @@ class ObjectPattern {
 				this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
 				// MANUALLY CREATE THE DICTIONAY NODE
 				this.createDictionaryNode({token: token, counter: counter});
+				// Variable name can't start with a number
+				if (this.currentOpenChar === '.' && token.name === 'number') {
+					// this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+					// return false;
+					this.invalid = true;
+				}
 			} else {
 				this.listener.checking = 'middleTokens';
 			}
@@ -873,6 +879,20 @@ class ObjectPattern {
 			return true;
 		// dot dictNode
 		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
+			// Variable name can't start with a number
+			if ((this.listener.currentTokens.length >= 2 &&
+				this.listener.currentTokens[0].name === 'dot' &&
+				this.listener.currentTokens[1].name === 'number') || (
+				this.listener.syntaxTree.nodes.length &&
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1] &&
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1].syntax === 'dictNode' &&
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1].tokens[
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1].tokens.length-1].value === '.' &&
+				this.listener.currentTokens[0].name === 'number')) {
+				// Invalid!
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			}
 			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			// Set parenthesesPattern to create an anonymous function after this dictionary

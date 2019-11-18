@@ -319,68 +319,68 @@ class PowerTemplateLexer extends PowerLexer{
 
 
 class TokensListener {
-    constructor({counter, syntaxTree}) {
-        this.syntaxTree = syntaxTree;
-        this.currentTokens = [];
-        this.currentLabel = '';
-        this.start = counter;
-        this.patterns = [
-            {name: 'empty', obj: EmptyPattern},
-            {name: 'string', obj: StringPattern},
-            {name: 'variable', obj: VariablePattern},
-            {name: 'number', obj: NumberPattern},
-            {name: 'operation', obj: OperationPattern},
-            {name: 'equal', obj: EqualPattern},
-            {name: 'minor-than', obj: MinorThanPattern},
-            {name: 'greater-than', obj: GreaterThanPattern},
-            {name: 'NOT', obj: NotPattern},
-            {name: 'AND', obj: AndPattern},
-            {name: 'OR', obj: OrPattern},
-            {name: 'comma', obj: CommaPattern},
-            {name: 'dot', obj: DictPattern},
-            {name: 'separator', obj: DictPattern},
-            {name: 'short-hand', obj: ShortHandPattern},
-            {name: 'parentheses', obj: parenthesesPattern}
-            // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
-        ];
-        this.candidates = [];
-        this.checking = 'firstToken';
+	constructor({counter, syntaxTree}) {
+		this.syntaxTree = syntaxTree;
+		this.currentTokens = [];
+		this.currentLabel = '';
+		this.start = counter;
+		this.patterns = [
+			{name: 'empty', obj: EmptyPattern},
+			{name: 'string', obj: StringPattern},
+			{name: 'variable', obj: VariablePattern},
+			{name: 'number', obj: NumberPattern},
+			{name: 'operation', obj: OperationPattern},
+			{name: 'equal', obj: EqualPattern},
+			{name: 'minor-than', obj: MinorThanPattern},
+			{name: 'greater-than', obj: GreaterThanPattern},
+			{name: 'NOT', obj: NotPattern},
+			{name: 'AND', obj: AndPattern},
+			{name: 'OR', obj: OrPattern},
+			{name: 'comma', obj: CommaPattern},
+			{name: 'dot', obj: DictPattern},
+			{name: 'separator', obj: DictPattern},
+			{name: 'short-hand', obj: ShortHandPattern},
+			{name: 'parentheses', obj: parenthesesPattern}
+			// {name: 'object', obj: ObjectPattern}, // this is a secundary detector
+		];
+		this.candidates = [];
+		this.checking = 'firstToken';
 
-        this.resetCandidates();
-    }
+		this.resetCandidates();
+	}
 
-    read({token, counter}) {
-        for (const candidate of this.candidates) {
-            if (candidate.instance[this.checking]({token: token, counter: counter})) {
-                this.currentTokens.push(token);
-                this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
-                break;
-            }
-        }
-    }
+	read({token, counter}) {
+		for (const candidate of this.candidates) {
+			if (candidate.instance[this.checking]({token: token, counter: counter})) {
+				this.currentTokens.push(token);
+				this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
+				break;
+			}
+		}
+	}
 
-    nextPattern({token, counter, syntax, parameters}) {
-        this.syntaxTree.nodes.push({
-            syntax: syntax,
-            label: this.currentLabel,
-            tokens: this.currentTokens,
-            start: this.start,
-            end: counter,
-            parameters: parameters || [],
-        });
-        this.start = counter;
-        this.currentTokens = [];
-        this.currentLabel = '';
-        this.checking = 'firstToken';
-        this.resetCandidates();
+	nextPattern({token, counter, syntax, parameters}) {
+		this.syntaxTree.nodes.push({
+			syntax: syntax,
+			label: this.currentLabel,
+			tokens: this.currentTokens,
+			start: this.start,
+			end: counter,
+			parameters: parameters || [],
+		});
+		this.start = counter;
+		this.currentTokens = [];
+		this.currentLabel = '';
+		this.checking = 'firstToken';
+		this.resetCandidates();
 
-        this.read({token, counter});
-    }
+		this.read({token, counter});
+	}
 
-    resetCandidates() {
-        this.candidates = [];
-        for (const candidate of this.patterns) {
-            this.candidates.push({name: candidate.name, instance: new candidate.obj(this)});
-        }
-    }
+	resetCandidates() {
+		this.candidates = [];
+		for (const candidate of this.patterns) {
+			this.candidates.push({name: candidate.name, instance: new candidate.obj(this)});
+		}
+	}
 }

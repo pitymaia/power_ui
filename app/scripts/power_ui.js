@@ -1840,70 +1840,70 @@ class PowerTemplateLexer extends PowerLexer{
 
 
 class TokensListener {
-    constructor({counter, syntaxTree}) {
-        this.syntaxTree = syntaxTree;
-        this.currentTokens = [];
-        this.currentLabel = '';
-        this.start = counter;
-        this.patterns = [
-            {name: 'empty', obj: EmptyPattern},
-            {name: 'string', obj: StringPattern},
-            {name: 'variable', obj: VariablePattern},
-            {name: 'number', obj: NumberPattern},
-            {name: 'operation', obj: OperationPattern},
-            {name: 'equal', obj: EqualPattern},
-            {name: 'minor-than', obj: MinorThanPattern},
-            {name: 'greater-than', obj: GreaterThanPattern},
-            {name: 'NOT', obj: NotPattern},
-            {name: 'AND', obj: AndPattern},
-            {name: 'OR', obj: OrPattern},
-            {name: 'comma', obj: CommaPattern},
-            {name: 'dot', obj: DictPattern},
-            {name: 'separator', obj: DictPattern},
-            {name: 'short-hand', obj: ShortHandPattern},
-            {name: 'parentheses', obj: parenthesesPattern}
-            // {name: 'object', obj: ObjectPattern}, // this is a secundary detector
-        ];
-        this.candidates = [];
-        this.checking = 'firstToken';
+	constructor({counter, syntaxTree}) {
+		this.syntaxTree = syntaxTree;
+		this.currentTokens = [];
+		this.currentLabel = '';
+		this.start = counter;
+		this.patterns = [
+			{name: 'empty', obj: EmptyPattern},
+			{name: 'string', obj: StringPattern},
+			{name: 'variable', obj: VariablePattern},
+			{name: 'number', obj: NumberPattern},
+			{name: 'operation', obj: OperationPattern},
+			{name: 'equal', obj: EqualPattern},
+			{name: 'minor-than', obj: MinorThanPattern},
+			{name: 'greater-than', obj: GreaterThanPattern},
+			{name: 'NOT', obj: NotPattern},
+			{name: 'AND', obj: AndPattern},
+			{name: 'OR', obj: OrPattern},
+			{name: 'comma', obj: CommaPattern},
+			{name: 'dot', obj: DictPattern},
+			{name: 'separator', obj: DictPattern},
+			{name: 'short-hand', obj: ShortHandPattern},
+			{name: 'parentheses', obj: parenthesesPattern}
+			// {name: 'object', obj: ObjectPattern}, // this is a secundary detector
+		];
+		this.candidates = [];
+		this.checking = 'firstToken';
 
-        this.resetCandidates();
-    }
+		this.resetCandidates();
+	}
 
-    read({token, counter}) {
-        for (const candidate of this.candidates) {
-            if (candidate.instance[this.checking]({token: token, counter: counter})) {
-                this.currentTokens.push(token);
-                this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
-                break;
-            }
-        }
-    }
+	read({token, counter}) {
+		for (const candidate of this.candidates) {
+			if (candidate.instance[this.checking]({token: token, counter: counter})) {
+				this.currentTokens.push(token);
+				this.currentLabel = this.currentLabel + (token.value || (token.value === null ? '' : token.value));
+				break;
+			}
+		}
+	}
 
-    nextPattern({token, counter, syntax, parameters}) {
-        this.syntaxTree.nodes.push({
-            syntax: syntax,
-            label: this.currentLabel,
-            tokens: this.currentTokens,
-            start: this.start,
-            end: counter,
-            parameters: parameters || [],
-        });
-        this.start = counter;
-        this.currentTokens = [];
-        this.currentLabel = '';
-        this.checking = 'firstToken';
-        this.resetCandidates();
+	nextPattern({token, counter, syntax, parameters}) {
+		this.syntaxTree.nodes.push({
+			syntax: syntax,
+			label: this.currentLabel,
+			tokens: this.currentTokens,
+			start: this.start,
+			end: counter,
+			parameters: parameters || [],
+		});
+		this.start = counter;
+		this.currentTokens = [];
+		this.currentLabel = '';
+		this.checking = 'firstToken';
+		this.resetCandidates();
 
-        this.read({token, counter});
-    }
+		this.read({token, counter});
+	}
 
-    resetCandidates() {
-        this.candidates = [];
-        for (const candidate of this.patterns) {
-            this.candidates.push({name: candidate.name, instance: new candidate.obj(this)});
-        }
-    }
+	resetCandidates() {
+		this.candidates = [];
+		for (const candidate of this.patterns) {
+			this.candidates.push({name: candidate.name, instance: new candidate.obj(this)});
+		}
+	}
 }
 
 class StringPattern {
@@ -2731,6 +2731,12 @@ class ObjectPattern {
 				this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
 				// MANUALLY CREATE THE DICTIONAY NODE
 				this.createDictionaryNode({token: token, counter: counter});
+				// Variable name can't start with a number
+				if (this.currentOpenChar === '.' && token.name === 'number') {
+					// this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+					// return false;
+					this.invalid = true;
+				}
 			} else {
 				this.listener.checking = 'middleTokens';
 			}
@@ -2781,6 +2787,20 @@ class ObjectPattern {
 			return true;
 		// dot dictNode
 		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
+			// Variable name can't start with a number
+			if ((this.listener.currentTokens.length >= 2 &&
+				this.listener.currentTokens[0].name === 'dot' &&
+				this.listener.currentTokens[1].name === 'number') || (
+				this.listener.syntaxTree.nodes.length &&
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1] &&
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1].syntax === 'dictNode' &&
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1].tokens[
+				this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1].tokens.length-1].value === '.' &&
+				this.listener.currentTokens[0].name === 'number')) {
+				// Invalid!
+				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+				return false;
+			}
 			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			// Set parenthesesPattern to create an anonymous function after this dictionary
@@ -5257,7 +5277,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
-const lexer = new PowerTemplateLexer({text: 'teste.2sdfsd'});
+const lexer = new PowerTemplateLexer({text: 'pity()[sd].4pity.oidf'});
 
 console.log('aqui:', window.c['2d'].e);
 
