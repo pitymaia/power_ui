@@ -360,6 +360,7 @@ class TokensListener {
     }
 
     nextPattern({token, counter, syntax, parameters}) {
+    	console.log('nextPattern', token, counter, syntax, parameters);
         this.syntaxTree.nodes.push({
             syntax: syntax,
             label: this.currentLabel,

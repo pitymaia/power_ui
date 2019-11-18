@@ -249,7 +249,7 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity["obom" + mesmo][novo][2+2](pity[a()])[pity[s]]+pity()[2+2+pity(2, pity[a])]()()["final"][sdfs](dfgg)(dfg)'});
+const lexer = new PowerTemplateLexer({text: 'pity.o.bom.muito[caralho]'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 console.log('aqui:');

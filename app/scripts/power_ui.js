@@ -1881,6 +1881,7 @@ class TokensListener {
     }
 
     nextPattern({token, counter, syntax, parameters}) {
+    	console.log('nextPattern', token, counter, syntax, parameters);
         this.syntaxTree.nodes.push({
             syntax: syntax,
             label: this.currentLabel,
@@ -2543,13 +2544,12 @@ class DictPattern {
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		// If is some dictNode
-		if (token.name === 'dot' || token.value === '[' || this.listener.cadidateIsDict) {
+		if (token.name === 'dot' || token.value === '[') {
 			this.listener.checking = 'firstToken';
 			this.listener.firstNodeLabel = this.listener.currentLabel;
 			const instance = new ObjectPattern(this.listener);
 			instance.anonymous = true;
 			this.listener.candidates = [{name: 'object', instance: instance}];
-			this.listener.cadidateIsDict = false;
 
 			return true;
 		} else {
@@ -2574,7 +2574,7 @@ class ParentesesPattern {
 	firstToken({token, counter}) {
 		// The open char of the current node
 		this.currentOpenChar = token.value;
-		if (this.currentOpenChar === '(' && !this.listener.cadidateIsDict) {
+		if (this.currentOpenChar === '(') {
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'parentheses');
 			this.listener.checking = 'middleTokens';
 			if (this.currentParamsCounter === null) {
@@ -2704,23 +2704,26 @@ class ObjectPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			}
-		// If is a bracket dictionary
-		} else if (this.currentOpenChar === '[') {
+		// If is a bracket or dot dictionary
+		} else if (this.currentOpenChar === '[' || this.currentOpenChar === '.') {
+			console.log('@@@@@@@@@@@2this.listener.firstNodeLabel', this.currentParams);
 			// When a bracket dict is detect we already have the first node and the open bracket
 			// Get the node label without the bracket and convert it to STRING to create the first node
-			this.listener.firstNodeLabel = this.listener.currentLabel;
-			this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
-
-			// MANUALLY CREATE THE DICTIONAY NODE
-			this.createDictionaryNode({token: token, counter: counter});
-
-			// After create the first node set to collect the params inside the brackets to create the second node with it
-			this.currentParams = this.currentParams + token.value;
-			if (this.currentParamsCounter === null) {
-				this.currentParamsCounter = counter || null;
+			if (this.listener.currentLabel !== '.') {
+				this.listener.firstNodeLabel = this.listener.currentLabel;
+				this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
+				// MANUALLY CREATE THE DICTIONAY NODE
+				this.createDictionaryNode({token: token, counter: counter});
+			} else {
+				this.listener.checking = 'middleTokens';
 			}
+
+				// After create the first node set to collect the params inside the brackets to create the second node with it
+				this.currentParams = this.currentParams + token.value;
+				if (this.currentParamsCounter === null) {
+					this.currentParamsCounter = counter || null;
+				}
 			return true;
-			console.log('[ AQUI: ', token, this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1), firstNode);
 		} else {
 			return false;
 		}
@@ -2748,24 +2751,31 @@ class ObjectPattern {
 		} else if (this.currentOpenChar === '(' && this.innerOpenedObjects >= 0 && token.name === 'end') {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
-		// dictNode
+		// bracket dictNode
 		} else if  (this.currentOpenChar === '[' && token.value === ']' && this.innerOpenedObjects === 0) {
 			this.listener.checking = 'endToken';
 			return true;
+		// dot dictNode
+		} else if (this.currentOpenChar === '.' && ['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name)) {
+			console.log('!!!!!!!!!!!!!! HERE', token);
+			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
+			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
+			this.listener.nextPattern({syntax: 'dictNode', token: token, counter: counter, parameters: parameters});
+			return false;
 		// This is a dictNode with parameters, so allow any valid char
-		} else if (this.currentOpenChar === '[' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
 			}
 
-			if (token.value === '[') {
+			if (this.currentOpenChar === '[' && token.value === '[') {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if (token.value === ']') {
+			} else if (this.currentOpenChar === '[' && token.value === ']') {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
-		} else if (this.currentOpenChar === '[' && this.innerOpenedObjects >= 0 && token.name === 'end') {
+		} else if ((this.currentOpenChar === '[') && this.innerOpenedObjects >= 0 && token.name === 'end') {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
@@ -2788,7 +2798,7 @@ class ObjectPattern {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
 					return false;
-				} else if (this.currentOpenChar === '[') {
+				} else if (this.currentOpenChar === '[' || this.currentOpenChar === '.') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: 'dictNode', token: token, counter: counter, parameters: parameters});
 					return false;
@@ -5214,7 +5224,7 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity["obom" + mesmo][novo][2+2](pity[a()])[pity[s]]+pity()[2+2+pity(2, pity[a])]()()["final"][sdfs](dfgg)(dfg)'});
+const lexer = new PowerTemplateLexer({text: 'pity.o.bom.muito[caralho]'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 console.log('aqui:');
