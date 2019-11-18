@@ -2706,10 +2706,9 @@ class ObjectPattern {
 			}
 		// If is a bracket or dot dictionary
 		} else if (this.currentOpenChar === '[' || this.currentOpenChar === '.') {
-			console.log('@@@@@@@@@@@2this.listener.firstNodeLabel', this.currentParams);
 			// When a bracket dict is detect we already have the first node and the open bracket
 			// Get the node label without the bracket and convert it to STRING to create the first node
-			if (this.listener.currentLabel !== '.') {
+			if (this.listener.currentLabel !== '.' && this.listener.currentLabel !== '[') {
 				this.listener.firstNodeLabel = this.listener.currentLabel;
 				this.currentParams = `"${this.listener.currentLabel.slice(0, this.listener.currentLabel.length - 1)}"`;
 				// MANUALLY CREATE THE DICTIONAY NODE
@@ -2756,23 +2755,29 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
-		} else if (this.currentOpenChar === '.' && ['blank', 'end', 'operator', 'operation', 'dot'].includes(token.name)) {
-			console.log('!!!!!!!!!!!!!! HERE', token);
+		} else if (this.currentOpenChar === '.' && ['blank', 'end', 'operator', 'operation', 'dot', 'separator'].includes(token.name)) {
 			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			this.listener.nextPattern({syntax: 'dictNode', token: token, counter: counter, parameters: parameters});
 			return false;
 		// This is a dictNode with parameters, so allow any valid char
-		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '[' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operation', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
 			}
 
-			if (this.currentOpenChar === '[' && token.value === '[') {
+			if (token.value === '[') {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if (this.currentOpenChar === '[' && token.value === ']') {
+			} else if (token.value === ']') {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
+			}
+			return true;
+		// This is a DOT dictNode so collect it label/parameter
+		} else if (this.currentOpenChar === '.' && ['especial', 'number', 'letter'].includes(token.name)) {
+			this.currentParams = this.currentParams + token.value;
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
 			}
 			return true;
 		} else if ((this.currentOpenChar === '[') && this.innerOpenedObjects >= 0 && token.name === 'end') {
@@ -2789,7 +2794,6 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('endToken', token, this.currentOpenChar, this.anonymous, this.currentOpenChar);
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operation'].includes(token.name)) {
@@ -5224,7 +5228,7 @@ function b (t) {
 }
 window.c = {d: {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-const lexer = new PowerTemplateLexer({text: 'pity.o.bom.muito[caralho]'});
+const lexer = new PowerTemplateLexer({text: 'pity.o.bom.muito[caralho]["novo"]().teste'});
 // const lexer = new PowerTemplateLexer({text: 'pity[.]'});
 // const lexer = new PowerTemplateLexer({text: 'pity1 + pity.pato().marreco + boa.ruim'});
 console.log('aqui:');
