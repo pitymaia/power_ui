@@ -634,8 +634,16 @@ class DictPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
-		// If is some dictNode
-		if (token.name === 'dot' || token.value === '[') {
+		// can't start with dot
+		if (token.name === 'dot' && this.listener.syntaxTree.nodes.length === 0) {
+			// INVALID!
+			this.listener.checking = 'endToken';
+			this.listener.firstNodeLabel = this.listener.currentLabel;
+			const instance = new ObjectPattern(this.listener);
+			instance.invalid = true;
+			this.listener.candidates = [{name: 'object', instance: instance}];
+			return true;
+		} else if (token.name === 'dot' || token.value === '[') {
 			this.listener.checking = 'firstToken';
 			this.listener.firstNodeLabel = this.listener.currentLabel;
 			const instance = new ObjectPattern(this.listener);
@@ -805,7 +813,7 @@ class ObjectPattern {
 				return true;
 			}
 		// If is a bracket or dot dictionary
-		} else if (this.currentOpenChar === '[' || this.currentOpenChar === '.') {
+		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && token.name !== 'separator') {
 			// When a bracket dict is detect we already have the first node and the open bracket
 			// Get the node label without the bracket and convert it to STRING to create the first node
 			// If bracket or dot are detected from DictPattern it may come with a single bracket or dot as
@@ -824,6 +832,12 @@ class ObjectPattern {
 				if (this.currentParamsCounter === null) {
 					this.currentParamsCounter = counter || null;
 				}
+			return true;
+		} else if (token.name === 'dot' || token.name === 'separator') {
+			// Invalid!
+			this.invalid = true;
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
 			return true;
 		} else {
 			return false;
