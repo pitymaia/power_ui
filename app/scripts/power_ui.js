@@ -1736,6 +1736,12 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
+		// If there is some last priority nodes wating
+		if (PRIORITY_NODES.length) {
+			CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
+			PRIORITY_NODES = [];
+		}
+
 		if (!isParameter) console.log('FILTERED', nodes, 'PRIORITY_NODES', PRIORITY_NODES, 'CURRENT_EXPRESSION_NODES', CURRENT_EXPRESSION_NODES);
 		return isValid;
 	}
@@ -1764,9 +1770,12 @@ class SyntaxTree {
 		} else if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
 
 		} else {
+			if (PRIORITY_NODES.length) {
+				CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
+				PRIORITY_NODES = [];
+			}
 			CURRENT_EXPRESSION_NODES.push(currentNode);
 		}
-
 		return PRIORITY_NODES;
 	}
 
@@ -5352,7 +5361,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-const lexer = new PowerTemplateLexer({text: '- 2 + 4 * 1 / eu().pity.o[bom]()().muito.bom() + 8 / 2 + pity.bom.demais'});
+const lexer = new PowerTemplateLexer({text: '- 2 + 4 * 1 / eu().pity.o[bom]()().muito.bom() + 8 / 2 + pity.bom.demais * (2*3-4+(2+2)*2+1)'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 
 console.log('aqui:', 2+2*5-2+3-3*2*8/2+3*5);

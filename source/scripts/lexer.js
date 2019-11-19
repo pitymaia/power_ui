@@ -215,6 +215,12 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
+		// If there is some last priority nodes wating
+		if (PRIORITY_NODES.length) {
+			CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
+			PRIORITY_NODES = [];
+		}
+
 		if (!isParameter) console.log('FILTERED', nodes, 'PRIORITY_NODES', PRIORITY_NODES, 'CURRENT_EXPRESSION_NODES', CURRENT_EXPRESSION_NODES);
 		return isValid;
 	}
@@ -243,9 +249,12 @@ class SyntaxTree {
 		} else if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
 
 		} else {
+			if (PRIORITY_NODES.length) {
+				CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
+				PRIORITY_NODES = [];
+			}
 			CURRENT_EXPRESSION_NODES.push(currentNode);
 		}
-
 		return PRIORITY_NODES;
 	}
 
