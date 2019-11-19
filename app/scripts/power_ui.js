@@ -1684,7 +1684,7 @@ class SyntaxTree {
 
 	checkAndPrioritizeSyntax({nodes, expression, isParameter}) {
 		const CURRENT_EXPRESSION_NODES = [];
-		const PRIORITY_NODES = [];
+		let PRIORITY_NODES = [];
 
 		nodes = nodes || this.nodes;
 		// object is a special kind that group real nodes and do not need be unified, it is the result of unifying
@@ -1726,29 +1726,48 @@ class SyntaxTree {
 				});
 			}
 
-			this.createExpressionGroups({
+			PRIORITY_NODES = this.createExpressionGroups({
 				currentNode: currentNode,
+				previousNode: this.getPreviousNode({index: index, nodes}),
+				nextNode: this.getNextNode({index: index, nodes}),
 				CURRENT_EXPRESSION_NODES: CURRENT_EXPRESSION_NODES,
 				PRIORITY_NODES: PRIORITY_NODES,
 			});
 
 			index = index + 1;
 		}
-		if (!isParameter) console.log('FILTERED', nodes);
+		if (!isParameter) console.log('FILTERED', nodes, 'PRIORITY_NODES', PRIORITY_NODES, 'CURRENT_EXPRESSION_NODES', CURRENT_EXPRESSION_NODES);
 		return isValid;
 	}
 
-	createExpressionGroups({currentNode, nextNode, CURRENT_EXPRESSION_NODES, PRIORITY_NODES}) {
+	createExpressionGroups({currentNode, previousNode, nextNode, CURRENT_EXPRESSION_NODES, PRIORITY_NODES}) {
 		// Convert
-		if (['integer', 'float', 'string', 'parentheses', 'function', 'dictNode', 'anonymousFunc'].includes(currentNode.syntax)) {
-			// console.log('currentNode', currentNode);
+		if (['integer', 'float', 'string', 'parentheses', 'object'].includes(currentNode.syntax)) {
+			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
+				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
+				PRIORITY_NODES.push(currentNode);
+			} else {
+				CURRENT_EXPRESSION_NODES.push(currentNode);
+			}
+			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		} else if (currentNode.syntax === 'operator') {
-			// console.log('currentNode', currentNode);
+			if (currentNode.label !== '+' && currentNode.label !== '-') {
+				PRIORITY_NODES.push(currentNode);
+			} else {
+				if (PRIORITY_NODES.length) {
+					CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
+					PRIORITY_NODES = [];
+				}
+				CURRENT_EXPRESSION_NODES.push(currentNode);
+			}
+			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		} else if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
 
 		} else {
 			CURRENT_EXPRESSION_NODES.push(currentNode);
 		}
+
+		return PRIORITY_NODES;
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -5333,7 +5352,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-const lexer = new PowerTemplateLexer({text: '-2 + 4 * 1 + eu().pity.o[bom]()().muito.bom() + 8 / 2 + pity.bom.demais'});
+const lexer = new PowerTemplateLexer({text: '- 2 + 4 * 1 / eu().pity.o[bom]()().muito.bom() + 8 / 2 + pity.bom.demais'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 
 console.log('aqui:', 2+2*5-2+3-3*2*8/2+3*5);
