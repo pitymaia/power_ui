@@ -1523,7 +1523,6 @@ class SyntaxTree {
 	constructor({counter}) {
 		this.currentPriority = 0;
 		this.nodes = [];
-		this.tree = [];
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 		this.validAfter = {
 			variable: this.variableValidation,
@@ -1550,8 +1549,17 @@ class SyntaxTree {
 		}
 	}
 
+	buildTreeLeaf(isParameter) {
+		this.tree = this.checkAndPrioritizeSyntax({nodes: this.nodes, isParameter: isParameter});
+
+		if (!isParameter) {
+			console.log('TREE:', this.tree);
+			console.log('NODES:', this.nodes);
+		}
+	}
+
 	firstNodeValidation({node}) {
-		if (['dot', 'anonymousFunc', 'object',
+		if (['dot', 'anonymousFunc',
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
 			return false;
@@ -1682,16 +1690,15 @@ class SyntaxTree {
 		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
 	}
 
-	checkAndPrioritizeSyntax({nodes, expression, isParameter}) {
+	checkAndPrioritizeSyntax({nodes, isParameter}) {
 		const CURRENT_EXPRESSION_NODES = [];
 		let PRIORITY_NODES = [];
 
-		nodes = nodes || this.nodes;
-		// object is a special kind that group real nodes and do not need be unified, it is the result of unifying
-		if (isParameter !== 'object') {
-			nodes = this.filterNodesAndUnifyObjects(nodes);
+		nodes = this.filterNodesAndUnifyObjects(nodes);
+
+		if (!nodes.length) {
+			return [];
 		}
-		expression = expression || '';
 
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
@@ -1712,18 +1719,7 @@ class SyntaxTree {
 			});
 
 			if (isValid === false) {
-				throw `PowerUI template invalid syntax: "${currentNode.label}" nearby ${expression}.`;
-			} else {
-				expression = expression + currentNode.label;
-			}
-
-			// recursively check the parameters
-			if (currentNode.parameters.length) {
-				isValid = this.checkAndPrioritizeSyntax({
-					nodes: currentNode.parameters,
-					expressions: expression,
-					isParameter: (currentNode.syntax === 'object' ? 'object' : true),
-				});
+				throw `PowerUI template invalid syntax: "${currentNode.label}".`;
 			}
 
 			PRIORITY_NODES = this.createExpressionGroups({
@@ -1742,8 +1738,7 @@ class SyntaxTree {
 			PRIORITY_NODES = [];
 		}
 
-		if (!isParameter) console.log('FILTERED', nodes, 'PRIORITY_NODES', PRIORITY_NODES, 'CURRENT_EXPRESSION_NODES', CURRENT_EXPRESSION_NODES);
-		return isValid;
+		return CURRENT_EXPRESSION_NODES;
 	}
 
 	createExpressionGroups({currentNode, previousNode, nextNode, CURRENT_EXPRESSION_NODES, PRIORITY_NODES}) {
@@ -1826,6 +1821,12 @@ class SyntaxTree {
 			}
 			counter = counter - 1;
 		}
+		// If object is the last node it may be wating...
+		if (concatObject) {
+			filteredNodes.unshift(object);
+			concatObject = false;
+			object = this.newObject();
+		}
 		return filteredNodes;
 	}
 
@@ -1835,7 +1836,8 @@ class SyntaxTree {
 }
 
 class PowerLexer {
-	constructor({text, tokensTable, counter}) {
+	constructor({text, tokensTable, counter, isParameter}) {
+		this.isParameter = isParameter;
 		this.originalText = String(text);
 		this.syntaxTree = new SyntaxTree({counter: counter});
 		this.tokens = [];
@@ -1861,8 +1863,8 @@ class PowerLexer {
 }
 
 class PowerTemplateLexer extends PowerLexer{
-	constructor({text, tokensTable, counter}) {
-		super({text: text, tokensTable: tokensTable, counter: counter || 0});
+	constructor({text, tokensTable, counter, isParameter}) {
+		super({text: text, tokensTable: tokensTable, counter: counter || 0, isParameter: isParameter});
 		this.counter = counter || 0;
 		this.tokensTable = tokensTable || [
 			{name: 'blank', values: [' ', '\t', '\n']},
@@ -1891,7 +1893,12 @@ class PowerTemplateLexer extends PowerLexer{
 			},
 			{name: 'end', values: [null]},
 		];
+		this.buildSyntaxTree();
+	}
+
+	buildSyntaxTree() {
 		this.scan();
+		this.syntaxTree.buildTreeLeaf(this.isParameter || false);
 	}
 
 	scan() {
@@ -2677,7 +2684,6 @@ class parenthesesPattern {
 	// middle tokens condition
 	middleTokens({token, counter}) {
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
-			console.log('CLOSE');
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
@@ -2707,16 +2713,25 @@ class parenthesesPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('after CLOSE endToken', token);
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				const parameters = new PowerTemplateLexer({
+					text: this.currentParams,
+					counter: this.currentParamsCounter,
+					isParameter: true,
+				}).syntaxTree.tree;
+
 				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'parentheses', token: token, counter: counter, parameters: parameters});
 				return false;
 			// Allow invoke a second function
 			} else if (token.value === '(') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				const parameters = new PowerTemplateLexer({
+					text: this.currentParams,
+					counter: this.currentParamsCounter,
+					isParameter: true,
+				}).syntaxTree.tree;
+
 				this.listener.syntaxTree.nodes.push({
 					syntax: this.anonymous ? 'anonymousFunc' : 'parentheses',
 					label: this.listener.currentLabel,
@@ -2885,7 +2900,12 @@ class ObjectPattern {
 				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 				return false;
 			}
-			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
+			const parameters = new PowerTemplateLexer({
+				text: `"${this.currentParams}"`,
+				counter: this.currentParamsCounter,
+				isParameter: true,
+			}).syntaxTree.tree;
+
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			// Set parenthesesPattern to create an anonymous function after this dictionary
 			if (token.value === '(') {
@@ -2930,7 +2950,12 @@ class ObjectPattern {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				const parameters = new PowerTemplateLexer({
+					text: this.currentParams,
+					counter: this.currentParamsCounter,
+					isParameter: true,
+				}).syntaxTree.tree;
+
 				if (this.currentOpenChar === '(') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
@@ -3002,7 +3027,12 @@ class ObjectPattern {
 	}
 
 	createDictionaryNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+		const parameters = new PowerTemplateLexer({
+			text: this.currentParams,
+			counter: this.currentParamsCounter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
 		if (this.dictHaveInvalidParams(parameters)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
@@ -3027,7 +3057,12 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+		const parameters = new PowerTemplateLexer({
+			text: this.currentParams,
+			counter: this.currentParamsCounter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
 		this.listener.currentLabel = (this.anonymous === true) ? this.listener.currentLabel : this.listener.firstNodeLabel;
 		this.listener.syntaxTree.nodes.push({
 			syntax: (this.anonymous === true) ? 'anonymousFunc' : 'function',
@@ -5361,12 +5396,10 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-const lexer = new PowerTemplateLexer({text: '- 2 + 4 * 1 / eu().pity.o[bom]()().muito.bom() + 8 / 2 + pity.bom.demais * (2*3-4+(2+2)*2+1)'});
+const lexer = new PowerTemplateLexer({text: 'pity.o.bom[2+2+1*3+3+4*pity(pity.bom+2*pity.testador)()(-2+2*3+55+4/2+5)] * 2 + 3 + 5'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 
-console.log('aqui:', 2+2*5-2+3-3*2*8/2+3*5);
-
-lexer.syntaxTree.checkAndPrioritizeSyntax({nodes: lexer.syntaxTree.nodes});
+console.log('aqui:', lexer);
 
 
 

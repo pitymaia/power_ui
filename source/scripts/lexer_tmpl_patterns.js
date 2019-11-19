@@ -697,7 +697,6 @@ class parenthesesPattern {
 	// middle tokens condition
 	middleTokens({token, counter}) {
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
-			console.log('CLOSE');
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
@@ -727,16 +726,25 @@ class parenthesesPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('after CLOSE endToken', token);
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				const parameters = new PowerTemplateLexer({
+					text: this.currentParams,
+					counter: this.currentParamsCounter,
+					isParameter: true,
+				}).syntaxTree.tree;
+
 				this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'parentheses', token: token, counter: counter, parameters: parameters});
 				return false;
 			// Allow invoke a second function
 			} else if (token.value === '(') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				const parameters = new PowerTemplateLexer({
+					text: this.currentParams,
+					counter: this.currentParamsCounter,
+					isParameter: true,
+				}).syntaxTree.tree;
+
 				this.listener.syntaxTree.nodes.push({
 					syntax: this.anonymous ? 'anonymousFunc' : 'parentheses',
 					label: this.listener.currentLabel,
@@ -905,7 +913,12 @@ class ObjectPattern {
 				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 				return false;
 			}
-			const parameters = new PowerTemplateLexer({text: `"${this.currentParams}"`, counter: this.currentParamsCounter}).syntaxTree.nodes;
+			const parameters = new PowerTemplateLexer({
+				text: `"${this.currentParams}"`,
+				counter: this.currentParamsCounter,
+				isParameter: true,
+			}).syntaxTree.tree;
+
 			this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 			// Set parenthesesPattern to create an anonymous function after this dictionary
 			if (token.value === '(') {
@@ -950,7 +963,12 @@ class ObjectPattern {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+				const parameters = new PowerTemplateLexer({
+					text: this.currentParams,
+					counter: this.currentParamsCounter,
+					isParameter: true,
+				}).syntaxTree.tree;
+
 				if (this.currentOpenChar === '(') {
 					this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
 					this.listener.nextPattern({syntax: this.anonymous ? 'anonymousFunc' : 'function', token: token, counter: counter, parameters: parameters});
@@ -1022,7 +1040,12 @@ class ObjectPattern {
 	}
 
 	createDictionaryNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+		const parameters = new PowerTemplateLexer({
+			text: this.currentParams,
+			counter: this.currentParamsCounter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
 		if (this.dictHaveInvalidParams(parameters)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
@@ -1047,7 +1070,12 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({text: this.currentParams, counter: this.currentParamsCounter}).syntaxTree.nodes;
+		const parameters = new PowerTemplateLexer({
+			text: this.currentParams,
+			counter: this.currentParamsCounter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
 		this.listener.currentLabel = (this.anonymous === true) ? this.listener.currentLabel : this.listener.firstNodeLabel;
 		this.listener.syntaxTree.nodes.push({
 			syntax: (this.anonymous === true) ? 'anonymousFunc' : 'function',

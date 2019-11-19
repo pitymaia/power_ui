@@ -2,7 +2,6 @@ class SyntaxTree {
 	constructor({counter}) {
 		this.currentPriority = 0;
 		this.nodes = [];
-		this.tree = [];
 		this.tokensListener = new TokensListener({counter: counter, syntaxTree: this});
 		this.validAfter = {
 			variable: this.variableValidation,
@@ -29,8 +28,17 @@ class SyntaxTree {
 		}
 	}
 
+	buildTreeLeaf(isParameter) {
+		this.tree = this.checkAndPrioritizeSyntax({nodes: this.nodes, isParameter: isParameter});
+
+		if (!isParameter) {
+			console.log('TREE:', this.tree);
+			console.log('NODES:', this.nodes);
+		}
+	}
+
 	firstNodeValidation({node}) {
-		if (['dot', 'anonymousFunc', 'object',
+		if (['dot', 'anonymousFunc',
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
 			return false;
@@ -161,16 +169,15 @@ class SyntaxTree {
 		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
 	}
 
-	checkAndPrioritizeSyntax({nodes, expression, isParameter}) {
+	checkAndPrioritizeSyntax({nodes, isParameter}) {
 		const CURRENT_EXPRESSION_NODES = [];
 		let PRIORITY_NODES = [];
 
-		nodes = nodes || this.nodes;
-		// object is a special kind that group real nodes and do not need be unified, it is the result of unifying
-		if (isParameter !== 'object') {
-			nodes = this.filterNodesAndUnifyObjects(nodes);
+		nodes = this.filterNodesAndUnifyObjects(nodes);
+
+		if (!nodes.length) {
+			return [];
 		}
-		expression = expression || '';
 
 		let index = 0;
 		const nodesLastIndex = nodes.length - 1;
@@ -191,18 +198,7 @@ class SyntaxTree {
 			});
 
 			if (isValid === false) {
-				throw `PowerUI template invalid syntax: "${currentNode.label}" nearby ${expression}.`;
-			} else {
-				expression = expression + currentNode.label;
-			}
-
-			// recursively check the parameters
-			if (currentNode.parameters.length) {
-				isValid = this.checkAndPrioritizeSyntax({
-					nodes: currentNode.parameters,
-					expressions: expression,
-					isParameter: (currentNode.syntax === 'object' ? 'object' : true),
-				});
+				throw `PowerUI template invalid syntax: "${currentNode.label}".`;
 			}
 
 			PRIORITY_NODES = this.createExpressionGroups({
@@ -221,8 +217,7 @@ class SyntaxTree {
 			PRIORITY_NODES = [];
 		}
 
-		if (!isParameter) console.log('FILTERED', nodes, 'PRIORITY_NODES', PRIORITY_NODES, 'CURRENT_EXPRESSION_NODES', CURRENT_EXPRESSION_NODES);
-		return isValid;
+		return CURRENT_EXPRESSION_NODES;
 	}
 
 	createExpressionGroups({currentNode, previousNode, nextNode, CURRENT_EXPRESSION_NODES, PRIORITY_NODES}) {
@@ -305,6 +300,12 @@ class SyntaxTree {
 			}
 			counter = counter - 1;
 		}
+		// If object is the last node it may be wating...
+		if (concatObject) {
+			filteredNodes.unshift(object);
+			concatObject = false;
+			object = this.newObject();
+		}
 		return filteredNodes;
 	}
 
@@ -314,7 +315,8 @@ class SyntaxTree {
 }
 
 class PowerLexer {
-	constructor({text, tokensTable, counter}) {
+	constructor({text, tokensTable, counter, isParameter}) {
+		this.isParameter = isParameter;
 		this.originalText = String(text);
 		this.syntaxTree = new SyntaxTree({counter: counter});
 		this.tokens = [];
@@ -340,8 +342,8 @@ class PowerLexer {
 }
 
 class PowerTemplateLexer extends PowerLexer{
-	constructor({text, tokensTable, counter}) {
-		super({text: text, tokensTable: tokensTable, counter: counter || 0});
+	constructor({text, tokensTable, counter, isParameter}) {
+		super({text: text, tokensTable: tokensTable, counter: counter || 0, isParameter: isParameter});
 		this.counter = counter || 0;
 		this.tokensTable = tokensTable || [
 			{name: 'blank', values: [' ', '\t', '\n']},
@@ -370,7 +372,12 @@ class PowerTemplateLexer extends PowerLexer{
 			},
 			{name: 'end', values: [null]},
 		];
+		this.buildSyntaxTree();
+	}
+
+	buildSyntaxTree() {
 		this.scan();
+		this.syntaxTree.buildTreeLeaf(this.isParameter || false);
 	}
 
 	scan() {
