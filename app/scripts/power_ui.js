@@ -1691,8 +1691,9 @@ class SyntaxTree {
 	}
 
 	checkAndPrioritizeSyntax({nodes, isParameter}) {
-		const current_expression_nodes = [];
+		let current_expression_nodes = [];
 		let priority_nodes = [];
+		let current_expression_kind = null;
 
 		nodes = this.filterNodesAndUnifyObjects(nodes);
 
@@ -1722,13 +1723,17 @@ class SyntaxTree {
 				throw `PowerUI template invalid syntax: "${currentNode.label}".`;
 			}
 
-			priority_nodes = this.createExpressionGroups({
+			const result = this.createExpressionGroups({
 				currentNode: currentNode,
 				previousNode: this.getPreviousNode({index: index, nodes}),
 				nextNode: this.getNextNode({index: index, nodes}),
 				current_expression_nodes: current_expression_nodes,
 				priority_nodes: priority_nodes,
+				current_expression_kind: current_expression_kind,
 			});
+
+			priority_nodes = result.priority_nodes;
+			current_expression_nodes = result.current_expression_nodes;
 
 			index = index + 1;
 		}
@@ -1741,9 +1746,9 @@ class SyntaxTree {
 		return current_expression_nodes;
 	}
 
-	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes}) {
+	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, current_expression_kind}) {
 		// Convert
-		if (['integer', 'float', 'string', 'parentheses', 'object'].includes(currentNode.syntax)) {
+		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
 				priority_nodes.push(currentNode);
@@ -1762,16 +1767,23 @@ class SyntaxTree {
 				current_expression_nodes.push(currentNode);
 			}
 			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
-		} else if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
-
-		} else {
-			if (priority_nodes.length) {
-				current_expression_nodes.push({priority: priority_nodes});
-				priority_nodes = [];
-			}
-			current_expression_nodes.push(currentNode);
 		}
-		return priority_nodes;
+
+		if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
+
+		}
+
+		// } else {
+		// 	if (priority_nodes.length) {
+		// 		current_expression_nodes.push({priority: priority_nodes});
+		// 		priority_nodes = [];
+		// 	}
+		// 	current_expression_nodes.push(currentNode);
+		// }
+		return {
+			priority_nodes: priority_nodes,
+			current_expression_nodes: current_expression_nodes
+		};
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -5397,11 +5409,13 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const lexer = new PowerTemplateLexer({text: 'pitanga || 2+2'});
+const lexer = new PowerTemplateLexer({text: '2.5+1 * (2+2) + 5.5'});
 
 const pitanga = false;
+const amora = 'inha';
+const morango = 'pen';
 
-console.log('aqui:', pitanga || 2+2);
+console.log('aqui:', 3 === 0 + 5 - 2 * 2 + 5 * 2 - 8 && morango + amora === 'pen' + amora);
 
 
 
