@@ -1691,8 +1691,8 @@ class SyntaxTree {
 	}
 
 	checkAndPrioritizeSyntax({nodes, isParameter}) {
-		const CURRENT_EXPRESSION_NODES = [];
-		let PRIORITY_NODES = [];
+		const current_expression_nodes = [];
+		let priority_nodes = [];
 
 		nodes = this.filterNodesAndUnifyObjects(nodes);
 
@@ -1722,56 +1722,56 @@ class SyntaxTree {
 				throw `PowerUI template invalid syntax: "${currentNode.label}".`;
 			}
 
-			PRIORITY_NODES = this.createExpressionGroups({
+			priority_nodes = this.createExpressionGroups({
 				currentNode: currentNode,
 				previousNode: this.getPreviousNode({index: index, nodes}),
 				nextNode: this.getNextNode({index: index, nodes}),
-				CURRENT_EXPRESSION_NODES: CURRENT_EXPRESSION_NODES,
-				PRIORITY_NODES: PRIORITY_NODES,
+				current_expression_nodes: current_expression_nodes,
+				priority_nodes: priority_nodes,
 			});
 
 			index = index + 1;
 		}
-		// If there is some last priority nodes wating
-		if (PRIORITY_NODES.length) {
-			CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
-			PRIORITY_NODES = [];
+		// If there is some last priority nodes waiting
+		if (priority_nodes.length) {
+			current_expression_nodes.push({priority: priority_nodes});
+			priority_nodes = [];
 		}
 
-		return CURRENT_EXPRESSION_NODES;
+		return current_expression_nodes;
 	}
 
-	createExpressionGroups({currentNode, previousNode, nextNode, CURRENT_EXPRESSION_NODES, PRIORITY_NODES}) {
+	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes}) {
 		// Convert
 		if (['integer', 'float', 'string', 'parentheses', 'object'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
-				PRIORITY_NODES.push(currentNode);
+				priority_nodes.push(currentNode);
 			} else {
-				CURRENT_EXPRESSION_NODES.push(currentNode);
+				current_expression_nodes.push(currentNode);
 			}
 			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		} else if (currentNode.syntax === 'operator') {
 			if (currentNode.label !== '+' && currentNode.label !== '-') {
-				PRIORITY_NODES.push(currentNode);
+				priority_nodes.push(currentNode);
 			} else {
-				if (PRIORITY_NODES.length) {
-					CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
-					PRIORITY_NODES = [];
+				if (priority_nodes.length) {
+					current_expression_nodes.push({priority: priority_nodes});
+					priority_nodes = [];
 				}
-				CURRENT_EXPRESSION_NODES.push(currentNode);
+				current_expression_nodes.push(currentNode);
 			}
 			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		} else if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
 
 		} else {
-			if (PRIORITY_NODES.length) {
-				CURRENT_EXPRESSION_NODES.push({priority: PRIORITY_NODES});
-				PRIORITY_NODES = [];
+			if (priority_nodes.length) {
+				current_expression_nodes.push({priority: priority_nodes});
+				priority_nodes = [];
 			}
-			CURRENT_EXPRESSION_NODES.push(currentNode);
+			current_expression_nodes.push(currentNode);
 		}
-		return PRIORITY_NODES;
+		return priority_nodes;
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -5396,10 +5396,12 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-const lexer = new PowerTemplateLexer({text: 'pity.o.bom[2+2+1*3+3+4*pity(pity.bom+2*pity.testador)()(-2+2*3+55+4/2+5)] * 2 + 3 + 5'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
+const lexer = new PowerTemplateLexer({text: 'pitanga || 2+2'});
 
-console.log('aqui:', lexer);
+const pitanga = false;
+
+console.log('aqui:', pitanga || 2+2);
 
 
 

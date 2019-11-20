@@ -251,10 +251,12 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-const lexer = new PowerTemplateLexer({text: 'pity.o.bom[2+2+1*3+3+4*pity(pity.bom+2*pity.testador)()(-2+2*3+55+4/2+5)] * 2 + 3 + 5'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
+const lexer = new PowerTemplateLexer({text: 'pitanga || 2+2'});
 
-console.log('aqui:', lexer);
+const pitanga = false;
+
+console.log('aqui:', pitanga || 2+2);
 
 
 
