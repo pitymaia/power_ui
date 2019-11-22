@@ -15,6 +15,8 @@ class SyntaxTree {
 			'NOT-equal': this.equalityValidation,
 			'greater-than': this.equalityValidation,
 			'minor-than': this.equalityValidation,
+			'minor-or-equal': this.equalityValidation,
+			'greater-or-equal': this.equalityValidation,
 			object: this.objectValidation,
 			function: this.objectValidation,
 			anonymousFunc: this.objectValidation,
@@ -39,7 +41,8 @@ class SyntaxTree {
 	firstNodeValidation({node, isParameter}) {
 		if (['dot', 'anonymousFunc',
 			'AND', 'OR', 'NOT-equal', 'short-hand',
-			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
+			'minor-or-equal', 'greater-or-equal',
+			'equal', 'minor-than', 'greater-than'].includes(node.syntax)) {
 			return false;
 		} else if (node.syntax === 'operator' && (node.label !== '+' && node.label !== '-')) {
 			return false;
@@ -75,7 +78,8 @@ class SyntaxTree {
 	// Functions and dictionaries
 	objectValidation({nextNode, isParameter}) {
 		if (['operator', 'anonymousFunc', 'short-hand',
-			'NOT-equal', 'equal', 'minor-than', 'minor-than',
+			'NOT-equal', 'equal', 'minor-than', 'greater-than',
+			'minor-or-equal', 'greater-or-equal',
 			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
@@ -113,7 +117,8 @@ class SyntaxTree {
 
 	variableValidation({nextNode, isParameter}) {
 		if (['dot', 'operator', 'NOT-equal',
-			'equal', 'minor-than', 'minor-than',
+			'equal', 'minor-than', 'greater-than',
+			'minor-or-equal', 'greater-or-equal',
 			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
@@ -123,7 +128,8 @@ class SyntaxTree {
 
 	numberValidation({nextNode, isParameter}) {
 		if (['operator', 'NOT-equal', 'equal',
-			'minor-than', 'minor-than', 'AND',
+			'minor-than', 'greater-than', 'AND',
+			'minor-or-equal', 'greater-or-equal',
 			'OR' , 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
@@ -145,7 +151,11 @@ class SyntaxTree {
 	}
 
 	parenthesesValidation({nextNode, isParameter}) {
-		if (['anonymousFunc', 'dot', 'operator', 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
+		if (['anonymousFunc', 'dot', 'operator',
+			'short-hand', 'NOT-equal', 'equal',
+			'minor-or-equal', 'greater-or-equal',
+			'minor-than', 'greater-than', 'AND',
+			'OR' , 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
 			return false;
@@ -172,9 +182,10 @@ class SyntaxTree {
 	checkAndPrioritizeSyntax({nodes, isParameter}) {
 		let current_expression_nodes = [];
 		let priority_nodes = [];
-		let current_expression_kind = null;
+		let current_expression_kind = {kind: 'expression'};
 
 		nodes = this.filterNodesAndUnifyObjects(nodes);
+		nodes.push({syntax: 'end'});
 
 		if (!nodes.length) {
 			return [];
@@ -199,7 +210,7 @@ class SyntaxTree {
 				isParameter: isParameter,
 			});
 
-			if (isValid === false) {
+			if (isValid === false && currentNode.syntax !== 'end') {
 				throw `PowerUI template invalid syntax: "${currentNode.label}".`;
 			}
 
@@ -214,6 +225,7 @@ class SyntaxTree {
 
 			priority_nodes = result.priority_nodes;
 			current_expression_nodes = result.current_expression_nodes;
+			current_expression_kind = result.current_expression_kind;
 
 			index = index + 1;
 		}
@@ -222,6 +234,8 @@ class SyntaxTree {
 			current_expression_nodes.push({priority: priority_nodes});
 			priority_nodes = [];
 		}
+
+		console.log('current_expression_kind', current_expression_kind, current_expression_nodes);
 
 		return current_expression_nodes;
 	}
@@ -249,8 +263,41 @@ class SyntaxTree {
 			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		}
 
-		if (['OR', 'AND', 'short-hand'].includes(currentNode.syntax)) {
+		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal'].includes(currentNode.syntax)) {
+			if (priority_nodes.length) {
+				current_expression_nodes.push({priority: priority_nodes});
+				priority_nodes = [];
+			}
 
+			if (current_expression_kind.kind === 'equality') {
+				current_expression_kind.r_expression_nodes = current_expression_nodes;
+				current_expression_nodes = [current_expression_kind];
+			}
+
+			current_expression_kind = {
+				kind: 'equality',
+				l_expression_nodes: current_expression_nodes,
+				logicNode: currentNode,
+				r_expression_nodes: [],
+			};
+
+			current_expression_nodes = [];
+		}
+
+		if (['OR', 'AND', 'short-hand'].includes(nextNode.syntax)) {
+
+		}
+
+		if (currentNode.syntax === 'end') {
+			if (priority_nodes.length) {
+				current_expression_nodes.push({priority: priority_nodes});
+				priority_nodes = [];
+			}
+
+			if (current_expression_kind.kind === 'equality') {
+				current_expression_kind.r_expression_nodes = current_expression_nodes;
+				current_expression_nodes = [current_expression_kind];
+			}
 		}
 
 		// } else {
@@ -262,7 +309,8 @@ class SyntaxTree {
 		// }
 		return {
 			priority_nodes: priority_nodes,
-			current_expression_nodes: current_expression_nodes
+			current_expression_nodes: current_expression_nodes,
+			current_expression_kind: current_expression_kind,
 		};
 	}
 
