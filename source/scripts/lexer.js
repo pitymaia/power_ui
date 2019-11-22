@@ -33,11 +33,10 @@ class SyntaxTree {
 
 		if (!isParameter) {
 			console.log('TREE:', this.tree);
-			console.log('NODES:', this.nodes);
 		}
 	}
 
-	firstNodeValidation({node}) {
+	firstNodeValidation({node, isParameter}) {
 		if (['dot', 'anonymousFunc',
 			'AND', 'OR', 'NOT-equal', 'short-hand',
 			'equal', 'minor-than', 'minor-than'].includes(node.syntax)) {
@@ -49,7 +48,7 @@ class SyntaxTree {
 		}
 	}
 
-	orAndNotShortHandValidation({nextNode}) {
+	orAndNotShortHandValidation({nextNode, isParameter}) {
 		if (['string', 'variable', 'integer', 'object',
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'function'].includes(nextNode.syntax)) {
@@ -61,7 +60,7 @@ class SyntaxTree {
 		}
 	}
 
-	commaValidation({nextNode}) {
+	commaValidation({nextNode, isParameter}) {
 		if (['string', 'variable', 'integer', 'object',
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
@@ -74,18 +73,17 @@ class SyntaxTree {
 	}
 
 	// Functions and dictionaries
-	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
-	objectValidation({nextNode}) {
-		if (['operator', 'anonymousFunc', 'short-hand', 'comma',
+	objectValidation({nextNode, isParameter}) {
+		if (['operator', 'anonymousFunc', 'short-hand',
 			'NOT-equal', 'equal', 'minor-than', 'minor-than',
-			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax)) {
+			'dot', 'AND', 'OR', 'dictNode', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	equalityValidation({nextNode, currentNode}) {
+	equalityValidation({nextNode, currentNode, isParameter}) {
 		if (['variable', 'parentheses', 'function',
 			'float', 'integer', 'dictNode', 'object',
 			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
@@ -99,7 +97,7 @@ class SyntaxTree {
 		}
 	}
 
-	operationValidation({nextNode, currentNode}) {
+	operationValidation({nextNode, currentNode, isParameter}) {
 		if (['NOT', 'NOT-NOT', 'float', 'object',
 			'integer', 'variable', 'dictNode',
 			'parentheses', 'function'].includes(nextNode.syntax)) {
@@ -113,50 +111,48 @@ class SyntaxTree {
 		}
 	}
 
-	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
-	variableValidation({nextNode}) {
-		if (['dot', 'operator', 'NOT-equal', 'comma',
+	variableValidation({nextNode, isParameter}) {
+		if (['dot', 'operator', 'NOT-equal',
 			'equal', 'minor-than', 'minor-than',
-			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
+			'AND', 'OR' , 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
-	numberValidation({nextNode}) {
-		if (['operator', 'NOT-equal', 'equal', 'comma',
+	numberValidation({nextNode, isParameter}) {
+		if (['operator', 'NOT-equal', 'equal',
 			'minor-than', 'minor-than', 'AND',
-			'OR' , 'short-hand', 'end'].includes(nextNode.syntax)) {
+			'OR' , 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
-	stringValidation({nextNode}) {
+	stringValidation({nextNode, isParameter}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
 			'dictNode', 'function', 'parentheses',
 			'integer', 'float', 'especial', 'anonymousFunc',
 			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
+		} else if (nextNode.syntax === 'comma' && isParameter) {
+			return true;
 		} else {
 			return true;
 		}
 	}
 
-	// TODO: ONLY ACCEPT COMMA IF IS PARAMETER CHECK
-	parenthesesValidation({nextNode}) {
-		if (['anonymousFunc', 'dot', 'operator', 'short-hand', 'end', 'comma'].includes(nextNode.syntax)) {
+	parenthesesValidation({nextNode, isParameter}) {
+		if (['anonymousFunc', 'dot', 'operator', 'short-hand', 'end'].includes(nextNode.syntax) || (nextNode.syntax === 'comma' && isParameter)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	dotValidation({nextNode}) {
+	dotValidation({nextNode, isParameter}) {
 		if (['function', 'variable', 'dictNode'].includes(nextNode.syntax)) {
 			return true;
 		} else {
@@ -165,8 +161,12 @@ class SyntaxTree {
 	}
 
 	// Return true if the next node is valid after a given syntax
-	isNextValidAfterCurrent({currentNode, nextNode}) {
-		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({currentNode: currentNode, nextNode: nextNode}) : false;
+	isNextValidAfterCurrent({currentNode, nextNode, isParameter}) {
+		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({
+			currentNode: currentNode,
+			nextNode: nextNode,
+			isParameter: isParameter
+		}) : false;
 	}
 
 	checkAndPrioritizeSyntax({nodes, isParameter}) {
@@ -196,6 +196,7 @@ class SyntaxTree {
 			isValid = this.isNextValidAfterCurrent({
 				currentNode: currentNode,
 				nextNode: this.getNextNode({index: index, nodes}),
+				isParameter: isParameter,
 			});
 
 			if (isValid === false) {
