@@ -235,12 +235,29 @@ class SyntaxTree {
 			priority_nodes = [];
 		}
 
-		console.log('current_expression_kind', current_expression_kind, current_expression_nodes);
-
 		return current_expression_nodes;
 	}
 
 	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, current_expression_kind}) {
+		// End or any equality, logic or short-hand change
+		if (currentNode.syntax === 'end' || (current_expression_kind.kind && ['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND'].includes(currentNode.syntax))) {
+			if (priority_nodes.length) {
+				current_expression_nodes.push({priority: priority_nodes});
+				priority_nodes = [];
+			}
+
+			if (current_expression_kind.kind) {
+				if (current_expression_kind.kind === 'expression') {
+					current_expression_kind.expression_nodes = current_expression_nodes;
+				} else {
+					// current_expression_kind.r_expression_nodes = current_expression_nodes;
+					current_expression_kind.r_expression_nodes = {kind: 'expression', expression_nodes: current_expression_nodes};
+				}
+				current_expression_nodes = [current_expression_kind];
+				current_expression_kind = {kind: 'expression'};
+			}
+		}
+
 		// Simple expressions
 		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
@@ -260,41 +277,16 @@ class SyntaxTree {
 				current_expression_nodes.push(currentNode);
 			}
 		}
-		// equality expression
-		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal'].includes(currentNode.syntax)) {
+		// equality expression / logic OR/AND expressions
+		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND'].includes(currentNode.syntax)) {
+			const KIND = ['OR', 'AND'].includes(currentNode.syntax) ? 'ORAND' : 'equality';
 			if (priority_nodes.length) {
 				current_expression_nodes.push({priority: priority_nodes});
 				priority_nodes = [];
 			}
 
-			if (current_expression_kind.kind === 'equality') {
-				current_expression_kind.r_expression_nodes = current_expression_nodes;
-				current_expression_nodes = [current_expression_kind];
-			}
-
 			current_expression_kind = {
-				kind: 'equality',
-				l_expression_nodes: current_expression_nodes,
-				logicNode: currentNode,
-				r_expression_nodes: [],
-			};
-
-			current_expression_nodes = [];
-		}
-		// logic OR/AND expressions
-		if (['OR', 'AND'].includes(nextNode.syntax)) {
-			if (priority_nodes.length) {
-				current_expression_nodes.push({priority: priority_nodes});
-				priority_nodes = [];
-			}
-
-			if (current_expression_kind.kind === 'ORAND') {
-				current_expression_kind.r_expression_nodes = current_expression_nodes;
-				current_expression_nodes = [current_expression_kind];
-			}
-
-			current_expression_kind = {
-				kind: 'ORAND',
+				kind: KIND,
 				l_expression_nodes: current_expression_nodes,
 				logicNode: currentNode,
 				r_expression_nodes: [],
@@ -307,25 +299,6 @@ class SyntaxTree {
 
 		}
 
-		if (currentNode.syntax === 'end') {
-			if (priority_nodes.length) {
-				current_expression_nodes.push({priority: priority_nodes});
-				priority_nodes = [];
-			}
-
-			if (current_expression_kind.kind) {
-				current_expression_kind.r_expression_nodes = current_expression_nodes;
-				current_expression_nodes = [current_expression_kind];
-			}
-		}
-
-		// } else {
-		// 	if (priority_nodes.length) {
-		// 		current_expression_nodes.push({priority: priority_nodes});
-		// 		priority_nodes = [];
-		// 	}
-		// 	current_expression_nodes.push(currentNode);
-		// }
 		return {
 			priority_nodes: priority_nodes,
 			current_expression_nodes: current_expression_nodes,
