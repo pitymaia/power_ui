@@ -241,7 +241,7 @@ class SyntaxTree {
 	}
 
 	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, current_expression_kind}) {
-		// Convert
+		// Simple expressions
 		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
@@ -249,7 +249,6 @@ class SyntaxTree {
 			} else {
 				current_expression_nodes.push(currentNode);
 			}
-			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		} else if (currentNode.syntax === 'operator') {
 			if (currentNode.label !== '+' && currentNode.label !== '-') {
 				priority_nodes.push(currentNode);
@@ -260,9 +259,8 @@ class SyntaxTree {
 				}
 				current_expression_nodes.push(currentNode);
 			}
-			// console.log('currentNode', currentNode, 'previousNode', previousNode, 'nextNode', nextNode);
 		}
-
+		// equality expression
 		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal'].includes(currentNode.syntax)) {
 			if (priority_nodes.length) {
 				current_expression_nodes.push({priority: priority_nodes});
@@ -283,8 +281,29 @@ class SyntaxTree {
 
 			current_expression_nodes = [];
 		}
+		// logic OR/AND expressions
+		if (['OR', 'AND'].includes(nextNode.syntax)) {
+			if (priority_nodes.length) {
+				current_expression_nodes.push({priority: priority_nodes});
+				priority_nodes = [];
+			}
 
-		if (['OR', 'AND', 'short-hand'].includes(nextNode.syntax)) {
+			if (current_expression_kind.kind === 'ORAND') {
+				current_expression_kind.r_expression_nodes = current_expression_nodes;
+				current_expression_nodes = [current_expression_kind];
+			}
+
+			current_expression_kind = {
+				kind: 'ORAND',
+				l_expression_nodes: current_expression_nodes,
+				logicNode: currentNode,
+				r_expression_nodes: [],
+			};
+
+			current_expression_nodes = [];
+		}
+
+		if (nextNode.syntax === 'short-hand') {
 
 		}
 
@@ -294,7 +313,7 @@ class SyntaxTree {
 				priority_nodes = [];
 			}
 
-			if (current_expression_kind.kind === 'equality') {
+			if (current_expression_kind.kind) {
 				current_expression_kind.r_expression_nodes = current_expression_nodes;
 				current_expression_nodes = [current_expression_kind];
 			}
