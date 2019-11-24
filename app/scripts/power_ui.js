@@ -1750,11 +1750,8 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
-		// If there is some last priority nodes waiting
-		if (priority_nodes.length) {
-			current_expression_nodes.push({priority: priority_nodes});
-			priority_nodes = [];
-		}
+
+		expression_groups = this.prioritizeExpressionGroups({priority: 'equality', expression_groups: expression_groups});
 
 		return expression_groups;
 	}
@@ -1781,7 +1778,7 @@ class SyntaxTree {
 		}
 		// equality expression / logic OR/AND expressions
 		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND', 'end'].includes(currentNode.syntax)) {
-			const KIND = ['OR', 'AND'].includes(currentNode.syntax) ? 'ORAND' : 'equality';
+			const KIND = ['OR', 'AND'].includes(currentNode.syntax) ? currentNode.syntax : 'equality';
 			if (priority_nodes.length) {
 				current_expression_nodes.push({priority: priority_nodes});
 				priority_nodes = [];
@@ -1790,6 +1787,7 @@ class SyntaxTree {
 			const expression = {kind: 'expression', expression_nodes: current_expression_nodes};
 			expression_groups.push(expression);
 			current_expression_nodes = [];
+			currentNode.kind = KIND;
 			expression_groups.push(currentNode);
 		}
 
@@ -1802,6 +1800,29 @@ class SyntaxTree {
 			current_expression_nodes: current_expression_nodes,
 			expression_groups: expression_groups,
 		};
+	}
+
+	prioritizeExpressionGroups({priority, expression_groups}) {
+		const newGroups = [];
+		let currentGroups = [];
+		let foundPriority = false;
+
+		for (const group of expression_groups) {
+			if (group.syntax === 'end' && currentGroups.length) {
+				newGroups.push(currentGroups);
+			} else if (group.kind === priority) {
+				foundPriority = true;
+				currentGroups.push(group);
+			} else if (group.kind !== 'expression' && foundPriority) {
+				newGroups.push({priority: currentGroups});
+				newGroups.push(group);
+				currentGroups = [];
+			} else {
+				currentGroups.push(group);
+			}
+		}
+
+		return newGroups;
 	}
 
 	getCurrentNode({index, nodes}) {
@@ -5427,7 +5448,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const lexer = new PowerTemplateLexer({text: 'neusa > 20 && teste && 2+2 || 1+1 === 2 || 2+4 < 10 + -1'});
+const lexer = new PowerTemplateLexer({text: 'neusa > 20 && teste <= 2+3-2*5 && 2+2 || 1+1 === 2 || 2+4 < 10 + -1'});
 
 const pitanga = false;
 const amora = 'inha';

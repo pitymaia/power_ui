@@ -229,11 +229,8 @@ class SyntaxTree {
 
 			index = index + 1;
 		}
-		// If there is some last priority nodes waiting
-		if (priority_nodes.length) {
-			current_expression_nodes.push({priority: priority_nodes});
-			priority_nodes = [];
-		}
+
+		expression_groups = this.prioritizeExpressionGroups({priority: 'equality', expression_groups: expression_groups});
 
 		return expression_groups;
 	}
@@ -260,7 +257,7 @@ class SyntaxTree {
 		}
 		// equality expression / logic OR/AND expressions
 		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND', 'end'].includes(currentNode.syntax)) {
-			const KIND = ['OR', 'AND'].includes(currentNode.syntax) ? 'ORAND' : 'equality';
+			const KIND = ['OR', 'AND'].includes(currentNode.syntax) ? currentNode.syntax : 'equality';
 			if (priority_nodes.length) {
 				current_expression_nodes.push({priority: priority_nodes});
 				priority_nodes = [];
@@ -269,6 +266,7 @@ class SyntaxTree {
 			const expression = {kind: 'expression', expression_nodes: current_expression_nodes};
 			expression_groups.push(expression);
 			current_expression_nodes = [];
+			currentNode.kind = KIND;
 			expression_groups.push(currentNode);
 		}
 
@@ -281,6 +279,29 @@ class SyntaxTree {
 			current_expression_nodes: current_expression_nodes,
 			expression_groups: expression_groups,
 		};
+	}
+
+	prioritizeExpressionGroups({priority, expression_groups}) {
+		const newGroups = [];
+		let currentGroups = [];
+		let foundPriority = false;
+
+		for (const group of expression_groups) {
+			if (group.syntax === 'end' && currentGroups.length) {
+				newGroups.push(currentGroups);
+			} else if (group.kind === priority) {
+				foundPriority = true;
+				currentGroups.push(group);
+			} else if (group.kind !== 'expression' && foundPriority) {
+				newGroups.push({priority: currentGroups});
+				newGroups.push(group);
+				currentGroups = [];
+			} else {
+				currentGroups.push(group);
+			}
+		}
+
+		return newGroups;
 	}
 
 	getCurrentNode({index, nodes}) {
