@@ -1704,6 +1704,7 @@ class SyntaxTree {
 		let current_expression_nodes = [];
 		let priority_nodes = [];
 		let current_expression_kind = {kind: 'expression'};
+		let main_expression_kind = false;
 
 		nodes = this.filterNodesAndUnifyObjects(nodes);
 		nodes.push({syntax: 'end'});
@@ -1742,11 +1743,13 @@ class SyntaxTree {
 				current_expression_nodes: current_expression_nodes,
 				priority_nodes: priority_nodes,
 				current_expression_kind: current_expression_kind,
+				main_expression_kind: main_expression_kind,
 			});
 
 			priority_nodes = result.priority_nodes;
 			current_expression_nodes = result.current_expression_nodes;
 			current_expression_kind = result.current_expression_kind;
+			main_expression_kind = result.main_expression_kind;
 
 			index = index + 1;
 		}
@@ -1759,8 +1762,9 @@ class SyntaxTree {
 		return current_expression_nodes;
 	}
 
-	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, current_expression_kind}) {
-		// End or any equality, logic or short-hand change
+	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, current_expression_kind, main_expression_kind}) {
+		console.log('main_expression_kind', main_expression_kind);
+		// End or any equality or logic change
 		if (currentNode.syntax === 'end' || (current_expression_kind.kind && ['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND'].includes(currentNode.syntax))) {
 			if (priority_nodes.length) {
 				current_expression_nodes.push({priority: priority_nodes});
@@ -1771,7 +1775,6 @@ class SyntaxTree {
 				if (current_expression_kind.kind === 'expression') {
 					current_expression_kind.expression_nodes = current_expression_nodes;
 				} else {
-					// current_expression_kind.r_expression_nodes = current_expression_nodes;
 					current_expression_kind.r_expression_nodes = {kind: 'expression', expression_nodes: current_expression_nodes};
 				}
 				current_expression_nodes = [current_expression_kind];
@@ -1806,14 +1809,11 @@ class SyntaxTree {
 				priority_nodes = [];
 			}
 
-			current_expression_kind = {
-				kind: KIND,
-				l_expression_nodes: current_expression_nodes,
-				logicNode: currentNode,
-				r_expression_nodes: [],
-			};
+			current_expression_kind = this.openExpressionKind({current_expression_nodes, currentNode, KIND});
 
 			current_expression_nodes = [];
+
+			main_expression_kind = {syntax: currentNode.syntax, kind: KIND};
 		}
 
 		if (nextNode.syntax === 'short-hand') {
@@ -1824,6 +1824,16 @@ class SyntaxTree {
 			priority_nodes: priority_nodes,
 			current_expression_nodes: current_expression_nodes,
 			current_expression_kind: current_expression_kind,
+			main_expression_kind: main_expression_kind,
+		};
+	}
+
+	openExpressionKind({current_expression_nodes, currentNode, KIND}) {
+		return {
+			kind: KIND,
+			l_expression_nodes: current_expression_nodes,
+			logicNode: currentNode,
+			r_expression_nodes: [],
 		};
 	}
 
@@ -5450,13 +5460,13 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const lexer = new PowerTemplateLexer({text: '2+2*2 === 2+2 || sum(1+1)/2+5'});
+const lexer = new PowerTemplateLexer({text: 'neusa && teste && 2+2 || 1+1'});
 
 const pitanga = false;
 const amora = 'inha';
 const morango = 'pen';
-
-console.log('aqui:', 2 + 2 - 1 <= 3 === true !== 'pity');
+const pity = false;
+console.log('aqui:', 2+2 === 2+2 && 1+1 === (pity ? 2 : 3) || 1+1 === 2 && 1+1 === 3 || 'pity');
 
 
 
