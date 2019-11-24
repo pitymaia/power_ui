@@ -1703,8 +1703,7 @@ class SyntaxTree {
 	checkAndPrioritizeSyntax({nodes, isParameter}) {
 		let current_expression_nodes = [];
 		let priority_nodes = [];
-		let current_expression_kind = {kind: 'expression'};
-		let main_expression_kind = false;
+		let expression_groups = [];
 
 		nodes = this.filterNodesAndUnifyObjects(nodes);
 		nodes.push({syntax: 'end'});
@@ -1742,14 +1741,12 @@ class SyntaxTree {
 				nextNode: this.getNextNode({index: index, nodes}),
 				current_expression_nodes: current_expression_nodes,
 				priority_nodes: priority_nodes,
-				current_expression_kind: current_expression_kind,
-				main_expression_kind: main_expression_kind,
+				expression_groups: expression_groups,
 			});
 
 			priority_nodes = result.priority_nodes;
 			current_expression_nodes = result.current_expression_nodes;
-			current_expression_kind = result.current_expression_kind;
-			main_expression_kind = result.main_expression_kind;
+			expression_groups = result.expression_groups;
 
 			index = index + 1;
 		}
@@ -1759,29 +1756,10 @@ class SyntaxTree {
 			priority_nodes = [];
 		}
 
-		return current_expression_nodes;
+		return expression_groups;
 	}
 
-	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, current_expression_kind, main_expression_kind}) {
-		console.log('main_expression_kind', main_expression_kind);
-		// End or any equality or logic change
-		if (currentNode.syntax === 'end' || (current_expression_kind.kind && ['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND'].includes(currentNode.syntax))) {
-			if (priority_nodes.length) {
-				current_expression_nodes.push({priority: priority_nodes});
-				priority_nodes = [];
-			}
-
-			if (current_expression_kind.kind) {
-				if (current_expression_kind.kind === 'expression') {
-					current_expression_kind.expression_nodes = current_expression_nodes;
-				} else {
-					current_expression_kind.r_expression_nodes = {kind: 'expression', expression_nodes: current_expression_nodes};
-				}
-				current_expression_nodes = [current_expression_kind];
-				current_expression_kind = {kind: 'expression'};
-			}
-		}
-
+	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, expression_groups}) {
 		// Simple expressions
 		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
@@ -1802,18 +1780,17 @@ class SyntaxTree {
 			}
 		}
 		// equality expression / logic OR/AND expressions
-		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND'].includes(currentNode.syntax)) {
+		if (['NOT-equal', 'equal', 'greater-than', 'minor-than', 'minor-or-equal', 'greater-or-equal', 'OR', 'AND', 'end'].includes(currentNode.syntax)) {
 			const KIND = ['OR', 'AND'].includes(currentNode.syntax) ? 'ORAND' : 'equality';
 			if (priority_nodes.length) {
 				current_expression_nodes.push({priority: priority_nodes});
 				priority_nodes = [];
 			}
 
-			current_expression_kind = this.openExpressionKind({current_expression_nodes, currentNode, KIND});
-
+			const expression = {kind: 'expression', expression_nodes: current_expression_nodes};
+			expression_groups.push(expression);
 			current_expression_nodes = [];
-
-			main_expression_kind = {syntax: currentNode.syntax, kind: KIND};
+			expression_groups.push(currentNode);
 		}
 
 		if (nextNode.syntax === 'short-hand') {
@@ -1823,17 +1800,7 @@ class SyntaxTree {
 		return {
 			priority_nodes: priority_nodes,
 			current_expression_nodes: current_expression_nodes,
-			current_expression_kind: current_expression_kind,
-			main_expression_kind: main_expression_kind,
-		};
-	}
-
-	openExpressionKind({current_expression_nodes, currentNode, KIND}) {
-		return {
-			kind: KIND,
-			l_expression_nodes: current_expression_nodes,
-			logicNode: currentNode,
-			r_expression_nodes: [],
+			expression_groups: expression_groups,
 		};
 	}
 
@@ -5460,7 +5427,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const lexer = new PowerTemplateLexer({text: 'neusa && teste && 2+2 || 1+1'});
+const lexer = new PowerTemplateLexer({text: 'neusa > 20 && teste && 2+2 || 1+1 === 2 || 2+4 < 10 + -1'});
 
 const pitanga = false;
 const amora = 'inha';
