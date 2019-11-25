@@ -231,6 +231,10 @@ class SyntaxTree {
 		}
 
 		expression_groups = this.prioritizeExpressionGroups({priority: 'equality', expression_groups: expression_groups});
+		expression_groups = this.prioritizeExpressionGroups({priority: 'AND', expression_groups: expression_groups});
+
+		// Remove the last node (end syntax)
+		expression_groups.pop();
 
 		return expression_groups;
 	}
@@ -266,7 +270,7 @@ class SyntaxTree {
 			const expression = {kind: 'expression', expression_nodes: current_expression_nodes};
 			expression_groups.push(expression);
 			current_expression_nodes = [];
-			currentNode.kind = KIND;
+			currentNode.kind = currentNode.syntax === 'end' ? 'end' : KIND;
 			expression_groups.push(currentNode);
 		}
 
@@ -282,17 +286,28 @@ class SyntaxTree {
 	}
 
 	prioritizeExpressionGroups({priority, expression_groups}) {
-		const newGroups = [];
+		let newGroups = [];
 		let currentGroups = [];
 		let foundPriority = false;
 
 		for (const group of expression_groups) {
 			if (group.syntax === 'end' && currentGroups.length) {
-				newGroups.push(currentGroups);
+				if (newGroups.length) {
+					newGroups.push({priority: currentGroups});
+				} else {
+					newGroups = currentGroups;
+				}
+				newGroups.push(group);
+				currentGroups = [];
 			} else if (group.kind === priority) {
 				foundPriority = true;
 				currentGroups.push(group);
-			} else if (group.kind !== 'expression' && foundPriority) {
+			} else if (!group.priority && group.kind !== 'expression' && foundPriority && currentGroups.length) {
+				newGroups.push({priority: currentGroups});
+				newGroups.push(group);
+				currentGroups = [];
+				foundPriority = false;
+			} else if (group.syntax === 'OR' || group.syntax === 'AND') {
 				newGroups.push({priority: currentGroups});
 				newGroups.push(group);
 				currentGroups = [];
