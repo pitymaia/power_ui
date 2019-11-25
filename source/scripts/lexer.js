@@ -274,10 +274,6 @@ class SyntaxTree {
 			expression_groups.push(currentNode);
 		}
 
-		if (nextNode.syntax === 'short-hand') {
-
-		}
-
 		return {
 			priority_nodes: priority_nodes,
 			current_expression_nodes: current_expression_nodes,
