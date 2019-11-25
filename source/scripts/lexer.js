@@ -28,6 +28,7 @@ class SyntaxTree {
 			'NOT-NOT': this.orAndNotShortHandValidation,
 			'short-hand': this.orAndNotShortHandValidation,
 		}
+		console.log('this.nodes', this.nodes);
 	}
 
 	buildTreeLeaf(isParameter) {
