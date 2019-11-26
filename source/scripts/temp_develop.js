@@ -252,13 +252,14 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const lexer = new PowerTemplateLexer({text: 'princesa ? linda : fofa'});
+const princesa = 'princesa + favorita || teste ? linda + maravilhosa : fofa';
+console.log('## AQUI:', princesa.slice(23, 28), princesa.slice(31, 36), princesa.slice(53, 57));
+const lexer = new PowerTemplateLexer({text: princesa});
 
 const pitanga = false;
 const amora = 'inha';
 const morango = 'pen';
 const pity = false;
-console.log('aqui:', "isso"?morango?'caramba':'foda':amora?'nossa':'foda');
 
 
 

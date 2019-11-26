@@ -22,11 +22,11 @@ class SyntaxTree {
 			anonymousFunc: this.objectValidation,
 			dictNode: this.objectValidation,
 			comma: this.commaValidation,
-			AND: this.orAndNotShortHandValidation,
-			OR: this.orAndNotShortHandValidation,
-			NOT: this.orAndNotShortHandValidation,
-			'NOT-NOT': this.orAndNotShortHandValidation,
-			'short-hand': this.orAndNotShortHandValidation,
+			AND: this.orAndNotValidation,
+			OR: this.orAndNotValidation,
+			NOT: this.orAndNotValidation,
+			'NOT-NOT': this.orAndNotValidation,
+			'short-hand': this.shortHandValidation,
 		}
 		console.log('this.nodes', this.nodes);
 	}
@@ -39,9 +39,18 @@ class SyntaxTree {
 		}
 	}
 
+	shortHandValidation({currentNode, isParameter}) {
+		console.log('node', currentNode, isParameter);
+		if (!currentNode.condition.length || !currentNode.if.length || !currentNode.else.length) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	firstNodeValidation({node, isParameter}) {
 		if (['dot', 'anonymousFunc',
-			'AND', 'OR', 'NOT-equal', 'short-hand',
+			'AND', 'OR', 'NOT-equal',
 			'minor-or-equal', 'greater-or-equal',
 			'equal', 'minor-than', 'greater-than'].includes(node.syntax)) {
 			return false;
@@ -52,7 +61,7 @@ class SyntaxTree {
 		}
 	}
 
-	orAndNotShortHandValidation({nextNode, isParameter}) {
+	orAndNotValidation({nextNode, isParameter}) {
 		if (['string', 'variable', 'integer', 'object',
 			'float', 'dictNode', 'parentheses',
 			'NOT', 'NOT-NOT', 'function'].includes(nextNode.syntax)) {
@@ -173,6 +182,7 @@ class SyntaxTree {
 
 	// Return true if the next node is valid after a given syntax
 	isNextValidAfterCurrent({currentNode, nextNode, isParameter}) {
+		// console.log('currentNode, nextNode, isParameter', currentNode);
 		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({
 			currentNode: currentNode,
 			nextNode: nextNode,

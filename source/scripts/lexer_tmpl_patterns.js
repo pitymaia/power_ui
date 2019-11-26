@@ -563,132 +563,71 @@ class OrPattern {
 
 class ShortHandPattern {
 	constructor(listener) {
-			this.listener = listener;
-		}
+		this.listener = listener;
+		this.currentParams = '';
 
-		// Condition to start check first operator
-		firstToken({token, counter}) {
+		this.shorHand = {syntax: 'short-hand', condition: [], if: [], else: [], label: ''};
+		this.counter = 0;
+	}
 
-			if (token.name === 'short-hand' && token.value === '?') {
-				console.log('!!! IS SHORTHAND', token)
-				for (const node of this.listener.syntaxTree.nodes) {
-					console.log('!!! node', node);
-				}
-
-				this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'short-hand');
-				this.listener.checking = 'endToken';
-				return true;
-			} else if (token.name === 'short-hand') {
-				this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'short-hand');
-				this.listener.checking = 'endToken';
-				return true;
-			} else {
-				return false;
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+		if (token.name === 'short-hand' && token.value === '?') {
+			// Need resets the counter
+			// Remove the current nodes from suntaxTree and add it as the short-hand condition
+			for (const node of this.listener.syntaxTree.nodes) {
+				this.shorHand.label = `${this.shorHand.label}${node.label}`;
 			}
-		}
 
-		// middle condition
-		middleTokens({token, counter}) {
-			// Collecting inner parameters, so allow any valid syntax
-			if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
-				this.listener.nextPattern({syntax: 'short-hand', token: token, counter: counter});
-				return false;
-			} else {
-				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
-				return false;
-				// Invalid!
-				this.invalid = true;
-				return true;
-			}
+			this.shorHand.condition = new PowerTemplateLexer({
+				text: this.shorHand.label,
+				counter: this.counter,
+				isParameter: true,
+			}).syntaxTree.tree;
+			console.log('!!! IS SHORTHAND', token, this.shorHand.label, this.shorHand.label.length);
+			this.listener.syntaxTree.nodes = [];
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'short-hand');
+			this.listener.checking = 'middleTokens';
+			this.counter = this.shorHand.label.length + 1; // +1 represents the ?
+			return true;
+		} else {
+			return false;
 		}
+	}
 
-		// end condition
-		endToken({token, counter}) {
-			if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote'].includes(token.name)) {
-				this.listener.nextPattern({syntax: 'short-hand', token: token, counter: counter});
-				return false;
-			} else {
-				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
-				return false;
-				// Invalid!
-				this.invalid = true;
-				return true;
-			}
-		}
-
-		createConditionNode({token, counter, node}) {
-			const parameters = new PowerTemplateLexer({
+	// middle condition
+	middleTokens({token, counter}) {
+		// Collecting inner parameters, so allow any valid syntax
+		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
+			this.currentParams = this.currentParams + token.value;
+			return true;
+		} else if (token.name === 'short-hand' && token.value === ':') {
+			this.shorHand.if = new PowerTemplateLexer({
 				text: this.currentParams,
-				counter: this.currentParamsCounter,
+				counter: this.counter,
 				isParameter: true,
 			}).syntaxTree.tree;
 
-			if (this.hasInvalidParam(parameters)) {
-				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
-				return false;
-			}
-			// this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
-			this.listener.syntaxTree.nodes.push({
-				syntax: 'dictNode',
-				label: this.listener.firstNodeLabel ? this.listener.firstNodeLabel : this.listener.currentLabel,
-				tokens: this.listener.currentTokens,
-				start: this.listener.start,
-				end: counter,
-				parameters: parameters || [],
-			});
-			this.listener.start = counter;
-			this.listener.currentTokens = [];
-			this.currentParams = [];
-			this.listener.currentLabel = '';
-			this.listener.firstNodeLabel = '';
-
-			this.anonymous = true;
-			this.listener.checking = 'middleTokens';
-		}
-
-		createIfOrElseNode({token, counter, node}) {
-			const parameters = new PowerTemplateLexer({
+			this.shorHand.label = this.shorHand.label + this.listener.currentLabel;
+			this.counter = this.shorHand.label.length + 1;
+			this.currentParams = '';
+		} else if (token.name === 'end') {
+			this.shorHand.else = new PowerTemplateLexer({
 				text: this.currentParams,
-				counter: this.currentParamsCounter,
+				counter: this.counter,
 				isParameter: true,
 			}).syntaxTree.tree;
 
-			if (this.hasInvalidParam(parameters)) {
-				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
-				return false;
-			}
-			// this.listener.currentLabel = this.anonymous ? this.listener.currentLabel : this.listener.firstNodeLabel;
-			this.listener.syntaxTree.nodes.push({
-				syntax: 'dictNode',
-				label: this.listener.firstNodeLabel ? this.listener.firstNodeLabel : this.listener.currentLabel,
-				tokens: this.listener.currentTokens,
-				start: this.listener.start,
-				end: counter,
-				parameters: parameters || [],
-			});
-			this.listener.start = counter;
-			this.listener.currentTokens = [];
-			this.currentParams = [];
-			this.listener.currentLabel = '';
-			this.listener.firstNodeLabel = '';
-
-			this.listener.checking = 'middleTokens';
+			this.shorHand.label = this.shorHand.label + ':' + this.currentParams;
+			this.shorHand.start = 0;
+			this.shorHand.end = this.shorHand.label.length;
+			this.listener.syntaxTree.nodes.push(this.shorHand);
+		} else {
+			// Invalid!
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
 		}
-
-		hasInvalidParam(parameters) {
-			for (const param of parameters) {
-				if (param.syntax === 'invalid') {
-					invalid = true;
-					return invalid;
-				} else {
-					for (const token of param.tokens) {
-						if (['number', 'letter', 'quote', 'especial'].includes(token.name)) {
-							hasSomeValidToken = true;
-						}
-					}
-				}
-			}
-		}
+	}
 }
 
 class CommaPattern {
@@ -1110,32 +1049,13 @@ class ObjectPattern {
 	}
 
 	dictHaveInvalidParams(parameters) {
-		let invalid = false;
 		// Dictionary can't have empty key
 		if (parameters.length === 0) {
 			invalid = true;
-			return invalid;
+			return true;
 		} else {
-			// Do some validation to see if have valid keys
-			let hasSomeValidToken = false;
-			for (const param of parameters) {
-				if (param.syntax === 'invalid') {
-					invalid = true;
-					return invalid;
-				} else {
-					for (const token of param.tokens) {
-						if (['number', 'letter', 'quote', 'especial'].includes(token.name)) {
-							hasSomeValidToken = true;
-						}
-					}
-				}
-			}
-			if (hasSomeValidToken === false) {
-				invalid = true;
-				return invalid;
-			}
+			return false;
 		}
-		return invalid;
 	}
 
 	createDictionaryNode({token, counter}) {
