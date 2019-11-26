@@ -1773,7 +1773,7 @@ class SyntaxTree {
 
 	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, expression_groups}) {
 		// Simple expressions
-		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object'].includes(currentNode.syntax)) {
+		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
 				priority_nodes.push(currentNode);
