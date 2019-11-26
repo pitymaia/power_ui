@@ -570,6 +570,10 @@ class ShortHandPattern {
 		this.counter = 0;
 		this.openShortHand = 0;
 		this.needCloseShortHand = 0;
+
+		// Track any open parentheses or brackets
+		this.parentheses = 0;
+		this.brackets = 0;
 	}
 
 	// Condition to start check first operator
@@ -588,29 +592,46 @@ class ShortHandPattern {
 		// Collecting inner parameters, so allow any valid syntax
 		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
+			if (token.value === '(') {
+				this.parentheses = this.parentheses + 1;
+			} else if (token.value === '[') {
+				this.brackets = this.brackets + 1;
+			} else if (token.value === ')') {
+				this.parentheses = this.parentheses - 1;
+			} else if (token.value === ']') {
+				this.brackets = this.brackets - 1;
+			}
 			return true;
 		} else if (token.name === 'short-hand' && token.value === ':') {
-			this.createIfNode({token});
-			// Set the short-hand to close on 'end' syntax, but if found a '?' before it,
-			// this is a inner short-hand on the 'condition' part of the main short-hand
-			this.needCloseShortHand = this.needCloseShortHand + 1;
+			this.currentParams = this.currentParams + token.value;
+			if (this.brackets === 0 && this.parentheses === 0) {
+				this.createIfNode({token});
+				// Set the short-hand to close on 'end' syntax, but if found a '?' before it,
+				// this is a inner short-hand on the 'condition' part of the main short-hand
+				this.needCloseShortHand = this.needCloseShortHand + 1;
+			}
 			return true;
 		// It may some inner shot-hand inside condition, if or else part of main short hand
 		} else if (token.name === 'short-hand' && token.value === '?') {
-			if (this.needCloseShortHand === 1 && this.openShortHand === 1) {
-				const tempLabel = this.shortHand.label + ':' + this.currentParams;
-				// replace the real nodes with a tempNode just with the correct label so the createConditionNode use it
-				// to create a condition node with a full short-hand label
-				this.listener.syntaxTree.nodes = [{syntax: 'temp', label: tempLabel}];
-				// Reset all variables
-				this.shortHand = {syntax: 'short-hand', condition: [], if: [], else: [], label: ''};
-				this.openShortHand = this.openShortHand  - 1;
-				this.needCloseShortHand = this.needCloseShortHand - 1;
-				this.counter = 0;
-				// This add a short-hand as condition of another short-hand
-				this.createConditionNode({token, counter});
-				return true;
+			this.currentParams = this.currentParams + token.value;
+			if (this.brackets === 0 && this.parentheses === 0) {
+				if (this.needCloseShortHand === 1 && this.openShortHand === 1) {
+					const tempLabel = this.shortHand.label + this.currentParams;
+					// replace the real nodes with a tempNode just with the correct label so the createConditionNode use it
+					// to create a condition node with a full short-hand label
+					this.listener.syntaxTree.nodes = [{syntax: 'temp', label: tempLabel}];
+					// Reset all variables
+					this.shortHand = {syntax: 'short-hand', condition: [], if: [], else: [], label: ''};
+					this.openShortHand = this.openShortHand  - 1;
+					this.needCloseShortHand = this.needCloseShortHand - 1;
+					this.counter = 0;
+					// This add a short-hand as condition of another short-hand
+					this.createConditionNode({token, counter});
+					return true;
+				} else {
+				}
 			} else {
+				return true;
 			}
 		} else if (token.name === 'end') {
 			this.createElseNode({token});
@@ -661,7 +682,7 @@ class ShortHandPattern {
 			isParameter: true,
 		}).syntaxTree.tree;
 
-		this.shortHand.label = this.shortHand.label + ':' + this.currentParams;
+		this.shortHand.label = this.shortHand.label + this.currentParams;
 		this.shortHand.start = 0;
 		this.shortHand.end = this.shortHand.label.length;
 		this.listener.syntaxTree.nodes.push(this.shortHand);
@@ -855,6 +876,7 @@ class parenthesesPattern {
 	}
 }
 
+// TODO: Allow parentheses inside dict like in: dict[(2+2)]
 // bracket notation dictionary (user['age'])
 class ObjectPattern {
 	constructor(listener) {
