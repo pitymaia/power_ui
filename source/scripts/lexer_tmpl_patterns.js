@@ -613,10 +613,9 @@ class ShortHandPattern {
 			return true;
 		// It may some inner shot-hand inside condition, if or else part of main short hand
 		} else if (token.name === 'short-hand' && token.value === '?') {
-			this.currentParams = this.currentParams + token.value;
 			if (this.brackets === 0 && this.parentheses === 0) {
 				if (this.needCloseShortHand === 1 && this.openShortHand === 1) {
-					const tempLabel = this.shortHand.label + this.currentParams;
+					let tempLabel = this.shortHand.label + this.currentParams;
 					// replace the real nodes with a tempNode just with the correct label so the createConditionNode use it
 					// to create a condition node with a full short-hand label
 					this.listener.syntaxTree.nodes = [{syntax: 'temp', label: tempLabel}];
@@ -633,6 +632,7 @@ class ShortHandPattern {
 			} else {
 				return true;
 			}
+			this.currentParams = this.currentParams + token.value;
 		} else if (token.name === 'end') {
 			this.createElseNode({token});
 			return false;

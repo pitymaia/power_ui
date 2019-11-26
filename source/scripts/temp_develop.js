@@ -252,8 +252,9 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const princesa = 'princesa ? a[fofa ? linda : ddd] : fofa';
-// const princesa = 'princesa ? favorita : fofinha ? linda : fofa';
+// const princesa = 'princesa ? fofa : linda';
+const princesa = 'princesa ? fofa : sdfsd ? favorita : fofinha';
+// const princesa = 'princesa ? fofa ? linda : ddd : fofa';
 
 const pitanga = 'olha';
 const amora = 'inha';
