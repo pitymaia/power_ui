@@ -566,29 +566,17 @@ class ShortHandPattern {
 		this.listener = listener;
 		this.currentParams = '';
 
-		this.shorHand = {syntax: 'short-hand', condition: [], if: [], else: [], label: ''};
+		this.shortHand = {syntax: 'short-hand', condition: [], if: [], else: [], label: ''};
 		this.counter = 0;
+		this.openShortHand = 0;
+		this.needCloseShortHand = 0;
 	}
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
 		if (token.name === 'short-hand' && token.value === '?') {
-			// Need resets the counter
-			// Remove the current nodes from suntaxTree and add it as the short-hand condition
-			for (const node of this.listener.syntaxTree.nodes) {
-				this.shorHand.label = `${this.shorHand.label}${node.label}`;
-			}
-
-			this.shorHand.condition = new PowerTemplateLexer({
-				text: this.shorHand.label,
-				counter: this.counter,
-				isParameter: true,
-			}).syntaxTree.tree;
-			console.log('!!! IS SHORTHAND', token, this.shorHand.label, this.shorHand.label.length);
-			this.listener.syntaxTree.nodes = [];
-			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'short-hand');
-			this.listener.checking = 'middleTokens';
-			this.counter = this.shorHand.label.length + 1; // +1 represents the ?
+			this.openShortHand = this.openShortHand  + 1;
+			this.createConditionNode({token, counter});
 			return true;
 		} else {
 			return false;
@@ -602,31 +590,83 @@ class ShortHandPattern {
 			this.currentParams = this.currentParams + token.value;
 			return true;
 		} else if (token.name === 'short-hand' && token.value === ':') {
-			this.shorHand.if = new PowerTemplateLexer({
-				text: this.currentParams,
-				counter: this.counter,
-				isParameter: true,
-			}).syntaxTree.tree;
-
-			this.shorHand.label = this.shorHand.label + this.listener.currentLabel;
-			this.counter = this.shorHand.label.length + 1;
-			this.currentParams = '';
+			this.createIfNode({token});
+			// Set the short-hand to close on 'end' syntax, but if found a '?' before it,
+			// this is a inner short-hand on the 'condition' part of the main short-hand
+			this.needCloseShortHand = this.needCloseShortHand + 1;
+			return true;
+		// It may some inner shot-hand inside condition, if or else part of main short hand
+		} else if (token.name === 'short-hand' && token.value === '?') {
+			if (this.needCloseShortHand === 1 && this.openShortHand === 1) {
+				const tempLabel = this.shortHand.label + ':' + this.currentParams;
+				// replace the real nodes with a tempNode just with the correct label so the createConditionNode use it
+				// to create a condition node with a full short-hand label
+				this.listener.syntaxTree.nodes = [{syntax: 'temp', label: tempLabel}];
+				// Reset all variables
+				this.shortHand = {syntax: 'short-hand', condition: [], if: [], else: [], label: ''};
+				this.openShortHand = this.openShortHand  - 1;
+				this.needCloseShortHand = this.needCloseShortHand - 1;
+				this.counter = 0;
+				// This add a short-hand as condition of another short-hand
+				this.createConditionNode({token, counter});
+				return true;
+			} else {
+			}
 		} else if (token.name === 'end') {
-			this.shorHand.else = new PowerTemplateLexer({
-				text: this.currentParams,
-				counter: this.counter,
-				isParameter: true,
-			}).syntaxTree.tree;
-
-			this.shorHand.label = this.shorHand.label + ':' + this.currentParams;
-			this.shorHand.start = 0;
-			this.shorHand.end = this.shorHand.label.length;
-			this.listener.syntaxTree.nodes.push(this.shorHand);
+			this.createElseNode({token});
+			return false;
 		} else {
+			console.log("INVALID", token);
 			// Invalid!
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		}
+	}
+
+	createConditionNode({token}) {
+		// Remove the current nodes from suntaxTree and add it as the short-hand condition
+		for (const node of this.listener.syntaxTree.nodes) {
+			this.shortHand.label = `${this.shortHand.label}${node.label}`;
+		}
+		this.shortHand.condition = new PowerTemplateLexer({
+			text: this.shortHand.label,
+			counter: this.counter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
+		this.listener.syntaxTree.nodes = [];
+		this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'short-hand');
+		this.listener.checking = 'middleTokens';
+		this.counter = this.shortHand.label.length + 1; // +1 represents the ?
+		this.currentParams = '';
+		this.fullLabel = this.shortHand.label + token.value;
+	}
+
+	createIfNode({token}) {
+		this.shortHand.if = new PowerTemplateLexer({
+			text: this.currentParams,
+			counter: this.counter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
+		this.shortHand.label = this.fullLabel + this.currentParams;
+		this.counter = this.shortHand.label.length + 1;
+		this.currentParams = '';
+	}
+
+	createElseNode({token}) {
+		this.shortHand.else = new PowerTemplateLexer({
+			text: this.currentParams,
+			counter: this.counter,
+			isParameter: true,
+		}).syntaxTree.tree;
+
+		this.shortHand.label = this.shortHand.label + ':' + this.currentParams;
+		this.shortHand.start = 0;
+		this.shortHand.end = this.shortHand.label.length;
+		this.listener.syntaxTree.nodes.push(this.shortHand);
+		this.openShortHand = this.openShortHand  - 1;
+		this.needCloseShortHand = this.needCloseShortHand - 1;
 	}
 }
 

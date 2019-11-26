@@ -28,7 +28,6 @@ class SyntaxTree {
 			'NOT-NOT': this.orAndNotValidation,
 			'short-hand': this.shortHandValidation,
 		}
-		console.log('this.nodes', this.nodes);
 	}
 
 	buildTreeLeaf(isParameter) {
@@ -40,7 +39,6 @@ class SyntaxTree {
 	}
 
 	shortHandValidation({currentNode, isParameter}) {
-		console.log('node', currentNode, isParameter);
 		if (!currentNode.condition.length || !currentNode.if.length || !currentNode.else.length) {
 			return false;
 		} else {
@@ -182,7 +180,7 @@ class SyntaxTree {
 
 	// Return true if the next node is valid after a given syntax
 	isNextValidAfterCurrent({currentNode, nextNode, isParameter}) {
-		// console.log('currentNode, nextNode, isParameter', currentNode);
+		// console.log('currentNode, nextNode, isParameter', currentNode, nextNode, isParameter);
 		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({
 			currentNode: currentNode,
 			nextNode: nextNode,
