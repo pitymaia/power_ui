@@ -612,8 +612,8 @@ class ShortHandPattern {
 					this.needCloseShortHand = this.needCloseShortHand - 1;
 					this.createIfNode({token: token, text: this.currentParams});
 				}
-				this.currentParams = this.currentParams + token.value;
 			}
+			this.currentParams = this.currentParams + token.value;
 			return true;
 		// It may some inner shot-hand inside 'condition' or 'else' part of main short hand
 		} else if (token.name === 'short-hand' && token.value === '?') {
@@ -630,11 +630,8 @@ class ShortHandPattern {
 					this.counter = 0;
 					// This add a short-hand as 'condition' or 'else' of another short-hand
 					this.createConditionNode({token, counter});
-					return true;
 				} else {
-					this.currentParams = this.currentParams + token.value;
 					this.openShortHand = this.openShortHand  + 1;
-					return true;
 				}
 			}
 			this.currentParams = this.currentParams + token.value;
