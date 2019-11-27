@@ -39,8 +39,6 @@ class SyntaxTree {
 	}
 
 	shortHandValidation({currentNode, isParameter}) {
-		console.log('currentNode', currentNode);
-		// return true;
 		if (currentNode.condition[0] && currentNode.condition[0].expression_nodes && !currentNode.condition[0].expression_nodes.length) {
 			return false;
 		} else if (currentNode.if[0] && currentNode.if[0].expression_nodes && !currentNode.if[0].expression_nodes.length) {
