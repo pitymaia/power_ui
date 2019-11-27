@@ -39,7 +39,13 @@ class SyntaxTree {
 	}
 
 	shortHandValidation({currentNode, isParameter}) {
-		if (!currentNode.condition.length || !currentNode.if.length || !currentNode.else.length) {
+		console.log('currentNode', currentNode);
+		// return true;
+		if (currentNode.condition[0] && currentNode.condition[0].expression_nodes && !currentNode.condition[0].expression_nodes.length) {
+			return false;
+		} else if (currentNode.if[0] && currentNode.if[0].expression_nodes && !currentNode.if[0].expression_nodes.length) {
+			return false;
+		} else if (currentNode.else[0] && currentNode.else[0].expression_nodes && !currentNode.else[0].expression_nodes.length) {
 			return false;
 		} else {
 			return true;

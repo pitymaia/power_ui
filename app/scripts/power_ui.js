@@ -1560,7 +1560,13 @@ class SyntaxTree {
 	}
 
 	shortHandValidation({currentNode, isParameter}) {
-		if (!currentNode.condition.length || !currentNode.if.length || !currentNode.else.length) {
+		console.log('currentNode', currentNode);
+		// return true;
+		if (currentNode.condition[0] && currentNode.condition[0].expression_nodes && !currentNode.condition[0].expression_nodes.length) {
+			return false;
+		} else if (currentNode.if[0] && currentNode.if[0].expression_nodes && !currentNode.if[0].expression_nodes.length) {
+			return false;
+		} else if (currentNode.else[0] && currentNode.else[0].expression_nodes && !currentNode.else[0].expression_nodes.length) {
 			return false;
 		} else {
 			return true;
@@ -2662,17 +2668,24 @@ class ShortHandPattern {
 			return true;
 		} else if (token.name === 'short-hand' && token.value === ':') {
 			this.currentParams = this.currentParams + token.value;
+			this.needCloseShortHand = this.needCloseShortHand + 1;
 			if (this.brackets === 0 && this.parentheses === 0) {
-				this.createIfNode({token});
 				// Set the short-hand to close on 'end' syntax, but if found a '?' before it,
 				// this is a inner short-hand on the 'condition' part of the main short-hand
-				this.needCloseShortHand = this.needCloseShortHand + 1;
+				if (this.openShortHand === 1 && this.needCloseShortHand === 1) {
+					this.createIfNode({token: token, text: this.currentParams});
+				// This is a inner short-hand inside the 'if' part of the main short-hand
+				} else if (this.openShortHand > 1 && (this.openShortHand === this.needCloseShortHand)) {
+					const text = this.currentParams.slice(0, this.currentParams.length -1);
+					this.createIfNode({token: token, text: text});
+					console.log(':', this.needCloseShortHand, this.openShortHand, text);
+				}
 			}
 			return true;
 		// It may some inner shot-hand inside condition, if or else part of main short hand
 		} else if (token.name === 'short-hand' && token.value === '?') {
 			if (this.brackets === 0 && this.parentheses === 0) {
-				if (this.needCloseShortHand === 1 && this.openShortHand === 1) {
+				if (this.openShortHand === 1 && this.needCloseShortHand === 1) {
 					let tempLabel = this.shortHand.label + this.currentParams;
 					// replace the real nodes with a tempNode just with the correct label so the createConditionNode use it
 					// to create a condition node with a full short-hand label
@@ -2685,12 +2698,15 @@ class ShortHandPattern {
 					// This add a short-hand as condition of another short-hand
 					this.createConditionNode({token, counter});
 					return true;
-				} else {
+				} else if (this.openShortHand > 0 && this.needCloseShortHand === 0) {
+					this.currentParams = this.currentParams + token.value;
+					this.openShortHand = this.openShortHand  + 1;
+					console.log('AQUI', this.currentParams);
+					return true;
 				}
-			} else {
-				return true;
 			}
 			this.currentParams = this.currentParams + token.value;
+			return true;
 		} else if (token.name === 'end') {
 			this.createElseNode({token});
 			return false;
@@ -2721,9 +2737,9 @@ class ShortHandPattern {
 		this.fullLabel = this.shortHand.label + token.value;
 	}
 
-	createIfNode({token}) {
+	createIfNode({token, text}) {
 		this.shortHand.if = new PowerTemplateLexer({
-			text: this.currentParams,
+			text: text,
 			counter: this.counter,
 			isParameter: true,
 		}).syntaxTree.tree;
@@ -5550,7 +5566,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 // const princesa = 'princesa ? fofa : linda';
-const princesa = 'princesa ? fofa : sdfsd ? favorita : fofinha';
+const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
 // const princesa = 'princesa ? fofa ? linda : ddd : fofa';
 
 const pitanga = 'olha';
