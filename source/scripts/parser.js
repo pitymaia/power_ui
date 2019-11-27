@@ -417,7 +417,7 @@ class PowerLexer {
 	}
 }
 
-class PowerTemplateLexer extends PowerLexer{
+class PowerTemplateParser extends PowerLexer{
 	constructor({text, tokensTable, counter, isParameter}) {
 		super({text: text, tokensTable: tokensTable, counter: counter || 0, isParameter: isParameter});
 		this.counter = counter || 0;
@@ -448,6 +448,9 @@ class PowerTemplateLexer extends PowerLexer{
 			},
 			{name: 'end', values: [null]},
 		];
+		if (this.isParameter) {
+			this.tokensTable.push({name: 'braces', values: ['{', '}']});
+		}
 		this.buildSyntaxTree();
 	}
 
@@ -472,7 +475,7 @@ class PowerTemplateLexer extends PowerLexer{
 
 }
 
-
+// Listen to tokens for syntax patterns
 class TokensListener {
 	constructor({counter, syntaxTree}) {
 		this.syntaxTree = syntaxTree;

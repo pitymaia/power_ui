@@ -2070,7 +2070,7 @@ class PowerLexer {
 	}
 }
 
-class PowerTemplateLexer extends PowerLexer{
+class PowerTemplateParser extends PowerLexer{
 	constructor({text, tokensTable, counter, isParameter}) {
 		super({text: text, tokensTable: tokensTable, counter: counter || 0, isParameter: isParameter});
 		this.counter = counter || 0;
@@ -2101,6 +2101,9 @@ class PowerTemplateLexer extends PowerLexer{
 			},
 			{name: 'end', values: [null]},
 		];
+		if (this.isParameter) {
+			this.tokensTable.push({name: 'braces', values: ['{', '}']});
+		}
 		this.buildSyntaxTree();
 	}
 
@@ -2125,7 +2128,7 @@ class PowerTemplateLexer extends PowerLexer{
 
 }
 
-
+// Listen to tokens for syntax patterns
 class TokensListener {
 	constructor({counter, syntaxTree}) {
 		this.syntaxTree = syntaxTree;
@@ -2848,7 +2851,7 @@ class ShortHandPattern {
 		for (const node of this.listener.syntaxTree.nodes) {
 			this.shortHand.label = `${this.shortHand.label}${node.label}`;
 		}
-		this.shortHand.condition = new PowerTemplateLexer({
+		this.shortHand.condition = new PowerTemplateParser({
 			text: this.shortHand.label,
 			counter: this.counter,
 			isParameter: true,
@@ -2863,7 +2866,7 @@ class ShortHandPattern {
 	}
 
 	createIfNode({token, text}) {
-		this.shortHand.if = new PowerTemplateLexer({
+		this.shortHand.if = new PowerTemplateParser({
 			text: text,
 			counter: this.counter,
 			isParameter: true,
@@ -2875,7 +2878,7 @@ class ShortHandPattern {
 	}
 
 	createElseNode({token}) {
-		this.shortHand.else = new PowerTemplateLexer({
+		this.shortHand.else = new PowerTemplateParser({
 			text: this.currentParams,
 			counter: this.counter,
 			isParameter: true,
@@ -3026,7 +3029,7 @@ class parenthesesPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({
+				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
 					isParameter: true,
@@ -3037,7 +3040,7 @@ class parenthesesPattern {
 			// Allow invoke a second function
 			} else if (token.value === '(') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({
+				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
 					isParameter: true,
@@ -3210,7 +3213,7 @@ class ObjectPattern {
 				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 				return false;
 			}
-			const parameters = new PowerTemplateLexer({
+			const parameters = new PowerTemplateParser({
 				text: `"${this.currentParams}"`,
 				counter: this.currentParamsCounter,
 				isParameter: true,
@@ -3260,7 +3263,7 @@ class ObjectPattern {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({
+				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
 					isParameter: true,
@@ -3318,7 +3321,7 @@ class ObjectPattern {
 	}
 
 	createDictionaryNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({
+		const parameters = new PowerTemplateParser({
 			text: this.currentParams,
 			counter: this.currentParamsCounter,
 			isParameter: true,
@@ -3348,7 +3351,7 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({
+		const parameters = new PowerTemplateParser({
 			text: this.currentParams,
 			counter: this.currentParamsCounter,
 			isParameter: true,
@@ -5552,10 +5555,10 @@ function b (t) {
 	return a.bind(t);
 }
 window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
-// const lexer = new PowerTemplateLexer({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-// const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
-// const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-// const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
+// const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
+// const parser = new PowerTemplateParser({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
+// const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
+// const parser = new PowerTemplateParser({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 // const princesa = 'fofa[(a ? b : c)]';
 const princesa = 'princesa[(a ? b : c)] ? fofa[(a ? b : c)] : linda[(a ? b : c)]';
 // const princesa = 'princesa ? fofa : linda';
@@ -5571,7 +5574,7 @@ const testess = 'teste';
 
 console.log('## AQUI:', princesa ? pitanga ? amora ? morango : pity : testess : amora ? pity : amora);
 
-const lexer = new PowerTemplateLexer({text: princesa});
+const parser = new PowerTemplateParser({text: princesa});
 
 
 

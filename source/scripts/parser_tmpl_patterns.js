@@ -653,7 +653,7 @@ class ShortHandPattern {
 		for (const node of this.listener.syntaxTree.nodes) {
 			this.shortHand.label = `${this.shortHand.label}${node.label}`;
 		}
-		this.shortHand.condition = new PowerTemplateLexer({
+		this.shortHand.condition = new PowerTemplateParser({
 			text: this.shortHand.label,
 			counter: this.counter,
 			isParameter: true,
@@ -668,7 +668,7 @@ class ShortHandPattern {
 	}
 
 	createIfNode({token, text}) {
-		this.shortHand.if = new PowerTemplateLexer({
+		this.shortHand.if = new PowerTemplateParser({
 			text: text,
 			counter: this.counter,
 			isParameter: true,
@@ -680,7 +680,7 @@ class ShortHandPattern {
 	}
 
 	createElseNode({token}) {
-		this.shortHand.else = new PowerTemplateLexer({
+		this.shortHand.else = new PowerTemplateParser({
 			text: this.currentParams,
 			counter: this.counter,
 			isParameter: true,
@@ -831,7 +831,7 @@ class parenthesesPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			if (['blank', 'end', 'dot', 'operator'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({
+				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
 					isParameter: true,
@@ -842,7 +842,7 @@ class parenthesesPattern {
 			// Allow invoke a second function
 			} else if (token.value === '(') {
 				// MANUALLY CREATE THE CURRENT NODE
-				const parameters = new PowerTemplateLexer({
+				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
 					isParameter: true,
@@ -1015,7 +1015,7 @@ class ObjectPattern {
 				this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 				return false;
 			}
-			const parameters = new PowerTemplateLexer({
+			const parameters = new PowerTemplateParser({
 				text: `"${this.currentParams}"`,
 				counter: this.currentParamsCounter,
 				isParameter: true,
@@ -1065,7 +1065,7 @@ class ObjectPattern {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
-				const parameters = new PowerTemplateLexer({
+				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
 					isParameter: true,
@@ -1123,7 +1123,7 @@ class ObjectPattern {
 	}
 
 	createDictionaryNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({
+		const parameters = new PowerTemplateParser({
 			text: this.currentParams,
 			counter: this.currentParamsCounter,
 			isParameter: true,
@@ -1153,7 +1153,7 @@ class ObjectPattern {
 	}
 
 	createAnonymousFuncNode({token, counter}) {
-		const parameters = new PowerTemplateLexer({
+		const parameters = new PowerTemplateParser({
 			text: this.currentParams,
 			counter: this.currentParamsCounter,
 			isParameter: true,
