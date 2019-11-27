@@ -2943,7 +2943,6 @@ class parenthesesPattern {
 	}
 }
 
-// TODO: Allow parentheses inside dict like in: dict[(2+2)]
 // bracket notation dictionary (user['age'])
 class ObjectPattern {
 	constructor(listener) {
@@ -2959,7 +2958,6 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
-
 		// Invalidade any dict ending in: [ ( .
 		if (token.value === null) {
 			const lastToken = this.listener.currentTokens[this.listener.currentTokens.length -1];
@@ -3000,7 +2998,7 @@ class ObjectPattern {
 				return true;
 			}
 		// If is a bracket or dot dictionary
-		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && token.name !== 'separator') {
+		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && (token.name !== 'separator' || token.value === '(')) {
 			// When a bracket dict is detect we already have the first node and the open bracket
 			// Get the node label without the bracket and convert it to STRING to create the first node
 			// If bracket or dot are detected from DictPattern it may come with a single bracket or dot as
@@ -3020,11 +3018,11 @@ class ObjectPattern {
 				this.listener.checking = 'middleTokens';
 			}
 
-				// After create the first node set to collect the params inside the brackets to create the second node with it
-				this.currentParams = this.currentParams + token.value;
-				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter || null;
-				}
+			// After create the first node set to collect the params inside the brackets to create the second node with it
+			this.currentParams = this.currentParams + token.value;
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
 			return true;
 		} else if (token.name === 'dot' || token.name === 'separator') {
 			// Invalid!
@@ -5558,7 +5556,8 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-const princesa = 'princesa[a ? b : c] ? fofa[a ? b : c] : linda[a ? b : c]';
+// const princesa = 'fofa[(a ? b : c)]';
+const princesa = 'princesa[(a ? b : c)] ? fofa[(a ? b : c)] : linda[(a ? b : c)]';
 // const princesa = 'princesa ? fofa : linda';
 // const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
 // const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';

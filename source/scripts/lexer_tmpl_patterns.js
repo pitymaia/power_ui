@@ -880,7 +880,6 @@ class parenthesesPattern {
 	}
 }
 
-// TODO: Allow parentheses inside dict like in: dict[(2+2)]
 // bracket notation dictionary (user['age'])
 class ObjectPattern {
 	constructor(listener) {
@@ -896,7 +895,6 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
-
 		// Invalidade any dict ending in: [ ( .
 		if (token.value === null) {
 			const lastToken = this.listener.currentTokens[this.listener.currentTokens.length -1];
@@ -937,7 +935,7 @@ class ObjectPattern {
 				return true;
 			}
 		// If is a bracket or dot dictionary
-		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && token.name !== 'separator') {
+		} else if ((this.currentOpenChar === '[' || this.currentOpenChar === '.') && (token.name !== 'separator' || token.value === '(')) {
 			// When a bracket dict is detect we already have the first node and the open bracket
 			// Get the node label without the bracket and convert it to STRING to create the first node
 			// If bracket or dot are detected from DictPattern it may come with a single bracket or dot as
@@ -957,11 +955,11 @@ class ObjectPattern {
 				this.listener.checking = 'middleTokens';
 			}
 
-				// After create the first node set to collect the params inside the brackets to create the second node with it
-				this.currentParams = this.currentParams + token.value;
-				if (this.currentParamsCounter === null) {
-					this.currentParamsCounter = counter || null;
-				}
+			// After create the first node set to collect the params inside the brackets to create the second node with it
+			this.currentParams = this.currentParams + token.value;
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
 			return true;
 		} else if (token.name === 'dot' || token.name === 'separator') {
 			// Invalid!
