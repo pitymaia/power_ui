@@ -603,8 +603,8 @@ class ShortHandPattern {
 			}
 			return true;
 		} else if (token.name === 'short-hand' && token.value === ':') {
-			this.needCloseShortHand = this.needCloseShortHand + 1;
 			if (this.brackets === 0 && this.parentheses === 0) {
+				this.needCloseShortHand = this.needCloseShortHand + 1;
 				// Set the short-hand to close on 'end' syntax, but if found a '?' before it,
 				// this is a inner short-hand on the 'condition' ou 'else' part of the main short-hand
 				// This also can be a inner short-hand inside the 'if' part of the main short-hand
@@ -629,7 +629,9 @@ class ShortHandPattern {
 					this.needCloseShortHand = this.needCloseShortHand - 1;
 					this.counter = 0;
 					// This add a short-hand as 'condition' or 'else' of another short-hand
+					this.currentParams = this.currentParams + token.value;
 					this.createConditionNode({token, counter});
+					return true;
 				} else {
 					this.openShortHand = this.openShortHand  + 1;
 				}

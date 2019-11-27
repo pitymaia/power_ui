@@ -1706,6 +1706,7 @@ class SyntaxTree {
 	// Return true if the next node is valid after a given syntax
 	isNextValidAfterCurrent({currentNode, nextNode, isParameter}) {
 		// console.log('currentNode, nextNode, isParameter', currentNode, nextNode, isParameter);
+		// return true;
 		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({
 			currentNode: currentNode,
 			nextNode: nextNode,
@@ -2665,8 +2666,8 @@ class ShortHandPattern {
 			}
 			return true;
 		} else if (token.name === 'short-hand' && token.value === ':') {
-			this.needCloseShortHand = this.needCloseShortHand + 1;
 			if (this.brackets === 0 && this.parentheses === 0) {
+				this.needCloseShortHand = this.needCloseShortHand + 1;
 				// Set the short-hand to close on 'end' syntax, but if found a '?' before it,
 				// this is a inner short-hand on the 'condition' ou 'else' part of the main short-hand
 				// This also can be a inner short-hand inside the 'if' part of the main short-hand
@@ -2691,7 +2692,9 @@ class ShortHandPattern {
 					this.needCloseShortHand = this.needCloseShortHand - 1;
 					this.counter = 0;
 					// This add a short-hand as 'condition' or 'else' of another short-hand
+					this.currentParams = this.currentParams + token.value;
 					this.createConditionNode({token, counter});
+					return true;
 				} else {
 					this.openShortHand = this.openShortHand  + 1;
 				}
@@ -5555,11 +5558,11 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const lexer = new PowerTemplateLexer({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const lexer = new PowerTemplateLexer({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
-// const princesa = 'princesa ? fofa[a ? b : c] : linda';
+const princesa = 'princesa[a ? b : c] ? fofa[a ? b : c] : linda[a ? b : c]';
 // const princesa = 'princesa ? fofa : linda';
 // const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
 // const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
-const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa : linda ? sdfsd : ss';
+// const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
 
 const pitanga = 'olha';
 const amora = 'inha';

@@ -185,6 +185,7 @@ class SyntaxTree {
 	// Return true if the next node is valid after a given syntax
 	isNextValidAfterCurrent({currentNode, nextNode, isParameter}) {
 		// console.log('currentNode, nextNode, isParameter', currentNode, nextNode, isParameter);
+		// return true;
 		return this.validAfter[currentNode.syntax] ? this.validAfter[currentNode.syntax]({
 			currentNode: currentNode,
 			nextNode: nextNode,
