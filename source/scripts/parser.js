@@ -28,6 +28,7 @@ class SyntaxTree {
 			'NOT-NOT': this.orAndNotValidation,
 			'short-hand': this.shortHandValidation,
 		}
+		console.log('this.nodes', this.nodes);
 	}
 
 	buildTreeLeaf(isParameter) {
@@ -426,6 +427,7 @@ class PowerTemplateParser extends PowerLexer{
 			{name: 'escape', values: ['\\']},
 			{name: 'especial', values: ['_', '$']},
 			{name: 'quote', values: ['"', '`', "'"]},
+			{name: 'braces', values: ['{', '}']},
 			{name: 'separator', values: ['(', ')', '[', ']']},
 			{name: 'operator', values: ['+', '-', '*', '/', '%']},
 			{name: 'equal', values: ['=']},
@@ -448,9 +450,6 @@ class PowerTemplateParser extends PowerLexer{
 			},
 			{name: 'end', values: [null]},
 		];
-		if (this.isParameter) {
-			this.tokensTable.push({name: 'braces', values: ['{', '}']});
-		}
 		this.buildSyntaxTree();
 	}
 
@@ -496,6 +495,7 @@ class TokensListener {
 			{name: 'OR', obj: OrPattern},
 			{name: 'comma', obj: CommaPattern},
 			{name: 'dot', obj: DictPattern},
+			{name: 'braces', obj: BracesPattern},
 			{name: 'separator', obj: DictPattern},
 			{name: 'short-hand', obj: ShortHandPattern},
 			{name: 'parentheses', obj: parenthesesPattern}

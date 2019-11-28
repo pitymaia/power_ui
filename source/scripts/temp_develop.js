@@ -253,19 +253,19 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const parser = new PowerTemplateParser({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 // const princesa = 'fofa[(a ? b : c)]';
-const princesa = 'princesa[(a ? b : c)] ? fofa[(a ? b : c)] : linda[(a ? b : c)]';
+const princesa = 'princesa( { teste: beleza } )';
 // const princesa = 'princesa ? fofa : linda';
 // const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
 // const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
 // const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
 
 const pitanga = 'olha';
-const amora = 'inha';
 const morango = 'pen';
+const amora = 'inha';
 const pity = {teste: 'legal'};
 const testess = 'teste';
 
-console.log('## AQUI:', princesa ? pitanga ? amora ? morango : pity : testess : amora ? pity : amora);
+console.log('## AQUI:', a( { '333': 2+2+'sdf', '000': 'sdfsdf' } ));
 
 const parser = new PowerTemplateParser({text: princesa});
 

@@ -1681,6 +1681,7 @@ class SyntaxTree {
 			'NOT-NOT': this.orAndNotValidation,
 			'short-hand': this.shortHandValidation,
 		}
+		console.log('this.nodes', this.nodes);
 	}
 
 	buildTreeLeaf(isParameter) {
@@ -2079,6 +2080,7 @@ class PowerTemplateParser extends PowerLexer{
 			{name: 'escape', values: ['\\']},
 			{name: 'especial', values: ['_', '$']},
 			{name: 'quote', values: ['"', '`', "'"]},
+			{name: 'braces', values: ['{', '}']},
 			{name: 'separator', values: ['(', ')', '[', ']']},
 			{name: 'operator', values: ['+', '-', '*', '/', '%']},
 			{name: 'equal', values: ['=']},
@@ -2101,9 +2103,6 @@ class PowerTemplateParser extends PowerLexer{
 			},
 			{name: 'end', values: [null]},
 		];
-		if (this.isParameter) {
-			this.tokensTable.push({name: 'braces', values: ['{', '}']});
-		}
 		this.buildSyntaxTree();
 	}
 
@@ -2149,6 +2148,7 @@ class TokensListener {
 			{name: 'OR', obj: OrPattern},
 			{name: 'comma', obj: CommaPattern},
 			{name: 'dot', obj: DictPattern},
+			{name: 'braces', obj: BracesPattern},
 			{name: 'separator', obj: DictPattern},
 			{name: 'short-hand', obj: ShortHandPattern},
 			{name: 'parentheses', obj: parenthesesPattern}
@@ -2292,6 +2292,58 @@ class VariablePattern {
 	// end condition are only to INVALID syntaxe
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
+		if (['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			return true;
+		}
+	}
+}
+
+class BracesPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.innerBraces = 0;
+	}
+
+	// Condition to start check if is empty chars
+	firstToken({token, counter}) {
+		console.log('######## BracesPattern firstToken', token, counter);
+		if (token.value === '{') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'braces');
+			this.listener.checking = 'middleTokens';
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		console.log('middleTokens', token, counter);
+		// Collecting inner parameters, so allow any valid syntax
+		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'short-hand', 'braces'].includes(token.name)) {
+			this.currentParams = this.currentParams + token.value;
+			if (token.value === '{') {
+				this.innerBraces = this.innerBraces + 1;
+			} else if (token.value === '}') {
+				this.innerBraces = this.innerBraces - 1;
+			}
+			return true;
+		} else {
+			console.log('INVALID', token, counter);
+			// Invalid!
+			// wait for some blank or end token and register the current stream as invalid
+			this.listener.checking = 'endToken';
+			return true;
+		}
+	}
+
+	// end condition are only to INVALID syntaxe
+	// wait for some blank or end token and register the current stream as invalid
+	endToken({token, counter}) {
+		console.log('middleTokens', token, counter);
 		if (['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
@@ -2973,6 +3025,7 @@ class parenthesesPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+		console.log('parentheses firstToken aqui', token);
 		// The open char of the current node
 		this.currentOpenChar = token.value;
 		if (this.currentOpenChar === '(' && !this.listener.isAnonymousFunc) {
@@ -2997,11 +3050,12 @@ class parenthesesPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
+		console.log('aqui2', token);
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
+		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -3093,6 +3147,7 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+		console.log('obj firstToken', token, counter, 'open:', this.listener.currentTokens[this.listener.currentTokens.length - 1].value);
 		// Invalidade any dict ending in: [ ( .
 		if (token.value === null) {
 			const lastToken = this.listener.currentTokens[this.listener.currentTokens.length -1];
@@ -3110,7 +3165,7 @@ class ObjectPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			// Collect the function parameters and got to middleTokens
-			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote'].includes(token.name)) {
+			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'braces'].includes(token.name) || (token.value === '-' || token.value === '+')) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
@@ -3172,12 +3227,13 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
+		console.log('obj middleTokens', token, counter, 'open:', this.currentOpenChar);
 		// Function
 		if (this.currentOpenChar === '(' && token.value === ')' && this.innerOpenedObjects === 0) {
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
+		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -3260,9 +3316,11 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
+		console.log('obj endToken', token, counter);
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
+					console.log('entrou', this.currentParams);
 				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
@@ -5560,19 +5618,19 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const parser = new PowerTemplateParser({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
 // const princesa = 'fofa[(a ? b : c)]';
-const princesa = 'princesa[(a ? b : c)] ? fofa[(a ? b : c)] : linda[(a ? b : c)]';
+const princesa = 'princesa( { teste: beleza } )';
 // const princesa = 'princesa ? fofa : linda';
 // const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
 // const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
 // const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
 
 const pitanga = 'olha';
-const amora = 'inha';
 const morango = 'pen';
+const amora = 'inha';
 const pity = {teste: 'legal'};
 const testess = 'teste';
 
-console.log('## AQUI:', princesa ? pitanga ? amora ? morango : pity : testess : amora ? pity : amora);
+console.log('## AQUI:', a( { '333': 2+2+'sdf', '000': 'sdfsdf' } ));
 
 const parser = new PowerTemplateParser({text: princesa});
 
