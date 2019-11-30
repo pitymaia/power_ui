@@ -107,11 +107,15 @@ class BracesPattern {
 	constructor(listener) {
 		this.listener = listener;
 		this.innerBraces = 0;
+		this.innerParentheses = 0;
+		this.currentParams = '';
+		this.dictDefinition = [];
+		this.currentKey = '';
+		this.currentValue = '';
 	}
 
 	// Condition to start check if is empty chars
 	firstToken({token, counter}) {
-		console.log('######## BracesPattern firstToken', token, counter);
 		if (token.value === '{') {
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'braces');
 			this.listener.checking = 'middleTokens';
@@ -123,18 +127,53 @@ class BracesPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('middleTokens', token, counter);
 		// Collecting inner parameters, so allow any valid syntax
 		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'short-hand', 'braces'].includes(token.name)) {
-			this.currentParams = this.currentParams + token.value;
 			if (token.value === '{') {
 				this.innerBraces = this.innerBraces + 1;
 			} else if (token.value === '}') {
 				this.innerBraces = this.innerBraces - 1;
+			} else if (token.value === '(') {
+				this.innerParentheses = this.innerParentheses + 1;
+			} else if (token.value === ')') {
+				this.innerParentheses = this.innerParentheses - 1;
 			}
+
+			// Identify keys and values
+			if (this.innerBraces < 1 && this.innerParentheses === 0) {
+				if (token.value === ':') {
+					this.currentKey = this.currentParams.trim();
+					this.currentParams = '';
+					if (!this.containsQuotes(this.currentKey)) {
+						this.currentKey = `"${this.currentKey}"`;
+					}
+					this.currentKey = new PowerTemplateParser({
+						text: this.currentKey,
+						counter: counter - this.currentKey.length,
+						isParameter: true,
+					}).syntaxTree.tree;
+				} else if (token.value === ',' || this.innerBraces < 0) {
+					this.currentValue = this.currentParams;
+					this.currentParams = '';
+					this.currentValue = new PowerTemplateParser({
+						text: this.currentValue,
+						counter: counter - this.currentValue.length,
+						isParameter: true,
+					}).syntaxTree.tree;
+					this.dictDefinition.push({key: this.currentKey, value: this.currentValue});
+				}
+			}
+
+			if (token.value !== ':' && token.value !== ',' || (this.innerBraces !== 0 || this.innerParentheses !== 0)) {
+				this.currentParams = this.currentParams + token.value;
+			}
+
+			if (this.innerBraces < 0) {
+				this.listener.checking = 'endToken';
+			}
+
 			return true;
 		} else {
-			console.log('INVALID', token, counter);
 			// Invalid!
 			// wait for some blank or end token and register the current stream as invalid
 			this.listener.checking = 'endToken';
@@ -142,15 +181,24 @@ class BracesPattern {
 		}
 	}
 
-	// end condition are only to INVALID syntaxe
-	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
-		console.log('middleTokens', token, counter);
-		if (['blank', 'end'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+		if (token.name === ')') {
+		// end condition are only to INVALID syntaxe
+		} else if (['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'dictDefinition', token: token, counter: counter, parameters: this.dictDefinition});
+			// this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
+			// wait for some blank or end token and register the current stream as invalid
 			return true;
+		}
+	}
+
+	containsQuotes(str) {
+		if (str.indexOf("'") >= 0 || str.indexOf('"') >= 0 || str.indexOf('`') >= 0) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 }
@@ -827,7 +875,6 @@ class parenthesesPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
-		console.log('parentheses firstToken aqui', token);
 		// The open char of the current node
 		this.currentOpenChar = token.value;
 		if (this.currentOpenChar === '(' && !this.listener.isAnonymousFunc) {
@@ -852,7 +899,6 @@ class parenthesesPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('aqui2', token);
 		if (token.value === ')' && this.innerOpenedParenteses === 0) {
 			this.listener.checking = 'endToken';
 			return true;
@@ -949,7 +995,6 @@ class ObjectPattern {
 
 	// Condition to start check first operator
 	firstToken({token, counter}) {
-		console.log('obj firstToken', token, counter, 'open:', this.listener.currentTokens[this.listener.currentTokens.length - 1].value);
 		// Invalidade any dict ending in: [ ( .
 		if (token.value === null) {
 			const lastToken = this.listener.currentTokens[this.listener.currentTokens.length -1];
@@ -1029,7 +1074,6 @@ class ObjectPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		console.log('obj middleTokens', token, counter, 'open:', this.currentOpenChar);
 		// Function
 		if (this.currentOpenChar === '(' && token.value === ')' && this.innerOpenedObjects === 0) {
 			this.listener.checking = 'endToken';
@@ -1118,11 +1162,9 @@ class ObjectPattern {
 
 	// end condition
 	endToken({token, counter}) {
-		console.log('obj endToken', token, counter);
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
 			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
-					console.log('entrou', this.currentParams);
 				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
