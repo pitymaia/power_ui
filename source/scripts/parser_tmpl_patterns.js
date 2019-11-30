@@ -160,7 +160,7 @@ class BracesPattern {
 						counter: counter - this.currentValue.length,
 						isParameter: true,
 					}).syntaxTree.tree;
-					this.dictDefinition.push({key: this.currentKey, value: this.currentValue});
+					this.dictDefinition.push({kind: 'keyValue', key: this.currentKey, value: this.currentValue});
 				}
 			}
 
