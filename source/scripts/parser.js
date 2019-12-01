@@ -542,3 +542,82 @@ class TokensListener {
 		}
 	}
 }
+
+class ParserEval {
+	constructor({text, nodes}) {
+		this.nodes = nodes || new PowerTemplateParser({text: text}).syntaxTree.tree;
+		this.currentValue = '';
+		this.operator = '';
+		this.evalNodes();
+	}
+
+	evalNodes() {
+		console.log('this.nodes', this.nodes);
+		for (const node of this.nodes) {
+			if (node.expression_nodes) {
+				for (const item of node.expression_nodes) {
+					this.eval(item);
+				}
+			}
+		}
+		console.log('FINAL VALUE', this.currentValue);
+	}
+
+	eval(item) {
+		console.log('item', item);
+		let value = '';
+		if (item.syntax === 'float') {
+			value = parseFloat(item.label);
+			if (this.currentValue === '') {
+				this.currentValue = value;
+			} else {
+				if (this.operator === '+') {
+					value = this.currentValue + value;
+				} else if (this.operator === '-') {
+					value = this.currentValue - value;
+				} else if (this.operator === '/') {
+					value = this.currentValue / value;
+				} else if (this.operator === '*') {
+					value = this.currentValue * value;
+				} else {
+					this.currentValue = value;
+				}
+				this.currentValue = value;
+			}
+		} else if (item.syntax === 'integer') {
+			value = parseInt(item.label);
+			if (this.currentValue === '') {
+				this.currentValue = value;
+			} else {
+				if (this.operator === '+') {
+					value = this.currentValue + value;
+				} else if (this.operator === '-') {
+					value = this.currentValue - value;
+				} else if (this.operator === '/') {
+					value = this.currentValue / value;
+				} else if (this.operator === '*') {
+					value = this.currentValue * value;
+				} else {
+					this.currentValue = value;
+				}
+				this.currentValue = value;
+			}
+		} else if (item.syntax === 'operator') {
+			this.operator = item.label;
+		} else if (item.priority) {
+			value = new ParserEval({nodes: [{expression_nodes: item.priority}]}).currentValue;
+			if (this.operator === '+') {
+				value = this.currentValue + value;
+			} else if (this.operator === '-') {
+				value = this.currentValue - value;
+			}
+			console.log('PRIORITY', value);
+
+			this.currentValue = value;
+		} else {
+			console.log('NOT NUMBER OR OPERATOR OR PRIORITY');
+		}
+		// console.log('this.currentValue', this.currentValue);
+		return value;
+	}
+}

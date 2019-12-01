@@ -251,9 +251,10 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
 // const parser = new PowerTemplateParser({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
 // const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-// const parser = new PowerTemplateParser({text: '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3'});
+const princesa = '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3-15*2+30';
+// const princesa = '2.5*2.5 + 5 + 1 * 2 + 13.75 - 27';
 // const princesa = 'fofa[(a ? b : c)]';
-const princesa = 'teste(princesa( { teste: beleza({key: value1, key2: value2}), number: 2+2, dict: pity[teste]["novo"].pity(2+2), "fim": end } ), 2+5, teste())';
+// const princesa = 'teste(princesa( { teste: beleza({key: value1, key2: value2}), number: 2+2, dict: pity[teste]["novo"].pity(2+2), "fim": end } ), 2+5, teste())';
 // const princesa = 'princesa ? fofa : linda';
 // const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
 // const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
@@ -265,9 +266,8 @@ const amora = 'inha';
 const pity = {teste: 'legal'};
 const testess = 'teste';
 
-console.log('## AQUI:', princesa.slice(106, 111));
-
-const parser = new PowerTemplateParser({text: princesa});
+const value = new ParserEval({text: princesa}).currentValue;
+console.log('## AQUI value:', value, 'EVAL', eval(princesa));
 
 
 
