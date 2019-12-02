@@ -573,72 +573,45 @@ class ParserEval {
 			if (this.currentValue === '') {
 				this.currentValue = value;
 			} else {
-				if (this.operator === '+') {
-					value = this.currentValue + value;
-				} else if (this.operator === '-') {
-					value = this.currentValue - value;
-				} else if (this.operator === '/') {
-					value = this.currentValue / value;
-				} else if (this.operator === '*') {
-					value = this.currentValue * value;
-				} else {
-					this.currentValue = value;
-				}
-				this.currentValue = value;
+				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'integer') {
 			value = parseInt(item.label);
 			if (this.currentValue === '') {
 				this.currentValue = value;
 			} else {
-				if (this.operator === '+') {
-					value = this.currentValue + value;
-				} else if (this.operator === '-') {
-					value = this.currentValue - value;
-				} else if (this.operator === '/') {
-					value = this.currentValue / value;
-				} else if (this.operator === '*') {
-					value = this.currentValue * value;
-				} else {
-					this.currentValue = value;
-				}
-				this.currentValue = value;
+				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'operator') {
 			this.operator = item.label;
 		} else if (item.priority || item.syntax === 'parentheses') {
 			const newNodes = item.priority ? [{expression_nodes: item.priority}] : item.parameters;
 			value = new ParserEval({nodes: newNodes, scope: this.$scope, $powerUi: this.$powerUi}).currentValue;
-			if (this.operator === '+') {
-				value = this.currentValue + value;
-			} else if (this.operator === '-') {
-				value = this.currentValue - value;
-			}
-			console.log('PRIORITY', value);
-
-			this.currentValue = value;
+			this.currentValue = this.mathOrConcatValues(value);
 		} else if (item.syntax === 'variable') {
 			value = this.getOnScope(item.label);
 			if (this.currentValue === '') {
 				this.currentValue = value;
 			} else {
-				if (this.operator === '+') {
-					value = this.currentValue + value;
-				} else if (this.operator === '-') {
-					value = this.currentValue - value;
-				} else if (this.operator === '/') {
-					value = this.currentValue / value;
-				} else if (this.operator === '*') {
-					value = this.currentValue * value;
-				} else {
-					this.currentValue = value;
-				}
-				this.currentValue = value;
+				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else {
 			console.log('NOT NUMBER OR OPERATOR OR PRIORITY');
 		}
 
+		return value;
+	}
+
+	mathOrConcatValues(value) {
+		if (this.operator === '+') {
+			value = this.currentValue + value;
+		} else if (this.operator === '-') {
+			value = this.currentValue - value;
+		} else if (this.operator === '/') {
+			value = this.currentValue / value;
+		} else if (this.operator === '*') {
+			value = this.currentValue * value;
+		}
 		return value;
 	}
 	// Return item on $scope or $powerUi ($rootScope)
