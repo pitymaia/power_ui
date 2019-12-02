@@ -248,6 +248,12 @@ app.nSum = function (num1, num2) {
 
 const nSum = app.nSum;
 
+app.nMult = function (num1, num2, num3) {
+	return (num1 + num2) * num3;
+}
+
+const nMult = app.nMult;
+
 function a (u) {
 	return c;
 }
@@ -279,7 +285,7 @@ app.h = 3;
 const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3)';
+const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
 
 const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
