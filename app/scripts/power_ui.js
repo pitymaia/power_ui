@@ -1337,6 +1337,10 @@ class PowerUi extends _PowerUiBase {
 		this._events['ready'] = new UEvent();
 	}
 
+	evaluate({text, scope}) {
+		return new ParserEval({text: princesa, $powerUi: this}).currentValue;
+	}
+
 	initAll() {
 		const t0 = performance.now();
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
@@ -2197,7 +2201,9 @@ class TokensListener {
 }
 
 class ParserEval {
-	constructor({text, nodes}) {
+	constructor({text, nodes, scope, $powerUi}) {
+		this.$powerUi = $powerUi;
+		this.$scope = scope || {};
 		this.nodes = nodes || new PowerTemplateParser({text: text}).syntaxTree.tree;
 		this.currentValue = '';
 		this.operator = '';
@@ -2259,7 +2265,7 @@ class ParserEval {
 			this.operator = item.label;
 		} else if (item.priority || item.syntax === 'parentheses') {
 			const newNodes = item.priority ? [{expression_nodes: item.priority}] : item.parameters;
-			value = new ParserEval({nodes: newNodes}).currentValue;
+			value = new ParserEval({nodes: newNodes, scope: this.$scope, $powerUi: this.$powerUi}).currentValue;
 			if (this.operator === '+') {
 				value = this.currentValue + value;
 			} else if (this.operator === '-') {
@@ -2268,11 +2274,39 @@ class ParserEval {
 			console.log('PRIORITY', value);
 
 			this.currentValue = value;
+		} else if (item.syntax === 'variable') {
+			value = this.getOnScope(item.label);
+			if (this.currentValue === '') {
+				this.currentValue = value;
+			} else {
+				if (this.operator === '+') {
+					value = this.currentValue + value;
+				} else if (this.operator === '-') {
+					value = this.currentValue - value;
+				} else if (this.operator === '/') {
+					value = this.currentValue / value;
+				} else if (this.operator === '*') {
+					value = this.currentValue * value;
+				} else {
+					this.currentValue = value;
+				}
+				this.currentValue = value;
+			}
 		} else {
 			console.log('NOT NUMBER OR OPERATOR OR PRIORITY');
 		}
-		// console.log('this.currentValue', this.currentValue);
+
 		return value;
+	}
+	// Return item on $scope or $powerUi ($rootScope)
+	getOnScope(item) {
+		if (this.$scope[item] !== undefined) {
+			return this.$scope[item];
+		} else if (this.$powerUi[item] !== undefined) {
+			return this.$powerUi[item];
+		} else {
+			return undefined;
+		}
 	}
 }
 
@@ -5740,7 +5774,6 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
 // const princesa = '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3-15*2+30';
 // const princesa = '2.5*2.5 + 5 + 1 * 2 + 13.75 - 27';
-const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'fofa[(a ? b : c)]';
 // const princesa = 'teste(princesa( { teste: beleza({key: value1, key2: value2}), number: 2+2, dict: pity[teste]["novo"].pity(2+2), "fim": end } ), 2+5, teste())';
 // const princesa = 'princesa ? fofa : linda';
@@ -5753,8 +5786,15 @@ const morango = 'pen';
 const amora = 'inha';
 const pity = {teste: 'legal'};
 const testess = 'teste';
+app.j = 2;
+const j = 2;
+app.h = 3;
+const h = 3;
 
-const value = new ParserEval({text: princesa}).currentValue;
+// const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
+const princesa = 'j + j - h * j + (j*j*j)*h + 2 + 1';
+
+const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
 
 

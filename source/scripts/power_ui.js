@@ -131,6 +131,10 @@ class PowerUi extends _PowerUiBase {
 		this._events['ready'] = new UEvent();
 	}
 
+	evaluate({text, scope}) {
+		return new ParserEval({text: princesa, $powerUi: this}).currentValue;
+	}
+
 	initAll() {
 		const t0 = performance.now();
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
