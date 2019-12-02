@@ -604,8 +604,9 @@ class ParserEval {
 			}
 		} else if (item.syntax === 'operator') {
 			this.operator = item.label;
-		} else if (item.priority) {
-			value = new ParserEval({nodes: [{expression_nodes: item.priority}]}).currentValue;
+		} else if (item.priority || item.syntax === 'parentheses') {
+			const newNodes = item.priority ? [{expression_nodes: item.priority}] : item.parameters;
+			value = new ParserEval({nodes: newNodes}).currentValue;
 			if (this.operator === '+') {
 				value = this.currentValue + value;
 			} else if (this.operator === '-') {
