@@ -2211,7 +2211,6 @@ class ParserEval {
 	}
 
 	evalNodes() {
-		console.log('this.nodes', this.nodes);
 		for (const node of this.nodes) {
 			if (node.expression_nodes) {
 				for (const item of node.expression_nodes) {
@@ -2224,7 +2223,6 @@ class ParserEval {
 	}
 
 	eval(item) {
-		console.log('item', item);
 		let value = '';
 		if (item.syntax === 'float') {
 			value = parseFloat(item.label);
@@ -2244,7 +2242,7 @@ class ParserEval {
 			this.operator = item.label;
 		} else if (item.priority || item.syntax === 'parentheses') {
 			const newNodes = item.priority ? [{expression_nodes: item.priority}] : item.parameters;
-			value = new ParserEval({nodes: newNodes, scope: this.$scope, $powerUi: this.$powerUi}).currentValue;
+			value = this.recursiveEval(newNodes);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else if (item.syntax === 'variable') {
 			value = this.getOnScope(item.label);
@@ -2290,31 +2288,37 @@ class ParserEval {
 			let label = '';
 			if (obj.syntax === 'function') {
 				label = obj.label;
+			} else if (obj.syntax === 'dictNode'){
+				label = this.recursiveEval(obj.parameters);
 			} else {
-				console.log('NOT FUNCTION!', obj);
+				console.log('NOT FUNCTION or DICTNODE!', obj);
 			}
 
 			if (count === 0) {
 				$currentScope = this.getObjScope(label);
-				objOnScope = $currentScope[label];
 				count = 1;
 			} else if ($currentScope === '') {
 				return undefined;
 				break;
 			}
 
-			if (obj.syntax === 'function') {
+			if (obj.syntax !== 'anonymousFunc') {
+				objOnScope = $currentScope[label];
+			}
+
+			if (obj.syntax === 'function' || obj.syntax === 'anonymousFunc') {
 				const args = [];
 				for (const param of obj.parameters[0].expression_nodes) {
-					console.log('OBJ PARAM', param);
-					args.push(new ParserEval({nodes: [{expression_nodes: [param]}], scope: this.$scope, $powerUi: this.$powerUi}).currentValue);
+					args.push(this.recursiveEval([{expression_nodes: [param]}]));
 				}
-				console.log('OBJECT args', args);
-				console.log('OBJECT', obj, $currentScope, objOnScope.apply(null, args));
 				value = objOnScope.apply(null, args);
 			}
 		}
 		return value;
+	}
+
+	recursiveEval(nodes) {
+		return new ParserEval({nodes: nodes, scope: this.$scope, $powerUi: this.$powerUi}).currentValue;
 	}
 
 	mathOrConcatValues(value) {
@@ -2343,7 +2347,6 @@ class ParserEval {
 
 	// Get the scope where objec exists
 	getObjScope(item) {
-		console.log('ITEM', item);
 		if (this.$scope[item] !== undefined) {
 			return this.$scope;
 		} else if (this.$powerUi[item] !== undefined) {
@@ -5853,8 +5856,9 @@ app.h = 3;
 const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-const princesa = '"Pity o bom"';
+// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
+const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
+// const princesa = '"Pity o bom"';
 
 const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
