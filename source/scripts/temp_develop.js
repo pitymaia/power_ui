@@ -257,12 +257,12 @@ app.nMult = function (num1, num2, num3) {
 
 const nMult = app.nMult;
 
-function a (u) {
-	return c;
+function a () {
+	return b;
 }
-
-function b (t) {
-	return a.bind(t);
+const someDict = {aqui: 25, nossa: {cool: {final: 63}}};
+function b () {
+	return someDict;
 }
 window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
@@ -280,7 +280,8 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 const pitanga = 'olha';
 const morango = 'pen';
 const amora = 'inha';
-const pity = {teste: 'legal'};
+app.pity = {teste: {pi10: 25, func: a}};
+const pity = app.pity;
 const testess = 'teste';
 app.j = 2;
 const j = 2;
@@ -289,7 +290,8 @@ const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
+// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
+const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
 
 const value = app.evaluate({text: princesa});

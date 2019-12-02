@@ -645,8 +645,15 @@ class ParserEval {
 				break;
 			}
 
+			// Build the dict object
 			if (obj.syntax !== 'anonymousFunc') {
-				objOnScope = $currentScope[label];
+				if (objOnScope === '') {
+					// first node of dict
+					objOnScope = $currentScope[label];
+				} else {
+					// other nodes of dict
+					objOnScope = objOnScope[label];
+				}
 			}
 
 			if (obj.syntax === 'function' || obj.syntax === 'anonymousFunc') {
@@ -655,7 +662,13 @@ class ParserEval {
 					args.push(this.recursiveEval([{expression_nodes: [param]}]));
 				}
 				value = objOnScope.apply(null, args);
+				// This allow calls multiple anonymous functions
+				objOnScope = value;
 			}
+		}
+		if (objOnScope !== '') {
+			value = objOnScope;
+			objOnScope = '';
 		}
 		return value;
 	}
