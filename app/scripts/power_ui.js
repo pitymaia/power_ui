@@ -2217,9 +2217,10 @@ class ParserEval {
 				for (const item of node.expression_nodes) {
 					this.eval(item);
 				}
+			} else {
+				console.log('NO EXPRESSION_NODES!!');
 			}
 		}
-		console.log('FINAL VALUE', this.currentValue);
 	}
 
 	eval(item) {
@@ -2252,10 +2253,48 @@ class ParserEval {
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
+		} else if (item.syntax === 'object') {
+			value = this.evalObject(item);
+			this.currentValue = this.mathOrConcatValues(value);
 		} else {
 			console.log('NOT NUMBER OR OPERATOR OR PRIORITY');
 		}
 
+		return value;
+	}
+
+	evalObject(item) {
+		let $currentScope = '';
+		let objOnScope = '';
+		let value = '';
+
+		let count = 0;
+		for (const obj of item.parameters) {
+			let label = '';
+			if (obj.syntax === 'function') {
+				label = obj.label;
+			}
+
+			if (count === 0) {
+				$currentScope = this.getObjScope(label);
+				objOnScope = $currentScope[label];
+				count = 1;
+			} else if ($currentScope === '') {
+				return undefined;
+				break;
+			}
+
+			if (obj.syntax === 'function') {
+				const args = [];
+				for (const param of obj.parameters[0].expression_nodes) {
+					console.log('OBJ PARAM', param);
+					args.push(new ParserEval({nodes: [{expression_nodes: [param]}], scope: this.$scope, $powerUi: this.$powerUi}).currentValue);
+				}
+				console.log('OBJECT args', args);
+				console.log('OBJECT', obj, $currentScope, objOnScope.apply(null, args));
+				value = objOnScope.apply(null, args);
+			}
+		}
 		return value;
 	}
 
@@ -2271,12 +2310,25 @@ class ParserEval {
 		}
 		return value;
 	}
+
 	// Return item on $scope or $powerUi ($rootScope)
 	getOnScope(item) {
 		if (this.$scope[item] !== undefined) {
 			return this.$scope[item];
 		} else if (this.$powerUi[item] !== undefined) {
 			return this.$powerUi[item];
+		} else {
+			return undefined;
+		}
+	}
+
+	// Get the scope where objec exists
+	getObjScope(item) {
+		console.log('ITEM', item);
+		if (this.$scope[item] !== undefined) {
+			return this.$scope;
+		} else if (this.$powerUi[item] !== undefined) {
+			return this.$powerUi;
 		} else {
 			return undefined;
 		}
@@ -5734,6 +5786,14 @@ app.num = function (num) {
 	return num;
 }
 
+const num = app.num;
+
+app.nSum = function (num1, num2) {
+	return num1 + num2;
+}
+
+const nSum = app.nSum;
+
 function a (u) {
 	return c;
 }
@@ -5765,7 +5825,7 @@ app.h = 3;
 const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + 1';
+const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3)';
 
 const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));

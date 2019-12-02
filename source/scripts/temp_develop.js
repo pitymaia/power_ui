@@ -240,6 +240,14 @@ app.num = function (num) {
 	return num;
 }
 
+const num = app.num;
+
+app.nSum = function (num1, num2) {
+	return num1 + num2;
+}
+
+const nSum = app.nSum;
+
 function a (u) {
 	return c;
 }
@@ -271,7 +279,7 @@ app.h = 3;
 const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + 1';
+const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3)';
 
 const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
