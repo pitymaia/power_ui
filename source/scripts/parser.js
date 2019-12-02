@@ -596,6 +596,13 @@ class ParserEval {
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
+		} else if (item.syntax === 'string') {
+			value = this.removeQuotes(item.label);
+			if (this.currentValue === '') {
+				this.currentValue = value;
+			} else {
+				this.currentValue = this.mathOrConcatValues(value);
+			}
 		} else if (item.syntax === 'object') {
 			value = this.evalObject(item);
 			this.currentValue = this.mathOrConcatValues(value);
@@ -604,6 +611,16 @@ class ParserEval {
 		}
 
 		return value;
+	}
+
+	removeQuotes(string) {
+		let newString = '';
+		for (const char of string) {
+			if (!['"', '`', "'"].includes(char)) {
+				newString = newString + char;
+			}
+		}
+		return newString;
 	}
 
 	evalObject(item) {
@@ -616,6 +633,8 @@ class ParserEval {
 			let label = '';
 			if (obj.syntax === 'function') {
 				label = obj.label;
+			} else {
+				console.log('NOT FUNCTION!', obj);
 			}
 
 			if (count === 0) {

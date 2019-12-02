@@ -247,6 +247,9 @@ app.nSum = function (num1, num2) {
 }
 
 const nSum = app.nSum;
+app.nov = {nSum: nSum};
+
+const nov = {nSum: nSum};
 
 app.nMult = function (num1, num2, num3) {
 	return (num1 + num2) * num3;
@@ -285,7 +288,8 @@ app.h = 3;
 const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
+// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
+const princesa = '"Pity o bom"';
 
 const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));

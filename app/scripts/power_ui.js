@@ -2253,6 +2253,13 @@ class ParserEval {
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
+		} else if (item.syntax === 'string') {
+			value = this.removeQuotes(item.label);
+			if (this.currentValue === '') {
+				this.currentValue = value;
+			} else {
+				this.currentValue = this.mathOrConcatValues(value);
+			}
 		} else if (item.syntax === 'object') {
 			value = this.evalObject(item);
 			this.currentValue = this.mathOrConcatValues(value);
@@ -2261,6 +2268,16 @@ class ParserEval {
 		}
 
 		return value;
+	}
+
+	removeQuotes(string) {
+		let newString = '';
+		for (const char of string) {
+			if (!['"', '`', "'"].includes(char)) {
+				newString = newString + char;
+			}
+		}
+		return newString;
 	}
 
 	evalObject(item) {
@@ -2273,6 +2290,8 @@ class ParserEval {
 			let label = '';
 			if (obj.syntax === 'function') {
 				label = obj.label;
+			} else {
+				console.log('NOT FUNCTION!', obj);
 			}
 
 			if (count === 0) {
@@ -5793,6 +5812,9 @@ app.nSum = function (num1, num2) {
 }
 
 const nSum = app.nSum;
+app.nov = {nSum: nSum};
+
+const nov = {nSum: nSum};
 
 app.nMult = function (num1, num2, num3) {
 	return (num1 + num2) * num3;
@@ -5831,7 +5853,8 @@ app.h = 3;
 const h = 3;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
+// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
+const princesa = '"Pity o bom"';
 
 const value = app.evaluate({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
