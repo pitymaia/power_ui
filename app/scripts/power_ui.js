@@ -1329,7 +1329,6 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this.safeEval = new SafeEval({$powerUi: this});
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
@@ -1337,8 +1336,8 @@ class PowerUi extends _PowerUiBase {
 		this._events['ready'] = new UEvent();
 	}
 
-	evaluate({text, scope}) {
-		return new ParserEval({text: princesa, $powerUi: this}).currentValue;
+	safeEval({text, scope}) {
+		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
 	initAll() {
@@ -3771,7 +3770,7 @@ class PowIf extends _PowerBasicElementWithEvents {
 	}
 
 	compile() {
-		const value = this.$powerUi.safeEval.evaluate(decodeURIComponent(this.element.dataset.powIf)) == 'true';
+		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this}) == 'true';
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
@@ -5098,7 +5097,7 @@ class PowerInterpolation {
 		try {
 			// func = new Function("return " + this.sanitizeEntry(entry));
 			// result = func();
-			result = this.$powerUi.safeEval.evaluate(decodeURIComponent(entry));
+			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: this, $powerUi: this.$powerUi});
 		} catch(e) {
 			result = '';
 		}
@@ -5875,7 +5874,7 @@ const h = 3;
 const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
 
-const value = app.evaluate({text: princesa});
+const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
 
 

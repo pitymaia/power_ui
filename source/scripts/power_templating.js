@@ -94,7 +94,7 @@ class PowerInterpolation {
 		try {
 			// func = new Function("return " + this.sanitizeEntry(entry));
 			// result = func();
-			result = this.$powerUi.safeEval.evaluate(decodeURIComponent(entry));
+			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: this, $powerUi: this.$powerUi});
 		} catch(e) {
 			result = '';
 		}

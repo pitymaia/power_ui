@@ -123,7 +123,6 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this.safeEval = new SafeEval({$powerUi: this});
 		this.interpolation = new PowerInterpolation(config, this);
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
@@ -131,8 +130,8 @@ class PowerUi extends _PowerUiBase {
 		this._events['ready'] = new UEvent();
 	}
 
-	evaluate({text, scope}) {
-		return new ParserEval({text: princesa, $powerUi: this}).currentValue;
+	safeEval({text, scope}) {
+		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
 	initAll() {
