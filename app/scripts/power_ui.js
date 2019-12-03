@@ -2219,6 +2219,7 @@ class ParserEval {
 		this.nodes = nodes || new PowerTemplateParser({text: text}).syntaxTree.tree;
 		this.currentValue = '';
 		this.operator = '';
+		this.doubleOperator = '';
 		this.evalNodes();
 		this.lastNode = '';
 		this.currentNode = '';
@@ -2227,7 +2228,7 @@ class ParserEval {
 
 	evalNodes() {
 		let count = 0;
-		console.log('this.nodes', this.nodes);
+		// console.log('this.nodes', this.nodes);
 		for (const node of this.nodes) {
 			if (node.expression_nodes) {
 				for (const item of node.expression_nodes) {
@@ -2251,19 +2252,23 @@ class ParserEval {
 		if (item.syntax === 'float') {
 			value = parseFloat(item.label);
 			if (this.currentValue === '') {
-				this.currentValue = value;
+				this.currentValue = this.adjustForNegative(value);
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'integer') {
 			value = parseInt(item.label);
 			if (this.currentValue === '') {
-				this.currentValue = value;
+				this.currentValue = this.adjustForNegative(value);
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'operator') {
-			this.operator = item.label;
+			if (this.operator) {
+				this.doubleOperator = item.label;
+			} else {
+				this.operator = item.label;
+			}
 		} else if (item.priority || item.syntax === 'parentheses') {
 			const newNodes = item.priority ? [{expression_nodes: item.priority}] : item.parameters;
 			value = this.recursiveEval(newNodes);
@@ -2271,14 +2276,14 @@ class ParserEval {
 		} else if (item.syntax === 'variable') {
 			value = this.getOnScope(item.label);
 			if (this.currentValue === '') {
-				this.currentValue = value;
+				this.currentValue = this.adjustForNegative(value);
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'string') {
 			value = this.removeQuotes(item.label);
 			if (this.currentValue === '') {
-				this.currentValue = value;
+				this.currentValue = this.adjustForNegative(value);
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
@@ -2360,7 +2365,20 @@ class ParserEval {
 		return new ParserEval({nodes: nodes, scope: this.$scope, $powerUi: this.$powerUi}).currentValue;
 	}
 
+	adjustForNegative(value) {
+		if (this.operator === '-') {
+			value = -value;
+		}
+		this.operator = '';
+		return value;
+	}
+
 	mathOrConcatValues(value) {
+		if (this.doubleOperator === '-') {
+			value = -value;
+			this.doubleOperator = '';
+		}
+
 		if (this.operator === '+') {
 			value = this.currentValue + value;
 		} else if (this.operator === '-') {
@@ -2370,6 +2388,8 @@ class ParserEval {
 		} else if (this.operator === '*') {
 			value = this.currentValue * value;
 		}
+
+		this.operator = '';
 		return value;
 	}
 
@@ -5900,10 +5920,11 @@ const h = 3;
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
-const princesa = '-j * -h + j - h + -2';
+const princesa = '-j * -h + j - h + -2 * +20 +-35';
+// const princesa = '-2 * -3';
 
 const value = app.safeEval({text: princesa});
-console.log('## AQUI value:', value, 'EVAL', eval(princesa));
+console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
 
 
 
