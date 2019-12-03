@@ -293,7 +293,7 @@ const h = 3;
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
-const princesa = '-j * -h + j - h + -2 * +20 +-35';
+const princesa = '-j*-h+j-h+-2*+20+-35 - + 2';
 // const princesa = '-2 * -3';
 
 const value = app.safeEval({text: princesa});

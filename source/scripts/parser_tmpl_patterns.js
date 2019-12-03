@@ -258,9 +258,6 @@ class NumberPattern {
 class OperationPattern {
 	constructor(listener) {
 		this.listener = listener;
-		this.openOperator = null;
-		this.lastOperator = null;
-		this.doubleOperators = false;
 	}
 
 	// Condition to start check if is empty chars
@@ -277,15 +274,7 @@ class OperationPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
-		if (token.name === 'operator' && this.openOperator !== token.value && (token.value === '-' || token.value === '+')) {
-			this.listener.checking = 'endToken';
-			this.doubleOperators = true;
-			this.lastOperator = token.value;
-			return true;
-		} else if (['blank', 'end', 'letter', 'especial', 'number'].includes(token.name) || token.value === '(') {
-			this.listener.nextPattern({syntax: 'operator', token: token, counter: counter});
-			return false;
-		} else if (token.name === 'quote' && this.doubleOperators === false && this.openOperator === '+') {
+		if (['blank', 'end', 'letter', 'especial', 'number', 'quote', 'operator'].includes(token.name) || token.value === '(') {
 			this.listener.nextPattern({syntax: 'operator', token: token, counter: counter});
 			return false;
 		} else {
@@ -299,10 +288,7 @@ class OperationPattern {
 	// end condition are only to INVALID syntaxe
 	// wait for some blank or end token and register the current stream as invalid
 	endToken({token, counter}) {
-		if (this.doubleOperators === true && this.lastOperator !== token.value && ['blank', 'end', 'letter', 'especial', 'number', 'quote'].includes(token.name)) {
-			this.listener.nextPattern({syntax: 'operator', token: token, counter: counter});
-			return false;
-		} else if (['blank', 'end'].includes(token.name) || (this.doubleOperators === true && this.lastOperator === token.value)) {
+		if (['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {

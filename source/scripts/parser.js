@@ -29,6 +29,7 @@ class SyntaxTree {
 			'short-hand': this.shortHandValidation,
 			'dictDefinition': ()=> true,
 		}
+		// console.log('this.node', this.nodes);
 	}
 
 	buildTreeLeaf(isParameter) {
