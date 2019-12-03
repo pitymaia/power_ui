@@ -2265,8 +2265,19 @@ class ParserEval {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'operator') {
+			// Jesus... javascript allows multiple operators like in: 2 +-+-+-+- 4
 			if (this.operator) {
-				this.doubleOperator = item.label;
+				if (this.operator === '-' && item.label === '-') {
+					this.operator = '+';
+				} else if (this.operator === '-' && item.label === '+') {
+					this.operator = '-';
+				} else if (this.operator === '+' && item.label === '-') {
+					this.operator = '-';
+				} else if (this.operator === '+' && item.label === '+') {
+					this.operator = '+';
+				} else {
+					this.doubleOperator = item.label;
+				}
 			} else {
 				this.operator = item.label;
 			}
@@ -5907,8 +5918,8 @@ const h = 3;
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
-const princesa = '-j*-h+j-h+-2*+20+-35 - + 2';
-// const princesa = '-2 * -3';
+// const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 + -nov.nSum(20, 10) + " pity o bom"';
+const princesa = '-+-+-2+-+-+-+-2';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);

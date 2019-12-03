@@ -609,8 +609,19 @@ class ParserEval {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
 		} else if (item.syntax === 'operator') {
+			// Jesus... javascript allows multiple operators like in: 2 +-+-+-+- 4
 			if (this.operator) {
-				this.doubleOperator = item.label;
+				if (this.operator === '-' && item.label === '-') {
+					this.operator = '+';
+				} else if (this.operator === '-' && item.label === '+') {
+					this.operator = '-';
+				} else if (this.operator === '+' && item.label === '-') {
+					this.operator = '-';
+				} else if (this.operator === '+' && item.label === '+') {
+					this.operator = '+';
+				} else {
+					this.doubleOperator = item.label;
+				}
 			} else {
 				this.operator = item.label;
 			}
