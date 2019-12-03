@@ -740,6 +740,14 @@ class ParserEval {
 	}
 
 	mathOrConcatValues(value) {
+		if (isNaN(value) === false) {
+			if (Number.isInteger(value)) {
+				value = parseInt(value);
+			} else if (isNaN(parseFloat(value)) === false) {
+				value = parseFloat(value);
+			}
+		}
+
 		if (this.doubleOperator === '-') {
 			value = -value;
 			this.doubleOperator = '';

@@ -2396,6 +2396,14 @@ class ParserEval {
 	}
 
 	mathOrConcatValues(value) {
+		if (isNaN(value) === false) {
+			if (Number.isInteger(value)) {
+				value = parseInt(value);
+			} else if (isNaN(parseFloat(value)) === false) {
+				value = parseFloat(value);
+			}
+		}
+
 		if (this.doubleOperator === '-') {
 			value = -value;
 			this.doubleOperator = '';
@@ -5926,10 +5934,10 @@ const h = 3;
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
+// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+-+-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
-// const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 + -nov.nSum(20, 10) + " pity o bom"';
-const princesa = '-+-+-2 * +-+-+-+-+-+-+2 * -+5';
+// const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
+const princesa = 'num(16) +-+-+-+-+ num(16)';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
