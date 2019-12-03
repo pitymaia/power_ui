@@ -1690,9 +1690,9 @@ class SyntaxTree {
 	buildTreeLeaf(isParameter) {
 		this.tree = this.checkAndPrioritizeSyntax({nodes: this.nodes, isParameter: isParameter});
 
-		if (!isParameter) {
-			console.log('TREE:', this.tree);
-		}
+		// if (!isParameter) {
+		// 	console.log('TREE:', this.tree);
+		// }
 	}
 
 	shortHandValidation({currentNode, isParameter}) {
@@ -1854,6 +1854,7 @@ class SyntaxTree {
 		let current_expression_nodes = [];
 		let priority_nodes = [];
 		let expression_groups = [];
+		let doubleOperator = false;
 
 		nodes = this.filterNodesAndUnifyObjects(nodes);
 		nodes.push({syntax: 'end'});
@@ -1886,17 +1887,20 @@ class SyntaxTree {
 			}
 
 			const result = this.createExpressionGroups({
+				index: index,
 				currentNode: currentNode,
 				previousNode: this.getPreviousNode({index: index, nodes}),
 				nextNode: this.getNextNode({index: index, nodes}),
 				current_expression_nodes: current_expression_nodes,
 				priority_nodes: priority_nodes,
 				expression_groups: expression_groups,
+				doubleOperator: doubleOperator,
 			});
 
 			priority_nodes = result.priority_nodes;
 			current_expression_nodes = result.current_expression_nodes;
 			expression_groups = result.expression_groups;
+			doubleOperator = result.doubleOperator;
 
 			index = index + 1;
 		}
@@ -1910,12 +1914,20 @@ class SyntaxTree {
 		return expression_groups;
 	}
 
-	createExpressionGroups({currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, expression_groups}) {
+	createExpressionGroups({index, currentNode, previousNode, nextNode, current_expression_nodes, priority_nodes, expression_groups, doubleOperator}) {
 		// Simple expressions
-		if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand', 'dictDefinition'].includes(currentNode.syntax)) {
+		if (currentNode.syntax === 'operator' && index === 0) {
+			priority_nodes.push(currentNode);
+		} else if (currentNode.syntax === 'operator' && previousNode.syntax === 'operator') {
+			priority_nodes.push(currentNode);
+			doubleOperator = true;
+		} else if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand', 'dictDefinition'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
 				priority_nodes.push(currentNode);
+			} else if (doubleOperator) {
+				priority_nodes.push(currentNode);
+				doubleOperator = false;
 			} else {
 				current_expression_nodes.push(currentNode);
 			}
@@ -1949,6 +1961,7 @@ class SyntaxTree {
 			priority_nodes: priority_nodes,
 			current_expression_nodes: current_expression_nodes,
 			expression_groups: expression_groups,
+			doubleOperator: doubleOperator,
 		};
 	}
 
@@ -2207,21 +2220,33 @@ class ParserEval {
 		this.currentValue = '';
 		this.operator = '';
 		this.evalNodes();
+		this.lastNode = '';
+		this.currentNode = '';
+		this.nextNode = '';
 	}
 
 	evalNodes() {
+		let count = 0;
+		console.log('this.nodes', this.nodes);
 		for (const node of this.nodes) {
 			if (node.expression_nodes) {
 				for (const item of node.expression_nodes) {
+					this.currentNode = item;
+
+					this.nextNode = node.expression_nodes[count + 1];
 					this.eval(item);
+
+					this.lastNode = item;
+					count = count + 1;
 				}
 			} else {
-				console.log('NO EXPRESSION_NODES!!');
+				console.log('NO EXPRESSION_NODES!!', node, this.nodes);
 			}
 		}
 	}
 
 	eval(item) {
+		// console.log('last', this.lastNode, 'current', this.currentNode, 'next', this.nextNode);
 		let value = '';
 		if (item.syntax === 'float') {
 			value = parseFloat(item.label);
@@ -2290,7 +2315,9 @@ class ParserEval {
 			} else if (obj.syntax === 'dictNode'){
 				label = this.recursiveEval(obj.parameters);
 			} else {
-				console.log('NOT FUNCTION or DICTNODE!', obj);
+				if (obj.syntax !== 'anonymousFunc') {
+					console.log('NOT FUNCTION or DICTNODE!', obj);
+				}
 			}
 
 			if (count === 0) {
@@ -5871,8 +5898,9 @@ const h = 3;
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
+// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
+const princesa = '-j * -h + j - h + -2';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa));
