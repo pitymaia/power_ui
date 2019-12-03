@@ -620,7 +620,17 @@ class ParserEval {
 				} else if (this.operator === '+' && item.label === '+') {
 					this.operator = '+';
 				} else {
-					this.doubleOperator = item.label;
+					if (this.doubleOperator === '-' && item.label === '-') {
+						this.doubleOperator = '+';
+					} else if (this.doubleOperator === '-' && item.label === '+') {
+						this.doubleOperator = '-';
+					} else if (this.doubleOperator === '+' && item.label === '-') {
+						this.doubleOperator = '-';
+					} else if (this.doubleOperator === '+' && item.label === '+') {
+						this.doubleOperator = '+';
+					} else {
+						this.doubleOperator = item.label;
+					}
 				}
 			} else {
 				this.operator = item.label;
