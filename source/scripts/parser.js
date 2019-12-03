@@ -263,6 +263,7 @@ class SyntaxTree {
 		// Simple expressions
 		if (currentNode.syntax === 'operator' && index === 0) {
 			priority_nodes.push(currentNode);
+			doubleOperator = true;
 		} else if (currentNode.syntax === 'operator' && previousNode.syntax === 'operator') {
 			priority_nodes.push(currentNode);
 			doubleOperator = true;

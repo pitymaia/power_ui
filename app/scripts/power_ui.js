@@ -1919,6 +1919,7 @@ class SyntaxTree {
 		// Simple expressions
 		if (currentNode.syntax === 'operator' && index === 0) {
 			priority_nodes.push(currentNode);
+			doubleOperator = true;
 		} else if (currentNode.syntax === 'operator' && previousNode.syntax === 'operator') {
 			priority_nodes.push(currentNode);
 			doubleOperator = true;
@@ -5937,7 +5938,7 @@ const h = 3;
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+-+-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
 // const princesa = '"Pity o bom"';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
-const princesa = 'num(16) +-+-+-+-+ num(16)';
+const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
