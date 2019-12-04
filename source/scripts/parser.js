@@ -566,10 +566,11 @@ class ParserEval {
 		this.currentValue = '';
 		this.operator = '';
 		this.doubleOperator = '';
-		this.evalNodes();
 		this.lastNode = '';
 		this.currentNode = '';
 		this.nextNode = '';
+
+		this.evalNodes();
 	}
 
 	evalNodes() {
@@ -587,8 +588,39 @@ class ParserEval {
 					count = count + 1;
 				}
 			} else {
-				console.log('NO EXPRESSION_NODES!!', node, this.nodes);
+				if (node.kind === 'equality') {
+					this.compareEquality = this.currentValue;
+					this.currentValue = '';
+					this.equality = node;
+				} else {
+					console.log('NO EXPRESSION_NODES!!', node, this.nodes);
+				}
 			}
+			if (this.equality && this.currentValue && this.compareEquality) {
+				this.evalEquality();
+			}
+		}
+
+	}
+
+	evalEquality() {
+		// console.log('!! EQUALITY !!', this.compareEquality, this.equality.label, this.currentValue);
+		if (this.equality.label === '===') {
+			this.currentValue = this.compareEquality === this.currentValue;
+		} else if (this.equality.label === '==') {
+			this.currentValue = this.compareEquality == this.currentValue;
+		} else if (this.equality.label === '!==') {
+			this.currentValue = this.compareEquality !== this.currentValue;
+		} else if (this.equality.label === '!=') {
+			this.currentValue = this.compareEquality != this.currentValue;
+		} else if (this.equality.label === '<=') {
+			this.currentValue = this.compareEquality <= this.currentValue;
+		} else if (this.equality.label === '>=') {
+			this.currentValue = this.compareEquality >= this.currentValue;
+		} else if (this.equality.label === '>') {
+			this.currentValue = this.compareEquality > this.currentValue;
+		} else if (this.equality.label === '<') {
+			this.currentValue = this.compareEquality < this.currentValue;
 		}
 	}
 

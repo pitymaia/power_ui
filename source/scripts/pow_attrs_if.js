@@ -7,7 +7,7 @@ class PowIf extends _PowerBasicElementWithEvents {
 	}
 
 	compile() {
-		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this}) == 'true';
+		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this});
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';

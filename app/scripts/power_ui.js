@@ -2222,10 +2222,11 @@ class ParserEval {
 		this.currentValue = '';
 		this.operator = '';
 		this.doubleOperator = '';
-		this.evalNodes();
 		this.lastNode = '';
 		this.currentNode = '';
 		this.nextNode = '';
+
+		this.evalNodes();
 	}
 
 	evalNodes() {
@@ -2243,8 +2244,39 @@ class ParserEval {
 					count = count + 1;
 				}
 			} else {
-				console.log('NO EXPRESSION_NODES!!', node, this.nodes);
+				if (node.kind === 'equality') {
+					this.compareEquality = this.currentValue;
+					this.currentValue = '';
+					this.equality = node;
+				} else {
+					console.log('NO EXPRESSION_NODES!!', node, this.nodes);
+				}
 			}
+			if (this.equality && this.currentValue && this.compareEquality) {
+				this.evalEquality();
+			}
+		}
+
+	}
+
+	evalEquality() {
+		// console.log('!! EQUALITY !!', this.compareEquality, this.equality.label, this.currentValue);
+		if (this.equality.label === '===') {
+			this.currentValue = this.compareEquality === this.currentValue;
+		} else if (this.equality.label === '==') {
+			this.currentValue = this.compareEquality == this.currentValue;
+		} else if (this.equality.label === '!==') {
+			this.currentValue = this.compareEquality !== this.currentValue;
+		} else if (this.equality.label === '!=') {
+			this.currentValue = this.compareEquality != this.currentValue;
+		} else if (this.equality.label === '<=') {
+			this.currentValue = this.compareEquality <= this.currentValue;
+		} else if (this.equality.label === '>=') {
+			this.currentValue = this.compareEquality >= this.currentValue;
+		} else if (this.equality.label === '>') {
+			this.currentValue = this.compareEquality > this.currentValue;
+		} else if (this.equality.label === '<') {
+			this.currentValue = this.compareEquality < this.currentValue;
 		}
 	}
 
@@ -3834,7 +3866,7 @@ class PowIf extends _PowerBasicElementWithEvents {
 	}
 
 	compile() {
-		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this}) == 'true';
+		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this});
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
@@ -5931,14 +5963,15 @@ app.j = 2;
 const j = 2;
 app.h = 3;
 const h = 3;
+const sdfs = false;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+-+-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]';
-// const princesa = '"Pity o bom"';
+// const princesa = 'j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
-const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
+// const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
+const princesa = '5+2-3 === 4+2-1';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
