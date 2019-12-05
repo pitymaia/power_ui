@@ -2241,7 +2241,11 @@ class ParserEval {
 					if (item.syntax === 'short-hand') {
 						this.evalShortHandExpression(item);
 					} else {
-						this.eval(item);
+						if (item.syntax === 'variable' && ['true', 'false', 'null', 'undefined'].includes(item.label)) {
+							this.evalSpecialValues(item.label);
+						} else {
+							this.eval(item);
+						}
 					}
 
 					this.lastNode = item;
@@ -2291,6 +2295,18 @@ class ParserEval {
 
 	}
 
+	evalSpecialValues(value) {
+		if (value === 'true') {
+			this.currentValue = true;
+		} else if (value === 'false') {
+			this.currentValue = false;
+		} else if (value === 'null') {
+			this.currentValue = null;
+		} else if (value === 'undefined') {
+			this.currentValue = undefined;
+		}
+	}
+
 	evalShortHandExpression(item) {
 		const condition = this.recursiveEval(item.condition);
 		const ifResult = this.recursiveEval(item.if);
@@ -2300,7 +2316,7 @@ class ParserEval {
 		} else {
 			this.currentValue = elseResult;
 		}
-		// console.log('SHORT-HAND EXPRESSION condition', condition, 'if', ifResult, 'else', elseResult);
+		// console.log('SHORT-HAND EXPRESSION condition', condition, 'if', ifResult, 'else', elseResult, 'item', item);
 	}
 
 	evalOrExpression() {
@@ -6032,7 +6048,7 @@ const falso = false;
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
-const princesa = '2 >= 2 ? 2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "Andre" : "Pity"';
+const princesa = '"" ? "Andre" : "Pity"';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
