@@ -2238,7 +2238,11 @@ class ParserEval {
 					this.currentNode = item;
 
 					this.nextNode = node.expression_nodes[count + 1];
-					this.eval(item);
+					if (item.syntax === 'short-hand') {
+						this.evalShortHandExpression(item);
+					} else {
+						this.eval(item);
+					}
 
 					this.lastNode = item;
 				}
@@ -2285,6 +2289,18 @@ class ParserEval {
 			count = count + 1;
 		}
 
+	}
+
+	evalShortHandExpression(item) {
+		const condition = this.recursiveEval(item.condition);
+		const ifResult = this.recursiveEval(item.if);
+		const elseResult = this.recursiveEval(item.else);
+		if (condition) {
+			this.currentValue = ifResult;
+		} else {
+			this.currentValue = elseResult;
+		}
+		// console.log('SHORT-HAND EXPRESSION condition', condition, 'if', ifResult, 'else', elseResult);
 	}
 
 	evalOrExpression() {
@@ -2385,7 +2401,7 @@ class ParserEval {
 			value = this.evalObject(item);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else {
-			console.log('NOT NUMBER OR OPERATOR OR PRIORITY');
+			console.log('NOT NUMBER OR OPERATOR OR PRIORITY OR SHORT-HAND', item);
 		}
 
 		return value;
@@ -5996,7 +6012,7 @@ const pitanga = 'olha';
 app.pitanga = pitanga;
 const morango = 'pen';
 const amora = 'inha';
-app.pity = {teste: {pi10: 25, func: a}};
+// app.pity = {teste: {pi10: 25, func: a}};
 const pity = app.pity;
 const testess = 'teste';
 app.j = 2;
@@ -6015,7 +6031,8 @@ const falso = false;
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
-const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
+// const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
+const princesa = '2 >= 2 ? 2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "Andre" : "Pity"';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);

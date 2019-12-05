@@ -582,7 +582,11 @@ class ParserEval {
 					this.currentNode = item;
 
 					this.nextNode = node.expression_nodes[count + 1];
-					this.eval(item);
+					if (item.syntax === 'short-hand') {
+						this.evalShortHandExpression(item);
+					} else {
+						this.eval(item);
+					}
 
 					this.lastNode = item;
 				}
@@ -629,6 +633,18 @@ class ParserEval {
 			count = count + 1;
 		}
 
+	}
+
+	evalShortHandExpression(item) {
+		const condition = this.recursiveEval(item.condition);
+		const ifResult = this.recursiveEval(item.if);
+		const elseResult = this.recursiveEval(item.else);
+		if (condition) {
+			this.currentValue = ifResult;
+		} else {
+			this.currentValue = elseResult;
+		}
+		// console.log('SHORT-HAND EXPRESSION condition', condition, 'if', ifResult, 'else', elseResult);
 	}
 
 	evalOrExpression() {
@@ -729,7 +745,7 @@ class ParserEval {
 			value = this.evalObject(item);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else {
-			console.log('NOT NUMBER OR OPERATOR OR PRIORITY');
+			console.log('NOT NUMBER OR OPERATOR OR PRIORITY OR SHORT-HAND', item);
 		}
 
 		return value;

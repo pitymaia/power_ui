@@ -281,7 +281,7 @@ const pitanga = 'olha';
 app.pitanga = pitanga;
 const morango = 'pen';
 const amora = 'inha';
-app.pity = {teste: {pi10: 25, func: a}};
+// app.pity = {teste: {pi10: 25, func: a}};
 const pity = app.pity;
 const testess = 'teste';
 app.j = 2;
@@ -300,7 +300,8 @@ const falso = false;
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
-const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
+// const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
+const princesa = '2 >= 2 ? 2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "Andre" : "Pity"';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
