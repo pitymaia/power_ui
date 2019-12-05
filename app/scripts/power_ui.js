@@ -2429,7 +2429,7 @@ class ParserEval {
 	}
 
 	mathOrConcatValues(value) {
-		if (isNaN(value) === false) {
+		if (this.operator && isNaN(value) === false) {
 			if (Number.isInteger(value)) {
 				value = parseInt(value);
 			} else if (isNaN(parseFloat(value)) === false) {
@@ -5971,7 +5971,7 @@ const sdfs = false;
 // const princesa = 'j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
-const princesa = '5+2-3 === 4+2-1';
+const princesa = '4+1 === 5';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
