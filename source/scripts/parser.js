@@ -585,6 +585,9 @@ class ParserEval {
 					this.nextNode = node.expression_nodes[count + 1];
 					if (item.syntax === 'short-hand') {
 						this.evalShortHandExpression(item);
+					} else if (item.syntax === 'dictDefinition') {
+						this.evalDictDefinition(item);
+						console.log('item is dictDefinition:', item);
 					} else {
 						if (item.syntax === 'variable' && ['true', 'false', 'null', 'undefined'].includes(item.label)) {
 							this.evalSpecialValues(item.label);
@@ -638,6 +641,14 @@ class ParserEval {
 			count = count + 1;
 		}
 
+	}
+
+	evalDictDefinition(item) {
+		const key = this.recursiveEval(item.parameters[0].key);
+		const value = this.recursiveEval(item.parameters[0].value);
+		this.currentValue = {
+			[key]: value
+		};
 	}
 
 	evalSpecialValues(value) {
