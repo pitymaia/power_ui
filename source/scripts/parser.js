@@ -576,7 +576,7 @@ class ParserEval {
 	evalNodes() {
 		let count = 0;
 		// console.log('this.nodes', this.nodes);
-		for (const node of this.nodes) {
+		for (let node of this.nodes) {
 			if (node.expression_nodes) {
 				for (const item of node.expression_nodes) {
 					this.currentNode = item;
@@ -585,43 +585,62 @@ class ParserEval {
 					this.eval(item);
 
 					this.lastNode = item;
-					count = count + 1;
 				}
 			} else {
 				if (node.kind === 'equality') {
-					this.compareEquality = this.currentValue;
+					this.leftExpressionValueToCompare = this.currentValue;
 					this.currentValue = '';
 					this.equality = node;
+				} else if (node.syntax === 'OR') {
+					this.leftExpressionValueToCompare = this.currentValue;
+					this.currentValue = '';
+					this.orExpression = node;
 				} else {
-					console.log('NO EXPRESSION_NODES!!', node, this.nodes);
+					// Or left and rigth values
+					if (this.nodes[count + 1] && ['OR'].includes(this.nodes[count + 1].syntax) && node.priority && node.priority[0] && node.priority[0].priority) {
+						this.currentValue = this.recursiveEval(node.priority[0].priority);
+					} else if (this.nodes[count - 1] && ['OR'].includes(this.nodes[count - 1].syntax) && node.priority && node.priority[0] && node.priority[0].priority) {
+						this.currentValue = this.recursiveEval(node.priority[0].priority);
+					} else {
+						console.log('NO EXPRESSION_NODES!!', this.currentValue, node, this.nodes);
+					}
 				}
 			}
-			if (this.equality && this.currentValue && this.compareEquality) {
+			if (this.equality && this.currentValue && this.leftExpressionValueToCompare) {
 				this.evalEquality();
+			} else if (this.orExpression && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
+				this.evalOrExpression();
 			}
+			count = count + 1;
 		}
 
 	}
 
+	evalOrExpression() {
+		// console.log('OR EXORESSION', this.leftExpressionValueToCompare, this.orExpression, this.currentValue);
+		this.currentValue = this.leftExpressionValueToCompare || this.currentValue;
+	}
+
 	evalEquality() {
-		// console.log('!! EQUALITY !!', this.compareEquality, this.equality.label, this.currentValue);
+		// console.log('!! EQUALITY !!', this.leftExpressionValueToCompare, this.equality.label, this.currentValue);
 		if (this.equality.label === '===') {
-			this.currentValue = this.compareEquality === this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare === this.currentValue;
 		} else if (this.equality.label === '==') {
-			this.currentValue = this.compareEquality == this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare == this.currentValue;
 		} else if (this.equality.label === '!==') {
-			this.currentValue = this.compareEquality !== this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare !== this.currentValue;
 		} else if (this.equality.label === '!=') {
-			this.currentValue = this.compareEquality != this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare != this.currentValue;
 		} else if (this.equality.label === '<=') {
-			this.currentValue = this.compareEquality <= this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare <= this.currentValue;
 		} else if (this.equality.label === '>=') {
-			this.currentValue = this.compareEquality >= this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare >= this.currentValue;
 		} else if (this.equality.label === '>') {
-			this.currentValue = this.compareEquality > this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare > this.currentValue;
 		} else if (this.equality.label === '<') {
-			this.currentValue = this.compareEquality < this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare < this.currentValue;
 		}
+		this.leftExpressionValueToCompare = '';
 	}
 
 	eval(item) {

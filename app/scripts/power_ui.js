@@ -2232,7 +2232,7 @@ class ParserEval {
 	evalNodes() {
 		let count = 0;
 		// console.log('this.nodes', this.nodes);
-		for (const node of this.nodes) {
+		for (let node of this.nodes) {
 			if (node.expression_nodes) {
 				for (const item of node.expression_nodes) {
 					this.currentNode = item;
@@ -2241,43 +2241,62 @@ class ParserEval {
 					this.eval(item);
 
 					this.lastNode = item;
-					count = count + 1;
 				}
 			} else {
 				if (node.kind === 'equality') {
-					this.compareEquality = this.currentValue;
+					this.leftExpressionValueToCompare = this.currentValue;
 					this.currentValue = '';
 					this.equality = node;
+				} else if (node.syntax === 'OR') {
+					this.leftExpressionValueToCompare = this.currentValue;
+					this.currentValue = '';
+					this.orExpression = node;
 				} else {
-					console.log('NO EXPRESSION_NODES!!', node, this.nodes);
+					// Or left and rigth values
+					if (this.nodes[count + 1] && ['OR'].includes(this.nodes[count + 1].syntax) && node.priority && node.priority[0] && node.priority[0].priority) {
+						this.currentValue = this.recursiveEval(node.priority[0].priority);
+					} else if (this.nodes[count - 1] && ['OR'].includes(this.nodes[count - 1].syntax) && node.priority && node.priority[0] && node.priority[0].priority) {
+						this.currentValue = this.recursiveEval(node.priority[0].priority);
+					} else {
+						console.log('NO EXPRESSION_NODES!!', this.currentValue, node, this.nodes);
+					}
 				}
 			}
-			if (this.equality && this.currentValue && this.compareEquality) {
+			if (this.equality && this.currentValue && this.leftExpressionValueToCompare) {
 				this.evalEquality();
+			} else if (this.orExpression && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
+				this.evalOrExpression();
 			}
+			count = count + 1;
 		}
 
 	}
 
+	evalOrExpression() {
+		// console.log('OR EXORESSION', this.leftExpressionValueToCompare, this.orExpression, this.currentValue);
+		this.currentValue = this.leftExpressionValueToCompare || this.currentValue;
+	}
+
 	evalEquality() {
-		// console.log('!! EQUALITY !!', this.compareEquality, this.equality.label, this.currentValue);
+		// console.log('!! EQUALITY !!', this.leftExpressionValueToCompare, this.equality.label, this.currentValue);
 		if (this.equality.label === '===') {
-			this.currentValue = this.compareEquality === this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare === this.currentValue;
 		} else if (this.equality.label === '==') {
-			this.currentValue = this.compareEquality == this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare == this.currentValue;
 		} else if (this.equality.label === '!==') {
-			this.currentValue = this.compareEquality !== this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare !== this.currentValue;
 		} else if (this.equality.label === '!=') {
-			this.currentValue = this.compareEquality != this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare != this.currentValue;
 		} else if (this.equality.label === '<=') {
-			this.currentValue = this.compareEquality <= this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare <= this.currentValue;
 		} else if (this.equality.label === '>=') {
-			this.currentValue = this.compareEquality >= this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare >= this.currentValue;
 		} else if (this.equality.label === '>') {
-			this.currentValue = this.compareEquality > this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare > this.currentValue;
 		} else if (this.equality.label === '<') {
-			this.currentValue = this.compareEquality < this.currentValue;
+			this.currentValue = this.leftExpressionValueToCompare < this.currentValue;
 		}
+		this.leftExpressionValueToCompare = '';
 	}
 
 	eval(item) {
@@ -5954,6 +5973,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
 
 const pitanga = 'olha';
+app.pitanga = pitanga;
 const morango = 'pen';
 const amora = 'inha';
 app.pity = {teste: {pi10: 25, func: a}};
@@ -5963,7 +5983,10 @@ app.j = 2;
 const j = 2;
 app.h = 3;
 const h = 3;
+app.sdfs = false;
 const sdfs = false;
+app.falso = false;
+const falso = false;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
@@ -5971,7 +5994,7 @@ const sdfs = false;
 // const princesa = 'j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
-const princesa = '4+1 === 5';
+const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);

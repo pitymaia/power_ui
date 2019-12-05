@@ -278,6 +278,7 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
 
 const pitanga = 'olha';
+app.pitanga = pitanga;
 const morango = 'pen';
 const amora = 'inha';
 app.pity = {teste: {pi10: 25, func: a}};
@@ -287,7 +288,10 @@ app.j = 2;
 const j = 2;
 app.h = 3;
 const h = 3;
+app.sdfs = false;
 const sdfs = false;
+app.falso = false;
+const falso = false;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
@@ -295,7 +299,7 @@ const sdfs = false;
 // const princesa = 'j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
-const princesa = '4+1 === 5';
+const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
