@@ -36,7 +36,8 @@ class SyntaxTree {
 		this.tree = this.checkAndPrioritizeSyntax({nodes: this.nodes, isParameter: isParameter});
 
 		// if (!isParameter) {
-		// 	console.log('TREE:', this.tree);
+			// console.log('nodes', this.nodes);
+			// console.log('TREE:', this.tree);
 		// }
 	}
 

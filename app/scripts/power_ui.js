@@ -1692,7 +1692,8 @@ class SyntaxTree {
 		this.tree = this.checkAndPrioritizeSyntax({nodes: this.nodes, isParameter: isParameter});
 
 		// if (!isParameter) {
-		// 	console.log('TREE:', this.tree);
+			// console.log('nodes', this.nodes);
+			// console.log('TREE:', this.tree);
 		// }
 	}
 
@@ -2680,7 +2681,7 @@ class BracesPattern {
 	// middle tokens condition
 	middleTokens({token, counter}) {
 		// Collecting inner parameters, so allow any valid syntax
-		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'short-hand', 'braces'].includes(token.name)) {
+		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'undefined', 'short-hand', 'braces'].includes(token.name)) {
 			if (token.value === '{') {
 				this.innerBraces = this.innerBraces + 1;
 			} else if (token.value === '}') {
@@ -3228,7 +3229,7 @@ class ShortHandPattern {
 	// middle condition
 	middleTokens({token, counter}) {
 		// Collecting inner parameters, so allow any valid syntax
-		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator'].includes(token.name)) {
+		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'undefined'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (token.value === '(') {
 				this.parentheses = this.parentheses + 1;
@@ -3441,7 +3442,7 @@ class parenthesesPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces'].includes(token.name)) {
+		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces', 'undefined'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -3549,8 +3550,8 @@ class ObjectPattern {
 			if (token.value === ')') {
 				this.listener.checking = 'endToken';
 				return true;
-			// Collect the function parameters and got to middleTokens
-			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'braces'].includes(token.name) || (token.value === '-' || token.value === '+')) {
+			// Collect the function parameters and go to middleTokens
+			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'braces', 'undefined'].includes(token.name) || (token.value === '-' || token.value === '+')) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
@@ -3617,7 +3618,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// This is a functions with parameters, so allow any valid char
-		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces'].includes(token.name)) {
+		} else if (this.currentOpenChar === '(' && ['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces', 'undefined'].includes(token.name)) {
 			this.currentParams = this.currentParams + token.value;
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
@@ -6039,6 +6040,14 @@ app.sdfs = false;
 const sdfs = false;
 app.falso = false;
 const falso = false;
+function getValue({value}) {
+	return value;
+}
+function getValue2(value) {
+	return value;
+}
+app.getValue = getValue;
+app.getValue2 = getValue2;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
@@ -6048,7 +6057,7 @@ const falso = false;
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
-const princesa = '"" ? "Andre" : "Pity"';
+const princesa = 'getValue({value: "Taça"})';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
