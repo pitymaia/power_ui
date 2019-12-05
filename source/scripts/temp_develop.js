@@ -309,7 +309,7 @@ app.getValue2 = getValue2;
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
-const princesa = 'getValue({value: "Taça"})';
+const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
