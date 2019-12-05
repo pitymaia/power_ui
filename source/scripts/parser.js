@@ -591,16 +591,29 @@ class ParserEval {
 					this.leftExpressionValueToCompare = this.currentValue;
 					this.currentValue = '';
 					this.equality = node;
-				} else if (node.syntax === 'OR') {
+				} else if (['OR', 'AND'].includes(node.syntax)) {
 					this.leftExpressionValueToCompare = this.currentValue;
 					this.currentValue = '';
-					this.orExpression = node;
+					this.orAndExpression = node;
 				} else {
 					// Or left and rigth values
-					if (this.nodes[count + 1] && ['OR'].includes(this.nodes[count + 1].syntax) && node.priority && node.priority[0] && node.priority[0].priority) {
-						this.currentValue = this.recursiveEval(node.priority[0].priority);
-					} else if (this.nodes[count - 1] && ['OR'].includes(this.nodes[count - 1].syntax) && node.priority && node.priority[0] && node.priority[0].priority) {
-						this.currentValue = this.recursiveEval(node.priority[0].priority);
+					if (this.nodes[count + 1] && this.nodes[count + 1].syntax === 'OR' && node.priority && node.priority[0] && node.priority[0].priority) {
+						if (node.priority.length > 1) {
+							this.currentValue = this.recursiveEval(node.priority);
+						} else {
+							this.currentValue = this.recursiveEval(node.priority[0].priority);
+						}
+					} else if (this.nodes[count - 1] && this.nodes[count - 1].syntax === 'OR' && node.priority && node.priority[0] && node.priority[0].priority) {
+						if (node.priority.length > 1) {
+							this.currentValue = this.recursiveEval(node.priority);
+						} else {
+							this.currentValue = this.recursiveEval(node.priority[0].priority);
+						}
+					// And left and rigth values
+					} else if (this.nodes[count + 1] && this.nodes[count + 1].syntax === 'AND' && node.priority) {
+						this.currentValue = this.recursiveEval(node.priority);
+					} else if (this.nodes[count - 1] && this.nodes[count - 1].syntax === 'AND' && node.priority) {
+						this.currentValue = this.recursiveEval(node.priority);
 					} else {
 						console.log('NO EXPRESSION_NODES!!', this.currentValue, node, this.nodes);
 					}
@@ -608,8 +621,10 @@ class ParserEval {
 			}
 			if (this.equality && this.currentValue && this.leftExpressionValueToCompare) {
 				this.evalEquality();
-			} else if (this.orExpression && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
+			} else if (this.orAndExpression && this.orAndExpression.syntax === 'OR' && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
 				this.evalOrExpression();
+			} else if (this.orAndExpression && this.orAndExpression.syntax === 'AND' && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
+				this.evalAndExpression();
 			}
 			count = count + 1;
 		}
@@ -617,8 +632,13 @@ class ParserEval {
 	}
 
 	evalOrExpression() {
-		// console.log('OR EXORESSION', this.leftExpressionValueToCompare, this.orExpression, this.currentValue);
+		// console.log('OR EXPRESSION', this.leftExpressionValueToCompare, this.orAndExpression, this.currentValue);
 		this.currentValue = this.leftExpressionValueToCompare || this.currentValue;
+	}
+
+	evalAndExpression() {
+		// console.log('AND EXPRESSION', this.leftExpressionValueToCompare, this.orAndExpression, this.currentValue);
+		this.currentValue = this.leftExpressionValueToCompare && this.currentValue;
 	}
 
 	evalEquality() {
