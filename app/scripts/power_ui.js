@@ -1551,7 +1551,8 @@ class SyntaxTree {
 			NOT: this.orAndNotValidation,
 			'NOT-NOT': this.orAndNotValidation,
 			'short-hand': this.shortHandValidation,
-			'dictDefinition': ()=> true,
+			'dictDefinition': ()=> true, // TODO create dictDefinition validation
+			'arrayDefinition': ()=> true, // TODO create arrayDefinition validation
 		}
 		// console.log('this.node', this.nodes);
 	}
@@ -1792,7 +1793,7 @@ class SyntaxTree {
 		} else if (currentNode.syntax === 'operator' && previousNode.syntax === 'operator') {
 			priority_nodes.push(currentNode);
 			doubleOperator = true;
-		} else if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand', 'dictDefinition'].includes(currentNode.syntax)) {
+		} else if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand', 'dictDefinition', 'arrayDefinition'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
 				priority_nodes.push(currentNode);
@@ -2024,6 +2025,7 @@ class TokensListener {
 		this.patterns = [
 			{name: 'empty', obj: EmptyPattern},
 			{name: 'string', obj: StringPattern},
+			{name: 'arrayDefinition', obj: ArrayDefinitionPattern},
 			{name: 'variable', obj: VariablePattern},
 			{name: 'number', obj: NumberPattern},
 			{name: 'operator', obj: OperationPattern},
@@ -2174,6 +2176,13 @@ class ParserEval {
 		}
 	}
 
+	evalArrayDefinition(item) {
+		this.currentValue = [];
+		for (const param of item.parameters) {
+			this.currentValue.push(this.recursiveEval(param));
+		}
+	}
+
 	evalSpecialValues(value) {
 		if (value === 'true') {
 			this.currentValue = true;
@@ -2292,6 +2301,8 @@ class ParserEval {
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
+		} else if (item.syntax === 'arrayDefinition') {
+			this.evalArrayDefinition(item);
 		} else if (item.syntax === 'object') {
 			value = this.evalObject(item);
 			this.currentValue = this.mathOrConcatValues(value);
@@ -3397,6 +3408,95 @@ class parenthesesPattern {
 	}
 }
 
+class ArrayDefinitionPattern {
+	constructor(listener) {
+		this.listener = listener;
+		this.invalid = false;
+		this.nodes = [];
+		this.innerOpenedObjects = 0;
+		this.currentParams = '';
+		this.arrayContent = [];
+		this.currentParamsCounter = null; //Allow pass the couter to the params
+	}
+	// Condition to start check first operator
+	firstToken({token, counter}) {
+		// The open char of the current node
+		if (token.value === '[') {
+			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'arrayDefinition');
+			this.listener.checking = 'middleTokens';
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// middle tokens condition
+	middleTokens({token, counter}) {
+		// Empty array?
+		if (token.value === ']' && this.innerOpenedObjects === 0) {
+			this.listener.checking = 'endToken';
+			if (this.currentParams !== '') {
+				// Parse the array item and push it into this.arrayContent
+				this.setArrayItem();
+			}
+			return true;
+		// This is a functions with parameters, so allow any valid char
+		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'number', 'letter', 'operator', 'dot', 'separator', 'braces', 'undefined'].includes(token.name)) {
+			if (this.innerOpenedObjects === 0 && token.value === ',') {
+				// Parse the array item and push it into this.arrayContent
+				this.setArrayItem();
+			} else {
+				this.currentParams = this.currentParams + token.value;
+			}
+			if (this.currentParamsCounter === null) {
+				this.currentParamsCounter = counter || null;
+			}
+
+			if (token.value === '[') {
+				this.innerOpenedObjects = this.innerOpenedObjects + 1;
+			} else if (token.value === ']') {
+				this.innerOpenedObjects = this.innerOpenedObjects - 1;
+			}
+			return true;
+		}
+	}
+	// end condition
+	endToken({token, counter}) {
+		if (this.invalid === false ) {
+			if (['end', 'blank', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'short-hand', 'operator'].includes(token.name)) {
+				this.listener.nextPattern({syntax: 'arrayDefinition', token: token, counter: counter, parameters: this.arrayContent});
+				return false;
+			} else {
+				// Invalid!
+				this.invalid = true;
+				return true;
+			}
+		} else if (this.invalid === true && ['blank', 'end'].includes(token.name)) {
+			this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
+			return false;
+		} else {
+			// Invalid!
+			this.invalid = true;
+			return true;
+		}
+	}
+
+	setArrayItem() {
+		// Parse the array item
+		const parameters = new PowerTemplateParser({
+			text: this.currentParams,
+			counter: this.currentParamsCounter,
+			isParameter: false,
+		}).syntaxTree.tree;
+
+		this.arrayContent.push(parameters);
+		this.currentParams = '';
+	}
+}
+
 // bracket notation dictionary (user['age'])
 class ObjectPattern {
 	constructor(listener) {
@@ -3581,7 +3681,7 @@ class ObjectPattern {
 	endToken({token, counter}) {
 		if (this.invalid === false ) {
 			// If is a function or the last function nodes or last dictNode
-			if (['blank', 'end', 'operator', 'comma', 'operator', 'dot'].includes(token.name)) {
+			if (['blank', 'end', 'operator', 'comma', 'dot'].includes(token.name)) {
 				const parameters = new PowerTemplateParser({
 					text: this.currentParams,
 					counter: this.currentParamsCounter,
@@ -5477,7 +5577,7 @@ const pArray = app.pArray;
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
 // const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-const princesa = '{p: 1, b: 2, pitinho: "Pity o bom"}';
+const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"]]';
 
 const value = app.safeEval({text: princesa});
 // console.log('## AQUI value:', value, 'EVAL', eval(princesa));

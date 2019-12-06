@@ -313,7 +313,7 @@ const pArray = app.pArray;
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
 // const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-const princesa = '{p: 1, b: 2, pitinho: "Pity o bom"}';
+const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"]]';
 
 const value = app.safeEval({text: princesa});
 // console.log('## AQUI value:', value, 'EVAL', eval(princesa));

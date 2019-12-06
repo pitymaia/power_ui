@@ -27,7 +27,8 @@ class SyntaxTree {
 			NOT: this.orAndNotValidation,
 			'NOT-NOT': this.orAndNotValidation,
 			'short-hand': this.shortHandValidation,
-			'dictDefinition': ()=> true,
+			'dictDefinition': ()=> true, // TODO create dictDefinition validation
+			'arrayDefinition': ()=> true, // TODO create arrayDefinition validation
 		}
 		// console.log('this.node', this.nodes);
 	}
@@ -268,7 +269,7 @@ class SyntaxTree {
 		} else if (currentNode.syntax === 'operator' && previousNode.syntax === 'operator') {
 			priority_nodes.push(currentNode);
 			doubleOperator = true;
-		} else if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand', 'dictDefinition'].includes(currentNode.syntax)) {
+		} else if (['integer', 'float', 'string', 'variable', 'parentheses', 'object', 'short-hand', 'dictDefinition', 'arrayDefinition'].includes(currentNode.syntax)) {
 			if (nextNode.syntax === 'operator' && (nextNode.label !== '+' && nextNode.label !== '-') ||
 				previousNode.syntax === 'operator' && (previousNode.label !== '+' && previousNode.label !== '-')) {
 				priority_nodes.push(currentNode);
@@ -500,6 +501,7 @@ class TokensListener {
 		this.patterns = [
 			{name: 'empty', obj: EmptyPattern},
 			{name: 'string', obj: StringPattern},
+			{name: 'arrayDefinition', obj: ArrayDefinitionPattern},
 			{name: 'variable', obj: VariablePattern},
 			{name: 'number', obj: NumberPattern},
 			{name: 'operator', obj: OperationPattern},
@@ -650,6 +652,13 @@ class ParserEval {
 		}
 	}
 
+	evalArrayDefinition(item) {
+		this.currentValue = [];
+		for (const param of item.parameters) {
+			this.currentValue.push(this.recursiveEval(param));
+		}
+	}
+
 	evalSpecialValues(value) {
 		if (value === 'true') {
 			this.currentValue = true;
@@ -768,6 +777,8 @@ class ParserEval {
 			} else {
 				this.currentValue = this.mathOrConcatValues(value);
 			}
+		} else if (item.syntax === 'arrayDefinition') {
+			this.evalArrayDefinition(item);
 		} else if (item.syntax === 'object') {
 			value = this.evalObject(item);
 			this.currentValue = this.mathOrConcatValues(value);
