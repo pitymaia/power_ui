@@ -1083,17 +1083,14 @@ class ObjectPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			// Collect the function parameters and go to middleTokens
-			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'braces', 'undefined'].includes(token.name) || (token.value === '-' || token.value === '+' || token.value === '[')) {
-				if ([['[', '{'].includes(token.value)]) {
-					this.innerOpenedObjects = this.innerOpenedObjects + 1;
-				}
+			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'undefined'].includes(token.name) || (token.value === '-' || token.value === '+')) {
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
 					this.currentParamsCounter = counter || null;
 				}
 				return true;
-			} else if (this.currentOpenChar === '(' && token.value === '(') {
+			} else if (['(', '[', '{'].includes(token.value)) {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
 				this.currentParams = this.currentParams + token.value;
 				this.listener.checking = 'middleTokens';
