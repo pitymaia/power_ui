@@ -2096,13 +2096,15 @@ class ParserEval {
 		this.lastNode = '';
 		this.currentNode = '';
 		this.nextNode = '';
+		this.equality = '$_not_Setted_$';
+		this.leftExpressionValueToCompare = '$_not_Setted_$';
+		this.rightExpressionValueToCompare = '$_not_Setted_$'; // TODO implement this one
 
 		this.evalNodes();
 	}
 
 	evalNodes() {
 		let count = 0;
-		// console.log('this.nodes', this.nodes);
 		for (let node of this.nodes) {
 			if (node.expression_nodes) {
 				for (const item of node.expression_nodes) {
@@ -2125,7 +2127,7 @@ class ParserEval {
 					this.lastNode = item;
 				}
 			} else {
-				if (node.kind === 'equality') {
+				if (node.kind === 'equality' || ['===', '!==', '==', '!=', '>=', '<=', '>', '<'].includes(node.label)) {
 					this.leftExpressionValueToCompare = this.currentValue;
 					this.currentValue = '';
 					this.equality = node;
@@ -2157,11 +2159,11 @@ class ParserEval {
 					}
 				}
 			}
-			if (this.equality && this.currentValue && this.leftExpressionValueToCompare) {
+			if (this.equality && this.currentValue !== '' && this.leftExpressionValueToCompare !== '$_not_Setted_$') {
 				this.evalEquality();
-			} else if (this.orAndExpression && this.orAndExpression.syntax === 'OR' && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
+			} else if (this.orAndExpression && this.orAndExpression.syntax === 'OR' && this.currentValue !== '' && this.leftExpressionValueToCompare !== '$_not_Setted_$') {
 				this.evalOrExpression();
-			} else if (this.orAndExpression && this.orAndExpression.syntax === 'AND' && this.currentValue !== '' && this.leftExpressionValueToCompare !== '') {
+			} else if (this.orAndExpression && this.orAndExpression.syntax === 'AND' && this.currentValue !== '' && this.leftExpressionValueToCompare !== '$_not_Setted_$') {
 				this.evalAndExpression();
 			}
 			count = count + 1;
@@ -2210,11 +2212,13 @@ class ParserEval {
 	evalOrExpression() {
 		// console.log('OR EXPRESSION', this.leftExpressionValueToCompare, this.orAndExpression, this.currentValue);
 		this.currentValue = this.leftExpressionValueToCompare || this.currentValue;
+		this.leftExpressionValueToCompare = '$_not_Setted_$';
 	}
 
 	evalAndExpression() {
 		// console.log('AND EXPRESSION', this.leftExpressionValueToCompare, this.orAndExpression, this.currentValue);
 		this.currentValue = this.leftExpressionValueToCompare && this.currentValue;
+		this.leftExpressionValueToCompare = '$_not_Setted_$';
 	}
 
 	evalEquality() {
@@ -2236,7 +2240,7 @@ class ParserEval {
 		} else if (this.equality.label === '<') {
 			this.currentValue = this.leftExpressionValueToCompare < this.currentValue;
 		}
-		this.leftExpressionValueToCompare = '';
+		this.leftExpressionValueToCompare = '$_not_Setted_$';
 	}
 
 	eval(item) {
@@ -5299,6 +5303,10 @@ const someViewTemplate = `<div class="fakemodalback">
 			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
 			</div>
 		</div>
+		<div data-pow-for="icecream of [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}]">
+			<div data-pow-css-hover="pw-blue" id="ice{{pwIndex}}_f">{{pwIndex + 1}} - My delicious ice cream of <span data-pow-text="icecream.flavor"></span> is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite! {{icecream.isFavorite}})</span>
+			</div>
+		</div>
 		<button onclick="app.closeModal()">Close</button>
 	</div>
 </div>`;
@@ -5576,9 +5584,9 @@ const pArray = app.pArray;
 // const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
 // const princesa = 'getValue2(pita["teste"]["pi10"])';
 // const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
-app.final = "final";
+app.final = [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}];
 const final = app.final;
-const princesa = 'pita["teste"].func()()["nossa"].cool[final]';
+const princesa = 'final[0].isFavorite === true';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));
