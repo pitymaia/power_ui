@@ -1009,9 +1009,9 @@ class ArrayDefinitionPattern {
 				this.currentParamsCounter = counter || null;
 			}
 
-			if (token.value === '[') {
+			if (['{', '(', '['].includes(token.value)) {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if (token.value === ']') {
+			} else if (['}', ')', ']'].includes(token.value)) {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
