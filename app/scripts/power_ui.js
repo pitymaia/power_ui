@@ -2243,7 +2243,7 @@ class ParserEval {
 						this.evalShortHandExpression(item);
 					} else if (item.syntax === 'dictDefinition') {
 						this.evalDictDefinition(item);
-						console.log('item is dictDefinition:', item);
+						// console.log('item is dictDefinition:', item);
 					} else {
 						if (item.syntax === 'variable' && ['true', 'false', 'null', 'undefined'].includes(item.label)) {
 							this.evalSpecialValues(item.label);
@@ -2300,11 +2300,10 @@ class ParserEval {
 	}
 
 	evalDictDefinition(item) {
-		const key = this.recursiveEval(item.parameters[0].key);
-		const value = this.recursiveEval(item.parameters[0].value);
-		this.currentValue = {
-			[key]: value
-		};
+		this.currentValue = {};
+		for (const param of item.parameters) {
+			this.currentValue[this.recursiveEval(param.key)] = this.recursiveEval(param.value);
+		}
 	}
 
 	evalSpecialValues(value) {
@@ -3879,6 +3878,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 		parts.shift();
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
+		console.log('obj', obj);
 		if (operation === 'in') {
 			// Verify if user type a dictionary direct on the template
 			const objRegex = '{[^]*?}';
@@ -6040,7 +6040,8 @@ const pitanga = 'olha';
 app.pitanga = pitanga;
 const morango = 'pen';
 const amora = 'inha';
-// app.pity = {teste: {pi10: 25, func: a}};
+app.pita = {teste: {pi10: 25, func: a}};
+const pita = app.pita;
 const pity = app.pity;
 const testess = 'teste';
 app.j = 2;
@@ -6059,19 +6060,23 @@ function getValue2(value) {
 }
 app.getValue = getValue;
 app.getValue2 = getValue2;
+app.pArray = [1,2,3,4,5];
+const pArray = app.pArray;
 
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-// const princesa = 'j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pity["teste"].pi10 + nov.nSum(20, 10) + pity["teste"].func()().aqui + pity["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
+// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pita["teste"].pi10 + nov.nSum(20, 10) + pita["teste"].func()().aqui + pita["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pity["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pity["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
-const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
+// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
+const princesa = '{p: 1, b: 2, pitinho: "Pity o bom"}';
 
 const value = app.safeEval({text: princesa});
-console.log('## AQUI value:', value, 'EVAL', eval(princesa), 2+-5);
+// console.log('## AQUI value:', value, 'EVAL', eval(princesa));
+console.log('## AQUI SAFEEVAL:', value);
 
 
 

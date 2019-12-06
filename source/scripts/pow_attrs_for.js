@@ -21,6 +21,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 		parts.shift();
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
+		console.log('obj', obj);
 		if (operation === 'in') {
 			// Verify if user type a dictionary direct on the template
 			const objRegex = '{[^]*?}';
