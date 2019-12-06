@@ -21,17 +21,8 @@ class PowFor extends _PowerBasicElementWithEvents {
 		parts.shift();
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
-		console.log('obj', obj);
-		if (operation === 'in') {
-			// Verify if user type a dictionary direct on the template
-			const objRegex = '{[^]*?}';
-			if (obj.match(objRegex)) {
-				obj = "this._pwEvaluateValue = " + obj;
-			}
-		}
 
-		const safeEval = new SafeEval({$powerUi: this.$powerUi});
-		obj = safeEval.getObject(obj);
+		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});;
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);
