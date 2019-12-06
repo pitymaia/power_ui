@@ -1605,7 +1605,7 @@ class SyntaxTree {
 
 	commaValidation({nextNode, isParameter}) {
 		if (['string', 'variable', 'integer', 'object',
-			'float', 'dictNode', 'parentheses',
+			'float', 'dictNode', 'parentheses', 'arrayDefinition', 'dictDefinition',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
@@ -1628,7 +1628,7 @@ class SyntaxTree {
 	}
 
 	equalityValidation({nextNode, currentNode, isParameter}) {
-		if (['variable', 'parentheses', 'function',
+		if (['variable', 'parentheses', 'function', 'arrayDefinition', 'dictDefinition',
 			'float', 'integer', 'dictNode', 'object',
 			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
 			return true;
@@ -1643,7 +1643,7 @@ class SyntaxTree {
 
 	operationValidation({nextNode, currentNode, isParameter}) {
 		if (['NOT', 'NOT-NOT', 'float', 'object',
-			'integer', 'variable', 'dictNode',
+			'integer', 'variable', 'dictNode', 'arrayDefinition', 'dictDefinition',
 			'parentheses', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
@@ -1679,7 +1679,7 @@ class SyntaxTree {
 
 	stringValidation({nextNode, isParameter}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
-			'dictNode', 'function', 'parentheses',
+			'dictNode', 'function', 'parentheses', 'arrayDefinition', 'dictDefinition',
 			'integer', 'float', 'especial', 'anonymousFunc',
 			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
@@ -3525,7 +3525,10 @@ class ObjectPattern {
 				this.listener.checking = 'endToken';
 				return true;
 			// Collect the function parameters and go to middleTokens
-			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'braces', 'undefined'].includes(token.name) || (token.value === '-' || token.value === '+')) {
+			} else if (['blank', 'end', 'letter', 'number', 'especial', 'NOT', 'NOT-NOT', 'quote', 'braces', 'undefined'].includes(token.name) || (token.value === '-' || token.value === '+' || token.value === '[')) {
+				if ([['[', '{'].includes(token.value)]) {
+					this.innerOpenedObjects = this.innerOpenedObjects + 1;
+				}
 				this.listener.checking = 'middleTokens';
 				this.currentParams = this.currentParams + token.value;
 				if (this.currentParamsCounter === null) {
@@ -3597,10 +3600,9 @@ class ObjectPattern {
 			if (this.currentParamsCounter === null) {
 				this.currentParamsCounter = counter || null;
 			}
-
-			if (token.value === '(') {
+			if (['(', '{', '['].includes(token.value)) {
 				this.innerOpenedObjects = this.innerOpenedObjects + 1;
-			} else if (token.value === ')') {
+			} else if ([')', '}', ']'].includes(token.value)) {
 				this.innerOpenedObjects = this.innerOpenedObjects - 1;
 			}
 			return true;
@@ -5573,13 +5575,12 @@ const pArray = app.pArray;
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
 // const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
-// const princesa = '{a: {cor: "verde", preço: nov.nSum(20, 10)}, b: {cor: "amarelo", preço: 2}}'
-let niceDict = {a: {cor: "verde", preço: nov.nSum(20, 10)}, b: {cor: "amarelo", preço: 2}};
+// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
+// const princesa = 'getValue2(pita["teste"]["pi10"])';
+const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
 
 const value = app.safeEval({text: princesa});
-// console.log('## AQUI value:', value, 'EVAL', eval(princesa));
-console.log('## AQUI SAFEEVAL:', value, niceDict);
+console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));
 
 
 

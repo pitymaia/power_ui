@@ -313,13 +313,12 @@ const pArray = app.pArray;
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
 // const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
-// const princesa = '{a: {cor: "verde", preço: nov.nSum(20, 10)}, b: {cor: "amarelo", preço: 2}}'
-let niceDict = {a: {cor: "verde", preço: nov.nSum(20, 10)}, b: {cor: "amarelo", preço: 2}};
+// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
+// const princesa = 'getValue2(pita["teste"]["pi10"])';
+const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
 
 const value = app.safeEval({text: princesa});
-// console.log('## AQUI value:', value, 'EVAL', eval(princesa));
-console.log('## AQUI SAFEEVAL:', value, niceDict);
+console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));
 
 
 

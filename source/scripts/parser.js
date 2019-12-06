@@ -81,7 +81,7 @@ class SyntaxTree {
 
 	commaValidation({nextNode, isParameter}) {
 		if (['string', 'variable', 'integer', 'object',
-			'float', 'dictNode', 'parentheses',
+			'float', 'dictNode', 'parentheses', 'arrayDefinition', 'dictDefinition',
 			'NOT', 'NOT-NOT', 'comma', 'function', 'end'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'operator' && (nextNode.label === '+' || nextNode.label === '-')) {
@@ -104,7 +104,7 @@ class SyntaxTree {
 	}
 
 	equalityValidation({nextNode, currentNode, isParameter}) {
-		if (['variable', 'parentheses', 'function',
+		if (['variable', 'parentheses', 'function', 'arrayDefinition', 'dictDefinition',
 			'float', 'integer', 'dictNode', 'object',
 			'NOT', 'NOT-NOT', 'string'].includes(nextNode.syntax)) {
 			return true;
@@ -119,7 +119,7 @@ class SyntaxTree {
 
 	operationValidation({nextNode, currentNode, isParameter}) {
 		if (['NOT', 'NOT-NOT', 'float', 'object',
-			'integer', 'variable', 'dictNode',
+			'integer', 'variable', 'dictNode', 'arrayDefinition', 'dictDefinition',
 			'parentheses', 'function'].includes(nextNode.syntax)) {
 			return true;
 		} else if (nextNode.syntax === 'string' && currentNode.label === '+') {
@@ -155,7 +155,7 @@ class SyntaxTree {
 
 	stringValidation({nextNode, isParameter}) {
 		if (['NOT', 'NOT-NOT', 'string', 'variable',
-			'dictNode', 'function', 'parentheses',
+			'dictNode', 'function', 'parentheses', 'arrayDefinition', 'dictDefinition',
 			'integer', 'float', 'especial', 'anonymousFunc',
 			'dot', 'dictNode'].includes(nextNode.syntax)) {
 			return false;
