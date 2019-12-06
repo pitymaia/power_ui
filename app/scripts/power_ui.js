@@ -2548,8 +2548,7 @@ class VariablePattern {
 class BracesPattern {
 	constructor(listener) {
 		this.listener = listener;
-		this.innerBraces = 0;
-		this.innerParentheses = 0;
+		this.innerObjects = 0;
 		this.currentParams = '';
 		this.dictDefinition = [];
 		this.currentKey = '';
@@ -2569,20 +2568,18 @@ class BracesPattern {
 
 	// middle tokens condition
 	middleTokens({token, counter}) {
+		if (this.innerObjects === 0 && token.value === '}') {
+			this.setDictDefinition(counter);
+			this.listener.checking = 'endToken';
 		// Collecting inner parameters, so allow any valid syntax
-		if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'undefined', 'short-hand', 'braces'].includes(token.name)) {
-			if (token.value === '{') {
-				this.innerBraces = this.innerBraces + 1;
-			} else if (token.value === '}') {
-				this.innerBraces = this.innerBraces - 1;
-			} else if (token.value === '(') {
-				this.innerParentheses = this.innerParentheses + 1;
-			} else if (token.value === ')') {
-				this.innerParentheses = this.innerParentheses - 1;
+		} else if (['blank', 'escape', 'especial', 'quote', 'equal', 'minor-than', 'greater-than', 'NOT', 'NOT-NOT', 'AND', 'OR', 'comma', 'number', 'letter', 'operator', 'dot', 'separator', 'undefined', 'short-hand', 'braces'].includes(token.name)) {
+			if (['{', '(', '['].includes(token.value)) {
+				this.innerObjects = this.innerObjects + 1;
+			} else if (['}', ')', ']'].includes(token.value)) {
+				this.innerObjects = this.innerObjects - 1;
 			}
-
 			// Identify keys and values
-			if (this.innerBraces < 1 && this.innerParentheses === 0) {
+			if (this.innerObjects === 0) {
 				if (token.value === ':') {
 					this.currentKey = this.currentParams.trim();
 					this.currentParams = '';
@@ -2594,26 +2591,14 @@ class BracesPattern {
 						counter: counter - this.currentKey.length,
 						isParameter: true,
 					}).syntaxTree.tree;
-				} else if (token.value === ',' || this.innerBraces < 0) {
-					this.currentValue = this.currentParams;
-					this.currentParams = '';
-					this.currentValue = new PowerTemplateParser({
-						text: this.currentValue,
-						counter: counter - this.currentValue.length,
-						isParameter: true,
-					}).syntaxTree.tree;
-					this.dictDefinition.push({kind: 'keyValue', key: this.currentKey, value: this.currentValue});
+				} else if (token.value === ',') {
+					this.setDictDefinition(counter);
 				}
 			}
 
-			if (token.value !== ':' && token.value !== ',' || (this.innerBraces !== 0 || this.innerParentheses !== 0)) {
+			if (token.value !== ':' && token.value !== ',' || this.innerObjects !== 0) {
 				this.currentParams = this.currentParams + token.value;
 			}
-
-			if (this.innerBraces < 0) {
-				this.listener.checking = 'endToken';
-			}
-
 			return true;
 		} else {
 			// Invalid!
@@ -2624,14 +2609,11 @@ class BracesPattern {
 	}
 
 	endToken({token, counter}) {
-		if (token.name === ')') {
-		// end condition are only to INVALID syntaxe
-		} else if (['blank', 'end'].includes(token.name)) {
+		if (['blank', 'end'].includes(token.name)) {
 			this.listener.nextPattern({syntax: 'dictDefinition', token: token, counter: counter, parameters: this.dictDefinition});
-			// this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return false;
 		} else {
-			// wait for some blank or end token and register the current stream as invalid
+			// this.listener.nextPattern({syntax: 'invalid', token: token, counter: counter});
 			return true;
 		}
 	}
@@ -2642,6 +2624,20 @@ class BracesPattern {
 		} else {
 			return false;
 		}
+	}
+
+	setDictDefinition(counter) {
+		if (this.currentParams === '') {
+			return;
+		}
+		this.currentValue = this.currentParams;
+		this.currentParams = '';
+		this.currentValue = new PowerTemplateParser({
+			text: this.currentValue,
+			counter: counter - this.currentValue.length,
+			isParameter: true,
+		}).syntaxTree.tree;
+		this.dictDefinition.push({kind: 'keyValue', key: this.currentKey, value: this.currentValue});
 	}
 }
 
@@ -5577,11 +5573,13 @@ const pArray = app.pArray;
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
 // const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
 // const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"]]';
+// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}}]]';
+const princesa = '{a: {cor: "verde", preço: nov.nSum(20, 10)}, b: {cor: "amarelo", preço: 2}}'
+let niceDict = {a: {cor: "verde", preço: nov.nSum(20, 10)}, b: {cor: "amarelo", preço: 2}};
 
 const value = app.safeEval({text: princesa});
 // console.log('## AQUI value:', value, 'EVAL', eval(princesa));
-console.log('## AQUI SAFEEVAL:', value);
+console.log('## AQUI SAFEEVAL:', value, niceDict);
 
 
 
