@@ -3416,8 +3416,9 @@ class ArrayDefinitionPattern {
 	}
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+		const lastToken = this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1];
 		// The open char of the current node
-		if (token.value === '[') {
+		if (token.value === '[' && !(lastToken && lastToken.syntax === 'dictNode')) {
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'arrayDefinition');
 			this.listener.checking = 'middleTokens';
 			if (this.currentParamsCounter === null) {
@@ -3612,7 +3613,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
-		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operator', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
+		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
 			// Variable name can't start with a number
 			if ((this.listener.currentTokens.length >= 2 &&
 				this.listener.currentTokens[0].name === 'dot' &&
@@ -5566,7 +5567,7 @@ const pArray = app.pArray;
 // const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
 // const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pita["teste"].pi10 + nov.nSum(20, 10) + pita["teste"].func()().aqui + pita["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
+// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pita["teste"].pi10 + nov.nSum(20, 10) + pita["teste"].func()().aqui + pita["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
 // const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pita["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
 // const princesa = '-pita["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
 // const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
@@ -5575,6 +5576,9 @@ const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j
 // const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
 // const princesa = 'getValue2(pita["teste"]["pi10"])';
 // const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
+app.final = "final";
+const final = app.final;
+const princesa = 'pita["teste"].func()()["nossa"].cool[final]';
 
 const value = app.safeEval({text: princesa});
 console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));

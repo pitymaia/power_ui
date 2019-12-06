@@ -974,8 +974,9 @@ class ArrayDefinitionPattern {
 	}
 	// Condition to start check first operator
 	firstToken({token, counter}) {
+		const lastToken = this.listener.syntaxTree.nodes[this.listener.syntaxTree.nodes.length-1];
 		// The open char of the current node
-		if (token.value === '[') {
+		if (token.value === '[' && !(lastToken && lastToken.syntax === 'dictNode')) {
 			this.listener.candidates = this.listener.candidates.filter(c=> c.name === 'arrayDefinition');
 			this.listener.checking = 'middleTokens';
 			if (this.currentParamsCounter === null) {
@@ -1170,7 +1171,7 @@ class ObjectPattern {
 			this.listener.checking = 'endToken';
 			return true;
 		// dot dictNode
-		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'operator', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
+		} else if (this.currentOpenChar === '.' && (['blank', 'end', 'operator', 'dot'].includes(token.name) || (token.value === '(' || token.value === '['))) {
 			// Variable name can't start with a number
 			if ((this.listener.currentTokens.length >= 2 &&
 				this.listener.currentTokens[0].name === 'dot' &&
