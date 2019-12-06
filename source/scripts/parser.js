@@ -835,6 +835,9 @@ class ParserEval {
 					// first node of dict
 					objOnScope = $currentScope[label];
 				} else {
+					if (!objOnScope) {
+						return objOnScope;
+					}
 					// other nodes of dict
 					objOnScope = objOnScope[label];
 				}

@@ -2359,6 +2359,9 @@ class ParserEval {
 					// first node of dict
 					objOnScope = $currentScope[label];
 				} else {
+					if (!objOnScope) {
+						return objOnScope;
+					}
 					// other nodes of dict
 					objOnScope = objOnScope[label];
 				}
@@ -5589,7 +5592,7 @@ const final = app.final;
 const princesa = 'final[0].isFavorite === true';
 
 const value = app.safeEval({text: princesa});
-console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));
+console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa), 'obj', app.safeEval({text: 'pita.teste.func.a'}));
 
 
 
