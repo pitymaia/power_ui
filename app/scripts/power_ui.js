@@ -5296,6 +5296,7 @@ PowerUi.injectPowerCss({name: 'power-view', isMain: true});
 
 const someViewTemplate = `<div class="fakemodalback">
 	<div class="fakemodal">
+		<h1>Cats list</h1>
 		<div data-pow-for="cat of cats">
 			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
 				<span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
@@ -5306,10 +5307,28 @@ const someViewTemplate = `<div class="fakemodalback">
 			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
 			</div>
 		</div>
-		<div data-pow-for="icecream of [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}]">
+		<hr>
+		<h1>Ice cream list</h1>
+		<div data-pow-for="icecream of [
+			{
+				flavor: 'Flakes',
+				color: 'light-yellow'
+			},
+			{
+				flavor: 'Chocolatte',
+				color: 'Brown',
+				isFavorite: true
+			},
+			{
+				flavor: 'Lemon',
+				color: 'Green',
+				isFavorite: false
+			}
+		]">
 			<div data-pow-css-hover="pw-blue" id="ice{{pwIndex}}_f">{{pwIndex + 1}} - My delicious ice cream of <span data-pow-text="icecream.flavor"></span> is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite! {{icecream.isFavorite}})</span>
 			</div>
 		</div>
+		<br />
 		<button onclick="app.closeModal()">Close</button>
 	</div>
 </div>`;
