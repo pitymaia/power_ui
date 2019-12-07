@@ -3850,7 +3850,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
 
-		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});;
+		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);
@@ -5226,9 +5226,43 @@ class PowerInterpolation {
 		return newEntry;
 	}
 
+	// Arbitrary replace a value with another (so dont look for it on scope)
 	replaceWith({entry, oldValue, newValue}) {
 		const regexOldValue = new RegExp(oldValue, 'gm');
-		return entry.replace(regexOldValue, newValue);
+
+		const match = entry.match(this.standardRegex());
+		if (match) {
+			for (const item of match) {
+				let newItem = item.replace(regexOldValue, newValue);
+				entry = entry.replace(item, newItem);
+			}
+		}
+
+		entry = this.replaceChildAttrs({
+			entry: entry,
+			regexOldValue: regexOldValue,
+			newValue: newValue
+		});
+
+		return entry;
+	}
+
+	replaceChildAttrs({entry, regexOldValue, newValue}) {
+		const tmp = document.createElement('div');
+		tmp.innerHTML = entry;
+		for (const child of tmp.children) {
+			for (const attr of child.attributes) {
+				attr.value = attr.value.replace(regexOldValue, newValue);
+			}
+			if (child.children.length) {
+				child.innerHTML = this.replaceChildAttrs({
+					entry: child.innerHTML,
+					regexOldValue: regexOldValue,
+					newValue: newValue
+				});
+			}
+		}
+		return tmp.innerHTML;
 	}
 
 	getInterpolationValue(entry, scope) {

@@ -22,7 +22,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
 
-		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});;
+		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);
