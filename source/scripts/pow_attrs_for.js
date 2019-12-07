@@ -52,7 +52,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			});
 
 		}
-		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
+		this.element.innerHTML = newHtml;
 	}
 
 	forIn(scope, selector, obj) {
@@ -81,7 +81,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 				newValue: encodeURIComponent(`_tempScope['${scope}']`),
 			});
 		}
-		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
+		this.element.innerHTML = newHtml;
 	}
 }
 

@@ -56,7 +56,7 @@ const someViewTemplate = `<div class="fakemodalback">
 				isFavorite: false
 			}
 		]">
-			<div data-pow-css-hover="pw-blue" id="ice{{$pwIndex}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
+			<div data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
 		</div>
 		<br />

@@ -3880,7 +3880,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			});
 
 		}
-		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
+		this.element.innerHTML = newHtml;
 	}
 
 	forIn(scope, selector, obj) {
@@ -3909,7 +3909,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 				newValue: encodeURIComponent(`_tempScope['${scope}']`),
 			});
 		}
-		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
+		this.element.innerHTML = newHtml;
 	}
 }
 
@@ -5254,6 +5254,9 @@ class PowerInterpolation {
 			for (const attr of child.attributes) {
 				attr.value = attr.value.replace(regexOldValue, newValue);
 			}
+			if (child.id) {
+				child.id = this.removeInterpolationSymbolFromId(child.id);
+			}
 			if (child.children.length) {
 				child.innerHTML = this.replaceChildAttrs({
 					entry: child.innerHTML,
@@ -5271,20 +5274,8 @@ class PowerInterpolation {
 		return this.safeEvaluate(newEntry, scope);
 	}
 
-	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
-		// Find id attributes like id="pity_{{$pwIndex}}_f"
-		const IdRegex = new RegExp('\\b(id)\\b[^]*?[\'\"][^]*?[\'\"]', 'gm');
-		const matchs = innerHTML.match(new RegExp(IdRegex));
-		if (matchs) {
-			for (const match of matchs) {
-				// Strip {{}} (or custom symbol) from ID ATTRIBUTE
-				let newIdEntry = match.replace(this.startSymbol, '');
-				newIdEntry = newIdEntry.replace(this.endSymbol, '');
-				// Replace the ID entry with the striped one
-				innerHTML = innerHTML.replace(match, newIdEntry);
-			}
-		}
-		return innerHTML;
+	removeInterpolationSymbolFromId(id) {
+		return this.replaceInterpolation(id, this.$powerUi);
 	}
 
 	safeEvaluate(entry, scope) {
@@ -5375,7 +5366,7 @@ const someViewTemplate = `<div class="fakemodalback">
 				isFavorite: false
 			}
 		]">
-			<div data-pow-css-hover="pw-blue" id="ice{{$pwIndex}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
+			<div data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
 		</div>
 		<br />

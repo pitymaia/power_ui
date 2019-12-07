@@ -94,6 +94,9 @@ class PowerInterpolation {
 			for (const attr of child.attributes) {
 				attr.value = attr.value.replace(regexOldValue, newValue);
 			}
+			if (child.id) {
+				child.id = this.removeInterpolationSymbolFromId(child.id);
+			}
 			if (child.children.length) {
 				child.innerHTML = this.replaceChildAttrs({
 					entry: child.innerHTML,
@@ -111,20 +114,8 @@ class PowerInterpolation {
 		return this.safeEvaluate(newEntry, scope);
 	}
 
-	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
-		// Find id attributes like id="pity_{{$pwIndex}}_f"
-		const IdRegex = new RegExp('\\b(id)\\b[^]*?[\'\"][^]*?[\'\"]', 'gm');
-		const matchs = innerHTML.match(new RegExp(IdRegex));
-		if (matchs) {
-			for (const match of matchs) {
-				// Strip {{}} (or custom symbol) from ID ATTRIBUTE
-				let newIdEntry = match.replace(this.startSymbol, '');
-				newIdEntry = newIdEntry.replace(this.endSymbol, '');
-				// Replace the ID entry with the striped one
-				innerHTML = innerHTML.replace(match, newIdEntry);
-			}
-		}
-		return innerHTML;
+	removeInterpolationSymbolFromId(id) {
+		return this.replaceInterpolation(id, this.$powerUi);
 	}
 
 	safeEvaluate(entry, scope) {
