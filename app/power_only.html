@@ -1109,9 +1109,9 @@
     </aside>
     <article>
         <div data-pow-for="cat of cats">
-            <div data-pow-if="cat.gender === 'female'" id="acat_{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
-            <div data-pow-if="cat.gender === 'male'" id="acat_{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
-            <div data-pow-if="cat.gender === 'unknow'" id="acat_{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}</div>
+            <div data-pow-if="cat.gender === 'female'" id="acat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
+            <div data-pow-if="cat.gender === 'male'" id="acat_{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>
+            <div data-pow-if="cat.gender === 'unknow'" id="acat_{{$pwIndex}}_u">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}</div>
         </div>
         <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>
         <p>Aqui é a seção do documento onde o texto todo deve ser colocado. Tudo que aparecer aqui faz parte de um longo paragrafo de texto que o site pretende usar para descrever alguma coisa, sejá ela qual for. É realmente preciso adicionar bastante texto para ver essa coisa funcionando direito.</p>

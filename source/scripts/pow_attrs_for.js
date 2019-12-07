@@ -33,16 +33,16 @@ class PowFor extends _PowerBasicElementWithEvents {
 
 	forOf(scope, selector, obj) {
 		let newHtml = '';
-		let pwIndex = 0;
+		let $pwIndex = 0;
 		for (const item of obj || []) {
 			const scope = _Unique.scopeID();
-			// Replace any pwIndex
+			// Replace any $pwIndex
 			let currentHtml = this.$powerUi.interpolation.replaceWith({
 				entry: this.element.innerHTML,
-				oldValue: 'pwIndex',
-				newValue: pwIndex,
+				oldValue: '\\$pwIndex',
+				newValue: $pwIndex,
 			});
-			pwIndex = pwIndex + 1;
+			$pwIndex = $pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = item;
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
@@ -57,24 +57,24 @@ class PowFor extends _PowerBasicElementWithEvents {
 
 	forIn(scope, selector, obj) {
 		let newHtml = '';
-		let pwIndex = 0;
-		for (const pwKey of Object.keys(obj || {})) {
+		let $pwIndex = 0;
+		for (const $pwKey of Object.keys(obj || {})) {
 			const scope = _Unique.scopeID();
-			// Replace any pwKey
+			// Replace any $pwKey
 			let currentHtml = this.$powerUi.interpolation.replaceWith({
 				entry: this.element.innerHTML,
-				oldValue: 'pwKey',
-				newValue: `'${pwKey}'`,
+				oldValue: '\\$pwKey',
+				newValue: `'${$pwKey}'`,
 			});
-			// Replace any pwIndex
+			// Replace any $pwIndex
 			currentHtml = this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
-				oldValue: 'pwIndex',
-				newValue: pwIndex,
+				oldValue: '\\$pwIndex',
+				newValue: $pwIndex,
 			});
-			pwIndex = pwIndex + 1;
+			$pwIndex = $pwIndex + 1;
 			// Replace any value
-			this.$powerUi._tempScope[scope] = obj[pwKey];
+			this.$powerUi._tempScope[scope] = obj[$pwKey];
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,

@@ -3861,16 +3861,16 @@ class PowFor extends _PowerBasicElementWithEvents {
 
 	forOf(scope, selector, obj) {
 		let newHtml = '';
-		let pwIndex = 0;
+		let $pwIndex = 0;
 		for (const item of obj || []) {
 			const scope = _Unique.scopeID();
-			// Replace any pwIndex
+			// Replace any $pwIndex
 			let currentHtml = this.$powerUi.interpolation.replaceWith({
 				entry: this.element.innerHTML,
-				oldValue: 'pwIndex',
-				newValue: pwIndex,
+				oldValue: '\\$pwIndex',
+				newValue: $pwIndex,
 			});
-			pwIndex = pwIndex + 1;
+			$pwIndex = $pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = item;
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
@@ -3885,24 +3885,24 @@ class PowFor extends _PowerBasicElementWithEvents {
 
 	forIn(scope, selector, obj) {
 		let newHtml = '';
-		let pwIndex = 0;
-		for (const pwKey of Object.keys(obj || {})) {
+		let $pwIndex = 0;
+		for (const $pwKey of Object.keys(obj || {})) {
 			const scope = _Unique.scopeID();
-			// Replace any pwKey
+			// Replace any $pwKey
 			let currentHtml = this.$powerUi.interpolation.replaceWith({
 				entry: this.element.innerHTML,
-				oldValue: 'pwKey',
-				newValue: `'${pwKey}'`,
+				oldValue: '\\$pwKey',
+				newValue: `'${$pwKey}'`,
 			});
-			// Replace any pwIndex
+			// Replace any $pwIndex
 			currentHtml = this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
-				oldValue: 'pwIndex',
-				newValue: pwIndex,
+				oldValue: '\\$pwIndex',
+				newValue: $pwIndex,
 			});
-			pwIndex = pwIndex + 1;
+			$pwIndex = $pwIndex + 1;
 			// Replace any value
-			this.$powerUi._tempScope[scope] = obj[pwKey];
+			this.$powerUi._tempScope[scope] = obj[$pwKey];
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
@@ -5272,7 +5272,7 @@ class PowerInterpolation {
 	}
 
 	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
-		// Find id attributes like id="pity_{{pwIndex}}_f"
+		// Find id attributes like id="pity_{{$pwIndex}}_f"
 		const IdRegex = new RegExp('\\b(id)\\b[^]*?[\'\"][^]*?[\'\"]', 'gm');
 		const matchs = innerHTML.match(new RegExp(IdRegex));
 		if (matchs) {
@@ -5350,11 +5350,11 @@ const someViewTemplate = `<div class="fakemodalback">
 	<div class="fakemodal">
 		<h1>Cats list</h1>
 		<div data-pow-for="cat of cats">
-			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
 			</div>
-			<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+			<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
 			</div>
-			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
+			<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_u">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
 			</div>
 		</div>
 		<hr>
@@ -5375,7 +5375,7 @@ const someViewTemplate = `<div class="fakemodalback">
 				isFavorite: false
 			}
 		]">
-			<div data-pow-css-hover="pw-blue" id="ice{{pwIndex}}_f">{{pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
+			<div data-pow-css-hover="pw-blue" id="ice{{$pwIndex}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
 		</div>
 		<br />

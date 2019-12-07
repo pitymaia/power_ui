@@ -80,13 +80,13 @@
         <h4 data-pow-if="showIf()">Another if</h4>
         <hr />
         <div id="catofcats" data-pow-for="cat of cats">
-            <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{pwIndex}}_f">{{pwIndex + 1}} - Minha linda
+            <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda
                 <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
             </div>
-            <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_{{pwIndex}}_m">{{pwIndex + 1}} - Meu lindo {{ cat.name }}
+            <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }}
                 <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
             </div>
-            <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_{{pwIndex}}_u">{{pwIndex + 1}} - São lindos meus {{ cat.name }}
+            <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_{{$pwIndex}}_u">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
             </div>
         </div>
         <hr />
@@ -100,7 +100,7 @@
         <div data-pow-if="showIf()">Odd</div>
         <div data-pow-if="showIf()">
             <div data-pow-for="color in flowers">
-                {{ pwIndex +1 }} - {{ color }} {{ pwKey }}<br />
+                {{ $pwIndex +1 }} - {{ color }} {{ $pwKey }}<br />
             </div>
         </div>
         <hr />
@@ -110,7 +110,7 @@
                 data-pow-main-src-hover="vendors/imgs/Australia-Flag-icon.png"
                 width="25"
                 height="25" />
-                <span data-pow-css-hover="pw-yellow">{{ pwIndex +1 }} - {{ lang.name }} - {{ lang.kind }} ({{ pwKey }})
+                <span data-pow-css-hover="pw-yellow">{{ $pwIndex +1 }} - {{ lang.name }} - {{ lang.kind }} ({{ $pwKey }})
                     <img src="vendors/imgs/Brazil-Flag-icon.png"
                         data-pow-src-hover="vendors/imgs/Argentina-Flag-icon.png"
                         data-pow-main-src-hover="vendors/imgs/Australia-Flag-icon.png"

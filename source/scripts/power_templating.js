@@ -112,7 +112,7 @@ class PowerInterpolation {
 	}
 
 	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
-		// Find id attributes like id="pity_{{pwIndex}}_f"
+		// Find id attributes like id="pity_{{$pwIndex}}_f"
 		const IdRegex = new RegExp('\\b(id)\\b[^]*?[\'\"][^]*?[\'\"]', 'gm');
 		const matchs = innerHTML.match(new RegExp(IdRegex));
 		if (matchs) {
