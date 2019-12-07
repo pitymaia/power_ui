@@ -98,11 +98,11 @@
         </div>
         <hr />
         <div data-pow-if="showIf()">Odd</div>
-        <div data-pow-if="showIf()">
+        <!-- <div data-pow-if="showIf()"> -->
             <div data-pow-for="color in flowers">
-                {{ $pwIndex +1 }} - {{ color }} {{ $pwKey }}<br />
+                <div data-pow-css-hover="pw-yellow">{{ $pwIndex + 1 }} - {{ color }} {{ $pwKey }}</div>
             </div>
-        </div>
+        <!-- </div> -->
         <hr />
         <div class="power-main" data-pow-for="lang in languages">
             <img src="vendors/imgs/Brazil-Flag-icon.png"

@@ -70,13 +70,28 @@ class PowerInterpolation {
 	replaceWith({entry, oldValue, newValue}) {
 		const regexOldValue = new RegExp(oldValue, 'gm');
 
-		const match = entry.match(this.standardRegex());
-		if (match) {
-			for (const item of match) {
-				let newItem = item.replace(regexOldValue, newValue);
-				entry = entry.replace(item, newItem);
+		const tmp = document.createElement('div');
+		tmp.innerHTML = entry;
+		for (const child of tmp.children) {
+			// InnerText
+			if (child.innerText) {
+				for (const node of child.childNodes) {
+					if (node.nodeName === '#text') {
+						let text = node.data;
+						const match = text.match(this.standardRegex());
+						if (match) {
+							for (const item of match) {
+								let newItem = item.replace(regexOldValue, newValue);
+								text = text.replace(item, newItem);
+							}
+						}
+						node.data = text;
+					}
+				}
 			}
 		}
+
+		entry = tmp.innerHTML;
 
 		entry = this.replaceChildAttrs({
 			entry: entry,
