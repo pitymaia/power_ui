@@ -6,8 +6,8 @@ class PowerInterpolation {
 		this.endSymbol = config.interpolateEndSymbol || '}}';
 	}
 
-	compile(template) {
-		return this.replaceInterpolation(template);
+	compile(template, scope) {
+		return this.replaceInterpolation(template, scope);
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template) {
@@ -19,26 +19,26 @@ class PowerInterpolation {
 		return new RegExp(REGEX, 'gm');
 	}
 
-	replaceInterpolation(template) {
+	replaceInterpolation(template, scope) {
 		template = this.stripWhiteChars(template);
 		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
 		const match = templateWithoutComments.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
-				const value = this.getInterpolationValue(entry);
+				const value = this.getInterpolationValue(entry, scope);
 				template = template.replace(entry, value);
 			}
 		}
 		return template.trim();
 	}
 
-	interpolationToPowText(template, tempTree) {
+	interpolationToPowText(template, tempTree, scope) {
 		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
 		const match = templateWithoutComments.match(this.standardRegex());
 		if (match) {
 			for (const entry of match) {
 				const id = _Unique.domID('span');
-				const innerTEXT = this.getInterpolationValue(entry);
+				const innerTEXT = this.getInterpolationValue(entry, scope);
 				const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
 					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 				template = template.replace(entry, value);
@@ -66,10 +66,10 @@ class PowerInterpolation {
 		return newEntry;
 	}
 
-	getInterpolationValue(entry) {
+	getInterpolationValue(entry, scope) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
-		return this.safeEvaluate(newEntry);
+		return this.safeEvaluate(newEntry, scope);
 	}
 
 	removeInterpolationSymbolFromIdOfInnerHTML(innerHTML) {
@@ -88,13 +88,10 @@ class PowerInterpolation {
 		return innerHTML;
 	}
 
-	safeEvaluate(entry) {
-		// let func;
+	safeEvaluate(entry, scope) {
 		let result;
 		try {
-			// func = new Function("return " + this.sanitizeEntry(entry));
-			// result = func();
-			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: this, $powerUi: this.$powerUi});
+			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: scope, $powerUi: this.$powerUi});
 		} catch(e) {
 			result = '';
 		}
