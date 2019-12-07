@@ -66,6 +66,11 @@ class PowerInterpolation {
 		return newEntry;
 	}
 
+	replaceWith({entry, oldValue, newValue}) {
+		const regexOldValue = new RegExp(oldValue, 'gm');
+		return entry.replace(regexOldValue, newValue);
+	}
+
 	getInterpolationValue(entry, scope) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);

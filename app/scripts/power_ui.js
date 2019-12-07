@@ -3862,16 +3862,23 @@ class PowFor extends _PowerBasicElementWithEvents {
 	forOf(scope, selector, obj) {
 		let newHtml = '';
 		let pwIndex = 0;
-		const regexPwIndex = new RegExp('pwIndex', 'gm');
 		for (const item of obj || []) {
 			const scope = _Unique.scopeID();
-			const regex = new RegExp(selector, 'gm');
 			// Replace any pwIndex
-			let currentHtml = this.element.innerHTML.replace(regexPwIndex, pwIndex);
+			let currentHtml = this.$powerUi.interpolation.replaceWith({
+				entry: this.element.innerHTML,
+				oldValue: 'pwIndex',
+				newValue: pwIndex,
+			});
 			pwIndex = pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = item;
-			newHtml = newHtml + currentHtml.replace(regex, encodeURIComponent(`_tempScope['${scope}']`));
+			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
+				entry: currentHtml,
+				oldValue: selector,
+				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+			});
+
 		}
 		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
 	}
@@ -3879,19 +3886,28 @@ class PowFor extends _PowerBasicElementWithEvents {
 	forIn(scope, selector, obj) {
 		let newHtml = '';
 		let pwIndex = 0;
-		const regexPwIndex = new RegExp('pwIndex', 'gm');
-		const regexPwKey = new RegExp('pwKey', 'gm');
 		for (const pwKey of Object.keys(obj || {})) {
 			const scope = _Unique.scopeID();
-			const regex = new RegExp(selector, 'gm');
 			// Replace any pwKey
-			let currentHtml = this.element.innerHTML.replace(regexPwKey, `'${pwKey}'`);
+			let currentHtml = this.$powerUi.interpolation.replaceWith({
+				entry: this.element.innerHTML,
+				oldValue: 'pwKey',
+				newValue: `'${pwKey}'`,
+			});
 			// Replace any pwIndex
-			currentHtml = currentHtml.replace(regexPwIndex, pwIndex);
+			currentHtml = this.$powerUi.interpolation.replaceWith({
+				entry: currentHtml,
+				oldValue: 'pwIndex',
+				newValue: pwIndex,
+			});
 			pwIndex = pwIndex + 1;
 			// Replace any value
 			this.$powerUi._tempScope[scope] = obj[pwKey];
-			newHtml = newHtml + currentHtml.replace(regex, `_tempScope['${scope}']`);
+			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
+				entry: currentHtml,
+				oldValue: selector,
+				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+			});
 		}
 		this.element.innerHTML = this.$powerUi.interpolation.removeInterpolationSymbolFromIdOfInnerHTML(newHtml);
 	}
@@ -5208,6 +5224,11 @@ class PowerInterpolation {
 		// Remove interpolation endSymbol
 		newEntry = newEntry.replace(this.endSymbol,'');
 		return newEntry;
+	}
+
+	replaceWith({entry, oldValue, newValue}) {
+		const regexOldValue = new RegExp(oldValue, 'gm');
+		return entry.replace(regexOldValue, newValue);
 	}
 
 	getInterpolationValue(entry, scope) {
