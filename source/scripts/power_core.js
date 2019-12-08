@@ -109,8 +109,8 @@ class SharedScope {
 	}
 	// Remove all power inner elements from this.$powerUi.powerTree.allPowerObjsById
 	removeInnerElementsFromPower() {
-		const childNodes = this.element.childNodes;
-		for (const child of childNodes) {
+		const children = this.element.children;
+		for (const child of children) {
 			this.removeElementAndInnersFromPower(child);
 			this.element.removeChild(child);
 		}
@@ -126,8 +126,8 @@ class SharedScope {
 			delete this.ctx.allPowerObjsById[element.id];
 		}
 
-		const childNodes = element.childNodes;
-		for (const child of childNodes) {
+		const children = element.children;
+		for (const child of children) {
 			this.removeElementAndInnersFromPower(child);
 		}
 	}
@@ -402,6 +402,7 @@ class PowerTree {
 	get rootCompilers() {
 		const rootCompilers = {};
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
+			// TODO: add this to condition? && this.allPowerObjsById[id].$shared.element
 			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler) {
 				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
 			}
