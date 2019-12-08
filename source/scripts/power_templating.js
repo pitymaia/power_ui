@@ -70,6 +70,16 @@ class PowerInterpolation {
 	replaceWith({entry, oldValue, newValue}) {
 		const regexOldValue = new RegExp(oldValue, 'gm');
 
+		entry = this.replaceChildAttrs({
+			entry: entry,
+			regexOldValue: regexOldValue,
+			newValue: newValue
+		});
+
+		return entry;
+	}
+
+	replaceChildAttrs({entry, regexOldValue, newValue}) {
 		const tmp = document.createElement('div');
 		tmp.innerHTML = entry;
 		for (const child of tmp.children) {
@@ -89,28 +99,13 @@ class PowerInterpolation {
 					}
 				}
 			}
-		}
 
-		entry = tmp.innerHTML;
-
-		entry = this.replaceChildAttrs({
-			entry: entry,
-			regexOldValue: regexOldValue,
-			newValue: newValue
-		});
-
-		return entry;
-	}
-
-	replaceChildAttrs({entry, regexOldValue, newValue}) {
-		const tmp = document.createElement('div');
-		tmp.innerHTML = entry;
-		for (const child of tmp.children) {
 			for (const attr of child.attributes) {
 				attr.value = attr.value.replace(regexOldValue, newValue);
 			}
 			if (child.id) {
-				child.id = this.removeInterpolationSymbolFromId(child.id);
+				// remove interpolation symbol from id
+				child.id = this.replaceInterpolation(child.id, this.$powerUi);
 			}
 			if (child.children.length) {
 				child.innerHTML = this.replaceChildAttrs({
@@ -127,10 +122,6 @@ class PowerInterpolation {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
 		return this.safeEvaluate(newEntry, scope);
-	}
-
-	removeInterpolationSymbolFromId(id) {
-		return this.replaceInterpolation(id, this.$powerUi);
 	}
 
 	safeEvaluate(entry, scope) {
