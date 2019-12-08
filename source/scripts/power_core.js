@@ -607,7 +607,7 @@ class PowerTree {
 			}
 		}
 
-		const currentNodeHaschildren = !!currentNode.childNodes && !!currentNode.childNodes.length;
+		const currentNodeHaschildren = !!currentNode.children && !!currentNode.children.length;
 		// Recursively sweep through currentNode children
 		if (currentNodeHaschildren) {
 			// params.isInnerCompiler detects if this is NOT the root object with compile()
@@ -804,11 +804,11 @@ class PowerTree {
 
 	sweepDOM({entryNode, callback, isInnerCompiler, main, view, rootCompiler, saved, parent}) {
 		const isNode = !!entryNode && !!entryNode.nodeType;
-		const hasChildren = !!entryNode.childNodes && !!entryNode.childNodes.length;
+		const hasChildren = !!entryNode.children && !!entryNode.children.length;
 
 		if (isNode && hasChildren) {
-			const nodes = entryNode.childNodes;
-			for (const currentNode of entryNode.childNodes) {
+			const nodes = entryNode.children;
+			for (const currentNode of entryNode.children) {
 				// Call back with any condition to apply
 				// The callback Recursively call seepDOM for it's children nodes
 				callback({
@@ -927,8 +927,8 @@ class PowerTree {
 			this._callInitOfObject(element.id);
 		}
 		// Call init for any child object
-		const childNodes = element ? element.childNodes : [];
-		for (const child of childNodes) {
+		const children = element ? element.children : [];
+		for (const child of children) {
 			this._callInitForObjectAndInners(child);
 		}
 	}
