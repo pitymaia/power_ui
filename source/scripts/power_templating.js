@@ -32,23 +32,23 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowText(template, tempTree, scope) {
-		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
-		const match = templateWithoutComments.match(this.standardRegex());
-		if (match) {
-			for (const entry of match) {
-				const id = _Unique.domID('span');
-				const innerTEXT = this.getInterpolationValue(entry, scope);
-				const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
-					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
-				template = template.replace(entry, value);
+	// interpolationToPowText(template, tempTree, scope) {
+	// 	const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
+	// 	const match = templateWithoutComments.match(this.standardRegex());
+	// 	if (match) {
+	// 		for (const entry of match) {
+	// 			const id = _Unique.domID('span');
+	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
+	// 			const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
+	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
+	// 			template = template.replace(entry, value);
 
-				// Regiter any new element on tempTree pending to add after interpolation
-				tempTree.pending.push(id);
-			}
-		}
-		return template;
-	}
+	// 			// Regiter any new element on tempTree pending to add after interpolation
+	// 			tempTree.pending.push(id);
+	// 		}
+	// 	}
+	// 	return template;
+	// }
 
 	stripWhiteChars(entry) {
 		// Replace multiple spaces with a single one
@@ -70,7 +70,15 @@ class PowerInterpolation {
 	replaceWith({entry, oldValue, newValue}) {
 		const regexOldValue = new RegExp(oldValue, 'gm');
 
-		entry = this.replaceChildAttrs({
+		const match = entry.match(this.standardRegex());
+		if (match) {
+			for (const item of match) {
+				let newItem = item.replace(regexOldValue, newValue);
+				entry = entry.replace(item, newItem);
+			}
+		}
+
+		entry = this.replaceIdsAndRemoveInterpolationSymbol({
 			entry: entry,
 			regexOldValue: regexOldValue,
 			newValue: newValue
@@ -79,36 +87,21 @@ class PowerInterpolation {
 		return entry;
 	}
 
-	replaceChildAttrs({entry, regexOldValue, newValue}) {
+	replaceIdsAndRemoveInterpolationSymbol({entry, regexOldValue, newValue}) {
 		const tmp = document.createElement('div');
 		tmp.innerHTML = entry;
 		for (const child of tmp.children) {
-			// InnerText
-			if (child.innerText) {
-				for (const node of child.childNodes) {
-					if (node.nodeName === '#text') {
-						let text = node.data;
-						const match = text.match(this.standardRegex());
-						if (match) {
-							for (const item of match) {
-								let newItem = item.replace(regexOldValue, newValue);
-								text = text.replace(item, newItem);
-							}
-						}
-						node.data = text;
-					}
+			for (const attr of child.attributes) {
+				if (attr.name.includes('data-pow') || attr.name.includes('data-pwc')) {
+					attr.value = attr.value.replace(regexOldValue, newValue);
 				}
 			}
-
-			for (const attr of child.attributes) {
-				attr.value = attr.value.replace(regexOldValue, newValue);
-			}
 			if (child.id) {
-				// remove interpolation symbol from id
+				// Evaluate and remove interpolation symbol from id
 				child.id = this.replaceInterpolation(child.id, this.$powerUi);
 			}
 			if (child.children.length) {
-				child.innerHTML = this.replaceChildAttrs({
+				child.innerHTML = this.replaceIdsAndRemoveInterpolationSymbol({
 					entry: child.innerHTML,
 					regexOldValue: regexOldValue,
 					newValue: newValue

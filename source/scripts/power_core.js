@@ -481,14 +481,20 @@ class PowerTree {
 			isInnerCompiler: false,
 		});
 
+		// Evaluate and replace any {{}} from template
 		if (!refresh) {
-			const tempTree = {pending: []};
 			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
-			for (const id of tempTree.pending) {
-				this.addPowTextObject(id);
-			}
+			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this);
 		}
+
+		// if (!refresh) {
+		// 	const tempTree = {pending: []};
+		// 	const body = document.getElementsByTagName('BODY')[0];
+		// 	// body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
+		// 	for (const id of tempTree.pending) {
+		// 		this.addPowTextObject(id);
+		// 	}
+		// }
 	}
 
 	// Create individual pow-text powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
@@ -677,17 +683,23 @@ class PowerTree {
 	createAndInitObjectsFromCurrentNode({id, refresh}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
-		// Replace any interpolation with pow-text
+		// Evaluate and replace any {{}} from template
 		if (!refresh) {
 			const node = document.getElementById(id);
-			const tempTree = {pending: []};
-			node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
-			for (const id of tempTree.pending) {
-				this.addPowTextObject(id);
-			}
+			node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
 		}
+		// Replace any interpolation with pow-text
+		// if (!refresh) {
+		// 	const node = document.getElementById(id);
+		// 	const tempTree = {pending: []};
+		// 	// node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
+		// 	for (const id of tempTree.pending) {
+		// 		this.addPowTextObject(id);
+		// 	}
+		// }
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
+
 	}
 
 	_compile({currentNode, datasetKey, isInnerCompiler}) {

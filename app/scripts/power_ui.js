@@ -481,14 +481,20 @@ class PowerTree {
 			isInnerCompiler: false,
 		});
 
+		// Evaluate and replace any {{}} from template
 		if (!refresh) {
-			const tempTree = {pending: []};
 			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
-			for (const id of tempTree.pending) {
-				this.addPowTextObject(id);
-			}
+			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this);
 		}
+
+		// if (!refresh) {
+		// 	const tempTree = {pending: []};
+		// 	const body = document.getElementsByTagName('BODY')[0];
+		// 	// body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
+		// 	for (const id of tempTree.pending) {
+		// 		this.addPowTextObject(id);
+		// 	}
+		// }
 	}
 
 	// Create individual pow-text powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
@@ -677,17 +683,23 @@ class PowerTree {
 	createAndInitObjectsFromCurrentNode({id, refresh}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
-		// Replace any interpolation with pow-text
+		// Evaluate and replace any {{}} from template
 		if (!refresh) {
 			const node = document.getElementById(id);
-			const tempTree = {pending: []};
-			node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
-			for (const id of tempTree.pending) {
-				this.addPowTextObject(id);
-			}
+			node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
 		}
+		// Replace any interpolation with pow-text
+		// if (!refresh) {
+		// 	const node = document.getElementById(id);
+		// 	const tempTree = {pending: []};
+		// 	// node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
+		// 	for (const id of tempTree.pending) {
+		// 		this.addPowTextObject(id);
+		// 	}
+		// }
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
+
 	}
 
 	_compile({currentNode, datasetKey, isInnerCompiler}) {
@@ -5192,23 +5204,23 @@ class PowerInterpolation {
 		return template.trim();
 	}
 
-	interpolationToPowText(template, tempTree, scope) {
-		const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
-		const match = templateWithoutComments.match(this.standardRegex());
-		if (match) {
-			for (const entry of match) {
-				const id = _Unique.domID('span');
-				const innerTEXT = this.getInterpolationValue(entry, scope);
-				const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
-					data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
-				template = template.replace(entry, value);
+	// interpolationToPowText(template, tempTree, scope) {
+	// 	const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
+	// 	const match = templateWithoutComments.match(this.standardRegex());
+	// 	if (match) {
+	// 		for (const entry of match) {
+	// 			const id = _Unique.domID('span');
+	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
+	// 			const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
+	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
+	// 			template = template.replace(entry, value);
 
-				// Regiter any new element on tempTree pending to add after interpolation
-				tempTree.pending.push(id);
-			}
-		}
-		return template;
-	}
+	// 			// Regiter any new element on tempTree pending to add after interpolation
+	// 			tempTree.pending.push(id);
+	// 		}
+	// 	}
+	// 	return template;
+	// }
 
 	stripWhiteChars(entry) {
 		// Replace multiple spaces with a single one
@@ -5230,7 +5242,15 @@ class PowerInterpolation {
 	replaceWith({entry, oldValue, newValue}) {
 		const regexOldValue = new RegExp(oldValue, 'gm');
 
-		entry = this.replaceChildAttrs({
+		const match = entry.match(this.standardRegex());
+		if (match) {
+			for (const item of match) {
+				let newItem = item.replace(regexOldValue, newValue);
+				entry = entry.replace(item, newItem);
+			}
+		}
+
+		entry = this.replaceIdsAndRemoveInterpolationSymbol({
 			entry: entry,
 			regexOldValue: regexOldValue,
 			newValue: newValue
@@ -5239,36 +5259,21 @@ class PowerInterpolation {
 		return entry;
 	}
 
-	replaceChildAttrs({entry, regexOldValue, newValue}) {
+	replaceIdsAndRemoveInterpolationSymbol({entry, regexOldValue, newValue}) {
 		const tmp = document.createElement('div');
 		tmp.innerHTML = entry;
 		for (const child of tmp.children) {
-			// InnerText
-			if (child.innerText) {
-				for (const node of child.childNodes) {
-					if (node.nodeName === '#text') {
-						let text = node.data;
-						const match = text.match(this.standardRegex());
-						if (match) {
-							for (const item of match) {
-								let newItem = item.replace(regexOldValue, newValue);
-								text = text.replace(item, newItem);
-							}
-						}
-						node.data = text;
-					}
+			for (const attr of child.attributes) {
+				if (attr.name.includes('data-pow') || attr.name.includes('data-pwc')) {
+					attr.value = attr.value.replace(regexOldValue, newValue);
 				}
 			}
-
-			for (const attr of child.attributes) {
-				attr.value = attr.value.replace(regexOldValue, newValue);
-			}
 			if (child.id) {
-				// remove interpolation symbol from id
+				// Evaluate and remove interpolation symbol from id
 				child.id = this.replaceInterpolation(child.id, this.$powerUi);
 			}
 			if (child.children.length) {
-				child.innerHTML = this.replaceChildAttrs({
+				child.innerHTML = this.replaceIdsAndRemoveInterpolationSymbol({
 					entry: child.innerHTML,
 					regexOldValue: regexOldValue,
 					newValue: newValue
@@ -5355,7 +5360,7 @@ const someViewTemplate = `<div class="fakemodalback">
 			</div>
 		</div>
 		<hr>
-		<h1>Ice cream list</h1>
+		<h1 class={{10*2}}>Ice cream list</h1>
 		<div data-pow-for="icecream of [
 			{
 				flavor: 'Flakes',
@@ -5372,7 +5377,7 @@ const someViewTemplate = `<div class="fakemodalback">
 				isFavorite: false
 			}
 		]">
-			<div data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
+			<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
 		</div>
 		<br />

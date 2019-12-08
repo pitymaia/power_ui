@@ -39,7 +39,7 @@ const someViewTemplate = `<div class="fakemodalback">
 			</div>
 		</div>
 		<hr>
-		<h1>Ice cream list</h1>
+		<h1 class={{10*2}}>Ice cream list</h1>
 		<div data-pow-for="icecream of [
 			{
 				flavor: 'Flakes',
@@ -56,7 +56,7 @@ const someViewTemplate = `<div class="fakemodalback">
 				isFavorite: false
 			}
 		]">
-			<div data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
+			<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
 		</div>
 		<br />
