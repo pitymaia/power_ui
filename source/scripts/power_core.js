@@ -498,30 +498,30 @@ class PowerTree {
 	}
 
 	// Create individual pow-text powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
-	addPowTextObject(id) {
-		const newNode = document.getElementById(id);
-		// Search a powerElement parent of currentObj up DOM if exists
-		const currentParentElement = this._getParentElementFromChildElement(newNode);
-		// Get the main and view elements of the currentObj
-		const currentMainElement = this._getMainElementFromChildElement(newNode);
-		const isMain = this.datasetIsMain(newNode.dataset);
-		const currentViewElement = this._getViewElementFromChildElement(newNode);
-		// Get any possible rootCompiler
-		const currentRootCompilerElement = this._getRootCompilerElementFromChildElement(newNode, this);
-		const isRootCompiler = (!currentRootCompilerElement && this.datasetIsCompiler(newNode.dataset));
-		// Make the instance and add the powerObject into a list ordered by id
-		this._instanciateObj({
-			currentElement: newNode,
-			datasetKey: 'powText',
-			main: currentMainElement,
-			view: currentViewElement,
-			parent: currentParentElement,
-			rootCompiler: currentRootCompilerElement,
-			isRootCompiler: isRootCompiler,
-			isMain: isMain,
-			originalInnerHTML: newNode.innerHTML,
-		});
-	}
+	// addPowTextObject(id) {
+	// 	const newNode = document.getElementById(id);
+	// 	// Search a powerElement parent of currentObj up DOM if exists
+	// 	const currentParentElement = this._getParentElementFromChildElement(newNode);
+	// 	// Get the main and view elements of the currentObj
+	// 	const currentMainElement = this._getMainElementFromChildElement(newNode);
+	// 	const isMain = this.datasetIsMain(newNode.dataset);
+	// 	const currentViewElement = this._getViewElementFromChildElement(newNode);
+	// 	// Get any possible rootCompiler
+	// 	const currentRootCompilerElement = this._getRootCompilerElementFromChildElement(newNode, this);
+	// 	const isRootCompiler = (!currentRootCompilerElement && this.datasetIsCompiler(newNode.dataset));
+	// 	// Make the instance and add the powerObject into a list ordered by id
+	// 	this._instanciateObj({
+	// 		currentElement: newNode,
+	// 		datasetKey: 'powText',
+	// 		main: currentMainElement,
+	// 		view: currentViewElement,
+	// 		parent: currentParentElement,
+	// 		rootCompiler: currentRootCompilerElement,
+	// 		isRootCompiler: isRootCompiler,
+	// 		isMain: isMain,
+	// 		originalInnerHTML: newNode.innerHTML,
+	// 	});
+	// }
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
 		// let canInstanciatePendings = false;
@@ -636,7 +636,6 @@ class PowerTree {
 		}
 
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
-		// This will make the interpolation of elements with compile without replace {{}} to <span data-pow-text></span>
 		if (hasCompiled && !isInnerCompiler) {
 			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
 			for (const item of saved.pending) {
