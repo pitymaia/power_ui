@@ -1337,15 +1337,18 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.controllers = {};
 		this.config = config;
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.interpolation = new PowerInterpolation(config, this);
-		this.request = new Request(config);
-		this.router = new Router(config, this); // Router calls this.init();
 		this._events = {};
 		this._events['ready'] = new UEvent();
+		this.request = new Request(config);
+		this.router = new Router(config, this); // Router calls this.init();
+
+		console.log('POWER UI IS INSTANCIATED');
 	}
 
 	safeEval({text, scope}) {
@@ -1418,7 +1421,7 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	prepareViewToLoad({viewId}) {
+	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
 		// Avoid blink uninterpolated data before call compile and interpolate
 		view.style.visibility = 'hidden';
@@ -1427,9 +1430,16 @@ class PowerUi extends _PowerUiBase {
 		return view;
 	}
 
+	// Run the controller instance for the route
+	runRouteController({routeId}) {
+		if (this.controllers[routeId] && this.controllers[routeId].instance) {
+			this.controllers[routeId].instance.ctrl();
+		}
+	}
+
 	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
 		const self = this;
-		const view = this.prepareViewToLoad({viewId: viewId});
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
 				url: template,
 				method: 'GET',
@@ -1437,7 +1447,7 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit(response);
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
 			// Cache this template for new requests if not setted as false
 			const routeConfig = routes[routeId];
 			if (routeConfig.staticTemplate !== true) {
@@ -1445,26 +1455,28 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = true;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit(response);
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
 		});
 	}
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
-		const view = this.prepareViewToLoad({viewId: viewId});
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		view.innerHTML = template;
-		this.ifNotWaitingServerCallInit(template);
+		this.ifNotWaitingServerCallInit({template: template, routeId: routeId});
 	}
 
-	ifNotWaitingServerCallInit(response) {
+	ifNotWaitingServerCallInit({template, routeId}) {
 		const self = this;
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
+				self.runRouteController({routeId: routeId});
 				if (self.initAlreadyRun) {
-					self.initNodes(response);
+					self.initNodes(template);
 				} else {
 					self.initAll();
 				}
+				console.log('READY');
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
@@ -4158,6 +4170,17 @@ class PowerBrand extends PowerTarget {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-brand'});
 
+class PowerController {
+    constructor({$powerUi}) {
+        // Add $powerUi to controller
+        this.$powerUi = $powerUi;
+    }
+
+    safeEval(string) {
+        return this.$powerUi.safeEval({text: string, scope: this});
+    }
+}
+
 class PowerDropmenu extends PowerTarget {
 	constructor(element) {
 		super(element);
@@ -4761,7 +4784,7 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, staticTemplate, callback, viewId}) {
+	add({id, route, template, templateUrl, staticTemplate, callback, viewId, ctrl}) {
 		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
@@ -4814,6 +4837,7 @@ class Router {
 			staticTemplate: staticTemplate === true ? true : false,
 			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
+			ctrl: ctrl || null,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
@@ -4902,9 +4926,19 @@ class Router {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
 							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId});
-							this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
+							this.loadRoute({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								viewId: this.config.routerMainViewId,
+								ctrl: this.routes[routeId].ctrl,
+							});
 						}
-						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys, route: routeParts.path, viewId: this.config.routerMainViewId});
+						this.setMainRouteState({
+							routeId: routeId,
+							paramKeys: paramKeys,
+							route: routeParts.path,
+							viewId: this.config.routerMainViewId,
+						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
 							this.init({secundaryRoute: compRoute});
@@ -4919,8 +4953,18 @@ class Router {
 						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						if (!oldSecundaryRoute && !newSecundaryRoute) {
-							const secundaryViewId = this.loadSecundaryRoute({routeId: routeId, paramKeys: paramKeys, routerSecundaryViewId: this.config.routerSecundaryViewId});
-							this.setSecundaryRouteState({routeId: routeId, paramKeys: paramKeys, secundaryRoute: secundaryRoute, secundaryViewId: secundaryViewId});
+							const secundaryViewId = this.loadSecundaryRoute({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								routerSecundaryViewId: this.config.routerSecundaryViewId,
+								ctrl: this.routes[routeId].ctrl,
+							});
+							this.setSecundaryRouteState({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								secundaryRoute: secundaryRoute,
+								secundaryViewId: secundaryViewId,
+							});
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
 							// Only add if it is only on oldSecundaryRoute list
@@ -4965,10 +5009,22 @@ class Router {
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
 
-	loadRoute({routeId, paramKeys, viewId}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl}) {
+		console.log('routeId', routeId, 'paramKeys', paramKeys, 'viewId', viewId, 'CTRL', ctrl);
+		if (ctrl) {
+			// Register the controller with $powerUi
+			this.$powerUi.controllers[routeId] = ctrl;
+			// Instanciate the controller
+			const $params = ctrl.params || {};
+			$params.$powerUi = this.$powerUi;
+			this.$powerUi.controllers[routeId].instance = new ctrl.component($params);
+			// Bind $params to the controller instance
+			this.$powerUi.controllers[routeId].instance.ctrl.bind($params);
+		}
+
 		// If have a template to load let's do it
 		if (this.routes[routeId].template && !this.config.noRouterViews) {
-			// If user defines a custom vieId to this route, but the router don't find it alert the user
+			// If user defines a custom viewId to this route, but the router don't find it alert the user
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
@@ -5387,6 +5443,68 @@ const someViewTemplate = `<div class="fakemodalback">
 </div>`;
 var teste = 'MARAVILHA!';
 
+class FrontPage extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Front page is intancitated', $params);
+	}
+
+	ctrl() {
+		// const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
+		// const parser = new PowerTemplateParser({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
+		// const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
+		// const princesa = '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3-15*2+30';
+		// const princesa = '2.5*2.5 + 5 + 1 * 2 + 13.75 - 27';
+		// const princesa = 'fofa[(a ? b : c)]';
+		// const princesa = 'teste(princesa( { teste: beleza({key: value1, key2: value2}), number: 2+2, dict: pity[teste]["novo"].pity(2+2), "fim": end } ), 2+5, teste())';
+		// const princesa = 'princesa ? fofa : linda';
+		// const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
+		// const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
+		// const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
+
+		this.pitanga = 'olha';
+		this.morango = 'pen';
+		this.amora = 'inha';
+		this.pita = {teste: {pi10: 25, func: a}};
+		this.testess = 'teste';
+		this.j = 2;
+		this.h = 3;
+		this.sdfs = false;
+		this.falso = false;
+		this.pArray = [1,2,3,4,5];
+
+		// const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
+		// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
+		// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
+		// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pita["teste"].pi10 + nov.nSum(20, 10) + pita["teste"].func()().aqui + pita["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
+		// const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pita["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
+		// const princesa = '-pita["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
+		// const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
+		// const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
+		// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
+		// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
+		// const princesa = 'getValue2(pita["teste"]["pi10"])';
+		const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
+		const getValue2 = this.getValue2;
+		this.final = [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}];
+		const final = this.final;
+		// this.princesa = '2+2-1+(2*3)+10';
+		var pity = 'teste';
+
+		console.log('scope:', pity, this['pity']);
+
+		const value = this.safeEval(princesa);
+		console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));
+	}
+
+	getValue({value}) {
+		return value;
+	}
+	getValue2(value) {
+		return value;
+	}
+}
+
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: [
@@ -5394,6 +5512,10 @@ let app = new PowerUi({
 			id: 'front-page',
 			route: '/',
 			templateUrl: 'front_page.html',
+			ctrl: {
+				component: FrontPage,
+				params: {lock: true},
+			},
 		},
 		{
 			id: 'power-only',
@@ -5430,6 +5552,7 @@ let app = new PowerUi({
 		}
 	],
 });
+
 const t1 = performance.now();
 console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
@@ -5608,65 +5731,6 @@ function b () {
 	return someDict;
 }
 window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
-// const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-// const parser = new PowerTemplateParser({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
-// const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-// const princesa = '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3-15*2+30';
-// const princesa = '2.5*2.5 + 5 + 1 * 2 + 13.75 - 27';
-// const princesa = 'fofa[(a ? b : c)]';
-// const princesa = 'teste(princesa( { teste: beleza({key: value1, key2: value2}), number: 2+2, dict: pity[teste]["novo"].pity(2+2), "fim": end } ), 2+5, teste())';
-// const princesa = 'princesa ? fofa : linda';
-// const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
-// const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
-// const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
-
-const pitanga = 'olha';
-app.pitanga = pitanga;
-const morango = 'pen';
-const amora = 'inha';
-app.pita = {teste: {pi10: 25, func: a}};
-const pita = app.pita;
-const pity = app.pity;
-const testess = 'teste';
-app.j = 2;
-const j = 2;
-app.h = 3;
-const h = 3;
-app.sdfs = false;
-const sdfs = false;
-app.falso = false;
-const falso = false;
-function getValue({value}) {
-	return value;
-}
-function getValue2(value) {
-	return value;
-}
-app.getValue = getValue;
-app.getValue2 = getValue2;
-app.pArray = [1,2,3,4,5];
-const pArray = app.pArray;
-
-// const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
-// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pita["teste"].pi10 + nov.nSum(20, 10) + pita["teste"].func()().aqui + pita["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
-// const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pita["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
-// const princesa = '-pita["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
-// const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
-// const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
-// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
-// const princesa = 'getValue2(pita["teste"]["pi10"])';
-// const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
-app.final = [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}];
-const final = app.final;
-const princesa = 'final[0].isFavorite === true';
-
-const value = app.safeEval({text: princesa});
-console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa), 'obj', app.safeEval({text: 'pita.teste.func.a'}));
-
-
 
 // if (app.powerTree.allPowerObjsById['pouco_label']) {
 // 	if (app.powerTree.allPowerObjsById['mais-top44']) {

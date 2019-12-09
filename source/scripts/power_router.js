@@ -29,7 +29,7 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, staticTemplate, callback, viewId}) {
+	add({id, route, template, templateUrl, staticTemplate, callback, viewId, ctrl}) {
 		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
@@ -82,6 +82,7 @@ class Router {
 			staticTemplate: staticTemplate === true ? true : false,
 			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
+			ctrl: ctrl || null,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
@@ -170,9 +171,19 @@ class Router {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
 							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId});
-							this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: this.config.routerMainViewId});
+							this.loadRoute({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								viewId: this.config.routerMainViewId,
+								ctrl: this.routes[routeId].ctrl,
+							});
 						}
-						this.setMainRouteState({routeId: routeId, paramKeys: paramKeys, route: routeParts.path, viewId: this.config.routerMainViewId});
+						this.setMainRouteState({
+							routeId: routeId,
+							paramKeys: paramKeys,
+							route: routeParts.path,
+							viewId: this.config.routerMainViewId,
+						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
 							this.init({secundaryRoute: compRoute});
@@ -187,8 +198,18 @@ class Router {
 						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						if (!oldSecundaryRoute && !newSecundaryRoute) {
-							const secundaryViewId = this.loadSecundaryRoute({routeId: routeId, paramKeys: paramKeys, routerSecundaryViewId: this.config.routerSecundaryViewId});
-							this.setSecundaryRouteState({routeId: routeId, paramKeys: paramKeys, secundaryRoute: secundaryRoute, secundaryViewId: secundaryViewId});
+							const secundaryViewId = this.loadSecundaryRoute({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								routerSecundaryViewId: this.config.routerSecundaryViewId,
+								ctrl: this.routes[routeId].ctrl,
+							});
+							this.setSecundaryRouteState({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								secundaryRoute: secundaryRoute,
+								secundaryViewId: secundaryViewId,
+							});
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
 							// Only add if it is only on oldSecundaryRoute list
@@ -233,10 +254,22 @@ class Router {
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
 
-	loadRoute({routeId, paramKeys, viewId}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl}) {
+		console.log('routeId', routeId, 'paramKeys', paramKeys, 'viewId', viewId, 'CTRL', ctrl);
+		if (ctrl) {
+			// Register the controller with $powerUi
+			this.$powerUi.controllers[routeId] = ctrl;
+			// Instanciate the controller
+			const $params = ctrl.params || {};
+			$params.$powerUi = this.$powerUi;
+			this.$powerUi.controllers[routeId].instance = new ctrl.component($params);
+			// Bind $params to the controller instance
+			this.$powerUi.controllers[routeId].instance.ctrl.bind($params);
+		}
+
 		// If have a template to load let's do it
 		if (this.routes[routeId].template && !this.config.noRouterViews) {
-			// If user defines a custom vieId to this route, but the router don't find it alert the user
+			// If user defines a custom viewId to this route, but the router don't find it alert the user
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}

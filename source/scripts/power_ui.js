@@ -119,15 +119,18 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.controllers = {};
 		this.config = config;
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
 		this.interpolation = new PowerInterpolation(config, this);
-		this.request = new Request(config);
-		this.router = new Router(config, this); // Router calls this.init();
 		this._events = {};
 		this._events['ready'] = new UEvent();
+		this.request = new Request(config);
+		this.router = new Router(config, this); // Router calls this.init();
+
+		console.log('POWER UI IS INSTANCIATED');
 	}
 
 	safeEval({text, scope}) {
@@ -200,7 +203,7 @@ class PowerUi extends _PowerUiBase {
 		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	prepareViewToLoad({viewId}) {
+	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
 		// Avoid blink uninterpolated data before call compile and interpolate
 		view.style.visibility = 'hidden';
@@ -209,9 +212,16 @@ class PowerUi extends _PowerUiBase {
 		return view;
 	}
 
+	// Run the controller instance for the route
+	runRouteController({routeId}) {
+		if (this.controllers[routeId] && this.controllers[routeId].instance) {
+			this.controllers[routeId].instance.ctrl();
+		}
+	}
+
 	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
 		const self = this;
-		const view = this.prepareViewToLoad({viewId: viewId});
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
 				url: template,
 				method: 'GET',
@@ -219,7 +229,7 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit(response);
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
 			// Cache this template for new requests if not setted as false
 			const routeConfig = routes[routeId];
 			if (routeConfig.staticTemplate !== true) {
@@ -227,26 +237,28 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = true;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit(response);
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
 		});
 	}
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
-		const view = this.prepareViewToLoad({viewId: viewId});
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		view.innerHTML = template;
-		this.ifNotWaitingServerCallInit(template);
+		this.ifNotWaitingServerCallInit({template: template, routeId: routeId});
 	}
 
-	ifNotWaitingServerCallInit(response) {
+	ifNotWaitingServerCallInit({template, routeId}) {
 		const self = this;
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
+				self.runRouteController({routeId: routeId});
 				if (self.initAlreadyRun) {
-					self.initNodes(response);
+					self.initNodes(template);
 				} else {
 					self.initAll();
 				}
+				console.log('READY');
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
