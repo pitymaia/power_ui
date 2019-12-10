@@ -1456,11 +1456,13 @@ class PowerUi extends _PowerUiBase {
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
-			// Cache this template for new requests if not setted as false
+			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
-			if (routeConfig.staticTemplate !== true) {
+			if (routeConfig.avoidCacheTemplate !== true) {
 				routeConfig.template = xhr.responseText;
 				routeConfig.templateIsCached = true;
+			} else {
+				routeConfig.templateIsCached = false;
 			}
 		}).catch(function (response, xhr) {
 			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
@@ -4800,7 +4802,7 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, staticTemplate, callback, viewId, ctrl}) {
+	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl}) {
 		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
@@ -4850,7 +4852,7 @@ class Router {
 			callback: callback || null,
 			template: template || null,
 			templateUrl: templateUrl || null,
-			staticTemplate: staticTemplate === true ? true : false,
+			avoidCacheTemplate: avoidCacheTemplate === true ? true : false,
 			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
 			ctrl: ctrl || null,
@@ -5046,7 +5048,7 @@ class Router {
 			if (this.routes[routeId].viewId && !document.getElementById(this.routes[routeId].viewId)) {
 				throw new Error(`You defined a custom viewId "${this.routes[routeId].viewId}" to the route "${this.routes[routeId].route}" but there is no element on DOM with that id.`);
 			}
-			if (this.routes[routeId].templateUrl && (this.routes[routeId].staticTemplate !== true && this.routes[routeId].templateIsCached !== true)) {
+			if (this.routes[routeId].templateUrl && this.routes[routeId].templateIsCached !== true) {
 				this.$powerUi.loadTemplateUrl({
 					template: this.routes[routeId].template,
 					viewId: this.routes[routeId].viewId || viewId,
@@ -5578,7 +5580,7 @@ let app = new PowerUi({
 			id: 'power-only',
 			route: 'power_only',
 			templateUrl: 'power_only.html',
-			staticTemplate: false,
+			avoidCacheTemplate: false,
 			ctrl: {
 				component: PowerOnlyPage,
 				params: {lock: true},
@@ -5600,6 +5602,7 @@ let app = new PowerUi({
 			id: 'component1',
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
+			avoidCacheTemplate: false,
 			ctrl: {
 				component: FakeModal,
 				params: {lock: false},

@@ -238,11 +238,13 @@ class PowerUi extends _PowerUiBase {
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
 			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
-			// Cache this template for new requests if not setted as false
+			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
-			if (routeConfig.staticTemplate !== true) {
+			if (routeConfig.avoidCacheTemplate !== true) {
 				routeConfig.template = xhr.responseText;
 				routeConfig.templateIsCached = true;
+			} else {
+				routeConfig.templateIsCached = false;
 			}
 		}).catch(function (response, xhr) {
 			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});

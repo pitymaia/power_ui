@@ -178,7 +178,7 @@ let app = new PowerUi({
 			id: 'power-only',
 			route: 'power_only',
 			templateUrl: 'power_only.html',
-			staticTemplate: false,
+			avoidCacheTemplate: false,
 			ctrl: {
 				component: PowerOnlyPage,
 				params: {lock: true},
@@ -200,6 +200,7 @@ let app = new PowerUi({
 			id: 'component1',
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
+			avoidCacheTemplate: false,
 			ctrl: {
 				component: FakeModal,
 				params: {lock: false},
