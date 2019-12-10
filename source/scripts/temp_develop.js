@@ -362,7 +362,7 @@ app.catOfCats = function() {
 	if (catsNode) {
 		console.log('child', catsNode);
 	}
-	// app._events['ready'].unsubscribe(catOfCats);
+	app._events['ready'].unsubscribe(app.catOfCats);
 }
 
 app._events['ready'].subscribe(app.catOfCats);

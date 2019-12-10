@@ -244,6 +244,11 @@ class Router {
 		// Remove view node
 		const node = document.getElementById(secundaryViewId);
 		node.parentNode.removeChild(node);
+
+		// Delete the controller instance of this view if exists
+		if (this.$powerUi.controllers[secundaryViewId]) {
+			delete this.$powerUi.controllers[secundaryViewId];
+		}
 	}
 
 	removeMainView({viewId}) {
@@ -255,14 +260,13 @@ class Router {
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl}) {
-		console.log('routeId', routeId, 'paramKeys', paramKeys, 'viewId', viewId, 'CTRL', ctrl);
 		if (ctrl) {
 			// Register the controller with $powerUi
-			this.$powerUi.controllers[routeId] = ctrl;
+			this.$powerUi.controllers[viewId] = ctrl;
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
-			this.$powerUi.controllers[routeId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
 		}
 
 		// If have a template to load let's do it
@@ -302,7 +306,12 @@ class Router {
 		newViewNode.classList.add('power-view');
 		document.getElementById(routerSecundaryViewId).appendChild(newViewNode);
 		// Load the route inside the new element view
-		this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: viewId});
+		this.loadRoute({
+			routeId: routeId,
+			paramKeys: paramKeys,
+			viewId: viewId,
+			ctrl: this.routes[routeId].ctrl,
+		});
 		return viewId;
 	}
 

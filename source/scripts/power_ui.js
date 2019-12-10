@@ -158,8 +158,8 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
-			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
+			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -177,8 +177,8 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 
-		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
-			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
+			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -221,9 +221,9 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// Run the controller instance for the route
-	runRouteController({routeId}) {
-		if (this.controllers[routeId] && this.controllers[routeId].instance) {
-			this.controllers[routeId].instance.ctrl(this.controllers[routeId].params);
+	runRouteController({viewId}) {
+		if (this.controllers[viewId] && this.controllers[viewId].instance) {
+			this.controllers[viewId].instance.ctrl(this.controllers[viewId].params);
 		}
 	}
 
@@ -256,11 +256,12 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
+		console.log('ifNotWaitingServerCallInit', routeId, viewId);
 		const self = this;
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				self.runRouteController({routeId: routeId});
+				self.runRouteController({viewId: viewId});
 				if (self.initAlreadyRun) {
 					self.initNodes({
 						template: template,

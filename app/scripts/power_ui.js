@@ -1376,8 +1376,8 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
-			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
+			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -1395,8 +1395,8 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 
-		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
-			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
+			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -1439,9 +1439,9 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// Run the controller instance for the route
-	runRouteController({routeId}) {
-		if (this.controllers[routeId] && this.controllers[routeId].instance) {
-			this.controllers[routeId].instance.ctrl(this.controllers[routeId].params);
+	runRouteController({viewId}) {
+		if (this.controllers[viewId] && this.controllers[viewId].instance) {
+			this.controllers[viewId].instance.ctrl(this.controllers[viewId].params);
 		}
 	}
 
@@ -1474,11 +1474,12 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
+		console.log('ifNotWaitingServerCallInit', routeId, viewId);
 		const self = this;
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				self.runRouteController({routeId: routeId});
+				self.runRouteController({viewId: viewId});
 				if (self.initAlreadyRun) {
 					self.initNodes({
 						template: template,
@@ -5014,6 +5015,11 @@ class Router {
 		// Remove view node
 		const node = document.getElementById(secundaryViewId);
 		node.parentNode.removeChild(node);
+
+		// Delete the controller instance of this view if exists
+		if (this.$powerUi.controllers[secundaryViewId]) {
+			delete this.$powerUi.controllers[secundaryViewId];
+		}
 	}
 
 	removeMainView({viewId}) {
@@ -5025,14 +5031,13 @@ class Router {
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl}) {
-		console.log('routeId', routeId, 'paramKeys', paramKeys, 'viewId', viewId, 'CTRL', ctrl);
 		if (ctrl) {
 			// Register the controller with $powerUi
-			this.$powerUi.controllers[routeId] = ctrl;
+			this.$powerUi.controllers[viewId] = ctrl;
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
-			this.$powerUi.controllers[routeId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
 		}
 
 		// If have a template to load let's do it
@@ -5072,7 +5077,12 @@ class Router {
 		newViewNode.classList.add('power-view');
 		document.getElementById(routerSecundaryViewId).appendChild(newViewNode);
 		// Load the route inside the new element view
-		this.loadRoute({routeId: routeId, paramKeys: paramKeys, viewId: viewId});
+		this.loadRoute({
+			routeId: routeId,
+			paramKeys: paramKeys,
+			viewId: viewId,
+			ctrl: this.routes[routeId].ctrl,
+		});
 		return viewId;
 	}
 
@@ -5752,7 +5762,7 @@ app.catOfCats = function() {
 	if (catsNode) {
 		console.log('child', catsNode);
 	}
-	// app._events['ready'].unsubscribe(catOfCats);
+	app._events['ready'].unsubscribe(app.catOfCats);
 }
 
 app._events['ready'].subscribe(app.catOfCats);
