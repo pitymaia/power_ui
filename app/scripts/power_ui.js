@@ -1337,7 +1337,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.controllers = {};
+		this.controllers = {$routeSharedScope: {}};
 		this.config = config;
 		this.waitingViews = 0;
 		this.waitingInit = [];
@@ -5006,12 +5006,12 @@ class Router {
 	closeOldSecundaryViews() {
 		for (const route of this.oldRoutes.secundaryRoutes) {
 			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryView({secundaryViewId: route.viewId});
+				this.removeSecundaryView({secundaryViewId: route.viewId, routeId: route.id});
 			}
 		}
 	}
 
-	removeSecundaryView({secundaryViewId}) {
+	removeSecundaryView({secundaryViewId, routeId}) {
 		// Remove all view power Objects and events
 		this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
 		// Remove view node
@@ -5021,6 +5021,13 @@ class Router {
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[secundaryViewId]) {
 			delete this.$powerUi.controllers[secundaryViewId];
+			// Decrease $routeSharedScope number os opened instances and delete if is the last instance
+			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
+				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances - 1;
+				if (this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
+					delete this.$powerUi.controllers.$routeSharedScope[routeId];
+				}
+			}
 		}
 	}
 
@@ -5071,7 +5078,16 @@ class Router {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
-	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId}) {
+	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId, ctrl}) {
+		if (ctrl) {
+			// Create a shared scope for this route if not existas
+			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
+				this.$powerUi.controllers.$routeSharedScope[routeId] = {};
+				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = 0;
+			}
+			this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances + 1;
+			ctrl.params.$shared = this.$powerUi.controllers.$routeSharedScope[routeId];
+		}
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		const viewId = getIdAndCreateIfDontHave(newViewNode);
@@ -5555,8 +5571,8 @@ class FakeModal extends PowerController {
 		console.log('Fake Modal is intancitated', $params);
 	}
 
-	ctrl({lock, $powerUi}) {
-		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+	ctrl({lock, $powerUi, $shared}) {
+		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), '$shared', $shared);
 	}
 
 	onViewLoad(view) {

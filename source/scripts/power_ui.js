@@ -119,7 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
-		this.controllers = {};
+		this.controllers = {$routeSharedScope: {}};
 		this.config = config;
 		this.waitingViews = 0;
 		this.waitingInit = [];

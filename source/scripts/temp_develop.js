@@ -153,8 +153,8 @@ class FakeModal extends PowerController {
 		console.log('Fake Modal is intancitated', $params);
 	}
 
-	ctrl({lock, $powerUi}) {
-		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+	ctrl({lock, $powerUi, $shared}) {
+		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), '$shared', $shared);
 	}
 
 	onViewLoad(view) {
