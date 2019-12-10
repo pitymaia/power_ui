@@ -263,8 +263,6 @@ class Router {
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
 			this.$powerUi.controllers[routeId].instance = new ctrl.component($params);
-			// Bind $params to the controller instance
-			this.$powerUi.controllers[routeId].instance.ctrl.bind($params);
 		}
 
 		// If have a template to load let's do it

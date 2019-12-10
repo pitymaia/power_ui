@@ -126,6 +126,40 @@ class FrontPage extends PowerController {
 	getValue2(value) {
 		return value;
 	}
+
+	onViewLoad(view) {
+		console.log('!!!!! VIEW LOADED!!!!!', view);
+	}
+}
+
+class PowerOnlyPage extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Power page is intancitated', $params);
+	}
+
+	ctrl({lock, $powerUi}) {
+		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+	}
+
+	onViewLoad(view) {
+		console.log('!!!!! view LOADED!!!!!', view);
+	}
+}
+
+class FakeModal extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Fake Modal is intancitated', $params);
+	}
+
+	ctrl({lock, $powerUi}) {
+		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+	}
+
+	onViewLoad(view) {
+		console.log('!!!!! HERE LOADED!!!!!', view);
+	}
 }
 
 const t0 = performance.now();
@@ -145,6 +179,10 @@ let app = new PowerUi({
 			route: 'power_only',
 			templateUrl: 'power_only.html',
 			staticTemplate: false,
+			ctrl: {
+				component: PowerOnlyPage,
+				params: {lock: true},
+			},
 		},
 		{
 			id: 'power-only2',
@@ -162,6 +200,10 @@ let app = new PowerUi({
 			id: 'component1',
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
+			ctrl: {
+				component: FakeModal,
+				params: {lock: false},
+			},
 		},
 		{
 			id: 'simple-template',

@@ -137,7 +137,7 @@ class PowerUi extends _PowerUiBase {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
-	initAll() {
+	initAll({template, routeId, viewId}) {
 		const t0 = performance.now();
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
 		if (this.initAlreadyRun) {
@@ -157,6 +157,10 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 		this.waitingInit = [];
+
+		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
+			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -166,15 +170,19 @@ class PowerUi extends _PowerUiBase {
 		this.router._reload();
 	}
 
-	initNodes(response) {
+	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
 		}
+
+		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
+			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
-		this.waitingInit = []; // TODO REMOVE THIS AFTER CREATE THE REAL INITNODES
+		this.waitingInit = [];
 	}
 
 	hardRefresh({node, view}) {
@@ -215,7 +223,7 @@ class PowerUi extends _PowerUiBase {
 	// Run the controller instance for the route
 	runRouteController({routeId}) {
 		if (this.controllers[routeId] && this.controllers[routeId].instance) {
-			this.controllers[routeId].instance.ctrl();
+			this.controllers[routeId].instance.ctrl(this.controllers[routeId].params);
 		}
 	}
 
@@ -229,7 +237,7 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
 			// Cache this template for new requests if not setted as false
 			const routeConfig = routes[routeId];
 			if (routeConfig.staticTemplate !== true) {
@@ -237,28 +245,35 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = true;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
 		});
 	}
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		view.innerHTML = template;
-		this.ifNotWaitingServerCallInit({template: template, routeId: routeId});
+		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId}) {
+	ifNotWaitingServerCallInit({template, routeId, viewId}) {
 		const self = this;
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
 				self.runRouteController({routeId: routeId});
 				if (self.initAlreadyRun) {
-					self.initNodes(template);
+					self.initNodes({
+						template: template,
+						routeId: routeId,
+						viewId: viewId,
+					});
 				} else {
-					self.initAll();
+					self.initAll({
+						template: template,
+						routeId: routeId,
+						viewId: viewId,
+					});
 				}
-				console.log('READY');
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);

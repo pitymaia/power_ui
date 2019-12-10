@@ -1355,7 +1355,7 @@ class PowerUi extends _PowerUiBase {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
-	initAll() {
+	initAll({template, routeId, viewId}) {
 		const t0 = performance.now();
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
 		if (this.initAlreadyRun) {
@@ -1375,6 +1375,10 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 		this.waitingInit = [];
+
+		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
+			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -1384,15 +1388,19 @@ class PowerUi extends _PowerUiBase {
 		this.router._reload();
 	}
 
-	initNodes(response) {
+	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
 		}
+
+		if (this.controllers[routeId] && this.controllers[routeId].instance && this.controllers[routeId].instance.onViewLoad) {
+			this.controllers[routeId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
-		this.waitingInit = []; // TODO REMOVE THIS AFTER CREATE THE REAL INITNODES
+		this.waitingInit = [];
 	}
 
 	hardRefresh({node, view}) {
@@ -1433,7 +1441,7 @@ class PowerUi extends _PowerUiBase {
 	// Run the controller instance for the route
 	runRouteController({routeId}) {
 		if (this.controllers[routeId] && this.controllers[routeId].instance) {
-			this.controllers[routeId].instance.ctrl();
+			this.controllers[routeId].instance.ctrl(this.controllers[routeId].params);
 		}
 	}
 
@@ -1447,7 +1455,7 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
 			// Cache this template for new requests if not setted as false
 			const routeConfig = routes[routeId];
 			if (routeConfig.staticTemplate !== true) {
@@ -1455,28 +1463,35 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = true;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId});
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
 		});
 	}
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		view.innerHTML = template;
-		this.ifNotWaitingServerCallInit({template: template, routeId: routeId});
+		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId}) {
+	ifNotWaitingServerCallInit({template, routeId, viewId}) {
 		const self = this;
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
 				self.runRouteController({routeId: routeId});
 				if (self.initAlreadyRun) {
-					self.initNodes(template);
+					self.initNodes({
+						template: template,
+						routeId: routeId,
+						viewId: viewId,
+					});
 				} else {
-					self.initAll();
+					self.initAll({
+						template: template,
+						routeId: routeId,
+						viewId: viewId,
+					});
 				}
-				console.log('READY');
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
@@ -5018,8 +5033,6 @@ class Router {
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
 			this.$powerUi.controllers[routeId].instance = new ctrl.component($params);
-			// Bind $params to the controller instance
-			this.$powerUi.controllers[routeId].instance.ctrl.bind($params);
 		}
 
 		// If have a template to load let's do it
@@ -5503,6 +5516,40 @@ class FrontPage extends PowerController {
 	getValue2(value) {
 		return value;
 	}
+
+	onViewLoad(view) {
+		console.log('!!!!! VIEW LOADED!!!!!', view);
+	}
+}
+
+class PowerOnlyPage extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Power page is intancitated', $params);
+	}
+
+	ctrl({lock, $powerUi}) {
+		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+	}
+
+	onViewLoad(view) {
+		console.log('!!!!! view LOADED!!!!!', view);
+	}
+}
+
+class FakeModal extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Fake Modal is intancitated', $params);
+	}
+
+	ctrl({lock, $powerUi}) {
+		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+	}
+
+	onViewLoad(view) {
+		console.log('!!!!! HERE LOADED!!!!!', view);
+	}
 }
 
 const t0 = performance.now();
@@ -5522,6 +5569,10 @@ let app = new PowerUi({
 			route: 'power_only',
 			templateUrl: 'power_only.html',
 			staticTemplate: false,
+			ctrl: {
+				component: PowerOnlyPage,
+				params: {lock: true},
+			},
 		},
 		{
 			id: 'power-only2',
@@ -5539,6 +5590,10 @@ let app = new PowerUi({
 			id: 'component1',
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
+			ctrl: {
+				component: FakeModal,
+				params: {lock: false},
+			},
 		},
 		{
 			id: 'simple-template',
