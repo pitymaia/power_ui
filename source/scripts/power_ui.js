@@ -119,6 +119,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.ctrlWaitingToRun = [];
 		this.controllers = {};
 		this.config = config;
 		this.waitingViews = 0;
@@ -221,10 +222,13 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// Run the controller instance for the route
-	runRouteController({viewId}) {
-		if (this.controllers[viewId] && this.controllers[viewId].instance) {
-			this.controllers[viewId].instance.ctrl(this.controllers[viewId].params);
+	runRouteController() {
+		for (const ctrl of this.ctrlWaitingToRun) {
+			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
+				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
+			}
 		}
+		this.ctrlWaitingToRun = [];
 	}
 
 	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
@@ -258,12 +262,13 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
-		console.log('ifNotWaitingServerCallInit', routeId, viewId);
 		const self = this;
+		console.log('!!!!! ifNotWaitingServerCallInit', self, routeId, viewId);
+		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				self.runRouteController({viewId: viewId});
+				self.runRouteController();
 				if (self.initAlreadyRun) {
 					self.initNodes({
 						template: template,

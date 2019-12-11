@@ -7,10 +7,11 @@ class PowFor extends _PowerBasicElementWithEvents {
 	}
 
 	// element attr allow to recursivelly call it with another element
-	compile(element) {
+	compile({view}) {
 		if (!this.element.dataset.powFor) {
 			return;
 		}
+
 		const scope = {};
 		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
@@ -22,7 +23,9 @@ class PowFor extends _PowerBasicElementWithEvents {
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
 
-		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});
+		// The scope of the controller of the view of this element
+		const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: ctrlScope});
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);

@@ -552,6 +552,7 @@ class PowerTree {
 							currentNode: currentNode,
 							datasetKey: datasetKey,
 							isInnerCompiler: isInnerCompiler,
+							view: view,
 						});
 						if (hasCompiled && !isInnerCompiler) {
 							rootCompiler = currentNode;
@@ -702,7 +703,7 @@ class PowerTree {
 
 	}
 
-	_compile({currentNode, datasetKey, isInnerCompiler}) {
+	_compile({currentNode, datasetKey, isInnerCompiler, view}) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
 		if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isCompiler) {
@@ -716,7 +717,7 @@ class PowerTree {
 				// If is the root element save the original innerHTML, if not only return true
 				// pow-text have a compiler with empty value: '' So we need return true if no/empty innerHTML
 				compiled = !isInnerCompiler ? (currentNode.innerHTML || true) : true;
-				newObj.compile();
+				newObj.compile({view: view});
 				newObj.element.setAttribute('data-pwhascomp', true);
 			}
 		}
@@ -1337,6 +1338,7 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		this.ctrlWaitingToRun = [];
 		this.controllers = {};
 		this.config = config;
 		this.waitingViews = 0;
@@ -1439,10 +1441,13 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// Run the controller instance for the route
-	runRouteController({viewId}) {
-		if (this.controllers[viewId] && this.controllers[viewId].instance) {
-			this.controllers[viewId].instance.ctrl(this.controllers[viewId].params);
+	runRouteController() {
+		for (const ctrl of this.ctrlWaitingToRun) {
+			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
+				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
+			}
 		}
+		this.ctrlWaitingToRun = [];
 	}
 
 	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
@@ -1476,12 +1481,13 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
-		console.log('ifNotWaitingServerCallInit', routeId, viewId);
 		const self = this;
+		console.log('!!!!! ifNotWaitingServerCallInit', self, routeId, viewId);
+		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				self.runRouteController({viewId: viewId});
+				self.runRouteController();
 				if (self.initAlreadyRun) {
 					self.initNodes({
 						template: template,
@@ -3877,10 +3883,11 @@ class PowFor extends _PowerBasicElementWithEvents {
 	}
 
 	// element attr allow to recursivelly call it with another element
-	compile(element) {
+	compile({view}) {
 		if (!this.element.dataset.powFor) {
 			return;
 		}
+
 		const scope = {};
 		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
@@ -3892,7 +3899,9 @@ class PowFor extends _PowerBasicElementWithEvents {
 		// Recreate the final string to evaluate with the remaining parts
 		let obj = parts.join(' ');
 
-		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: this});
+		// The scope of the controller of the view of this element
+		const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: ctrlScope});
 
 		if (operation === 'of') {
 			this.forOf(scope, item, obj);
@@ -3968,8 +3977,10 @@ class PowIf extends _PowerBasicElementWithEvents {
 		this.originalHTML = element.innerHTML;
 	}
 
-	compile() {
-		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this});
+	compile({view}) {
+		// The scope of the controller of the view of this element
+		const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: ctrlScope});
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
@@ -5557,6 +5568,52 @@ class FakeModal extends PowerController {
 
 	ctrl({lock, $powerUi}) {
 		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+		this.cats = [
+			{name: 'Riquinho', gender: 'male'},
+			{name: 'Tico', gender: 'male'},
+			{name: 'Drew', gender: 'male'},
+			{name: 'Kid', gender: 'male'},
+			{name: 'Neo', gender: 'male'},
+			{name: 'Pingo', gender: 'male'},
+			{name: 'Princesa', gender: 'female'},
+			{name: 'Lady', gender: 'female'},
+			{name: 'Lindinha', gender: 'female'},
+			{name: 'Docinho', gender: 'female'},
+			{name: 'Florzinha', gender: 'female'},
+			{name: 'Laylita', gender: 'female'},
+		];
+		this.cands = [
+			['bala', 'chiclete'],
+			['brigadeiro', 'cajuzinho'],
+			['bolo', 'torta'],
+		];
+
+		this.flowers = {
+			Rose: 'Pink',
+			Orchidy: 'White',
+			Violet: 'Blue',
+			Daisy: 'Yellow',
+
+		}
+		this.languages = {
+			good: {name: 'Python', kind: 'Not typed'},
+			hard: {name: 'Java', kind: 'Typed'},
+			bad: {name: 'EcmaScript', kind: 'Not typed'},
+			old: {name: 'COBOL', kind: 'Not typed'},
+			cool: {name: 'C++', kind: 'typed'},
+		}
+		this.getCandNumber = function(currentCand) {
+			this.candCounter = 1;
+			for (const group of this.cands) {
+				for (const cand of group) {
+					if (cand === currentCand) {
+						return this.candCounter;
+					}
+					this.candCounter = this.candCounter + 1;
+				}
+			}
+			return this.candCounter;
+		}
 	}
 
 	onViewLoad(view) {
@@ -5621,15 +5678,12 @@ let app = new PowerUi({
 	],
 });
 
-const t1 = performance.now();
-console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 let oldName = myName;
 app.pity = function() {
 	return myName;
 }
-console.log(app.pity());
 app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
 }
@@ -5644,52 +5698,7 @@ app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
 
-app.cats = [
-	{name: 'Riquinho', gender: 'male'},
-	{name: 'Tico', gender: 'male'},
-	{name: 'Drew', gender: 'male'},
-	{name: 'Kid', gender: 'male'},
-	{name: 'Neo', gender: 'male'},
-	{name: 'Pingo', gender: 'male'},
-	{name: 'Princesa', gender: 'female'},
-	{name: 'Lady', gender: 'female'},
-	{name: 'Lindinha', gender: 'female'},
-	{name: 'Docinho', gender: 'female'},
-	{name: 'Florzinha', gender: 'female'},
-	{name: 'Laylita', gender: 'female'},
-];
-app.cands = [
-	['bala', 'chiclete'],
-	['brigadeiro', 'cajuzinho'],
-	['bolo', 'torta'],
-];
 
-app.flowers = {
-	Rose: 'Pink',
-	Orchidy: 'White',
-	Violet: 'Blue',
-	Daisy: 'Yellow',
-
-}
-app.languages = {
-	good: {name: 'Python', kind: 'Not typed'},
-	hard: {name: 'Java', kind: 'Typed'},
-	bad: {name: 'EcmaScript', kind: 'Not typed'},
-	old: {name: 'COBOL', kind: 'Not typed'},
-	cool: {name: 'C++', kind: 'typed'},
-}
-app.getCandNumber = function(currentCand) {
-	app.candCounter = 1;
-	for (const group of app.cands) {
-		for (const cand of group) {
-			if (cand === currentCand) {
-				return app.candCounter;
-			}
-			app.candCounter = app.candCounter + 1;
-		}
-	}
-	return app.candCounter;
-}
 app.changeModel = function(kind) {
 	if (oldName === myName) {
 		myName = 'My name is Bond, James Bond!';
@@ -5698,25 +5707,25 @@ app.changeModel = function(kind) {
 		myName = oldName;
 		oldName = changeName;
 	}
-	if (myName == 'My name is Bond, James Bond!') {
-		app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
-	} else {
-		delete app.languages.garbage;
-	}
+	// if (myName == 'My name is Bond, James Bond!') {
+	// 	app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
+	// } else {
+	// 	delete app.languages.garbage;
+	// }
 	app.showIf();
-	if (app.cats.length === 12) {
-		app.cats[10].name = 'Luke';
-		app.cats[10].gender = 'male';
-		app.cats.push({name: 'Floquinho', gender: 'male'});
-		app.cats.push({name: '4 gatinhos', gender: 'unknow'});
-		app.cands.push(['caramelo', 'pirulito']);
-		app.cands.push(['pipoca', 'cocada']);
-	} else {
-		app.cats[10].name = 'Florzinha';
-		app.cats[10].gender = 'female';
-		app.cats.pop();
-		app.cands.pop();
-	}
+	// if (app.cats.length === 12) {
+	// 	app.cats[10].name = 'Luke';
+	// 	app.cats[10].gender = 'male';
+	// 	app.cats.push({name: 'Floquinho', gender: 'male'});
+	// 	app.cats.push({name: '4 gatinhos', gender: 'unknow'});
+	// 	app.cands.push(['caramelo', 'pirulito']);
+	// 	app.cands.push(['pipoca', 'cocada']);
+	// } else {
+	// 	app.cats[10].name = 'Florzinha';
+	// 	app.cats[10].gender = 'female';
+	// 	app.cats.pop();
+	// 	app.cands.pop();
+	// }
 	if (kind === 'pwReload') {
 		app.pwReload();
 	} else if (kind === 'hardRefresh') {

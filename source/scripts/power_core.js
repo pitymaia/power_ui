@@ -552,6 +552,7 @@ class PowerTree {
 							currentNode: currentNode,
 							datasetKey: datasetKey,
 							isInnerCompiler: isInnerCompiler,
+							view: view,
 						});
 						if (hasCompiled && !isInnerCompiler) {
 							rootCompiler = currentNode;
@@ -702,7 +703,7 @@ class PowerTree {
 
 	}
 
-	_compile({currentNode, datasetKey, isInnerCompiler}) {
+	_compile({currentNode, datasetKey, isInnerCompiler, view}) {
 		let compiled = false;
 		// Create a temp version of all powerObjects with compile methods
 		if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isCompiler) {
@@ -716,7 +717,7 @@ class PowerTree {
 				// If is the root element save the original innerHTML, if not only return true
 				// pow-text have a compiler with empty value: '' So we need return true if no/empty innerHTML
 				compiled = !isInnerCompiler ? (currentNode.innerHTML || true) : true;
-				newObj.compile();
+				newObj.compile({view: view});
 				newObj.element.setAttribute('data-pwhascomp', true);
 			}
 		}

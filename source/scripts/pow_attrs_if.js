@@ -6,8 +6,10 @@ class PowIf extends _PowerBasicElementWithEvents {
 		this.originalHTML = element.innerHTML;
 	}
 
-	compile() {
-		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: this});
+	compile({view}) {
+		// The scope of the controller of the view of this element
+		const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: ctrlScope});
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
