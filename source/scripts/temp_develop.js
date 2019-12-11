@@ -31,7 +31,7 @@ const someViewTemplate = `<div class="fakemodalback">
 	<div class="fakemodal">
 		<h1>Cats list</h1>
 		<div data-pow-for="cat of cats">
-			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
 			</div>
 			<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
 			</div>
@@ -58,7 +58,7 @@ const someViewTemplate = `<div class="fakemodalback">
 		]">
 			<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
-			<span data-pow-text="'test 2+2: ' + (2+2)"></span>
+			<span data-pow-eval="'test 2+2: ' + (2+2)"></span>
 		</div>
 		<br />
 		<button onclick="app.closeModal()">Close</button>

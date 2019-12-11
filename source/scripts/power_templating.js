@@ -43,7 +43,7 @@ class PowerInterpolation {
 	// 		for (const entry of match) {
 	// 			const id = _Unique.domID('span');
 	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
-	// 			const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
+	// 			const value = `<span data-pow-eval="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
 	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 	// 			template = template.replace(entry, value);
 

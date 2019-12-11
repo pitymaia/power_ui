@@ -498,7 +498,7 @@ class PowerTree {
 		// }
 	}
 
-	// Create individual pow-text powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
+	// Create individual pow-eval powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
 	// addPowTextObject(id) {
 	// 	const newNode = document.getElementById(id);
 	// 	// Search a powerElement parent of currentObj up DOM if exists
@@ -513,7 +513,7 @@ class PowerTree {
 	// 	// Make the instance and add the powerObject into a list ordered by id
 	// 	this._instanciateObj({
 	// 		currentElement: newNode,
-	// 		datasetKey: 'powText',
+	// 		datasetKey: 'powEval',
 	// 		main: currentMainElement,
 	// 		view: currentViewElement,
 	// 		parent: currentParentElement,
@@ -689,7 +689,7 @@ class PowerTree {
 			const node = document.getElementById(id);
 			node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
 		}
-		// Replace any interpolation with pow-text
+		// Replace any interpolation with pow-eval
 		// if (!refresh) {
 		// 	const node = document.getElementById(id);
 		// 	const tempTree = {pending: []};
@@ -715,7 +715,7 @@ class PowerTree {
 				newObj.id = id;
 				newObj.$powerUi = this.$powerUi;
 				// If is the root element save the original innerHTML, if not only return true
-				// pow-text have a compiler with empty value: '' So we need return true if no/empty innerHTML
+				// pow-eval have a compiler with empty value: '' So we need return true if no/empty innerHTML
 				compiled = !isInnerCompiler ? (currentNode.innerHTML || true) : true;
 				newObj.compile({view: view});
 				newObj.element.setAttribute('data-pwhascomp', true);

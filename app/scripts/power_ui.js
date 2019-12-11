@@ -498,7 +498,7 @@ class PowerTree {
 		// }
 	}
 
-	// Create individual pow-text powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
+	// Create individual pow-eval powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
 	// addPowTextObject(id) {
 	// 	const newNode = document.getElementById(id);
 	// 	// Search a powerElement parent of currentObj up DOM if exists
@@ -513,7 +513,7 @@ class PowerTree {
 	// 	// Make the instance and add the powerObject into a list ordered by id
 	// 	this._instanciateObj({
 	// 		currentElement: newNode,
-	// 		datasetKey: 'powText',
+	// 		datasetKey: 'powEval',
 	// 		main: currentMainElement,
 	// 		view: currentViewElement,
 	// 		parent: currentParentElement,
@@ -689,7 +689,7 @@ class PowerTree {
 			const node = document.getElementById(id);
 			node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
 		}
-		// Replace any interpolation with pow-text
+		// Replace any interpolation with pow-eval
 		// if (!refresh) {
 		// 	const node = document.getElementById(id);
 		// 	const tempTree = {pending: []};
@@ -715,7 +715,7 @@ class PowerTree {
 				newObj.id = id;
 				newObj.$powerUi = this.$powerUi;
 				// If is the root element save the original innerHTML, if not only return true
-				// pow-text have a compiler with empty value: '' So we need return true if no/empty innerHTML
+				// pow-eval have a compiler with empty value: '' So we need return true if no/empty innerHTML
 				compiled = !isInnerCompiler ? (currentNode.innerHTML || true) : true;
 				newObj.compile({view: view});
 				newObj.element.setAttribute('data-pwhascomp', true);
@@ -3878,6 +3878,25 @@ class EmptyPattern {
 	}
 }
 
+// Replace a value form an attribute when is mouseover some element and undo on mouseout
+class PowEval extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+    }
+
+    compile({view}) {
+        // The scope of the controller of the view of this element
+        const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powEval, ctrlScope);
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-eval',
+    callback: function(element) {return new PowEval(element);}
+});
+
 // Create DOM elements with all ineerHTML for each "for in" or "for of"
 class PowFor extends _PowerBasicElementWithEvents {
 	constructor(element) {
@@ -3998,25 +4017,6 @@ class PowIf extends _PowerBasicElementWithEvents {
 // Inject the attr on PowerUi
 _PowerUiBase.injectPow({name: 'data-pow-if',
 	callback: function(element) {return new PowIf(element);}
-});
-
-// Replace a value form an attribute when is mouseover some element and undo on mouseout
-class powText extends _PowerBasicElementWithEvents {
-    constructor(element) {
-        super(element);
-        this._$pwActive = false;
-    }
-
-    compile({view}) {
-        // The scope of the controller of the view of this element
-        const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
-        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powText, ctrlScope);
-    }
-}
-
-// Inject the attr on PowerUi
-_PowerUiBase.injectPow({name: 'data-pow-text',
-    callback: function(element) {return new powText(element);}
 });
 
 class AccordionModel {
@@ -5338,7 +5338,7 @@ class PowerInterpolation {
 	// 		for (const entry of match) {
 	// 			const id = _Unique.domID('span');
 	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
-	// 			const value = `<span data-pow-text="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
+	// 			const value = `<span data-pow-eval="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
 	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
 	// 			template = template.replace(entry, value);
 
@@ -5479,7 +5479,7 @@ const someViewTemplate = `<div class="fakemodalback">
 	<div class="fakemodal">
 		<h1>Cats list</h1>
 		<div data-pow-for="cat of cats">
-			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-text="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
 			</div>
 			<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
 			</div>
@@ -5506,7 +5506,7 @@ const someViewTemplate = `<div class="fakemodalback">
 		]">
 			<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 			</div>
-			<span data-pow-text="'test 2+2: ' + (2+2)"></span>
+			<span data-pow-eval="'test 2+2: ' + (2+2)"></span>
 		</div>
 		<br />
 		<button onclick="app.closeModal()">Close</button>
