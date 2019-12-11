@@ -831,7 +831,7 @@ class ParserEval {
 
 			// Build the dict object
 			if (obj.syntax !== 'anonymousFunc') {
-				if (objOnScope === '') {
+				if (objOnScope === '' && $currentScope) {
 					// first node of dict
 					objOnScope = $currentScope[label];
 				} else {
@@ -848,8 +848,8 @@ class ParserEval {
 				for (const param of obj.parameters[0].expression_nodes) {
 					args.push(this.recursiveEval([{expression_nodes: [param]}]));
 				}
-				value = objOnScope.apply(null, args);
-				// This allow calls multiple anonymous functions
+				// This allow call multiple anonymous functions
+				value = objOnScope.apply($currentScope || null, args);
 				objOnScope = value;
 			}
 		}

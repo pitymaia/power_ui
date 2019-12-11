@@ -12,7 +12,6 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 
-		const scope = {};
 		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
@@ -28,13 +27,13 @@ class PowFor extends _PowerBasicElementWithEvents {
 		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: ctrlScope});
 
 		if (operation === 'of') {
-			this.forOf(scope, item, obj);
+			this.forOf(item, obj);
 		} else {
-			this.forIn(scope, item, obj);
+			this.forIn(item, obj);
 		}
 	}
 
-	forOf(scope, selector, obj) {
+	forOf(selector, obj) {
 		let newHtml = '';
 		let $pwIndex = 0;
 		for (const item of obj || []) {
@@ -58,7 +57,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 		this.element.innerHTML = newHtml;
 	}
 
-	forIn(scope, selector, obj) {
+	forIn(selector, obj) {
 		let newHtml = '';
 		let $pwIndex = 0;
 		for (const $pwKey of Object.keys(obj || {})) {

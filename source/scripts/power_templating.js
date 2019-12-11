@@ -6,12 +6,16 @@ class PowerInterpolation {
 		this.endSymbol = config.interpolateEndSymbol || '}}';
 	}
 
-	compile(template, scope) {
+	compile({template, scope, view}) {
+		if (!scope && view) {
+			// The scope of the controller of the view of this element
+			scope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+		}
 		return this.replaceInterpolation(template, scope);
 	}
 	// Add the {{ }} to pow interpolation values
-	getDatasetResult(template) {
-		return this.compile(`${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`);
+	getDatasetResult(template, scope) {
+		return this.compile({template: `${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`, scope: scope});
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {

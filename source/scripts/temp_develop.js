@@ -140,6 +140,45 @@ class PowerOnlyPage extends PowerController {
 
 	ctrl({lock, $powerUi}) {
 		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+		this.cats = [
+			{name: 'Sol', gender: 'female'},
+			{name: 'Lion', gender: 'male'},
+			{name: 'Duque', gender: 'male'},
+			{name: 'Tiger', gender: 'male'},
+			{name: 'Pingo', gender: 'male'},
+			{name: 'Meg', gender: 'female'},
+			{name: 'Princesa', gender: 'female'},
+			{name: 'Lady', gender: 'female'},
+			{name: 'Lindinha', gender: 'female'},
+			{name: 'Docinho', gender: 'female'},
+			{name: 'Florzinha', gender: 'female'},
+			{name: 'Laylita', gender: 'female'},
+		];
+	}
+
+	onViewLoad(view) {
+		console.log('!!!!! view LOADED!!!!!', view);
+	}
+}
+
+class SimpleModal extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Power page is intancitated', $params);
+	}
+
+	ctrl({lock, $powerUi}) {
+		this.cats = [
+			{name: 'Sol', gender: 'female'},
+			{name: 'Lion', gender: 'male'},
+			{name: 'Duque', gender: 'male'},
+			{name: 'Tiger', gender: 'male'},
+			{name: 'Pingo', gender: 'male'},
+			{name: 'Meg', gender: 'female'},
+			{name: 'Lindinha', gender: 'female'},
+			{name: 'Laylita', gender: 'female'},
+		];
+		console.log('CTRL:', this.safeEval('cats'));
 	}
 
 	onViewLoad(view) {
@@ -194,17 +233,63 @@ class FakeModal extends PowerController {
 			old: {name: 'COBOL', kind: 'Not typed'},
 			cool: {name: 'C++', kind: 'typed'},
 		}
-		this.getCandNumber = function(currentCand) {
-			this.candCounter = 1;
-			for (const group of this.cands) {
-				for (const cand of group) {
-					if (cand === currentCand) {
-						return this.candCounter;
-					}
-					this.candCounter = this.candCounter + 1;
+
+		this.myName = 'Eu sou o Pity o bom!';
+		this.oldName = this.myName;
+		this.currentIf = false;
+	}
+
+	showIf() {
+		this.currentIf = !this.currentIf;
+		return this.currentIf;
+	}
+
+	getCandNumber(currentCand) {
+		this.candCounter = 1;
+		for (const group of this.cands) {
+			for (const cand of group) {
+				if (cand === currentCand) {
+					return this.candCounter;
 				}
+				this.candCounter = this.candCounter + 1;
 			}
-			return this.candCounter;
+		}
+		return this.candCounter;
+	}
+
+	changeModel(kind) {
+		if (this.oldName === this.myName) {
+			this.myName = 'My name is Bond, James Bond!';
+		} else {
+			this.changeName = this.myName;
+			this.myName = this.oldName;
+			this.oldName = this.changeName;
+		}
+		if (myName == 'My name is Bond, James Bond!') {
+			this.languages.garbage = {name: 'PHP', kind: 'Not typed'};
+		} else {
+			delete this.languages.garbage;
+		}
+		this.showIf();
+		if (this.cats.length === 12) {
+			this.cats[10].name = 'Luke';
+			this.cats[10].gender = 'male';
+			this.cats.push({name: 'Floquinho', gender: 'male'});
+			this.cats.push({name: '4 gatinhos', gender: 'unknow'});
+			this.cands.push(['caramelo', 'pirulito']);
+			this.cands.push(['pipoca', 'cocada']);
+		} else {
+			this.cats[10].name = 'Florzinha';
+			this.cats[10].gender = 'female';
+			this.cats.pop();
+			this.cands.pop();
+		}
+		if (kind === 'pwReload') {
+			this.$powerUi.pwReload();
+		} else if (kind === 'hardRefresh') {
+			this.$powerUi.hardRefresh(document);
+		} else if (kind === 'softRefresh') {
+			this.$powerUi.softRefresh(document);
 		}
 	}
 
@@ -261,6 +346,10 @@ let app = new PowerUi({
 			id: 'simple-template',
 			route: 'simple',
 			template: someViewTemplate,
+			ctrl: {
+				component: SimpleModal,
+				params: {lock: false},
+			},
 		},
 		{
 			id: 'otherwise',
@@ -271,18 +360,11 @@ let app = new PowerUi({
 });
 
 console.log('app', app);
-let myName = 'Eu sou o Pity o bom!';
-let oldName = myName;
 app.pity = function() {
 	return myName;
 }
 app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
-}
-app.currentIf = false;
-app.showIf = function() {
-	app.currentIf = !app.currentIf;
-	return app.currentIf;
 }
 
 app.variable = 'obj';
@@ -290,42 +372,6 @@ app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
 
-
-app.changeModel = function(kind) {
-	if (oldName === myName) {
-		myName = 'My name is Bond, James Bond!';
-	} else {
-		const changeName = myName;
-		myName = oldName;
-		oldName = changeName;
-	}
-	// if (myName == 'My name is Bond, James Bond!') {
-	// 	app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
-	// } else {
-	// 	delete app.languages.garbage;
-	// }
-	app.showIf();
-	// if (app.cats.length === 12) {
-	// 	app.cats[10].name = 'Luke';
-	// 	app.cats[10].gender = 'male';
-	// 	app.cats.push({name: 'Floquinho', gender: 'male'});
-	// 	app.cats.push({name: '4 gatinhos', gender: 'unknow'});
-	// 	app.cands.push(['caramelo', 'pirulito']);
-	// 	app.cands.push(['pipoca', 'cocada']);
-	// } else {
-	// 	app.cats[10].name = 'Florzinha';
-	// 	app.cats[10].gender = 'female';
-	// 	app.cats.pop();
-	// 	app.cands.pop();
-	// }
-	if (kind === 'pwReload') {
-		app.pwReload();
-	} else if (kind === 'hardRefresh') {
-		app.hardRefresh(document);
-	} else if (kind === 'softRefresh') {
-		app.softRefresh(document);
-	}
-}
 app.powerOnly = function() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
 }

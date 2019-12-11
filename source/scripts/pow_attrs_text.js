@@ -5,8 +5,10 @@ class powText extends _PowerBasicElementWithEvents {
         this._$pwActive = false;
     }
 
-    compile() {
-        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powText);
+    compile({view}) {
+        // The scope of the controller of the view of this element
+        const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powText, ctrlScope);
     }
 }
 

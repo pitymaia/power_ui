@@ -639,7 +639,7 @@ class PowerTree {
 
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
 		if (hasCompiled && !isInnerCompiler) {
-			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
+			currentNode.innerHTML = this.$powerUi.interpolation.compile({template: currentNode.innerHTML, view: view});
 			for (const item of saved.pending) {
 				this._instanciateObj(item);
 			}

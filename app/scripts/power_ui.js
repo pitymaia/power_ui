@@ -639,7 +639,7 @@ class PowerTree {
 
 		// If hasCompiled and is the root element with a compile() method call interpolation compile
 		if (hasCompiled && !isInnerCompiler) {
-			currentNode.innerHTML = this.$powerUi.interpolation.compile(currentNode.innerHTML);
+			currentNode.innerHTML = this.$powerUi.interpolation.compile({template: currentNode.innerHTML, view: view});
 			for (const item of saved.pending) {
 				this._instanciateObj(item);
 			}
@@ -2407,7 +2407,7 @@ class ParserEval {
 
 			// Build the dict object
 			if (obj.syntax !== 'anonymousFunc') {
-				if (objOnScope === '') {
+				if (objOnScope === '' && $currentScope) {
 					// first node of dict
 					objOnScope = $currentScope[label];
 				} else {
@@ -2424,8 +2424,8 @@ class ParserEval {
 				for (const param of obj.parameters[0].expression_nodes) {
 					args.push(this.recursiveEval([{expression_nodes: [param]}]));
 				}
-				value = objOnScope.apply(null, args);
-				// This allow calls multiple anonymous functions
+				// This allow call multiple anonymous functions
+				value = objOnScope.apply($currentScope || null, args);
 				objOnScope = value;
 			}
 		}
@@ -3892,7 +3892,6 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 
-		const scope = {};
 		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
@@ -3908,13 +3907,13 @@ class PowFor extends _PowerBasicElementWithEvents {
 		obj = this.$powerUi.safeEval({text: obj, $powerUi: this.$powerUi, scope: ctrlScope});
 
 		if (operation === 'of') {
-			this.forOf(scope, item, obj);
+			this.forOf(item, obj);
 		} else {
-			this.forIn(scope, item, obj);
+			this.forIn(item, obj);
 		}
 	}
 
-	forOf(scope, selector, obj) {
+	forOf(selector, obj) {
 		let newHtml = '';
 		let $pwIndex = 0;
 		for (const item of obj || []) {
@@ -3938,7 +3937,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 		this.element.innerHTML = newHtml;
 	}
 
-	forIn(scope, selector, obj) {
+	forIn(selector, obj) {
 		let newHtml = '';
 		let $pwIndex = 0;
 		for (const $pwKey of Object.keys(obj || {})) {
@@ -4008,8 +4007,10 @@ class powText extends _PowerBasicElementWithEvents {
         this._$pwActive = false;
     }
 
-    compile() {
-        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powText);
+    compile({view}) {
+        // The scope of the controller of the view of this element
+        const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+        this.element.innerHTML = this.$powerUi.interpolation.getDatasetResult(this.element.dataset.powText, ctrlScope);
     }
 }
 
@@ -5300,12 +5301,16 @@ class PowerInterpolation {
 		this.endSymbol = config.interpolateEndSymbol || '}}';
 	}
 
-	compile(template, scope) {
+	compile({template, scope, view}) {
+		if (!scope && view) {
+			// The scope of the controller of the view of this element
+			scope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+		}
 		return this.replaceInterpolation(template, scope);
 	}
 	// Add the {{ }} to pow interpolation values
-	getDatasetResult(template) {
-		return this.compile(`${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`);
+	getDatasetResult(template, scope) {
+		return this.compile({template: `${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`, scope: scope});
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -5583,6 +5588,45 @@ class PowerOnlyPage extends PowerController {
 
 	ctrl({lock, $powerUi}) {
 		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+		this.cats = [
+			{name: 'Sol', gender: 'female'},
+			{name: 'Lion', gender: 'male'},
+			{name: 'Duque', gender: 'male'},
+			{name: 'Tiger', gender: 'male'},
+			{name: 'Pingo', gender: 'male'},
+			{name: 'Meg', gender: 'female'},
+			{name: 'Princesa', gender: 'female'},
+			{name: 'Lady', gender: 'female'},
+			{name: 'Lindinha', gender: 'female'},
+			{name: 'Docinho', gender: 'female'},
+			{name: 'Florzinha', gender: 'female'},
+			{name: 'Laylita', gender: 'female'},
+		];
+	}
+
+	onViewLoad(view) {
+		console.log('!!!!! view LOADED!!!!!', view);
+	}
+}
+
+class SimpleModal extends PowerController {
+	constructor($params) {
+		super($params);
+		console.log('Power page is intancitated', $params);
+	}
+
+	ctrl({lock, $powerUi}) {
+		this.cats = [
+			{name: 'Sol', gender: 'female'},
+			{name: 'Lion', gender: 'male'},
+			{name: 'Duque', gender: 'male'},
+			{name: 'Tiger', gender: 'male'},
+			{name: 'Pingo', gender: 'male'},
+			{name: 'Meg', gender: 'female'},
+			{name: 'Lindinha', gender: 'female'},
+			{name: 'Laylita', gender: 'female'},
+		];
+		console.log('CTRL:', this.safeEval('cats'));
 	}
 
 	onViewLoad(view) {
@@ -5637,17 +5681,63 @@ class FakeModal extends PowerController {
 			old: {name: 'COBOL', kind: 'Not typed'},
 			cool: {name: 'C++', kind: 'typed'},
 		}
-		this.getCandNumber = function(currentCand) {
-			this.candCounter = 1;
-			for (const group of this.cands) {
-				for (const cand of group) {
-					if (cand === currentCand) {
-						return this.candCounter;
-					}
-					this.candCounter = this.candCounter + 1;
+
+		this.myName = 'Eu sou o Pity o bom!';
+		this.oldName = this.myName;
+		this.currentIf = false;
+	}
+
+	showIf() {
+		this.currentIf = !this.currentIf;
+		return this.currentIf;
+	}
+
+	getCandNumber(currentCand) {
+		this.candCounter = 1;
+		for (const group of this.cands) {
+			for (const cand of group) {
+				if (cand === currentCand) {
+					return this.candCounter;
 				}
+				this.candCounter = this.candCounter + 1;
 			}
-			return this.candCounter;
+		}
+		return this.candCounter;
+	}
+
+	changeModel(kind) {
+		if (this.oldName === this.myName) {
+			this.myName = 'My name is Bond, James Bond!';
+		} else {
+			this.changeName = this.myName;
+			this.myName = this.oldName;
+			this.oldName = this.changeName;
+		}
+		if (myName == 'My name is Bond, James Bond!') {
+			this.languages.garbage = {name: 'PHP', kind: 'Not typed'};
+		} else {
+			delete this.languages.garbage;
+		}
+		this.showIf();
+		if (this.cats.length === 12) {
+			this.cats[10].name = 'Luke';
+			this.cats[10].gender = 'male';
+			this.cats.push({name: 'Floquinho', gender: 'male'});
+			this.cats.push({name: '4 gatinhos', gender: 'unknow'});
+			this.cands.push(['caramelo', 'pirulito']);
+			this.cands.push(['pipoca', 'cocada']);
+		} else {
+			this.cats[10].name = 'Florzinha';
+			this.cats[10].gender = 'female';
+			this.cats.pop();
+			this.cands.pop();
+		}
+		if (kind === 'pwReload') {
+			this.$powerUi.pwReload();
+		} else if (kind === 'hardRefresh') {
+			this.$powerUi.hardRefresh(document);
+		} else if (kind === 'softRefresh') {
+			this.$powerUi.softRefresh(document);
 		}
 	}
 
@@ -5704,6 +5794,10 @@ let app = new PowerUi({
 			id: 'simple-template',
 			route: 'simple',
 			template: someViewTemplate,
+			ctrl: {
+				component: SimpleModal,
+				params: {lock: false},
+			},
 		},
 		{
 			id: 'otherwise',
@@ -5714,18 +5808,11 @@ let app = new PowerUi({
 });
 
 console.log('app', app);
-let myName = 'Eu sou o Pity o bom!';
-let oldName = myName;
 app.pity = function() {
 	return myName;
 }
 app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
-}
-app.currentIf = false;
-app.showIf = function() {
-	app.currentIf = !app.currentIf;
-	return app.currentIf;
 }
 
 app.variable = 'obj';
@@ -5733,42 +5820,6 @@ app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
 
-
-app.changeModel = function(kind) {
-	if (oldName === myName) {
-		myName = 'My name is Bond, James Bond!';
-	} else {
-		const changeName = myName;
-		myName = oldName;
-		oldName = changeName;
-	}
-	// if (myName == 'My name is Bond, James Bond!') {
-	// 	app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
-	// } else {
-	// 	delete app.languages.garbage;
-	// }
-	app.showIf();
-	// if (app.cats.length === 12) {
-	// 	app.cats[10].name = 'Luke';
-	// 	app.cats[10].gender = 'male';
-	// 	app.cats.push({name: 'Floquinho', gender: 'male'});
-	// 	app.cats.push({name: '4 gatinhos', gender: 'unknow'});
-	// 	app.cands.push(['caramelo', 'pirulito']);
-	// 	app.cands.push(['pipoca', 'cocada']);
-	// } else {
-	// 	app.cats[10].name = 'Florzinha';
-	// 	app.cats[10].gender = 'female';
-	// 	app.cats.pop();
-	// 	app.cands.pop();
-	// }
-	if (kind === 'pwReload') {
-		app.pwReload();
-	} else if (kind === 'hardRefresh') {
-		app.hardRefresh(document);
-	} else if (kind === 'softRefresh') {
-		app.softRefresh(document);
-	}
-}
 app.powerOnly = function() {
 	window.location.replace(app.router.config.rootRoute + 'power_only');
 }
