@@ -155,6 +155,53 @@ class FakeModal extends PowerController {
 
 	ctrl({lock, $powerUi, $shared}) {
 		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), '$shared', $shared);
+
+		this.cats = [
+			{name: 'Riquinho', gender: 'male'},
+			{name: 'Tico', gender: 'male'},
+			{name: 'Drew', gender: 'male'},
+			{name: 'Kid', gender: 'male'},
+			{name: 'Neo', gender: 'male'},
+			{name: 'Pingo', gender: 'male'},
+			{name: 'Princesa', gender: 'female'},
+			{name: 'Lady', gender: 'female'},
+			{name: 'Lindinha', gender: 'female'},
+			{name: 'Docinho', gender: 'female'},
+			{name: 'Florzinha', gender: 'female'},
+			{name: 'Laylita', gender: 'female'},
+		];
+		this.cands = [
+			['bala', 'chiclete'],
+			['brigadeiro', 'cajuzinho'],
+			['bolo', 'torta'],
+		];
+
+		this.flowers = {
+			Rose: 'Pink',
+			Orchidy: 'White',
+			Violet: 'Blue',
+			Daisy: 'Yellow',
+
+		}
+		this.languages = {
+			good: {name: 'Python', kind: 'Not typed'},
+			hard: {name: 'Java', kind: 'Typed'},
+			bad: {name: 'EcmaScript', kind: 'Not typed'},
+			old: {name: 'COBOL', kind: 'Not typed'},
+			cool: {name: 'C++', kind: 'typed'},
+		}
+		this.getCandNumber = function(currentCand) {
+			this.candCounter = 1;
+			for (const group of this.cands) {
+				for (const cand of group) {
+					if (cand === currentCand) {
+						return this.candCounter;
+					}
+					this.candCounter = this.candCounter + 1;
+				}
+			}
+			return this.candCounter;
+		}
 	}
 
 	onViewLoad(view) {
@@ -219,15 +266,12 @@ let app = new PowerUi({
 	],
 });
 
-const t1 = performance.now();
-console.log("Loaded in " + (t1 - t0) + " milliseconds.");
 console.log('app', app);
 let myName = 'Eu sou o Pity o bom!';
 let oldName = myName;
 app.pity = function() {
 	return myName;
 }
-console.log(app.pity());
 app.pity2 = function(name, phase) {
 	return name + ' ' + phase;
 }
@@ -242,52 +286,7 @@ app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
 
-app.cats = [
-	{name: 'Riquinho', gender: 'male'},
-	{name: 'Tico', gender: 'male'},
-	{name: 'Drew', gender: 'male'},
-	{name: 'Kid', gender: 'male'},
-	{name: 'Neo', gender: 'male'},
-	{name: 'Pingo', gender: 'male'},
-	{name: 'Princesa', gender: 'female'},
-	{name: 'Lady', gender: 'female'},
-	{name: 'Lindinha', gender: 'female'},
-	{name: 'Docinho', gender: 'female'},
-	{name: 'Florzinha', gender: 'female'},
-	{name: 'Laylita', gender: 'female'},
-];
-app.cands = [
-	['bala', 'chiclete'],
-	['brigadeiro', 'cajuzinho'],
-	['bolo', 'torta'],
-];
 
-app.flowers = {
-	Rose: 'Pink',
-	Orchidy: 'White',
-	Violet: 'Blue',
-	Daisy: 'Yellow',
-
-}
-app.languages = {
-	good: {name: 'Python', kind: 'Not typed'},
-	hard: {name: 'Java', kind: 'Typed'},
-	bad: {name: 'EcmaScript', kind: 'Not typed'},
-	old: {name: 'COBOL', kind: 'Not typed'},
-	cool: {name: 'C++', kind: 'typed'},
-}
-app.getCandNumber = function(currentCand) {
-	app.candCounter = 1;
-	for (const group of app.cands) {
-		for (const cand of group) {
-			if (cand === currentCand) {
-				return app.candCounter;
-			}
-			app.candCounter = app.candCounter + 1;
-		}
-	}
-	return app.candCounter;
-}
 app.changeModel = function(kind) {
 	if (oldName === myName) {
 		myName = 'My name is Bond, James Bond!';
@@ -296,25 +295,25 @@ app.changeModel = function(kind) {
 		myName = oldName;
 		oldName = changeName;
 	}
-	if (myName == 'My name is Bond, James Bond!') {
-		app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
-	} else {
-		delete app.languages.garbage;
-	}
+	// if (myName == 'My name is Bond, James Bond!') {
+	// 	app.languages.garbage = {name: 'PHP', kind: 'Not typed'};
+	// } else {
+	// 	delete app.languages.garbage;
+	// }
 	app.showIf();
-	if (app.cats.length === 12) {
-		app.cats[10].name = 'Luke';
-		app.cats[10].gender = 'male';
-		app.cats.push({name: 'Floquinho', gender: 'male'});
-		app.cats.push({name: '4 gatinhos', gender: 'unknow'});
-		app.cands.push(['caramelo', 'pirulito']);
-		app.cands.push(['pipoca', 'cocada']);
-	} else {
-		app.cats[10].name = 'Florzinha';
-		app.cats[10].gender = 'female';
-		app.cats.pop();
-		app.cands.pop();
-	}
+	// if (app.cats.length === 12) {
+	// 	app.cats[10].name = 'Luke';
+	// 	app.cats[10].gender = 'male';
+	// 	app.cats.push({name: 'Floquinho', gender: 'male'});
+	// 	app.cats.push({name: '4 gatinhos', gender: 'unknow'});
+	// 	app.cands.push(['caramelo', 'pirulito']);
+	// 	app.cands.push(['pipoca', 'cocada']);
+	// } else {
+	// 	app.cats[10].name = 'Florzinha';
+	// 	app.cats[10].gender = 'female';
+	// 	app.cats.pop();
+	// 	app.cands.pop();
+	// }
 	if (kind === 'pwReload') {
 		app.pwReload();
 	} else if (kind === 'hardRefresh') {
