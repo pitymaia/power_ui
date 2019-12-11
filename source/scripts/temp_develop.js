@@ -154,6 +154,10 @@ class FakeModal extends PowerController {
 	}
 
 	ctrl({lock, $powerUi, $shared}) {
+		if (!$shared.test) {
+			$shared.test = 0;
+		}
+		$shared.test = $shared.test + 1;
 		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), '$shared', $shared);
 
 		this.cats = [

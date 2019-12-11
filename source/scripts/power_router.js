@@ -236,6 +236,16 @@ class Router {
 				this.removeSecundaryView({secundaryViewId: route.viewId, routeId: route.id});
 			}
 		}
+		this.clearRouteSharedScopes();
+	}
+
+	clearRouteSharedScopes() {
+		for (const routeId of this.$powerUi.controllers.$routeSharedScope.$waitingToDelete) {
+			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
+				delete this.$powerUi.controllers.$routeSharedScope[routeId];
+			}
+		}
+		this.$powerUi.controllers.$routeSharedScope.$waitingToDelete = [];
 	}
 
 	removeSecundaryView({secundaryViewId, routeId}) {
@@ -248,11 +258,11 @@ class Router {
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[secundaryViewId]) {
 			delete this.$powerUi.controllers[secundaryViewId];
-			// Decrease $routeSharedScope number os opened instances and delete if is the last instance
+			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
 				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances - 1;
 				if (this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
-					delete this.$powerUi.controllers.$routeSharedScope[routeId];
+					this.$powerUi.controllers.$routeSharedScope.$waitingToDelete.push(routeId);
 				}
 			}
 		}
