@@ -2,7 +2,6 @@ class PowEvent extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
         this._$pwActive = false;
-        this.element.setAttribute('data-pw-singlecompile', true);
     }
 
     compile({view}) {

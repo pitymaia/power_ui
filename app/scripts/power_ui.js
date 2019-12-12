@@ -709,7 +709,7 @@ class PowerTree {
 		// Create a temp version of all powerObjects with compile methods
 		if (this.attrsConfig[datasetKey] && this.attrsConfig[datasetKey].isCompiler) {
 			// Check if not already compiled
-			if (!currentNode.getAttribute('data-pwhascomp') != 'true') {
+			if (!currentNode.getAttribute('data-pwhascomp') === true) {
 				const id = getIdAndCreateIfDontHave(currentNode);
 				const newObj = this.attrsConfig[datasetKey].callback(currentNode);
 				// Add to any element some desired variables
@@ -3921,7 +3921,6 @@ class PowEvent extends _PowerBasicElementWithEvents {
     constructor(element) {
         super(element);
         this._$pwActive = false;
-        this.element.setAttribute('data-pw-singlecompile', true);
     }
 
     compile({view}) {
