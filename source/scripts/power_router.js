@@ -250,7 +250,9 @@ class Router {
 
 	removeSecundaryView({secundaryViewId, routeId}) {
 		// Remove all view power Objects and events
-		this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
+		if (this.$powerUi.powerTree.allPowerObjsById[secundaryViewId] && this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared']) {
+			this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
+		}
 		// Remove view node
 		const node = document.getElementById(secundaryViewId);
 		node.parentNode.removeChild(node);
@@ -341,6 +343,64 @@ class Router {
 		return viewId;
 	}
 
+	openRoute({routeId, params}) {
+		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
+		if (paramKeys) {
+			for (const key of paramKeys) {
+				if (!params || !params[key]) {
+					throw `The parameter "${key}" of route "${routeId}" is missing!`;
+				}
+			}
+		}
+
+		console.log('routeId', routeId, 'params', params, 'this.currentRoutes', this.currentRoutes);
+		console.log('routeExists', window.location.hash, this.routeExists({routeId, params}));
+	}
+
+	routeExists({routeId, params}) {
+		let exists = false;
+		// Test the main route
+		if (routeId === this.currentRoutes.id) {
+			if (!params) {
+				return true;
+			}
+			let keyValueExists = false;
+			for (const targetParamKey of Object.keys(params || {})) {
+				for (const currentParam of this.currentRoutes.params) {
+					if (targetParamKey === currentParam.key && params[targetParamKey] === currentParam.value) {
+						keyValueExists = true;
+					}
+				}
+
+				exists = keyValueExists;
+				keyValueExists = false; // reset the flag to false
+			}
+
+			if (exists) {
+				return true;
+			}
+		}
+
+		// Test the secundary routes
+		for (const sroute of this.currentRoutes.secundaryRoutes) {
+			if (routeId === sroute.id) {
+				let keyValueExists = false;
+				for (const targetParamKey of Object.keys(params || {})) {
+					for (const currentParam of sroute.params) {
+						if (targetParamKey === currentParam.key && params[targetParamKey] === currentParam.value) {
+							keyValueExists = true;
+						}
+					}
+
+					exists = keyValueExists;
+					keyValueExists = false; // reset the flag to false
+				}
+			}
+		}
+
+	return exists;
+	}
+
 	setMainRouteState({routeId, paramKeys, route, viewId}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
@@ -416,6 +476,14 @@ class Router {
 	getRouteParamKeys(route) {
 		const regex = new RegExp(/:[^\s/]+/g);
 		return route.match(regex);
+	}
+
+	getRouteParamKeysWithoutDots(route) {
+		const keys = [];
+		for (const key of this.getRouteParamKeys(route) || []) {
+			keys.push(key.substring(1));
+		}
+		return keys;
 	}
 
 	getRouteParamValues({routeId, paramKeys, secundaryRoute}) {

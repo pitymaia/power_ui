@@ -214,17 +214,23 @@ class SimpleModal extends PowerController {
 }
 
 class FakeModal extends PowerController {
-	constructor($params) {
-		super($params);
-		console.log('Fake Modal is intancitated', $params);
-	}
-
 	ctrl({lock, $powerUi, $shared}) {
 		if (!$shared.test) {
 			$shared.test = 0;
 		}
 		$shared.test = $shared.test + 1;
-		console.log('Fake Modal CTRL:', this.safeEval('1.5+2+10/5+4.5'), '$shared', $shared);
+
+		const route = this.$powerUi.router.openRoute({
+			routeId: 'component1',
+			params: {
+				name: 'andre',
+				title: 'aqueda'
+			}
+		});
+		// const route = this.$powerUi.router.openRoute({
+		// 	routeId: 'simple-template',
+		// });
+		console.log('Fake Modal CTRL:', route);
 
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
