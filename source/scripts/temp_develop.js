@@ -265,7 +265,7 @@ class FakeModal extends PowerController {
 			this.myName = this.oldName;
 			this.oldName = this.changeName;
 		}
-		if (myName == 'My name is Bond, James Bond!') {
+		if (this.myName == 'My name is Bond, James Bond!') {
 			this.languages.garbage = {name: 'PHP', kind: 'Not typed'};
 		} else {
 			delete this.languages.garbage;

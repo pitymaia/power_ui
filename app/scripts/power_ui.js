@@ -404,7 +404,7 @@ class PowerTree {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			// TODO: add this to condition? && this.allPowerObjsById[id].$shared.element
 			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler) {
-				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
+				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalHTMLElement;
 			}
 		}
 		return rootCompilers;
@@ -520,7 +520,7 @@ class PowerTree {
 	// 		rootCompiler: currentRootCompilerElement,
 	// 		isRootCompiler: isRootCompiler,
 	// 		isMain: isMain,
-	// 		originalInnerHTML: newNode.innerHTML,
+	// 		originalHTMLElement: newNode.innerHTML,
 	// 	});
 	// }
 
@@ -573,7 +573,7 @@ class PowerTree {
 							isMain: isMain,
 							isRootCompiler: isRootCompiler,
 							parent: parent,
-							originalInnerHTML: hasCompiled,
+							originalHTMLElement: hasCompiled,
 						});
 						// For now only powerCss objects have .parent
 						// childParent = {node: currentNode, datasetKey: datasetKey};
@@ -724,7 +724,7 @@ class PowerTree {
 		return compiled;
 	}
 
-	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent, originalInnerHTML}) {
+	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent, originalHTMLElement}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
@@ -749,7 +749,8 @@ class PowerTree {
 		// Register if object is main object or a rootCompiler
 		powerObject.isMain = isMain || null;
 		powerObject.isRootCompiler = isRootCompiler || null;
-		powerObject.originalInnerHTML = (originalInnerHTML && originalInnerHTML !== true) ? originalInnerHTML : '';
+		powerObject.originalHTMLElement = (originalHTMLElement && originalHTMLElement !== true) ? originalHTMLElement : '';
+		// console.log('powerObject.originalHTMLElement', powerObject.originalHTMLElement, powerObject.element);
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({
 			powerObject: powerObject,
@@ -797,7 +798,7 @@ class PowerTree {
 		}
 		if (powerObject.isRootCompiler) {
 			this.allPowerObjsById[id].$shared.isRootCompiler = powerObject.isRootCompiler;
-			this.allPowerObjsById[id].$shared.originalInnerHTML = powerObject.originalInnerHTML;
+			this.allPowerObjsById[id].$shared.originalHTMLElement = powerObject.originalHTMLElement;
 		}
 		// add the shared scope to all elements
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;
@@ -1343,6 +1344,7 @@ class PowerUi extends _PowerUiBase {
 				$waitingToDelete: [],
 			},
 		};
+		this.addScopeEventListener();
 		this.ctrlWaitingToRun = [];
 		this.config = config;
 		this.waitingViews = 0;
@@ -1355,6 +1357,24 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		console.log('POWER UI IS INSTANCIATED');
+	}
+	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
+	addScopeEventListener() {
+		document.removeEventListener('pwScope', this.pwScope.bind(this), false);
+		document.addEventListener('pwScope', this.pwScope.bind(this), false);
+	}
+
+	pwScope(event) {
+		const self = this;
+		// console.log('ecope event', event.detail, event);
+		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
+		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
+		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
+		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;
+
+		if (text) {
+			self.safeEval({text: text, $powerUi: self, scope: ctrlScope});
+		}
 	}
 
 	safeEval({text, scope}) {
@@ -3897,6 +3917,32 @@ _PowerUiBase.injectPow({name: 'data-pow-eval',
     callback: function(element) {return new PowEval(element);}
 });
 
+class PowEvent extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+        this.element.setAttribute('data-pw-singlecompile', true);
+    }
+
+    compile({view}) {
+        // The controller scope of this view
+        const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+
+        for (const attr of this.element.attributes) {
+            if (attr.name.includes('on')) {
+                const name = attr.name.slice(2, attr.name.length);
+                this.element.setAttribute(`data-pow-${name}`, encodeURIComponent(attr.value));
+                attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+            }
+        }
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-event',
+    callback: function(element) {return new PowEvent(element);}
+});
+
 // Create DOM elements with all ineerHTML for each "for in" or "for of"
 class PowFor extends _PowerBasicElementWithEvents {
 	constructor(element) {
@@ -5713,7 +5759,7 @@ class FakeModal extends PowerController {
 			this.myName = this.oldName;
 			this.oldName = this.changeName;
 		}
-		if (myName == 'My name is Bond, James Bond!') {
+		if (this.myName == 'My name is Bond, James Bond!') {
 			this.languages.garbage = {name: 'PHP', kind: 'Not typed'};
 		} else {
 			delete this.languages.garbage;

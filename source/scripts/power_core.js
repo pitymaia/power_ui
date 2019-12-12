@@ -404,7 +404,7 @@ class PowerTree {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			// TODO: add this to condition? && this.allPowerObjsById[id].$shared.element
 			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler) {
-				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
+				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalHTMLElement;
 			}
 		}
 		return rootCompilers;
@@ -520,7 +520,7 @@ class PowerTree {
 	// 		rootCompiler: currentRootCompilerElement,
 	// 		isRootCompiler: isRootCompiler,
 	// 		isMain: isMain,
-	// 		originalInnerHTML: newNode.innerHTML,
+	// 		originalHTMLElement: newNode.innerHTML,
 	// 	});
 	// }
 
@@ -573,7 +573,7 @@ class PowerTree {
 							isMain: isMain,
 							isRootCompiler: isRootCompiler,
 							parent: parent,
-							originalInnerHTML: hasCompiled,
+							originalHTMLElement: hasCompiled,
 						});
 						// For now only powerCss objects have .parent
 						// childParent = {node: currentNode, datasetKey: datasetKey};
@@ -724,7 +724,7 @@ class PowerTree {
 		return compiled;
 	}
 
-	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent, originalInnerHTML}) {
+	_instanciateObj({currentElement, datasetKey, main, view, rootCompiler, isMain, isRootCompiler, parent, originalHTMLElement}) {
 		const id = getIdAndCreateIfDontHave(currentElement);
 		// If there is a method like _powerMenu allow it to be extended, call the method like _powerMenu()
 		// If is some pow-attribute or pwc-attribute use 'powerAttrs' flag to call some class using the callback
@@ -749,7 +749,8 @@ class PowerTree {
 		// Register if object is main object or a rootCompiler
 		powerObject.isMain = isMain || null;
 		powerObject.isRootCompiler = isRootCompiler || null;
-		powerObject.originalInnerHTML = (originalInnerHTML && originalInnerHTML !== true) ? originalInnerHTML : '';
+		powerObject.originalHTMLElement = (originalHTMLElement && originalHTMLElement !== true) ? originalHTMLElement : '';
+		// console.log('powerObject.originalHTMLElement', powerObject.originalHTMLElement, powerObject.element);
 		// Add the powerObject into a list ordered by id
 		this._addToObjectsById({
 			powerObject: powerObject,
@@ -797,7 +798,7 @@ class PowerTree {
 		}
 		if (powerObject.isRootCompiler) {
 			this.allPowerObjsById[id].$shared.isRootCompiler = powerObject.isRootCompiler;
-			this.allPowerObjsById[id].$shared.originalInnerHTML = powerObject.originalInnerHTML;
+			this.allPowerObjsById[id].$shared.originalHTMLElement = powerObject.originalHTMLElement;
 		}
 		// add the shared scope to all elements
 		this.allPowerObjsById[id][datasetKey].$shared = this.allPowerObjsById[id].$shared;

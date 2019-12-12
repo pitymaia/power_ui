@@ -124,6 +124,7 @@ class PowerUi extends _PowerUiBase {
 				$waitingToDelete: [],
 			},
 		};
+		this.addScopeEventListener();
 		this.ctrlWaitingToRun = [];
 		this.config = config;
 		this.waitingViews = 0;
@@ -136,6 +137,24 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		console.log('POWER UI IS INSTANCIATED');
+	}
+	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
+	addScopeEventListener() {
+		document.removeEventListener('pwScope', this.pwScope.bind(this), false);
+		document.addEventListener('pwScope', this.pwScope.bind(this), false);
+	}
+
+	pwScope(event) {
+		const self = this;
+		// console.log('ecope event', event.detail, event);
+		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
+		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
+		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
+		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;
+
+		if (text) {
+			self.safeEval({text: text, $powerUi: self, scope: ctrlScope});
+		}
 	}
 
 	safeEval({text, scope}) {
