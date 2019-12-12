@@ -156,6 +156,33 @@ class PowerOnlyPage extends PowerController {
 		];
 	}
 
+	changeModel(kind) {
+		if (this.oldName === this.myName) {
+			this.myName = 'My name is Bond, James Bond!';
+		} else {
+			this.changeName = this.myName;
+			this.myName = this.oldName;
+			this.oldName = this.changeName;
+		}
+		if (this.cats.length === 12) {
+			this.cats[10].name = 'Luke';
+			this.cats[10].gender = 'male';
+			this.cats.push({name: 'Floquinho', gender: 'male'});
+			this.cats.push({name: '4 gatinhos', gender: 'unknow'});
+		} else {
+			this.cats[10].name = 'Florzinha';
+			this.cats[10].gender = 'female';
+			this.cats.pop();
+		}
+		if (kind === 'pwReload') {
+			this.$powerUi.pwReload();
+		} else if (kind === 'hardRefresh') {
+			this.$powerUi.hardRefresh(document);
+		} else if (kind === 'softRefresh') {
+			this.$powerUi.softRefresh(document);
+		}
+	}
+
 	onViewLoad(view) {
 		console.log('!!!!! view LOADED!!!!!', view);
 	}
