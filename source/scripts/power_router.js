@@ -157,7 +157,7 @@ class Router {
 	// If location doesn't have a hash, redirect to rootRoute
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute);
+		const routeParts = this.extractRouteParts(secundaryRoute || decodeURIComponent(window.location.hash) || this.config.rootRoute);
 
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -362,9 +362,9 @@ class Router {
 			} else {
 				const newRoute = this.buildUrl({routeId, params, paramKeys});
 				if (!window.location.href.includes(this.config.rootRoute)) {
-					window.location.replace(encodeURI(this.config.rootRoute + `?sr=${newRoute}`));
+					window.location.replace(encodeURI(this.config.rootRoute) + encodeURIComponent(`?sr=${newRoute}`));
 				} else {
-					window.location.hash = encodeURI(window.location.hash + `?sr=${newRoute}`);
+					window.location.hash = window.location.hash + encodeURIComponent(`?sr=${newRoute}`);
 				}
 			}
 		}
@@ -479,7 +479,6 @@ class Router {
 
 	buildRegExPatternToRoute(routeId, paramKeys) {
 		// This regular expression below avoid detect /some_page_2 and /some_page as the same route
-		// allow all [^]*
 		let regEx = new RegExp(`^${this.routes[routeId].route}$`);
 		// If the route have some parameters like in /some_page/:page_id/syfy/:title
 		// the code bellow modify the regEx pattern to allow (alphanumeric plus _ and -) values by
@@ -492,8 +491,8 @@ class Router {
 			newRegEx = newRegEx.slice(0, -1);
 
 			for (const key of paramKeys) {
-				// [a-zA-Z0-9_-]+ (alphanumeric plus _ and -)
-				newRegEx = newRegEx.replace(key, '[a-zA-Z0-9_-]+');
+				// allow all [^]*
+				newRegEx = newRegEx.replace(key, '[^]*');
 			}
 			regEx = new RegExp(newRegEx);
 		}
@@ -531,7 +530,7 @@ class Router {
 
 	getRouteParamValues({routeId, paramKeys, secundaryRoute}) {
 		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute).split('/');
+		const hashParts = (secundaryRoute || decodeURIComponent(window.location.hash) || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value
