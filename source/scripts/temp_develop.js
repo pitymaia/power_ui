@@ -220,17 +220,14 @@ class FakeModal extends PowerController {
 		}
 		$shared.test = $shared.test + 1;
 
-		const route = this.$powerUi.router.openRoute({
-			routeId: 'component1',
-			params: {
-				name: 'andre',
-				title: 'aqueda'
-			}
-		});
 		// const route = this.$powerUi.router.openRoute({
-		// 	routeId: 'simple-template',
+		// 	routeId: 'component1',
+		// 	params: {
+		// 		name: 'andre',
+		// 		title: '1984'
+		// 	}
 		// });
-		console.log('Fake Modal CTRL:', route);
+		console.log('Fake Modal CTRL');
 
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
@@ -328,6 +325,12 @@ class FakeModal extends PowerController {
 
 	onViewLoad(view) {
 		console.log('!!!!! HERE LOADED!!!!!', view);
+	}
+
+	openSimpleModal() {
+		this.openRoute({
+			routeId: 'simple-template',
+		});
 	}
 }
 

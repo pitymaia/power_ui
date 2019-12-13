@@ -353,8 +353,28 @@ class Router {
 			}
 		}
 
-		console.log('routeId', routeId, 'params', params, 'this.currentRoutes', this.currentRoutes);
-		console.log('routeExists', window.location.hash, this.routeExists({routeId, params}));
+		if (this.routeExists({routeId, params})) {
+			return;
+		} else {
+			const newRoute = this.buildUrl({routeId, params, paramKeys});
+			window.location.hash = window.location.hash + newRoute;
+		}
+
+	}
+
+	buildUrl({routeId, params, paramKeys}) {
+		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
+		route = `?sr=${route}`;
+
+		if (params && paramKeys.length) {
+			for (const key of paramKeys) {
+				route = route.replace(`:${key}`, params[key]);
+			}
+		}
+		console.log('&&&&&& ROUTE', route);
+		console.log('%%%%%% params', params, paramKeys);
+		console.log('$$$$$$ ROUTES', this.routes);
+		return route;
 	}
 
 	routeExists({routeId, params}) {

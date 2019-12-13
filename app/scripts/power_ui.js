@@ -4255,6 +4255,10 @@ class PowerController {
         this.$powerUi = $powerUi;
     }
 
+    openRoute({routeId, params}) {
+        return this.$powerUi.router.openRoute({routeId, params});
+    }
+
     safeEval(string) {
         return this.$powerUi.safeEval({text: string, scope: this});
     }
@@ -5187,8 +5191,28 @@ class Router {
 			}
 		}
 
-		console.log('routeId', routeId, 'params', params, 'this.currentRoutes', this.currentRoutes);
-		console.log('routeExists', window.location.hash, this.routeExists({routeId, params}));
+		if (this.routeExists({routeId, params})) {
+			return;
+		} else {
+			const newRoute = this.buildUrl({routeId, params, paramKeys});
+			window.location.hash = window.location.hash + newRoute;
+		}
+
+	}
+
+	buildUrl({routeId, params, paramKeys}) {
+		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
+		route = `?sr=${route}`;
+
+		if (params && paramKeys.length) {
+			for (const key of paramKeys) {
+				route = route.replace(`:${key}`, params[key]);
+			}
+		}
+		console.log('&&&&&& ROUTE', route);
+		console.log('%%%%%% params', params, paramKeys);
+		console.log('$$$$$$ ROUTES', this.routes);
+		return route;
 	}
 
 	routeExists({routeId, params}) {
@@ -5781,17 +5805,14 @@ class FakeModal extends PowerController {
 		}
 		$shared.test = $shared.test + 1;
 
-		const route = this.$powerUi.router.openRoute({
-			routeId: 'component1',
-			params: {
-				name: 'andre',
-				title: 'aqueda'
-			}
-		});
 		// const route = this.$powerUi.router.openRoute({
-		// 	routeId: 'simple-template',
+		// 	routeId: 'component1',
+		// 	params: {
+		// 		name: 'andre',
+		// 		title: '1984'
+		// 	}
 		// });
-		console.log('Fake Modal CTRL:', route);
+		console.log('Fake Modal CTRL');
 
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
@@ -5889,6 +5910,12 @@ class FakeModal extends PowerController {
 
 	onViewLoad(view) {
 		console.log('!!!!! HERE LOADED!!!!!', view);
+	}
+
+	openSimpleModal() {
+		this.openRoute({
+			routeId: 'simple-template',
+		});
 	}
 }
 
