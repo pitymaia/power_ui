@@ -75,9 +75,7 @@
 
         <!-- Menu end -->
         <h1 class="color1" data-pow-css-hover="color2">Hello, my component!</h1>
-        <h4 data-pow-if="showIf()">Hello my if</h4>
-        <h4 data-pow-if="showIf()">By my if</h4>
-        <h4 data-pow-if="showIf()">Another if</h4>
+        <h4 data-pow-eval="showIf()"></h4>
         <hr />
         <div id="catofcats" data-pow-for="cat of cats">
             <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda

@@ -264,8 +264,8 @@
     <br />
     <div class="power-main">
         <div data-pow-main-css-hover="pw-blue" data-pwc-pity="pw-orange">Botões</div>
-        <button onclick="app.openModal()">Open Modal</button>
-        <button onclick="app.openSimpleTemplate()">Open simple template</button>
+        <button data-pow-event onclick="openModal({name: 'BigBrother', title: '1984'})">Open Modal</button>
+        <button data-pow-event onclick="openSimpleModal()">Open simple template</button>
         <button onclick="app.powerOnly()">Power Only</button>
         <button id='show-button' class="power-action" data-power-target="show">Show</button>
         <nav id="show"

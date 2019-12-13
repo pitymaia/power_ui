@@ -493,6 +493,18 @@ class Router {
 		return regEx;
 	}
 
+	getRoute({routeId}) {
+		if (this.currentRoutes.id === routeId) {
+			return this.currentRoutes;
+		} else {
+			for (const route of this.currentRoutes.secundaryRoutes) {
+				if (route.id === routeId) {
+					return route;
+				}
+			}
+		}
+	}
+
 	getRouteParamKeys(route) {
 		const regex = new RegExp(/:[^\s/]+/g);
 		return route.match(regex);

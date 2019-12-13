@@ -5331,6 +5331,18 @@ class Router {
 		return regEx;
 	}
 
+	getRoute({routeId}) {
+		if (this.currentRoutes.id === routeId) {
+			return this.currentRoutes;
+		} else {
+			for (const route of this.currentRoutes.secundaryRoutes) {
+				if (route.id === routeId) {
+					return route;
+				}
+			}
+		}
+	}
+
 	getRouteParamKeys(route) {
 		const regex = new RegExp(/:[^\s/]+/g);
 		return route.match(regex);
@@ -5715,6 +5727,22 @@ class FrontPage extends PowerController {
 	onViewLoad(view) {
 		console.log('!!!!! VIEW LOADED!!!!!', view);
 	}
+
+	openModal({name, title}) {
+		this.openRoute({
+			routeId: 'component1',
+			params: {
+				name: name,
+				title: title,
+			},
+		});
+	}
+
+	openSimpleModal() {
+		this.openRoute({
+			routeId: 'simple-template',
+		});
+	}
 }
 
 class PowerOnlyPage extends PowerController {
@@ -5770,6 +5798,22 @@ class PowerOnlyPage extends PowerController {
 
 	onViewLoad(view) {
 		console.log('!!!!! view LOADED!!!!!', view);
+	}
+
+	openSimpleModal() {
+		this.openRoute({
+			routeId: 'simple-template',
+		});
+	}
+
+	openModal({name, title}) {
+		this.openRoute({
+			routeId: 'component1',
+			params: {
+				name: name,
+				title: title,
+			},
+		});
 	}
 }
 
@@ -5855,8 +5899,14 @@ class FakeModal extends PowerController {
 	}
 
 	showIf() {
-		this.currentIf = !this.currentIf;
-		return this.currentIf;
+		const route = this.$powerUi.router.getRoute({routeId: 'component1'});
+		if (this.currentIf) {
+			this.currentIf = false;
+			return route.params[0].value;
+		} else {
+			this.currentIf = true;
+			return route.params[1].value;
+		}
 	}
 
 	getCandNumber(currentCand) {
@@ -5873,6 +5923,7 @@ class FakeModal extends PowerController {
 	}
 
 	changeModel(kind) {
+		this.currentIf = !this.currentIf;
 		if (this.oldName === this.myName) {
 			this.myName = 'My name is Bond, James Bond!';
 		} else {
@@ -6010,13 +6061,6 @@ app.closeModal = function() {
 		counter = counter + 1;
 	}
 	window.location.replace(newHash);
-}
-app.openModal = function() {
-	let newHash = '?sr=component/andre/aqueda';
-	if (!window.location.hash) {
-		newHash = '#!/' + newHash;
-	}
-	window.location.replace(window.location.hash + newHash);
 }
 
 app.openSimpleTemplate = function() {
