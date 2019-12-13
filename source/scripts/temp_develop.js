@@ -132,30 +132,34 @@ class FrontPage extends PowerController {
 	}
 
 	openModal({name, title}) {
-		this.openRoute({
+		this.router.openRoute({
 			routeId: 'component1',
 			params: {
 				name: name,
 				title: title,
 			},
+			target: '_blank',
 		});
 	}
 
 	openSimpleModal() {
-		this.openRoute({
+		this.router.openRoute({
 			routeId: 'simple-template',
+			target: '_blank',
+		});
+	}
+
+	gotoPowerOnly() {
+		this.router.openRoute({
+			routeId: 'power-only',
 		});
 	}
 }
 
 class PowerOnlyPage extends PowerController {
-	constructor($params) {
-		super($params);
-		console.log('Power page is intancitated', $params);
-	}
 
 	ctrl({lock, $powerUi}) {
-		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi);
+		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi.router);
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
 			{name: 'Lion', gender: 'male'},
@@ -204,18 +208,30 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleModal() {
-		this.openRoute({
+		this.router.openRoute({
 			routeId: 'simple-template',
+			target: '_blank',
+		});
+	}
+
+	test() {
+		console.log('mouseover!');
+	}
+
+	gotoIndex() {
+		this.router.openRoute({
+			routeId: 'front-page',
 		});
 	}
 
 	openModal({name, title}) {
-		this.openRoute({
+		this.router.openRoute({
 			routeId: 'component1',
 			params: {
 				name: name,
 				title: title,
 			},
+			target: '_blank',
 		});
 	}
 }
@@ -247,10 +263,6 @@ class SimpleModal extends PowerController {
 
 class FakeModal extends PowerController {
 	ctrl({lock, $powerUi, $shared}) {
-		if (!$shared.test) {
-			$shared.test = 0;
-		}
-		$shared.test = $shared.test + 1;
 
 		// const route = this.$powerUi.router.openRoute({
 		// 	routeId: 'component1',
@@ -302,7 +314,7 @@ class FakeModal extends PowerController {
 	}
 
 	showIf() {
-		const route = this.$powerUi.router.getRoute({routeId: 'component1'});
+		const route = this.$powerUi.router.getOpenedRoute({routeId: 'component1'});
 		if (this.currentIf) {
 			this.currentIf = false;
 			return route.params[0].value;
@@ -367,8 +379,9 @@ class FakeModal extends PowerController {
 	}
 
 	openSimpleModal() {
-		this.openRoute({
+		this.router.openRoute({
 			routeId: 'simple-template',
+			target: '_blank',
 		});
 	}
 }

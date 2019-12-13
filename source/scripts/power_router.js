@@ -343,7 +343,7 @@ class Router {
 		return viewId;
 	}
 
-	openRoute({routeId, params}) {
+	openRoute({routeId, params, target}) {
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
@@ -356,24 +356,29 @@ class Router {
 		if (this.routeExists({routeId, params})) {
 			return;
 		} else {
-			const newRoute = this.buildUrl({routeId, params, paramKeys});
-			window.location.hash = window.location.hash + newRoute;
+			if (!target || target === 'mainView') {
+				// window.location.hash = this.buildUrl({routeId, params, paramKeys});
+				window.location.replace(this.config.rootRoute + this.buildUrl({routeId, params, paramKeys}));
+			} else {
+				const newRoute = this.buildUrl({routeId, params, paramKeys});
+				if (!window.location.href.includes(this.config.rootRoute)) {
+					window.location.replace(this.config.rootRoute + `?sr=${newRoute}`);
+				} else {
+					window.location.hash = window.location.hash + `?sr=${newRoute}`;
+				}
+			}
 		}
 
 	}
 
 	buildUrl({routeId, params, paramKeys}) {
 		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
-		route = `?sr=${route}`;
 
 		if (params && paramKeys.length) {
 			for (const key of paramKeys) {
 				route = route.replace(`:${key}`, params[key]);
 			}
 		}
-		console.log('&&&&&& ROUTE', route);
-		console.log('%%%%%% params', params, paramKeys);
-		console.log('$$$$$$ ROUTES', this.routes);
 		return route;
 	}
 
@@ -426,6 +431,7 @@ class Router {
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootRoute, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
+		this.currentRoutes.isMainView = true;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -435,6 +441,7 @@ class Router {
 	}
 	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId}) {
 		const route = {
+			isMainView: false,
 			params: [],
 			id: '',
 			route: secundaryRoute.replace(this.config.rootRoute, ''), // remove #!/
@@ -494,6 +501,10 @@ class Router {
 	}
 
 	getRoute({routeId}) {
+		return this.routes[routeId];
+	}
+
+	getOpenedRoute({routeId}) {
 		if (this.currentRoutes.id === routeId) {
 			return this.currentRoutes;
 		} else {

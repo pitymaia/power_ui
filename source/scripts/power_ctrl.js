@@ -4,8 +4,8 @@ class PowerController {
         this.$powerUi = $powerUi;
     }
 
-    openRoute({routeId, params}) {
-        return this.$powerUi.router.openRoute({routeId, params});
+    get router() {
+        return this.$powerUi.router;
     }
 
     safeEval(string) {
