@@ -157,7 +157,7 @@ class Router {
 	// If location doesn't have a hash, redirect to rootRoute
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(secundaryRoute || window.location.hash || this.config.rootRoute);
+		const routeParts = this.extractRouteParts(secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute);
 
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -225,7 +225,7 @@ class Router {
 		// (doesn't run otherwise for secundary routes)
 		if (!secundaryRoute) {
 			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
-			window.location.replace(newRoute);
+			window.location.replace(encodeURI(newRoute));
 		}
 	}
 
@@ -358,13 +358,13 @@ class Router {
 		} else {
 			if (!target || target === 'mainView') {
 				// window.location.hash = this.buildUrl({routeId, params, paramKeys});
-				window.location.replace(this.config.rootRoute + this.buildUrl({routeId, params, paramKeys}));
+				window.location.replace(encodeURI(this.config.rootRoute + this.buildUrl({routeId, params, paramKeys})));
 			} else {
 				const newRoute = this.buildUrl({routeId, params, paramKeys});
 				if (!window.location.href.includes(this.config.rootRoute)) {
-					window.location.replace(this.config.rootRoute + `?sr=${newRoute}`);
+					window.location.replace(encodeURI(this.config.rootRoute + `?sr=${newRoute}`));
 				} else {
-					window.location.hash = window.location.hash + `?sr=${newRoute}`;
+					window.location.hash = encodeURI(window.location.hash + `?sr=${newRoute}`);
 				}
 			}
 		}
@@ -531,7 +531,7 @@ class Router {
 
 	getRouteParamValues({routeId, paramKeys, secundaryRoute}) {
 		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (secundaryRoute || window.location.hash || this.config.rootRoute).split('/');
+		const hashParts = (secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value
