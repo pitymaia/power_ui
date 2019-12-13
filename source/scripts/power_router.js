@@ -504,12 +504,12 @@ class Router {
 		return this.routes[routeId];
 	}
 
-	getOpenedRoute({routeId}) {
-		if (this.currentRoutes.id === routeId) {
+	getOpenedRoute({routeId, viewId}) {
+		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
 			return this.currentRoutes;
 		} else {
 			for (const route of this.currentRoutes.secundaryRoutes) {
-				if (route.id === routeId) {
+				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
 			}

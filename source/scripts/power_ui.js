@@ -248,6 +248,8 @@ class PowerUi extends _PowerUiBase {
 	runRouteController() {
 		for (const ctrl of this.ctrlWaitingToRun) {
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
+				this.controllers[ctrl.viewId].instance._viewId = ctrl.viewId;
+				this.controllers[ctrl.viewId].instance._routeId = ctrl.routeId;
 				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
 			}
 		}
@@ -286,7 +288,7 @@ class PowerUi extends _PowerUiBase {
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
 		const self = this;
-		console.log('!!!!! ifNotWaitingServerCallInit', self, routeId, viewId);
+		console.log('!!!!! ifNotWaitingServerCallInit', routeId, viewId);
 		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;

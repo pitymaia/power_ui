@@ -1468,6 +1468,8 @@ class PowerUi extends _PowerUiBase {
 	runRouteController() {
 		for (const ctrl of this.ctrlWaitingToRun) {
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
+				this.controllers[ctrl.viewId].instance._viewId = ctrl.viewId;
+				this.controllers[ctrl.viewId].instance._routeId = ctrl.routeId;
 				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
 			}
 		}
@@ -1506,7 +1508,7 @@ class PowerUi extends _PowerUiBase {
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
 		const self = this;
-		console.log('!!!!! ifNotWaitingServerCallInit', self, routeId, viewId);
+		console.log('!!!!! ifNotWaitingServerCallInit', routeId, viewId);
 		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
@@ -4259,6 +4261,24 @@ class PowerController {
         return this.$powerUi.router;
     }
 
+    closeCurrentRoute() {
+        const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+        const parts = window.location.hash.split('?');
+        let counter = 0;
+        let newHash = '';
+
+        for (let part of parts) {
+            if (!part.includes(route.route)) {
+                if (counter !== 0) {
+                    part = '?' + part;
+                }
+                newHash = newHash + part;
+                counter = counter + 1;
+            }
+        }
+        window.location.hash = newHash;
+    }
+
     safeEval(string) {
         return this.$powerUi.safeEval({text: string, scope: this});
     }
@@ -5342,12 +5362,12 @@ class Router {
 		return this.routes[routeId];
 	}
 
-	getOpenedRoute({routeId}) {
-		if (this.currentRoutes.id === routeId) {
+	getOpenedRoute({routeId, viewId}) {
+		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
 			return this.currentRoutes;
 		} else {
 			for (const route of this.currentRoutes.secundaryRoutes) {
-				if (route.id === routeId) {
+				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
 			}
@@ -5669,7 +5689,7 @@ const someViewTemplate = `<div class="fakemodalback">
 			<span data-pow-eval="'test 2+2: ' + (2+2)"></span>
 		</div>
 		<br />
-		<button onclick="app.closeModal()">Close</button>
+		<button data-pow-event onclick="closeCurrentRoute()">Close</button>
 	</div>
 </div>`;
 var teste = 'MARAVILHA!';
@@ -5879,7 +5899,7 @@ class FakeModal extends PowerController {
 		// 		title: '1984'
 		// 	}
 		// });
-		console.log('Fake Modal CTRL');
+		console.log('Fake Modal CTRL', this._viewId, this._routeId);
 
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
@@ -5922,7 +5942,7 @@ class FakeModal extends PowerController {
 	}
 
 	showIf() {
-		const route = this.$powerUi.router.getOpenedRoute({routeId: 'component1'});
+		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		if (this.currentIf) {
 			this.currentIf = false;
 			return route.params[0].value;
@@ -6067,34 +6087,6 @@ app.variable = 'obj';
 app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
-
-app.powerOnly = function() {
-	window.location.replace(app.router.config.rootRoute + 'power_only');
-}
-app.gotoIndex = function() {
-	window.location.replace(app.router.config.rootRoute);
-}
-app.closeModal = function() {
-	const parts = window.location.hash.split('?');
-	let counter = 0;
-	let newHash = parts[0];
-	for (const part of parts) {
-		if (counter > 0 && counter < parts.length - 1) {
-			newHash = newHash + '?' + part;
-		}
-		counter = counter + 1;
-	}
-	window.location.replace(newHash);
-}
-
-app.openSimpleTemplate = function() {
-	let newHash = '?sr=simple';
-	if (!window.location.hash) {
-		newHash = '#!/' + newHash;
-	}
-	console.log('window.location.hash + newHash', window.location.hash + newHash);
-	window.location.replace(window.location.hash + newHash);
-}
 
 app.catOfCats = function() {
 	const catsNode = document.getElementById('catofcats');
