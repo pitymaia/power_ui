@@ -157,7 +157,7 @@ class Router {
 	// If location doesn't have a hash, redirect to rootRoute
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(secundaryRoute || decodeURIComponent(window.location.hash) || this.config.rootRoute);
+		const routeParts = this.extractRouteParts(secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute);
 
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -359,7 +359,7 @@ class Router {
 			if (!target || target === 'mainView') {
 				this.changeHash(this.buildHash({routeId, params, paramKeys}));
 			} else {
-				const routeParts = this.extractRouteParts(decodeURIComponent(window.location.hash));
+				const routeParts = this.extractRouteParts(decodeURI(window.location.hash));
 				let oldHash = routeParts.path.replace(this.config.rootRoute, '');
 				for (const route of routeParts.secundaryRoutes) {
 					oldHash = oldHash + `?sr=${route.replace(this.config.rootRoute, '')}`;
@@ -372,7 +372,7 @@ class Router {
 
 	changeHash(hash) {
 		window.history.pushState(null, null, window.location.href);
-		window.location.replace(encodeURI(this.config.rootRoute) + encodeURIComponent(hash));
+		window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(hash));
 	}
 
 	buildHash({routeId, params, paramKeys}) {
@@ -534,7 +534,7 @@ class Router {
 
 	getRouteParamValues({routeId, paramKeys, secundaryRoute}) {
 		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (secundaryRoute || decodeURIComponent(window.location.hash) || this.config.rootRoute).split('/');
+		const hashParts = (secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value

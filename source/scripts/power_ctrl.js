@@ -10,7 +10,7 @@ class PowerController {
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		const parts = decodeURIComponent(window.location.hash).split('?');
+		const parts = decodeURI(window.location.hash).split('?');
 		let counter = 0;
 		let newHash = '';
 

@@ -385,13 +385,17 @@ let app = new PowerUi({
 			id: 'power-only2',
 			route: 'power_only/:id/:name/:title',
 			templateUrl: 'power_only.html',
+			ctrl: {
+				component: PowerOnlyPage,
+				params: {lock: true},
+			},
 		},
 		{
 			id: 'power-only3',
 			route: 'power_only/:id/:name',
 			// templateUrl: 'power_only.html',
 			templateUrl: '404.html',
-			viewId: 'component-view',
+			// viewId: 'component-view',
 		},
 		{
 			id: 'component1',
