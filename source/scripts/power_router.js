@@ -343,7 +343,7 @@ class Router {
 		return viewId;
 	}
 
-	openRoute({routeId, params, target}) {
+	openRoute({routeId, params, target, currentRouteId, currentViewId}) {
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
@@ -356,7 +356,8 @@ class Router {
 		if (this.routeExists({routeId, params})) {
 			return;
 		} else {
-			if (!target || target === 'mainView') {
+			if (!target || target === '_self') {
+				const selfRoute = this.getOpenedRoute({currentRouteId, currentViewId});
 				this.changeHash(this.buildHash({routeId, params, paramKeys}));
 			} else {
 				const routeParts = this.extractRouteParts(decodeURI(window.location.hash));

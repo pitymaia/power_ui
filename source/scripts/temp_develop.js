@@ -121,26 +121,23 @@ class FrontPage extends PowerController {
 
 	}
 
-	openModal({name, title}) {
-		this.router.openRoute({
+	openModal(params) {
+		this.openRoute({
+			params: params,
 			routeId: 'component1',
-			params: {
-				name: name,
-				title: title,
-			},
 			target: '_blank',
 		});
 	}
 
 	openSimpleModal() {
-		this.router.openRoute({
+		this.openRoute({
 			routeId: 'simple-template',
 			target: '_blank',
 		});
 	}
 
 	gotoPowerOnly() {
-		this.router.openRoute({
+		this.openRoute({
 			routeId: 'power-only',
 		});
 	}
@@ -197,7 +194,7 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleModal() {
-		this.router.openRoute({
+		this.openRoute({
 			routeId: 'simple-template',
 			target: '_blank',
 		});
@@ -208,18 +205,15 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	gotoIndex() {
-		this.router.openRoute({
-			routeId: 'front-page',
+		this.openRoute({
+			routeId: 'front-page'
 		});
 	}
 
-	openModal({name, title}) {
-		this.router.openRoute({
+	openModal(params) {
+		this.openRoute({
+			params: params,
 			routeId: 'component1',
-			params: {
-				name: name,
-				title: title,
-			},
 			target: '_blank',
 		});
 	}
@@ -352,9 +346,16 @@ class FakeModal extends PowerController {
 	}
 
 	openSimpleModal() {
-		this.router.openRoute({
+		this.openRoute({
 			routeId: 'simple-template',
 			target: '_blank',
+		});
+	}
+
+	openModal(params) {
+		this.openRoute({
+			params: params,
+			target: '_self',
 		});
 	}
 }

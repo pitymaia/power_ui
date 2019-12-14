@@ -8,6 +8,16 @@ class PowerController {
 		return this.$powerUi.router;
 	}
 
+	openRoute({routeId, params={}, target}) {
+		this.router.openRoute({
+			routeId: routeId || this._routeId, // destRouteId
+			currentRouteId: this._routeId,
+			currentViewId: this._viewId,
+			params: params,
+			target: target,
+		});
+	}
+
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		const parts = decodeURI(window.location.hash).split('?');
