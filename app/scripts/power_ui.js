@@ -1335,7 +1335,6 @@ class KeyboardManager {
 	}
 }
 
-
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
@@ -4252,36 +4251,38 @@ class PowerBrand extends PowerTarget {
 PowerUi.injectPowerCss({name: 'power-brand'});
 
 class PowerController {
-    constructor({$powerUi}) {
-        // Add $powerUi to controller
-        this.$powerUi = $powerUi;
-    }
+	constructor({$powerUi}) {
+		// Add $powerUi to controller
+		this.$powerUi = $powerUi;
+	}
 
-    get router() {
-        return this.$powerUi.router;
-    }
+	get router() {
+		return this.$powerUi.router;
+	}
 
-    closeCurrentRoute() {
-        const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-        const parts = decodeURIComponent(window.location.hash).split('?');
-        let counter = 0;
-        let newHash = '';
+	closeCurrentRoute() {
+		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+		const parts = decodeURIComponent(window.location.hash).split('?');
+		let counter = 0;
+		let newHash = '';
 
-        for (let part of parts) {
-            if (!part.includes(route.route)) {
-                if (counter !== 0) {
-                    part = encodeURIComponent('?' + part);
-                }
-                newHash = newHash + part;
-                counter = counter + 1;
-            }
-        }
-        window.location.hash = newHash;
-    }
+		for (let part of parts) {
+			if (!part.includes(route.route)) {
+				if (counter !== 0) {
+					part = '?' + part;
+				} else {
+					part = part.replace(this.router.config.rootRoute, '');
+				}
+				newHash = newHash + part;
+				counter = counter + 1;
+			}
+		}
+		this.router.changeHash(newHash);
+	}
 
-    safeEval(string) {
-        return this.$powerUi.safeEval({text: string, scope: this});
-    }
+	safeEval(string) {
+		return this.$powerUi.safeEval({text: string, scope: this});
+	}
 }
 
 class PowerDropmenu extends PowerTarget {
@@ -5215,21 +5216,25 @@ class Router {
 			return;
 		} else {
 			if (!target || target === 'mainView') {
-				// window.location.hash = this.buildUrl({routeId, params, paramKeys});
-				window.location.replace(encodeURI(this.config.rootRoute + this.buildUrl({routeId, params, paramKeys})));
+				this.changeHash(this.buildHash({routeId, params, paramKeys}));
 			} else {
-				const newRoute = this.buildUrl({routeId, params, paramKeys});
-				if (!window.location.href.includes(this.config.rootRoute)) {
-					window.location.replace(encodeURI(this.config.rootRoute) + encodeURIComponent(`?sr=${newRoute}`));
-				} else {
-					window.location.hash = window.location.hash + encodeURIComponent(`?sr=${newRoute}`);
+				const routeParts = this.extractRouteParts(decodeURIComponent(window.location.hash));
+				let oldHash = routeParts.path.replace(this.config.rootRoute, '');
+				for (const route of routeParts.secundaryRoutes) {
+					oldHash = oldHash + `?sr=${route.replace(this.config.rootRoute, '')}`;
 				}
+				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
+				this.changeHash(newRoute);
 			}
 		}
-
 	}
 
-	buildUrl({routeId, params, paramKeys}) {
+	changeHash(hash) {
+		window.history.pushState(null, null, window.location.href);
+		window.location.replace(encodeURI(this.config.rootRoute) + encodeURIComponent(hash));
+	}
+
+	buildHash({routeId, params, paramKeys}) {
 		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
 
 		if (params && paramKeys.length) {

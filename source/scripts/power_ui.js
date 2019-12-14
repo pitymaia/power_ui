@@ -115,7 +115,6 @@ class KeyboardManager {
 	}
 }
 
-
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
