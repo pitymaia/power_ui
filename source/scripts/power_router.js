@@ -356,19 +356,36 @@ class Router {
 		if (this.routeExists({routeId, params})) {
 			return;
 		} else {
-			if (!target || target === '_self') {
-				const selfRoute = this.getOpenedRoute({currentRouteId, currentViewId});
-				this.changeHash(this.buildHash({routeId, params, paramKeys}));
-			} else {
-				const routeParts = this.extractRouteParts(decodeURI(window.location.hash));
-				let oldHash = routeParts.path.replace(this.config.rootRoute, '');
-				for (const route of routeParts.secundaryRoutes) {
-					oldHash = oldHash + `?sr=${route.replace(this.config.rootRoute, '')}`;
-				}
+			// Close the current view and open the route in a new secundary view
+			if (target === '_self') {
+				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
+				const oldHash = this.getOpenedSecundaryRoutesHash([selfRoute.route]);
 				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
 				this.changeHash(newRoute);
+			// Open the route in a new secundary view without closing any view
+			} else if (target === '_blank') {
+				const oldHash = this.getOpenedSecundaryRoutesHash();
+				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
+				this.changeHash(newRoute);
+			// Close all secundary views and open the route in the main view
+			} else {
+				this.changeHash(this.buildHash({routeId, params, paramKeys}));
 			}
 		}
+	}
+
+	// Get the hash definition of current secundary routes
+	getOpenedSecundaryRoutesHash(filter=[]) {
+		const routeParts = this.extractRouteParts(decodeURI(window.location.hash));
+		let oldHash = routeParts.path.replace(this.config.rootRoute, '');
+		for (let route of routeParts.secundaryRoutes) {
+			route = route.replace(this.config.rootRoute, '');
+			if (filter.lenght === 0 || !filter.includes(route)) {
+				oldHash = oldHash + `?sr=${route}`;
+			}
+			console.log('route', route);
+		}
+		return oldHash;
 	}
 
 	changeHash(hash) {
