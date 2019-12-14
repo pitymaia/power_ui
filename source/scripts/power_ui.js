@@ -134,8 +134,6 @@ class PowerUi extends _PowerUiBase {
 		this._events['ready'] = new UEvent();
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
-
-		console.log('POWER UI IS INSTANCIATED');
 	}
 	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
 	addScopeEventListener() {
@@ -287,7 +285,6 @@ class PowerUi extends _PowerUiBase {
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
 		const self = this;
-		console.log('!!!!! ifNotWaitingServerCallInit', routeId, viewId);
 		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;

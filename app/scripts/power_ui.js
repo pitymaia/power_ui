@@ -1354,8 +1354,6 @@ class PowerUi extends _PowerUiBase {
 		this._events['ready'] = new UEvent();
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
-
-		console.log('POWER UI IS INSTANCIATED');
 	}
 	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
 	addScopeEventListener() {
@@ -1507,7 +1505,6 @@ class PowerUi extends _PowerUiBase {
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
 		const self = this;
-		console.log('!!!!! ifNotWaitingServerCallInit', routeId, viewId);
 		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
@@ -5699,10 +5696,6 @@ const someViewTemplate = `<div class="fakemodalback">
 var teste = 'MARAVILHA!';
 
 class FrontPage extends PowerController {
-	constructor($params) {
-		super($params);
-		console.log('Front page is intancitated', $params);
-	}
 
 	ctrl() {
 		// const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
@@ -5739,17 +5732,11 @@ class FrontPage extends PowerController {
 		// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
 		// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
 		// const princesa = 'getValue2(pita["teste"]["pi10"])';
-		const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
-		const getValue2 = this.getValue2;
-		this.final = [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}];
-		const final = this.final;
+		// const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
+		// this.final = [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}];
 		// this.princesa = '2+2-1+(2*3)+10';
-		var pity = 'teste';
 
-		console.log('scope:', pity, this['pity']);
-
-		const value = this.safeEval(princesa);
-		console.log('## AQUI SAFEEVAL:', value, 'EVAL', eval(princesa));
+		// const value = this.safeEval(princesa);
 	}
 
 	getValue({value}) {
@@ -5760,7 +5747,7 @@ class FrontPage extends PowerController {
 	}
 
 	onViewLoad(view) {
-		console.log('!!!!! VIEW LOADED!!!!!', view);
+
 	}
 
 	openModal({name, title}) {
@@ -5791,7 +5778,6 @@ class FrontPage extends PowerController {
 class PowerOnlyPage extends PowerController {
 
 	ctrl({lock, $powerUi}) {
-		console.log('PowerOnly CTRL:', this.safeEval('1.5+2+10/5+4.5'), lock, $powerUi.router);
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
 			{name: 'Lion', gender: 'male'},
@@ -5836,7 +5822,7 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	onViewLoad(view) {
-		console.log('!!!!! view LOADED!!!!!', view);
+
 	}
 
 	openSimpleModal() {
@@ -5869,10 +5855,6 @@ class PowerOnlyPage extends PowerController {
 }
 
 class SimpleModal extends PowerController {
-	constructor($params) {
-		super($params);
-		console.log('Power page is intancitated', $params);
-	}
 
 	ctrl({lock, $powerUi}) {
 		this.cats = [
@@ -5885,26 +5867,14 @@ class SimpleModal extends PowerController {
 			{name: 'Lindinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
-		console.log('CTRL:', this.safeEval('cats'));
 	}
 
 	onViewLoad(view) {
-		console.log('!!!!! view LOADED!!!!!', view);
 	}
 }
 
 class FakeModal extends PowerController {
 	ctrl({lock, $powerUi, $shared}) {
-
-		// const route = this.$powerUi.router.openRoute({
-		// 	routeId: 'component1',
-		// 	params: {
-		// 		name: 'andre',
-		// 		title: '1984'
-		// 	}
-		// });
-		console.log('Fake Modal CTRL', this._viewId, this._routeId);
-
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},
@@ -6007,7 +5977,7 @@ class FakeModal extends PowerController {
 	}
 
 	onViewLoad(view) {
-		console.log('!!!!! HERE LOADED!!!!!', view);
+
 	}
 
 	openSimpleModal() {
@@ -6091,16 +6061,6 @@ app.variable = 'obj';
 app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
-
-app.catOfCats = function() {
-	const catsNode = document.getElementById('catofcats');
-	if (catsNode) {
-		console.log('child', catsNode);
-	}
-	app._events['ready'].unsubscribe(app.catOfCats);
-}
-
-app._events['ready'].subscribe(app.catOfCats);
 
 app.num = function (num) {
 	return num;
