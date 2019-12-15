@@ -27,7 +27,7 @@ gulp.task('insert-styles-bundle', function (done) {
 	.pipe(gulp.dest('app/'));
 });
 
-const distFiles = [
+const distJsFiles = [
 	'source/scripts/power_core/core/power_core.js', // Order who goes first
 	'source/scripts/pow_attrs/*.js',
 	'source/scripts/power_core/core/power_ui.js',
@@ -35,8 +35,13 @@ const distFiles = [
 	'source/scripts/parser/*.js',
 	'source/scripts/interface/*.js',
 ];
+const devJsFiles = distJsFiles.concat(['source/scripts/temp_develop.js'])
 
-const devFiles = distFiles.concat(['source/scripts/temp_develop.js'])
+const distCssFiles = [
+	'source/css/core/*.css',
+	'source/css/designs/*.css',
+];
+const devCssFiles = distCssFiles.concat(['source/css/temp_for_dev.css'])
 
 gulp.task('develop', function (done) {
 	gulp.src('source/templates/index.html')
@@ -44,7 +49,15 @@ gulp.task('develop', function (done) {
 		'before': '<!-- Porwer UI demo -->$',
 		'lineBefore': doNotEditThisFile
 	})).pipe(gulp.dest('app/'));
-	gulp.src(devFiles).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
+	gulp.src(devJsFiles).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
+	gulp.src(devCssFiles).pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
+	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
+
+	reloadTask(done);
+});
+
+gulp.task('distribute', function (done) {
+	gulp.src(devJsFiles).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
 	gulp.src('source/css/*.css').pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
 	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
 
