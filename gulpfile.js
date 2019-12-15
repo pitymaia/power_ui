@@ -27,18 +27,24 @@ gulp.task('insert-styles-bundle', function (done) {
 	.pipe(gulp.dest('app/'));
 });
 
-gulp.task('build', function (done) {
+const distFiles = [
+	'source/scripts/power_core/core/power_core.js', // Order who goes first
+	'source/scripts/pow_attrs/*.js',
+	'source/scripts/power_core/core/power_ui.js',
+	'source/scripts/power_core/*.js',
+	'source/scripts/parser/*.js',
+	'source/scripts/interface/*.js',
+];
+
+const devFiles = distFiles.concat(['source/scripts/temp_develop.js'])
+
+gulp.task('develop', function (done) {
 	gulp.src('source/templates/index.html')
 	.pipe(insertLines({
 		'before': '<!-- Porwer UI demo -->$',
 		'lineBefore': doNotEditThisFile
 	})).pipe(gulp.dest('app/'));
-	gulp.src([
-		'source/scripts/power_core.js', // Order who goes first
-		'source/scripts/pow_attrs.js',
-		'source/scripts/power_ui.js',
-		'source/scripts/*.js'
-	]).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
+	gulp.src(devFiles).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
 	gulp.src('source/css/*.css').pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
 	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
 
@@ -62,11 +68,11 @@ gulp.task('browser-sync', function() {
 	// gulp.watch("source/scripts/*.js").on('change', browserSync.reload);
 	// gulp.watch("source/css/*.css").on('change', browserSync.reload);
 	// gulp.watch("source/templates/*.*").on('change', browserSync.reload);
-	// Reload 'build' on files change
-	gulp.watch("source/scripts/*.js", ['build']);
-	gulp.watch("source/css/*.css", ['build']);
-	gulp.watch("source/templates/*.*", ['build']);
+	// Reload 'develop' on files change
+	gulp.watch("source/scripts/*.js", ['develop']);
+	gulp.watch("source/css/*.css", ['develop']);
+	gulp.watch("source/templates/*.*", ['develop']);
 });
 
-gulp.task('default', ['build', 'browser-sync']);
+gulp.task('default', ['develop', 'browser-sync']);
 gulp.task('debug', ['insert-styles-bundle', 'browser-sync']);
