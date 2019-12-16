@@ -4,9 +4,9 @@ class PowerWidget extends PowerController {
         this.isWidget = true;
     }
 
-    $buildTemplate({template}) {
+    $buildTemplate({template, title}) {
         const tempElement = document.createElement('div');
-        tempElement.innerHTML = this.template();
+        tempElement.innerHTML = this.template({$title: title || null});
         const content = tempElement.querySelectorAll('[data-pw-content]');
         content[0].innerHTML = template;
         template = tempElement.innerHTML;

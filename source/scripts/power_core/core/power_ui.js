@@ -124,6 +124,7 @@ class PowerUi extends _PowerUiBase {
 			},
 		};
 		this.addScopeEventListener();
+		this.numberOfopenModals = 0;
 		this.ctrlWaitingToRun = [];
 		this.config = config;
 		this.waitingViews = 0;
@@ -253,7 +254,7 @@ class PowerUi extends _PowerUiBase {
 		this.ctrlWaitingToRun = [];
 	}
 
-	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
@@ -264,7 +265,7 @@ class PowerUi extends _PowerUiBase {
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
 			if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-				template = self.controllers[viewId].instance.$buildTemplate({template: template});
+				template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 			}
 			view.innerHTML = template;
 			self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
@@ -281,10 +282,10 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
+	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		if (this.controllers && this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.isWidget) {
-			template = this.controllers[viewId].instance.$buildTemplate({template: template});
+			template = this.controllers[viewId].instance.$buildTemplate({template: template, title});
 		}
 		view.innerHTML = template;
 		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});

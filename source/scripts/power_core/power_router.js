@@ -29,7 +29,7 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl}) {
+	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl, title}) {
 		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
@@ -75,6 +75,7 @@ class Router {
 		}
 
 		const entry = {
+			title: title,
 			route: this.config.rootRoute + route,
 			callback: callback || null,
 			template: template || null,
@@ -176,6 +177,7 @@ class Router {
 								paramKeys: paramKeys,
 								viewId: this.config.routerMainViewId,
 								ctrl: this.routes[routeId].ctrl,
+								title: this.routes[routeId].title,
 							});
 						}
 						this.setMainRouteState({
@@ -183,6 +185,7 @@ class Router {
 							paramKeys: paramKeys,
 							route: routeParts.path,
 							viewId: this.config.routerMainViewId,
+							title: this.routes[routeId].title,
 						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
@@ -209,6 +212,7 @@ class Router {
 								paramKeys: paramKeys,
 								secundaryRoute: secundaryRoute,
 								secundaryViewId: secundaryViewId,
+								title: this.routes[routeId].title,
 							});
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
@@ -278,13 +282,16 @@ class Router {
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
 		if (ctrl) {
 			// Register the controller with $powerUi
 			this.$powerUi.controllers[viewId] = ctrl;
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
+			$params.viewId = viewId;
+			$params.routeId = routeId;
+			$params.title = title;
 			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
 		}
 
@@ -301,6 +308,7 @@ class Router {
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
+					title: title,
 				});
 			} else {
 				this.$powerUi.loadTemplate({
@@ -309,6 +317,7 @@ class Router {
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
+					title: title,
 				});
 			}
 		}
@@ -317,7 +326,7 @@ class Router {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
-	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId, ctrl}) {
+	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId, ctrl, title}) {
 		if (ctrl) {
 			// Create a shared scope for this route if not existas
 			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
@@ -335,10 +344,12 @@ class Router {
 		document.getElementById(routerSecundaryViewId).appendChild(newViewNode);
 		// Load the route inside the new element view
 		this.loadRoute({
+			title: title,
 			routeId: routeId,
 			paramKeys: paramKeys,
 			viewId: viewId,
 			ctrl: this.routes[routeId].ctrl,
+			title: this.routes[routeId].title,
 		});
 		return viewId;
 	}
@@ -448,12 +459,13 @@ class Router {
 	return exists;
 	}
 
-	setMainRouteState({routeId, paramKeys, route, viewId}) {
+	setMainRouteState({routeId, paramKeys, route, viewId, title}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootRoute, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
+		this.currentRoutes.title = title;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -461,8 +473,9 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId}) {
+	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId, title}) {
 		const route = {
+			title: title,
 			isMainView: false,
 			params: [],
 			id: '',

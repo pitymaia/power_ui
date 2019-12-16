@@ -142,7 +142,6 @@ class FrontPage extends PowerController {
 }
 
 class PowerOnlyPage extends PowerController {
-
 	ctrl({lock, $powerUi}) {
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
@@ -237,7 +236,13 @@ class SimpleModal extends PowerModal {
 }
 
 class FakeModal extends PowerModal {
+	constructor({$powerUi, lock, viewId, routeId}) {
+		super({$powerUi});
+		this.$title = 'My books';
+	}
+
 	ctrl({lock, $powerUi, $shared}) {
+		this.$title = 'sdfsdf';
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},
@@ -363,6 +368,7 @@ let app = new PowerUi({
 	routes: [
 		{
 			id: 'front-page',
+			title: 'PowerUi - Rich UI made easy',
 			route: '/',
 			templateUrl: 'front_page.html',
 			ctrl: {
@@ -372,6 +378,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'power-only',
+			title: 'Power only page | PowerUi',
 			route: 'power_only',
 			templateUrl: 'power_only.html',
 			avoidCacheTemplate: false,
@@ -398,6 +405,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'component1',
+			title: 'Books | PowerUi',
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
 			avoidCacheTemplate: false,
@@ -408,6 +416,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'simple-template',
+			title: 'The simple one | PowerUi',
 			route: 'simple',
 			template: someViewTemplate,
 			ctrl: {
@@ -417,6 +426,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'otherwise',
+			title: 'Not found | PowerUi',
 			route: '404',
 			templateUrl: '404.html',
 		}

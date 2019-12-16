@@ -1510,6 +1510,7 @@ class PowerUi extends _PowerUiBase {
 			},
 		};
 		this.addScopeEventListener();
+		this.numberOfopenModals = 0;
 		this.ctrlWaitingToRun = [];
 		this.config = config;
 		this.waitingViews = 0;
@@ -1639,7 +1640,7 @@ class PowerUi extends _PowerUiBase {
 		this.ctrlWaitingToRun = [];
 	}
 
-	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
@@ -1650,7 +1651,7 @@ class PowerUi extends _PowerUiBase {
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
 			if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-				template = self.controllers[viewId].instance.$buildTemplate({template: template});
+				template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 			}
 			view.innerHTML = template;
 			self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
@@ -1667,10 +1668,10 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
+	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		if (this.controllers && this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.isWidget) {
-			template = this.controllers[viewId].instance.$buildTemplate({template: template});
+			template = this.controllers[viewId].instance.$buildTemplate({template: template, title});
 		}
 		view.innerHTML = template;
 		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
@@ -1932,7 +1933,7 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl}) {
+	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl, title}) {
 		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
@@ -1978,6 +1979,7 @@ class Router {
 		}
 
 		const entry = {
+			title: title,
 			route: this.config.rootRoute + route,
 			callback: callback || null,
 			template: template || null,
@@ -2079,6 +2081,7 @@ class Router {
 								paramKeys: paramKeys,
 								viewId: this.config.routerMainViewId,
 								ctrl: this.routes[routeId].ctrl,
+								title: this.routes[routeId].title,
 							});
 						}
 						this.setMainRouteState({
@@ -2086,6 +2089,7 @@ class Router {
 							paramKeys: paramKeys,
 							route: routeParts.path,
 							viewId: this.config.routerMainViewId,
+							title: this.routes[routeId].title,
 						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
@@ -2112,6 +2116,7 @@ class Router {
 								paramKeys: paramKeys,
 								secundaryRoute: secundaryRoute,
 								secundaryViewId: secundaryViewId,
+								title: this.routes[routeId].title,
 							});
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
@@ -2181,13 +2186,16 @@ class Router {
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
 		if (ctrl) {
 			// Register the controller with $powerUi
 			this.$powerUi.controllers[viewId] = ctrl;
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
+			$params.viewId = viewId;
+			$params.routeId = routeId;
+			$params.title = title;
 			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
 		}
 
@@ -2204,6 +2212,7 @@ class Router {
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
+					title: title,
 				});
 			} else {
 				this.$powerUi.loadTemplate({
@@ -2212,6 +2221,7 @@ class Router {
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
+					title: title,
 				});
 			}
 		}
@@ -2220,7 +2230,7 @@ class Router {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
-	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId, ctrl}) {
+	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId, ctrl, title}) {
 		if (ctrl) {
 			// Create a shared scope for this route if not existas
 			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
@@ -2238,10 +2248,12 @@ class Router {
 		document.getElementById(routerSecundaryViewId).appendChild(newViewNode);
 		// Load the route inside the new element view
 		this.loadRoute({
+			title: title,
 			routeId: routeId,
 			paramKeys: paramKeys,
 			viewId: viewId,
 			ctrl: this.routes[routeId].ctrl,
+			title: this.routes[routeId].title,
 		});
 		return viewId;
 	}
@@ -2351,12 +2363,13 @@ class Router {
 	return exists;
 	}
 
-	setMainRouteState({routeId, paramKeys, route, viewId}) {
+	setMainRouteState({routeId, paramKeys, route, viewId, title}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootRoute, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
+		this.currentRoutes.title = title;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -2364,8 +2377,9 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId}) {
+	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId, title}) {
 		const route = {
+			title: title,
 			isMainView: false,
 			params: [],
 			id: '',
@@ -4934,9 +4948,9 @@ class PowerWidget extends PowerController {
         this.isWidget = true;
     }
 
-    $buildTemplate({template}) {
+    $buildTemplate({template, title}) {
         const tempElement = document.createElement('div');
-        tempElement.innerHTML = this.template();
+        tempElement.innerHTML = this.template({$title: title || null});
         const content = tempElement.querySelectorAll('[data-pw-content]');
         content[0].innerHTML = template;
         template = tempElement.innerHTML;
@@ -4948,10 +4962,26 @@ class PowerWidget extends PowerController {
 class PowerModal extends PowerWidget {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
+		this.$powerUi.numberOfopenModals = this.$powerUi.numberOfopenModals + 1;
+		if (document.body && document.body.classList) {
+			document.body.classList.add('modal-open');
+		}
 	}
-	template() {
+
+	closeCurrentRoute() {
+		this.$powerUi.numberOfopenModals = this.$powerUi.numberOfopenModals - 1;
+		if (document.body && document.body.classList && this.$powerUi.numberOfopenModals <=0) {
+			document.body.classList.remove('modal-open');
+		}
+		super.closeCurrentRoute();
+	}
+
+	template({$title}) {
+		// This allow the user define a this.$title on controller constructor, otherwise use the route title
+		this.$title = this.$title || $title;
 		return `<div class="pw-modal-backdrop">
 					<div class="pw-title-bar">
+						<span class="pw-title-bar-label">${this.$title}</span>
 						<div data-pow-event onclick="closeCurrentRoute()" class="pw-bt-close fa fa-times"></div>
 					</div>
 					<div class="pw-modal" data-pw-content>
@@ -5838,7 +5868,6 @@ class FrontPage extends PowerController {
 }
 
 class PowerOnlyPage extends PowerController {
-
 	ctrl({lock, $powerUi}) {
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
@@ -5933,7 +5962,13 @@ class SimpleModal extends PowerModal {
 }
 
 class FakeModal extends PowerModal {
+	constructor({$powerUi, lock, viewId, routeId}) {
+		super({$powerUi});
+		this.$title = 'My books';
+	}
+
 	ctrl({lock, $powerUi, $shared}) {
+		this.$title = 'sdfsdf';
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},
@@ -6059,6 +6094,7 @@ let app = new PowerUi({
 	routes: [
 		{
 			id: 'front-page',
+			title: 'PowerUi - Rich UI made easy',
 			route: '/',
 			templateUrl: 'front_page.html',
 			ctrl: {
@@ -6068,6 +6104,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'power-only',
+			title: 'Power only page | PowerUi',
 			route: 'power_only',
 			templateUrl: 'power_only.html',
 			avoidCacheTemplate: false,
@@ -6094,6 +6131,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'component1',
+			title: 'Books | PowerUi',
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
 			avoidCacheTemplate: false,
@@ -6104,6 +6142,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'simple-template',
+			title: 'The simple one | PowerUi',
 			route: 'simple',
 			template: someViewTemplate,
 			ctrl: {
@@ -6113,6 +6152,7 @@ let app = new PowerUi({
 		},
 		{
 			id: 'otherwise',
+			title: 'Not found | PowerUi',
 			route: '404',
 			templateUrl: '404.html',
 		}
