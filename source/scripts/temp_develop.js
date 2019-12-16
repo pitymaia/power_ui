@@ -27,8 +27,8 @@
 // }
 // let app = new TesteUi();
 
-const someViewTemplate = `<div class="fakemodalback">
-	<div class="fakemodal">
+const someViewTemplate = `<div class="pw-modal-backdrop">
+	<div class="pw-modal">
 		<h1>Cats list</h1>
 		<div data-pow-for="cat of cats">
 			<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>

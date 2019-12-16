@@ -90,9 +90,9 @@ gulp.task('browser-sync', function() {
 	// gulp.watch("source/css/*.css").on('change', browserSync.reload);
 	// gulp.watch("source/templates/*.*").on('change', browserSync.reload);
 	// Reload 'develop' on files change
-	gulp.watch("source/scripts/*.js", ['develop']);
-	gulp.watch("source/css/*.css", ['develop']);
-	gulp.watch("source/templates/*.*", ['develop']);
+	gulp.watch("source/scripts/**/*.js", ['develop']);
+	gulp.watch("source/css/**/*.css", ['develop']);
+	gulp.watch("source/templates/**/*.*", ['develop']);
 });
 
 gulp.task('default', ['develop', 'browser-sync']);
