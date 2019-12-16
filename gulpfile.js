@@ -35,6 +35,8 @@ const distJsFiles = [
 	'source/scripts/power_core/core/power_ui.js',
 	'source/scripts/power_core/*.js',
 	'source/scripts/parser/*.js',
+	'source/scripts/widgets/main/*.js',
+	'source/scripts/widgets/*.js',
 	'source/scripts/interface/*.js',
 ];
 const devJsFiles = distJsFiles.concat(['source/scripts/temp_develop.js']);

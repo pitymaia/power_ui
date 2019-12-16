@@ -262,8 +262,12 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			template = xhr.responseText;
+			if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
+				template = self.controllers[viewId].instance.$buildTemplate({template: template});
+			}
+			view.innerHTML = template;
+			self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
 			if (routeConfig.avoidCacheTemplate !== true) {
@@ -279,6 +283,9 @@ class PowerUi extends _PowerUiBase {
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		if (this.controllers && this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.isWidget) {
+			template = this.controllers[viewId].instance.$buildTemplate({template: template});
+		}
 		view.innerHTML = template;
 		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 	}

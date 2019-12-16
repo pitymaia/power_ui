@@ -27,10 +27,7 @@
 // }
 // let app = new TesteUi();
 
-const someViewTemplate = `<div class="pw-modal-backdrop">
-	<div class="pw-title-bar"><div data-pow-event onclick="closeCurrentRoute()" class="pw-bt-close fa fa-times"></div></div>
-	<div class="pw-modal">
-		<div class="pw-container">
+const someViewTemplate = `<div class="pw-container">
 			<h1>Cats list</h1>
 			<div data-pow-for="cat of cats">
 				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
@@ -64,9 +61,7 @@ const someViewTemplate = `<div class="pw-modal-backdrop">
 			</div>
 			<br />
 			<button class="pw-btn-default" data-pow-event onclick="closeCurrentRoute()">Close</button>
-		</div>
-	</div>
-</div>`;
+		</div>`;
 var teste = 'MARAVILHA!';
 
 class FrontPage extends PowerController {
@@ -222,7 +217,7 @@ class PowerOnlyPage extends PowerController {
 	}
 }
 
-class SimpleModal extends PowerController {
+class SimpleModal extends PowerModal {
 
 	ctrl({lock, $powerUi}) {
 		this.cats = [
@@ -241,7 +236,7 @@ class SimpleModal extends PowerController {
 	}
 }
 
-class FakeModal extends PowerController {
+class FakeModal extends PowerModal {
 	ctrl({lock, $powerUi, $shared}) {
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},

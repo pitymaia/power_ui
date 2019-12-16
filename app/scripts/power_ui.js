@@ -1648,8 +1648,12 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			template = xhr.responseText;
+			if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
+				template = self.controllers[viewId].instance.$buildTemplate({template: template});
+			}
+			view.innerHTML = template;
+			self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
 			if (routeConfig.avoidCacheTemplate !== true) {
@@ -1665,6 +1669,9 @@ class PowerUi extends _PowerUiBase {
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		if (this.controllers && this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.isWidget) {
+			template = this.controllers[viewId].instance.$buildTemplate({template: template});
+		}
 		view.innerHTML = template;
 		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 	}
@@ -4921,6 +4928,38 @@ class EmptyPattern {
 	}
 }
 
+class PowerWidget extends PowerController {
+    constructor({$powerUi}) {
+        super({$powerUi: $powerUi});
+        this.isWidget = true;
+    }
+
+    $buildTemplate({template}) {
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = this.template();
+        const content = tempElement.querySelectorAll('[data-pw-content]');
+        content[0].innerHTML = template;
+        template = tempElement.innerHTML;
+
+        return template;
+    }
+}
+
+class PowerModal extends PowerWidget {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+	}
+	template() {
+		return `<div class="pw-modal-backdrop">
+					<div class="pw-title-bar">
+						<div data-pow-event onclick="closeCurrentRoute()" class="pw-bt-close fa fa-times"></div>
+					</div>
+					<div class="pw-modal" data-pw-content>
+					</div>
+				</div>`;
+	}
+}
+
 class AccordionModel {
 	constructor(ctx) {
 		this.ctx = ctx;
@@ -5684,10 +5723,7 @@ PowerUi.injectPowerCss({name: 'power-status'});
 // }
 // let app = new TesteUi();
 
-const someViewTemplate = `<div class="pw-modal-backdrop">
-	<div class="pw-title-bar"><div data-pow-event onclick="closeCurrentRoute()" class="pw-bt-close fa fa-times"></div></div>
-	<div class="pw-modal">
-		<div class="pw-container">
+const someViewTemplate = `<div class="pw-container">
 			<h1>Cats list</h1>
 			<div data-pow-for="cat of cats">
 				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
@@ -5721,9 +5757,7 @@ const someViewTemplate = `<div class="pw-modal-backdrop">
 			</div>
 			<br />
 			<button class="pw-btn-default" data-pow-event onclick="closeCurrentRoute()">Close</button>
-		</div>
-	</div>
-</div>`;
+		</div>`;
 var teste = 'MARAVILHA!';
 
 class FrontPage extends PowerController {
@@ -5879,7 +5913,7 @@ class PowerOnlyPage extends PowerController {
 	}
 }
 
-class SimpleModal extends PowerController {
+class SimpleModal extends PowerModal {
 
 	ctrl({lock, $powerUi}) {
 		this.cats = [
@@ -5898,7 +5932,7 @@ class SimpleModal extends PowerController {
 	}
 }
 
-class FakeModal extends PowerController {
+class FakeModal extends PowerModal {
 	ctrl({lock, $powerUi, $shared}) {
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
