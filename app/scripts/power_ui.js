@@ -4995,8 +4995,15 @@ class PowerModal extends PowerWidget {
 	}
 
 	closeCurrentRoute() {
-		super.closeCurrentRoute();
+		// Only close if is opened, if not just remove the event
+		const view = document.getElementById(this._viewId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeModal);
+		if (view) {
+			super.closeCurrentRoute();
+		} else {
+			// If not opened, call the next in the queue
+			this.$powerUi._events['Escape'].broadcast();
+		}
 	}
 
 	template({$title}) {
