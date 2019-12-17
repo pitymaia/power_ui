@@ -176,6 +176,7 @@ const _Unique = { // produce unique IDs
 	next: () => ++_Unique.n,
 	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
 	scopeID: () => `_scope_${_Unique.next()}`,
+	last: () => _Unique.n,
 };
 
 
@@ -1258,7 +1259,8 @@ class PowEvent extends _PowerBasicElementWithEvents {
             if (attr.name.includes('on')) {
                 const name = attr.name.slice(2, attr.name.length);
                 this.element.setAttribute(`data-pow-${name}`, encodeURIComponent(attr.value));
-                attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+                // attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+                attr.value = `window._$dispatchPowerEvent(event, this, '${view.id}', '${name}')`;
             }
         }
     }
@@ -1511,11 +1513,13 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
 				$waitingToDelete: [],
 			},
 		};
+		this._Unique = _Unique;
 		this.addScopeEventListener();
 		this.numberOfopenModals = 0;
 		this.ctrlWaitingToRun = [];
@@ -1533,21 +1537,26 @@ class PowerUi extends _PowerUiBase {
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
+	_$dispatchPowerEvent(event, self, viewId, name) {
+		document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: viewId, elementId: self.id, attrName: name, event: event}}));
+	}
+
 	_keyUp(event) {
 		if (event.key == 'Escape' || event.keyCode == 27) {
 			this._events['Escape'].popBroadcast();
 		}
 	}
-	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
 	addScopeEventListener() {
 		document.removeEventListener('pwScope', this.pwScope.bind(this), false);
 		document.addEventListener('pwScope', this.pwScope.bind(this), false);
 	}
 
+	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
+	// This also add the Event to controller scope so it can be evaluated and passed to the funcion on data-pow-event as argument
 	pwScope(event) {
 		const self = this;
-		// console.log('ecope event', event.detail, event);
 		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
+		ctrlScope.event = event.detail.event;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
 		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;
@@ -4994,6 +5003,12 @@ class PowerModal extends PowerWidget {
 		$powerUi._events['Escape'].subscribe(this._closeModal);
 	}
 
+	clickOutside(event) {
+		if (event.target.classList.contains('pw-modal-backdrop')) {
+			this.closeCurrentRoute();
+		}
+	}
+
 	closeCurrentRoute() {
 		// Only close if is opened, if not just remove the event
 		const view = document.getElementById(this._viewId);
@@ -5012,7 +5027,7 @@ class PowerModal extends PowerWidget {
 		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-modal-backdrop">
+		return `<div class="pw-modal-backdrop" data-pow-event onclick="clickOutside(event)">
 					<div class="pw-title-bar">
 						<span class="pw-title-bar-label">${this.$title}</span>
 						<div data-pow-event onclick="closeCurrentRoute()" class="pw-bt-close fa fa-times"></div>

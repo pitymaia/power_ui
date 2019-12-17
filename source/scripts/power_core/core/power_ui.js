@@ -118,11 +118,13 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
 				$waitingToDelete: [],
 			},
 		};
+		this._Unique = _Unique;
 		this.addScopeEventListener();
 		this.numberOfopenModals = 0;
 		this.ctrlWaitingToRun = [];
@@ -140,21 +142,26 @@ class PowerUi extends _PowerUiBase {
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
+	_$dispatchPowerEvent(event, self, viewId, name) {
+		document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: viewId, elementId: self.id, attrName: name, event: event}}));
+	}
+
 	_keyUp(event) {
 		if (event.key == 'Escape' || event.keyCode == 27) {
 			this._events['Escape'].popBroadcast();
 		}
 	}
-	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
 	addScopeEventListener() {
 		document.removeEventListener('pwScope', this.pwScope.bind(this), false);
 		document.addEventListener('pwScope', this.pwScope.bind(this), false);
 	}
 
+	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
+	// This also add the Event to controller scope so it can be evaluated and passed to the funcion on data-pow-event as argument
 	pwScope(event) {
 		const self = this;
-		// console.log('ecope event', event.detail, event);
 		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
+		ctrlScope.event = event.detail.event;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
 		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;

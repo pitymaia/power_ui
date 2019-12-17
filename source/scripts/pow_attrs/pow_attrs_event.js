@@ -12,7 +12,8 @@ class PowEvent extends _PowerBasicElementWithEvents {
             if (attr.name.includes('on')) {
                 const name = attr.name.slice(2, attr.name.length);
                 this.element.setAttribute(`data-pow-${name}`, encodeURIComponent(attr.value));
-                attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+                // attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+                attr.value = `window._$dispatchPowerEvent(event, this, '${view.id}', '${name}')`;
             }
         }
     }

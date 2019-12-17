@@ -176,6 +176,7 @@ const _Unique = { // produce unique IDs
 	next: () => ++_Unique.n,
 	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
 	scopeID: () => `_scope_${_Unique.next()}`,
+	last: () => _Unique.n,
 };
 
 
