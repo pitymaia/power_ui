@@ -200,6 +200,13 @@ class UEvent {
 			o.fn.apply(o.ctx, o.arguments);
 		}
 	}
+	// Broadcast only to the last item in array
+	popBroadcast() { // Accepts arguments.
+		if (this.observers.length > 0) {
+			const o = this.observers[this.observers.length - 1];
+			o.fn.apply(o.ctx, o.arguments);
+		}
+	}
 }
 UEvent.index = {}; // storage for all named events
 

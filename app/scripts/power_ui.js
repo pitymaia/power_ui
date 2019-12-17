@@ -200,6 +200,13 @@ class UEvent {
 			o.fn.apply(o.ctx, o.arguments);
 		}
 	}
+	// Broadcast only to the last item in array
+	popBroadcast() { // Accepts arguments.
+		if (this.observers.length > 0) {
+			const o = this.observers[this.observers.length - 1];
+			o.fn.apply(o.ctx, o.arguments);
+		}
+	}
 }
 UEvent.index = {}; // storage for all named events
 
@@ -1519,8 +1526,17 @@ class PowerUi extends _PowerUiBase {
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
+		this._events['Escape'] = new UEvent();
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+
+		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	_keyUp(event) {
+		if (event.key == 'Escape' || event.keyCode == 27) {
+			this._events['Escape'].popBroadcast();
+		}
 	}
 	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
 	addScopeEventListener() {
@@ -2148,6 +2164,11 @@ class Router {
 			}
 		}
 		this.clearRouteSharedScopes();
+		// Remove 'modal-open' css class from body if all modals are closed
+		const modals = document.body.getElementsByClassName('pw-modal-backdrop');
+		if (modals.length === 0) {
+			document.body.classList.remove('modal-open');
+		}
 	}
 
 	clearRouteSharedScopes() {
@@ -4964,21 +4985,24 @@ class PowerWidget extends PowerController {
 class PowerModal extends PowerWidget {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.$powerUi.numberOfopenModals = this.$powerUi.numberOfopenModals + 1;
-		if (document.body && document.body.classList) {
-			document.body.classList.add('modal-open');
+		this.isModal = true;
+
+		const self = this;
+		this._closeModal = function() {
+			self.closeCurrentRoute();
 		}
+		$powerUi._events['Escape'].subscribe(this._closeModal);
 	}
 
 	closeCurrentRoute() {
-		this.$powerUi.numberOfopenModals = this.$powerUi.numberOfopenModals - 1;
-		if (document.body && document.body.classList && this.$powerUi.numberOfopenModals <=0) {
-			document.body.classList.remove('modal-open');
-		}
 		super.closeCurrentRoute();
+		this.$powerUi._events['Escape'].unsubscribe(this._closeModal);
 	}
 
 	template({$title}) {
+		if (document.body && document.body.classList) {
+			document.body.classList.add('modal-open');
+		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
 		return `<div class="pw-modal-backdrop">

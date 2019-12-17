@@ -133,8 +133,17 @@ class PowerUi extends _PowerUiBase {
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
+		this._events['Escape'] = new UEvent();
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+
+		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	_keyUp(event) {
+		if (event.key == 'Escape' || event.keyCode == 27) {
+			this._events['Escape'].popBroadcast();
+		}
 	}
 	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
 	addScopeEventListener() {

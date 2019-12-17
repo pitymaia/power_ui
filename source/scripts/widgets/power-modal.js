@@ -1,21 +1,24 @@
 class PowerModal extends PowerWidget {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.$powerUi.numberOfopenModals = this.$powerUi.numberOfopenModals + 1;
-		if (document.body && document.body.classList) {
-			document.body.classList.add('modal-open');
+		this.isModal = true;
+
+		const self = this;
+		this._closeModal = function() {
+			self.closeCurrentRoute();
 		}
+		$powerUi._events['Escape'].subscribe(this._closeModal);
 	}
 
 	closeCurrentRoute() {
-		this.$powerUi.numberOfopenModals = this.$powerUi.numberOfopenModals - 1;
-		if (document.body && document.body.classList && this.$powerUi.numberOfopenModals <=0) {
-			document.body.classList.remove('modal-open');
-		}
 		super.closeCurrentRoute();
+		this.$powerUi._events['Escape'].unsubscribe(this._closeModal);
 	}
 
 	template({$title}) {
+		if (document.body && document.body.classList) {
+			document.body.classList.add('modal-open');
+		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
 		return `<div class="pw-modal-backdrop">
