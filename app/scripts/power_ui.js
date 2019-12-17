@@ -1675,11 +1675,14 @@ class PowerUi extends _PowerUiBase {
 				withCredentials: false,
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
-			if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-				template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
-			}
-			view.innerHTML = template;
-			self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
+			self.buildViewTemplateAndMayCallInit({
+				self: self,
+				view: view,
+				template: template,
+				routeId: routeId,
+				viewId: viewId,
+				title: title,
+			});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
 			if (routeConfig.avoidCacheTemplate !== true) {
@@ -1695,11 +1698,26 @@ class PowerUi extends _PowerUiBase {
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		if (this.controllers && this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.isWidget) {
-			template = this.controllers[viewId].instance.$buildTemplate({template: template, title});
+		this.buildViewTemplateAndMayCallInit({
+			self: this,
+			view: view,
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			title: title,
+		});
+	}
+
+	// When a view is loaded built it's template, may call compile() and may Init all views when all loaded
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title}) {
+		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
+			if (self.controllers[viewId].instance.compile) {
+				self.controllers[viewId].instance.compile();
+			}
+			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
 		view.innerHTML = template;
-		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
+		self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
 	}
 
 	ifNotWaitingServerCallInit({template, routeId, viewId}) {
@@ -6027,6 +6045,9 @@ class SimpleModal extends PowerModal {
 class FakeModal extends PowerModal {
 	constructor({$powerUi, lock, viewId, routeId}) {
 		super({$powerUi});
+	}
+
+	compile() {
 		const parts = window.location.hash.split('/');
 		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}

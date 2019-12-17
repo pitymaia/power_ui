@@ -238,6 +238,9 @@ class SimpleModal extends PowerModal {
 class FakeModal extends PowerModal {
 	constructor({$powerUi, lock, viewId, routeId}) {
 		super({$powerUi});
+	}
+
+	compile() {
 		const parts = window.location.hash.split('/');
 		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}
