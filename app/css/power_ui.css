@@ -66,7 +66,7 @@
 /* Menu end*/
 
 /* Modal start */
-.pw-modal {
+.pw-modal .pw-window {
     position: relative;
     background-color: #F5F5F5;
     max-height: 90vh;
@@ -84,13 +84,19 @@
     background-color: rgb(0, 0, 0, 0.7);
     z-index: 1001;
 }
-.pw-modal, .pw-title-bar {
+.pw-modal .pw-window, .pw-modal .pw-title-bar {
     margin: 0 auto;
     width: 100%;
     width: 80%;
     max-width: 95vw;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
+/* Modal end */
+
+/* Start All dialogs */
 .pw-title-bar {
     min-height: 3em;
     background-color: rgb(0, 0, 0, 1);
@@ -102,14 +108,11 @@
     font-weight: bold;
     margin-right: -2rem; /* compensate the X close button */
 }
-body.modal-open {
-    overflow: hidden;
-}
-/* Modal end */
-
 .pw-container {
     margin: 1em;
 }
+
+/* End All dialogs */
 
 /* buttons start*/
 .pw-btn-default {
