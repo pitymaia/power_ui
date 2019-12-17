@@ -16,7 +16,6 @@ class PowerModal extends PowerWidget {
 	}
 
 	template({$title}) {
-		console.log('RUN TEMPLATE', this);
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
 		return `<div class="pw-modal-backdrop">

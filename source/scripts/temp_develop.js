@@ -238,11 +238,11 @@ class SimpleModal extends PowerModal {
 class FakeModal extends PowerModal {
 	constructor({$powerUi, lock, viewId, routeId}) {
 		super({$powerUi});
-		this.$title = 'My books';
+		const parts = window.location.hash.split('/');
+		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}
 
 	ctrl({lock, $powerUi, $shared}) {
-		console.log('RUN CTRL', this);
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},

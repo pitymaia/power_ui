@@ -1822,7 +1822,6 @@ class Request {
 			if (config.authCookie) {
 				d.headers['Authorization'] = getCookie(config.authCookie) || null;
 			}
-			console.log('headers', d.headers);
 			const promise = {
 				then: function (onsucess) {
 					this.onsucess = onsucess;
@@ -4980,7 +4979,6 @@ class PowerModal extends PowerWidget {
 	}
 
 	template({$title}) {
-		console.log('RUN TEMPLATE', this);
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
 		return `<div class="pw-modal-backdrop">
@@ -5968,11 +5966,11 @@ class SimpleModal extends PowerModal {
 class FakeModal extends PowerModal {
 	constructor({$powerUi, lock, viewId, routeId}) {
 		super({$powerUi});
-		this.$title = 'My books';
+		const parts = window.location.hash.split('/');
+		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}
 
 	ctrl({lock, $powerUi, $shared}) {
-		console.log('RUN CTRL', this);
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},

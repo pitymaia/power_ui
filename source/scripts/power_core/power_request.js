@@ -7,7 +7,6 @@ class Request {
 			if (config.authCookie) {
 				d.headers['Authorization'] = getCookie(config.authCookie) || null;
 			}
-			console.log('headers', d.headers);
 			const promise = {
 				then: function (onsucess) {
 					this.onsucess = onsucess;
