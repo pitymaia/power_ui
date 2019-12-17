@@ -1777,12 +1777,14 @@ class PowerController {
 	}
 
 	openRoute({routeId, params={}, target}) {
+		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		this.router.openRoute({
 			routeId: routeId || this._routeId, // destRouteId
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
 			target: target,
+			title: route.title || null,
 		});
 	}
 
@@ -1803,7 +1805,7 @@ class PowerController {
 				counter = counter + 1;
 			}
 		}
-		this.router.changeHash(newHash);
+		this.router.navigate({hash: newHash, title: route.title || null});
 	}
 
 	safeEval(string) {
@@ -2063,7 +2065,6 @@ class Router {
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, onHashChange}={}) {
 		const routeParts = this.extractRouteParts(secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute);
-
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
@@ -2072,6 +2073,9 @@ class Router {
 				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
 				// our route logic is true,
 				if (routeParts.path.match(regEx)) {
+					if (this.routes[routeId] && this.routes[routeId].title) {
+						document.title = this.routes[routeId].title;
+					}
 					if (!secundaryRoute) {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
@@ -2258,7 +2262,7 @@ class Router {
 		return viewId;
 	}
 
-	openRoute({routeId, params, target, currentRouteId, currentViewId}) {
+	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
@@ -2276,15 +2280,15 @@ class Router {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
 				const oldHash = this.getOpenedSecundaryRoutesHash([selfRoute.route]);
 				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
-				this.changeHash(newRoute);
+				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryRoutesHash();
 				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
-				this.changeHash(newRoute);
+				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.changeHash(this.buildHash({routeId, params, paramKeys}));
+				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title});
 			}
 		}
 	}
@@ -2298,13 +2302,12 @@ class Router {
 			if (filter.lenght === 0 || !filter.includes(route)) {
 				oldHash = oldHash + `?sr=${route}`;
 			}
-			console.log('route', route);
 		}
 		return oldHash;
 	}
 
-	changeHash(hash) {
-		window.history.pushState(null, null, window.location.href);
+	navigate({hash, title}) {
+		window.history.pushState(null, title, window.location.href);
 		window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(hash));
 	}
 
@@ -4977,6 +4980,7 @@ class PowerModal extends PowerWidget {
 	}
 
 	template({$title}) {
+		console.log('RUN TEMPLATE', this);
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
 		return `<div class="pw-modal-backdrop">
@@ -5968,7 +5972,7 @@ class FakeModal extends PowerModal {
 	}
 
 	ctrl({lock, $powerUi, $shared}) {
-		this.$title = 'sdfsdf';
+		console.log('RUN CTRL', this);
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},

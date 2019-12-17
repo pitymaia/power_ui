@@ -9,12 +9,14 @@ class PowerController {
 	}
 
 	openRoute({routeId, params={}, target}) {
+		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		this.router.openRoute({
 			routeId: routeId || this._routeId, // destRouteId
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
 			target: target,
+			title: route.title || null,
 		});
 	}
 
@@ -35,7 +37,7 @@ class PowerController {
 				counter = counter + 1;
 			}
 		}
-		this.router.changeHash(newHash);
+		this.router.navigate({hash: newHash, title: route.title || null});
 	}
 
 	safeEval(string) {

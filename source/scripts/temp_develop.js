@@ -242,7 +242,7 @@ class FakeModal extends PowerModal {
 	}
 
 	ctrl({lock, $powerUi, $shared}) {
-		this.$title = 'sdfsdf';
+		console.log('RUN CTRL', this);
 		this.cats = [
 			{name: 'Riquinho', gender: 'male'},
 			{name: 'Tico', gender: 'male'},
