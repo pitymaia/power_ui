@@ -23,7 +23,7 @@ class PowerDialogBase extends PowerWidget {
 		if (this.onCommit) {
 			new Promise(this.onCommit.bind(this)).then(
 				this.closeCurrentRoute.bind(this)
-			).catch(()=> (this.onConfirmError) ? this.onConfirmError() : null);
+			).catch(()=> (this.onCommitError) ? this.onCommitError() : null);
 		} else {
 			this.closeCurrentRoute();
 		}
@@ -69,7 +69,7 @@ class PowerDialogBase extends PowerWidget {
 				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
-								data-pow-event onclick="_commit()">
+								data-pow-event onclick="_cancel()">
 								${(this.cancelBt.ico !== false ? cancelIco : '')}
 								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
 								</button>`;

@@ -1,7 +1,6 @@
 class PowerDialog extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.confirmBt = true;
 	}
 
 	template({$title}) {
@@ -10,5 +9,20 @@ class PowerDialog extends PowerDialogBase {
 		return `<div class="pw-dialog pw-dialog-container">
 					${super.template({$title})}
 				</div>`;
+	}
+}
+
+class PowerAlert extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.confirmBt = true;
+	}
+}
+
+class PowerConfirm extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.confirmBt = true;
+		this.cancelBt = true;
 	}
 }

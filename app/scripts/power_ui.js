@@ -5041,7 +5041,7 @@ class PowerDialogBase extends PowerWidget {
 		if (this.onCommit) {
 			new Promise(this.onCommit.bind(this)).then(
 				this.closeCurrentRoute.bind(this)
-			).catch(()=> (this.onConfirmError) ? this.onConfirmError() : null);
+			).catch(()=> (this.onCommitError) ? this.onCommitError() : null);
 		} else {
 			this.closeCurrentRoute();
 		}
@@ -5087,7 +5087,7 @@ class PowerDialogBase extends PowerWidget {
 				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
-								data-pow-event onclick="_commit()">
+								data-pow-event onclick="_cancel()">
 								${(this.cancelBt.ico !== false ? cancelIco : '')}
 								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
 								</button>`;
@@ -5119,7 +5119,6 @@ class PowerDialogBase extends PowerWidget {
 class PowerDialog extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.confirmBt = true;
 	}
 
 	template({$title}) {
@@ -5128,6 +5127,21 @@ class PowerDialog extends PowerDialogBase {
 		return `<div class="pw-dialog pw-dialog-container">
 					${super.template({$title})}
 				</div>`;
+	}
+}
+
+class PowerAlert extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.confirmBt = true;
+	}
+}
+
+class PowerConfirm extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.confirmBt = true;
+		this.cancelBt = true;
 	}
 }
 
@@ -6137,21 +6151,21 @@ class SimpleModal extends PowerModal {
 	}
 }
 
-class SimpleDialog extends PowerDialog {
+class SimpleDialog extends PowerConfirm {
 
-	// init() {
-	// 	this.confirmBt = {
-	// 		label: 'Yes',
-	// 		// ico: 'check',
-	// 	};
-	// 	this.cancelBt = {
-	// 		label: 'No',
-	// 		// ico: 'close',
-	// 	};
-	// }
+	init() {
+		this.confirmBt = {
+			label: 'Yes',
+			// ico: 'check',
+		};
+		this.cancelBt = {
+			label: 'No',
+			// ico: 'close',
+		};
+	}
 
 	ctrl({lock, $powerUi}) {
-		console.log('Dialog controller.');
+
 	}
 
 	// onViewLoad(view) {
@@ -6174,7 +6188,7 @@ class SimpleDialog extends PowerDialog {
 		// });
 	}
 
-	onBeforeConfirm(resolve, reject) {
+	onCommit(resolve, reject) {
 		console.log('It is confirmed!');
 		resolve();
 	}
@@ -6183,7 +6197,7 @@ class SimpleDialog extends PowerDialog {
 		console.log('cancel fails');
 	}
 
-	onConfirmError() {
+	onCommitError() {
 		console.log('confirm fails');
 	}
 }

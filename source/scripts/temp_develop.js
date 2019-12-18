@@ -246,21 +246,21 @@ class SimpleModal extends PowerModal {
 	}
 }
 
-class SimpleDialog extends PowerDialog {
+class SimpleDialog extends PowerConfirm {
 
-	// init() {
-	// 	this.confirmBt = {
-	// 		label: 'Yes',
-	// 		// ico: 'check',
-	// 	};
-	// 	this.cancelBt = {
-	// 		label: 'No',
-	// 		// ico: 'close',
-	// 	};
-	// }
+	init() {
+		this.confirmBt = {
+			label: 'Yes',
+			// ico: 'check',
+		};
+		this.cancelBt = {
+			label: 'No',
+			// ico: 'close',
+		};
+	}
 
 	ctrl({lock, $powerUi}) {
-		console.log('Dialog controller.');
+
 	}
 
 	// onViewLoad(view) {
@@ -283,7 +283,7 @@ class SimpleDialog extends PowerDialog {
 		// });
 	}
 
-	onBeforeConfirm(resolve, reject) {
+	onCommit(resolve, reject) {
 		console.log('It is confirmed!');
 		resolve();
 	}
@@ -292,7 +292,7 @@ class SimpleDialog extends PowerDialog {
 		console.log('cancel fails');
 	}
 
-	onConfirmError() {
+	onCommitError() {
 		console.log('confirm fails');
 	}
 }
