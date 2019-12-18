@@ -1,6 +1,7 @@
 class PowerDialog extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
+		this.confirmBt = true;
 	}
 
 	template({$title}) {

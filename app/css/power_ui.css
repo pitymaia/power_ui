@@ -70,7 +70,6 @@
     position: relative;
     background-color: #F5F5F5;
     overflow:auto;
-    box-shadow: 5px 5px 20px 0 black;
     max-height: 90vh;
 }
 .pw-modal-backdrop, .pw-dialog-container {
@@ -87,7 +86,7 @@
     background-color: rgb(0, 0, 0, 0.7);
 }
 .pw-dialog-container {
-    top: 30vh;
+    top: 20vh;
     left: 0;
 }
 .pw-modal .pw-window, .pw-modal .pw-title-bar {
@@ -100,8 +99,11 @@
     width: 50em;
     max-width: 95vw;
 }
-.pw-dialog .pw-window {
-    min-height: 15em;
+.pw-modal .pw-window, .pw-modal .pw-title-bar, .pw-dialog .pw-window, .pw-dialog .pw-title-bar {
+    box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
+}
+.pw-modal button, .pw-dialog button {
+    margin-right: .5em;
 }
 
 body.modal-open {

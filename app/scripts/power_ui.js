@@ -1708,11 +1708,11 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	// When a view is loaded built it's template, may call compile() and may Init all views when all loaded
+	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
 	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title}) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-			if (self.controllers[viewId].instance.compile) {
-				self.controllers[viewId].instance.compile();
+			if (self.controllers[viewId].instance.init) {
+				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
@@ -5052,6 +5052,36 @@ class PowerDialogBase extends PowerWidget {
         }
     }
 
+    $buttons() {
+        if (this.confirmBt || this.cancelBt) {
+            const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
+            let buttons = '';
+            if (this.confirmBt) {
+                const confirmIco = `<span class="fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
+                const commitBt = `<button
+                                class="${(this.confirmBt.css ? this.confirmBt.css : 'pw-btn-default')}"
+                                data-pow-event onclick="_commit()">
+                                ${(this.confirmBt.ico !== false ? confirmIco : '')}
+                                ${(this.confirmBt.label ? this.confirmBt.label : 'Ok')}
+                                </button>`;
+                buttons = buttons + commitBt;
+            }
+            if (this.cancelBt) {
+                const cancelIco = `<span class="fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
+                const cancelBt = `<button
+                                class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
+                                data-pow-event onclick="_commit()">
+                                ${(this.cancelBt.ico !== false ? cancelIco : '')}
+                                ${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+                                </button>`;
+                buttons = buttons + cancelBt;
+            }
+            return buttons;
+        } else {
+            return '';
+        }
+    }
+
     template({$title}) {
         if (document.body && document.body.classList) {
             document.body.classList.add('modal-open');
@@ -5062,7 +5092,12 @@ class PowerDialogBase extends PowerWidget {
                     <span class="pw-title-bar-label">${this.$title}</span>
                     <div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
                 </div>
-                <div class="pw-window" data-pw-content>
+                <div class="pw-window">
+                    <div data-pw-content>
+                    </div>
+                    <div class="pw-container">
+                        ${this.$buttons()}
+                    </div>
                 </div>`;
     }
 }
@@ -5070,6 +5105,7 @@ class PowerDialogBase extends PowerWidget {
 class PowerDialog extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
+		this.confirmBt = true;
 	}
 
 	template({$title}) {
@@ -6089,6 +6125,17 @@ class SimpleModal extends PowerModal {
 
 class SimpleDialog extends PowerDialog {
 
+	// init() {
+	// 	this.confirmBt = {
+	// 		label: 'Yes',
+	// 		// ico: 'check',
+	// 	};
+	// 	this.cancelBt = {
+	// 		label: 'No',
+	// 		// ico: 'close',
+	// 	};
+	// }
+
 	ctrl({lock, $powerUi}) {
 		console.log('Dialog controller.');
 	}
@@ -6131,7 +6178,7 @@ class FakeModal extends PowerModal {
 		super({$powerUi});
 	}
 
-	compile() {
+	init() {
 		const parts = window.location.hash.split('/');
 		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}

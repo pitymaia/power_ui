@@ -248,6 +248,17 @@ class SimpleModal extends PowerModal {
 
 class SimpleDialog extends PowerDialog {
 
+	// init() {
+	// 	this.confirmBt = {
+	// 		label: 'Yes',
+	// 		// ico: 'check',
+	// 	};
+	// 	this.cancelBt = {
+	// 		label: 'No',
+	// 		// ico: 'close',
+	// 	};
+	// }
+
 	ctrl({lock, $powerUi}) {
 		console.log('Dialog controller.');
 	}
@@ -290,7 +301,7 @@ class FakeModal extends PowerModal {
 		super({$powerUi});
 	}
 
-	compile() {
+	init() {
 		const parts = window.location.hash.split('/');
 		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}

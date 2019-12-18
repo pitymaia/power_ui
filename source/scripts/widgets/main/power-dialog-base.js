@@ -41,6 +41,36 @@ class PowerDialogBase extends PowerWidget {
         }
     }
 
+    $buttons() {
+        if (this.confirmBt || this.cancelBt) {
+            const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
+            let buttons = '';
+            if (this.confirmBt) {
+                const confirmIco = `<span class="fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
+                const commitBt = `<button
+                                class="${(this.confirmBt.css ? this.confirmBt.css : 'pw-btn-default')}"
+                                data-pow-event onclick="_commit()">
+                                ${(this.confirmBt.ico !== false ? confirmIco : '')}
+                                ${(this.confirmBt.label ? this.confirmBt.label : 'Ok')}
+                                </button>`;
+                buttons = buttons + commitBt;
+            }
+            if (this.cancelBt) {
+                const cancelIco = `<span class="fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
+                const cancelBt = `<button
+                                class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
+                                data-pow-event onclick="_commit()">
+                                ${(this.cancelBt.ico !== false ? cancelIco : '')}
+                                ${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+                                </button>`;
+                buttons = buttons + cancelBt;
+            }
+            return buttons;
+        } else {
+            return '';
+        }
+    }
+
     template({$title}) {
         if (document.body && document.body.classList) {
             document.body.classList.add('modal-open');
@@ -51,7 +81,12 @@ class PowerDialogBase extends PowerWidget {
                     <span class="pw-title-bar-label">${this.$title}</span>
                     <div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
                 </div>
-                <div class="pw-window" data-pw-content>
+                <div class="pw-window">
+                    <div data-pw-content>
+                    </div>
+                    <div class="pw-container">
+                        ${this.$buttons()}
+                    </div>
                 </div>`;
     }
 }

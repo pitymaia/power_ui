@@ -313,11 +313,11 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	// When a view is loaded built it's template, may call compile() and may Init all views when all loaded
+	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
 	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title}) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-			if (self.controllers[viewId].instance.compile) {
-				self.controllers[viewId].instance.compile();
+			if (self.controllers[viewId].instance.init) {
+				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
