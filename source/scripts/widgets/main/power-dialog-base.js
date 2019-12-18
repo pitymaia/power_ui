@@ -8,20 +8,20 @@ class PowerDialogBase extends PowerWidget {
         }
         $powerUi._events['Escape'].subscribe(this._closeWindow);
     }
-    // Allow async calls to implement onBeforeCancel
+    // Allow async calls to implement onCancel
     _cancel() {
-        if (this.onBeforeCancel) {
-            new Promise(this.onBeforeCancel.bind(this)).then(
+        if (this.onCancel) {
+            new Promise(this.onCancel.bind(this)).then(
                 this.closeCurrentRoute.bind(this)
             ).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
         } else {
             this.closeCurrentRoute();
         }
     }
-    // Allow async calls to implement onBeforeConfirm
-    _confirm() {
-        if (this.onBeforeConfirm) {
-            new Promise(this.onBeforeConfirm.bind(this)).then(
+    // Allow async calls to implement onCommit
+    _commit() {
+        if (this.onCommit) {
+            new Promise(this.onCommit.bind(this)).then(
                 this.closeCurrentRoute.bind(this)
             ).catch(()=> (this.onConfirmError) ? this.onConfirmError() : null);
         } else {

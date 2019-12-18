@@ -254,7 +254,7 @@ class SimpleDialog extends PowerDialog {
 
 	onViewLoad(view) {
 	}
-	onBeforeCancel(resolve, reject) {
+	onCancel(resolve, reject) {
 		console.log('Really cancel?');
 		resolve();
 		// this.$powerUi.request({

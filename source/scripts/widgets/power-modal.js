@@ -6,7 +6,7 @@ class PowerModal extends PowerDialogBase {
 
 	clickOutside(event) {
 		if (event.target.classList.contains('pw-modal-backdrop')) {
-			this.closeCurrentRoute();
+			this._cancel();
 		}
 	}
 
