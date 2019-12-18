@@ -102,7 +102,7 @@
 .pw-modal .pw-window, .pw-modal .pw-title-bar, .pw-dialog .pw-window, .pw-dialog .pw-title-bar {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
-.pw-modal button, .pw-dialog button {
+.pw-modal button, .pw-dialog button, .pw-ico {
     margin-right: .5em;
 }
 

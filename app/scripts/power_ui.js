@@ -5074,7 +5074,7 @@ class PowerDialogBase extends PowerWidget {
 			const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
 			let buttons = '';
 			if (this.confirmBt) {
-				const confirmIco = `<span class="fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
+				const confirmIco = `<span class="pw-ico fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
 				const commitBt = `<button
 								class="${(this.confirmBt.css ? this.confirmBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit()">
@@ -5084,7 +5084,7 @@ class PowerDialogBase extends PowerWidget {
 				buttons = buttons + commitBt;
 			}
 			if (this.cancelBt) {
-				const cancelIco = `<span class="fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
+				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit()">
