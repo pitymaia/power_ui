@@ -9,6 +9,22 @@ class PowerDialogBase extends PowerWidget {
         $powerUi._events['Escape'].subscribe(this._closeWindow);
     }
 
+    _cancel() {
+        if (this.onBeforeCancel) {
+            this.onBeforeCancel();
+        } else {
+            this.closeCurrentRoute();
+        }
+    }
+
+    _confirm() {
+        if (this.onBeforeConfirm) {
+            this.onBeforeConfirm();
+        } else {
+            this.closeCurrentRoute();
+        }
+    }
+
     closeCurrentRoute() {
         // Only close if is opened, if not just remove the event
         const view = document.getElementById(this._viewId);

@@ -37,6 +37,7 @@ const distJsFiles = [
 	'source/scripts/parser/*.js',
 	'source/scripts/widgets/main/power-widgets.js',
 	'source/scripts/widgets/main/power-dialog-base.js',
+	'source/scripts/widgets/main/power-dialog.js',
 	'source/scripts/widgets/*.js',
 	'source/scripts/interface/*.js',
 ];

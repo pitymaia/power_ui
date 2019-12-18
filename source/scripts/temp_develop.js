@@ -26,6 +26,9 @@
 //  }
 // }
 // let app = new TesteUi();
+const simpleDialogTemplate = `<div class="pw-container">
+								<p>This is a dialog</p>
+							</div>`;
 
 const someViewTemplate = `<div class="pw-container">
 			<h1>Cats list</h1>
@@ -111,6 +114,7 @@ class FrontPage extends PowerController {
 	getValue({value}) {
 		return value;
 	}
+
 	getValue2(value) {
 		return value;
 	}
@@ -197,6 +201,13 @@ class PowerOnlyPage extends PowerController {
 		});
 	}
 
+	openSimpleDialog() {
+		this.openRoute({
+			routeId: 'simple-dialog',
+			target: '_blank',
+		});
+	}
+
 	test() {
 		console.log('mouseover!');
 	}
@@ -232,6 +243,19 @@ class SimpleModal extends PowerModal {
 	}
 
 	onViewLoad(view) {
+	}
+}
+
+class SimpleDialog extends PowerDialog {
+
+	ctrl({lock, $powerUi}) {
+		console.log('Dialog controller.');
+	}
+
+	onViewLoad(view) {
+	}
+	onBeforeCancel() {
+		console.log('Really cancel?')
 	}
 }
 
@@ -400,11 +424,14 @@ let app = new PowerUi({
 			},
 		},
 		{
-			id: 'power-only3',
-			route: 'power_only/:id/:name',
-			// templateUrl: 'power_only.html',
-			templateUrl: '404.html',
-			// viewId: 'component-view',
+			id: 'simple-dialog',
+			route: 'dialog',
+			title: 'Really?',
+			template: simpleDialogTemplate,
+			ctrl: {
+				component: SimpleDialog,
+				params: {pity: true},
+			},
 		},
 		{
 			id: 'component1',
