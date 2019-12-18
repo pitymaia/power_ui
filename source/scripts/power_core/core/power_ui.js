@@ -196,9 +196,7 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
-			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
-		}
+		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -208,6 +206,17 @@ class PowerUi extends _PowerUiBase {
 		this.router._reload();
 	}
 
+	callOnViewLoad(self, viewId) {
+		if (self.controllers[viewId] && self.controllers[viewId].instance) {
+			if (self.controllers[viewId].instance.onViewLoad) {
+				self.controllers[viewId].instance.onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+			}
+			if (self.controllers[viewId].instance._onViewLoad) {
+				self.controllers[viewId].instance._onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+			}
+		}
+	}
+
 	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
@@ -215,9 +224,7 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 
-		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
-			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
-		}
+		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];

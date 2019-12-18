@@ -263,8 +263,9 @@ class SimpleDialog extends PowerDialog {
 		console.log('Dialog controller.');
 	}
 
-	onViewLoad(view) {
-	}
+	// onViewLoad(view) {
+	// 	console.log('aqui', view);
+	// }
 	onCancel(resolve, reject) {
 		console.log('Really cancel?');
 		resolve();

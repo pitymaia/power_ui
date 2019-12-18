@@ -1591,9 +1591,7 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
-			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
-		}
+		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -1603,6 +1601,17 @@ class PowerUi extends _PowerUiBase {
 		this.router._reload();
 	}
 
+	callOnViewLoad(self, viewId) {
+		if (self.controllers[viewId] && self.controllers[viewId].instance) {
+			if (self.controllers[viewId].instance.onViewLoad) {
+				self.controllers[viewId].instance.onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+			}
+			if (self.controllers[viewId].instance._onViewLoad) {
+				self.controllers[viewId].instance._onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+			}
+		}
+	}
+
 	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
@@ -1610,9 +1619,7 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 
-		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
-			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
-		}
+		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
@@ -5010,96 +5017,103 @@ class PowerWidget extends PowerController {
 }
 
 class PowerDialogBase extends PowerWidget {
-    constructor({$powerUi}) {
-        super({$powerUi: $powerUi});
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
 
-        const self = this;
-        this._closeWindow = function() {
-            self._cancel();
-        }
-        $powerUi._events['Escape'].subscribe(this._closeWindow);
-    }
-    // Allow async calls to implement onCancel
-    _cancel() {
-        if (this.onCancel) {
-            new Promise(this.onCancel.bind(this)).then(
-                this.closeCurrentRoute.bind(this)
-            ).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
-        } else {
-            this.closeCurrentRoute();
-        }
-    }
-    // Allow async calls to implement onCommit
-    _commit() {
-        if (this.onCommit) {
-            new Promise(this.onCommit.bind(this)).then(
-                this.closeCurrentRoute.bind(this)
-            ).catch(()=> (this.onConfirmError) ? this.onConfirmError() : null);
-        } else {
-            this.closeCurrentRoute();
-        }
-    }
+		const self = this;
+		this._closeWindow = function() {
+			self._cancel();
+		}
+		$powerUi._events['Escape'].subscribe(this._closeWindow);
+	}
+	// Allow async calls to implement onCancel
+	_cancel() {
+		if (this.onCancel) {
+			new Promise(this.onCancel.bind(this)).then(
+				this.closeCurrentRoute.bind(this)
+			).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
+		} else {
+			this.closeCurrentRoute();
+		}
+	}
+	// Allow async calls to implement onCommit
+	_commit() {
+		if (this.onCommit) {
+			new Promise(this.onCommit.bind(this)).then(
+				this.closeCurrentRoute.bind(this)
+			).catch(()=> (this.onConfirmError) ? this.onConfirmError() : null);
+		} else {
+			this.closeCurrentRoute();
+		}
+	}
 
-    closeCurrentRoute() {
-        // Only close if is opened, if not just remove the event
-        const view = document.getElementById(this._viewId);
-        this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
-        if (view) {
-            super.closeCurrentRoute();
-        } else {
-            // If not opened, call the next in the queue
-            this.$powerUi._events['Escape'].broadcast();
-        }
-    }
+	closeCurrentRoute() {
+		// Only close if is opened, if not just remove the event
+		const view = document.getElementById(this._viewId);
+		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
+		if (view) {
+			super.closeCurrentRoute();
+		} else {
+			// If not opened, call the next in the queue
+			this.$powerUi._events['Escape'].broadcast();
+		}
+	}
 
-    $buttons() {
-        if (this.confirmBt || this.cancelBt) {
-            const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
-            let buttons = '';
-            if (this.confirmBt) {
-                const confirmIco = `<span class="fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
-                const commitBt = `<button
-                                class="${(this.confirmBt.css ? this.confirmBt.css : 'pw-btn-default')}"
-                                data-pow-event onclick="_commit()">
-                                ${(this.confirmBt.ico !== false ? confirmIco : '')}
-                                ${(this.confirmBt.label ? this.confirmBt.label : 'Ok')}
-                                </button>`;
-                buttons = buttons + commitBt;
-            }
-            if (this.cancelBt) {
-                const cancelIco = `<span class="fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
-                const cancelBt = `<button
-                                class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
-                                data-pow-event onclick="_commit()">
-                                ${(this.cancelBt.ico !== false ? cancelIco : '')}
-                                ${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
-                                </button>`;
-                buttons = buttons + cancelBt;
-            }
-            return buttons;
-        } else {
-            return '';
-        }
-    }
+	_onViewLoad(view) {
+		const buttons = view.querySelectorAll('[data-pow-click]');
+		for (const bt of buttons) {
+			if (bt.getAttribute('data-pow-click').includes('_commit')) {
+				bt.focus();
+				return true;
+			}
+		}
+	}
 
-    template({$title}) {
-        if (document.body && document.body.classList) {
-            document.body.classList.add('modal-open');
-        }
-        // This allow the user define a this.$title on controller constructor, otherwise use the route title
-        this.$title = this.$title || $title;
-        return `<div class="pw-title-bar">
-                    <span class="pw-title-bar-label">${this.$title}</span>
-                    <div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
-                </div>
-                <div class="pw-window">
-                    <div data-pw-content>
-                    </div>
-                    <div class="pw-container">
-                        ${this.$buttons()}
-                    </div>
-                </div>`;
-    }
+	$buttons() {
+		if (this.confirmBt || this.cancelBt) {
+			const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
+			let buttons = '';
+			if (this.confirmBt) {
+				const confirmIco = `<span class="fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
+				const commitBt = `<button
+								class="${(this.confirmBt.css ? this.confirmBt.css : 'pw-btn-default')}"
+								data-pow-event onclick="_commit()">
+								${(this.confirmBt.ico !== false ? confirmIco : '')}
+								${(this.confirmBt.label ? this.confirmBt.label : 'Ok')}
+								</button>`;
+				buttons = buttons + commitBt;
+			}
+			if (this.cancelBt) {
+				const cancelIco = `<span class="fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
+				const cancelBt = `<button
+								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
+								data-pow-event onclick="_commit()">
+								${(this.cancelBt.ico !== false ? cancelIco : '')}
+								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+								</button>`;
+				buttons = buttons + cancelBt;
+			}
+			return buttons;
+		} else {
+			return '';
+		}
+	}
+
+	template({$title}) {
+		// This allow the user define a this.$title on controller constructor, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-title-bar">
+					<span class="pw-title-bar-label">${this.$title}</span>
+					<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+				</div>
+				<div class="pw-window">
+					<div data-pw-content>
+					</div>
+					<div class="pw-container">
+						${this.$buttons()}
+					</div>
+				</div>`;
+	}
 }
 
 class PowerDialog extends PowerDialogBase {
@@ -6140,8 +6154,9 @@ class SimpleDialog extends PowerDialog {
 		console.log('Dialog controller.');
 	}
 
-	onViewLoad(view) {
-	}
+	// onViewLoad(view) {
+	// 	console.log('aqui', view);
+	// }
 	onCancel(resolve, reject) {
 		console.log('Really cancel?');
 		resolve();
