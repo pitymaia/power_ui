@@ -254,8 +254,34 @@ class SimpleDialog extends PowerDialog {
 
 	onViewLoad(view) {
 	}
-	onBeforeCancel() {
-		console.log('Really cancel?')
+	onBeforeCancel(resolve, reject) {
+		console.log('Really cancel?');
+		resolve();
+		// this.$powerUi.request({
+		// 		url: 'somecomponent.html',
+		// 		method: 'GET',
+		// 		status: "Loading page",
+		// 		withCredentials: false,
+		// }).then(function (response, xhr) {
+		// 	console.log('success');
+		// 	resolve();
+		// }).catch(function (response, xhr) {
+		// 	console.log('error', response, xhr);
+		// 	reject();
+		// });
+	}
+
+	onBeforeConfirm(resolve, reject) {
+		console.log('It is confirmed!');
+		resolve();
+	}
+
+	onCancelError() {
+		console.log('cancel fails');
+	}
+
+	onConfirmError() {
+		console.log('confirm fails');
 	}
 }
 

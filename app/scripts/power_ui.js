@@ -5015,22 +5015,26 @@ class PowerDialogBase extends PowerWidget {
 
         const self = this;
         this._closeWindow = function() {
-            self.closeCurrentRoute();
+            self._cancel();
         }
         $powerUi._events['Escape'].subscribe(this._closeWindow);
     }
-
+    // Allow async calls to implement onBeforeCancel
     _cancel() {
         if (this.onBeforeCancel) {
-            this.onBeforeCancel();
+            new Promise(this.onBeforeCancel.bind(this)).then(
+                this.closeCurrentRoute.bind(this)
+            ).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
         } else {
             this.closeCurrentRoute();
         }
     }
-
+    // Allow async calls to implement onBeforeConfirm
     _confirm() {
         if (this.onBeforeConfirm) {
-            this.onBeforeConfirm();
+            new Promise(this.onBeforeConfirm.bind(this)).then(
+                this.closeCurrentRoute.bind(this)
+            ).catch(()=> (this.onConfirmError) ? this.onConfirmError() : null);
         } else {
             this.closeCurrentRoute();
         }
@@ -5056,7 +5060,7 @@ class PowerDialogBase extends PowerWidget {
         this.$title = this.$title || $title;
         return `<div class="pw-title-bar">
                     <span class="pw-title-bar-label">${this.$title}</span>
-                    <div data-pow-event onclick="closeCurrentRoute()" class="pw-bt-close fa fa-times"></div>
+                    <div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
                 </div>
                 <div class="pw-window" data-pw-content>
                 </div>`;
@@ -6091,8 +6095,34 @@ class SimpleDialog extends PowerDialog {
 
 	onViewLoad(view) {
 	}
-	onBeforeCancel() {
-		console.log('Really cancel?')
+	onBeforeCancel(resolve, reject) {
+		console.log('Really cancel?');
+		resolve();
+		// this.$powerUi.request({
+		// 		url: 'somecomponent.html',
+		// 		method: 'GET',
+		// 		status: "Loading page",
+		// 		withCredentials: false,
+		// }).then(function (response, xhr) {
+		// 	console.log('success');
+		// 	resolve();
+		// }).catch(function (response, xhr) {
+		// 	console.log('error', response, xhr);
+		// 	reject();
+		// });
+	}
+
+	onBeforeConfirm(resolve, reject) {
+		console.log('It is confirmed!');
+		resolve();
+	}
+
+	onCancelError() {
+		console.log('cancel fails');
+	}
+
+	onConfirmError() {
+		console.log('confirm fails');
 	}
 }
 
