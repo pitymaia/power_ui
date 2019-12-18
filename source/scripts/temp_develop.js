@@ -62,8 +62,6 @@ const someViewTemplate = `<div class="pw-container">
 				</div>
 				<span data-pow-eval="'test 2+2: ' + (2+2)"></span>
 			</div>
-			<br />
-			<button class="pw-btn-default" data-pow-event onclick="closeCurrentRoute()">Close</button>
 		</div>`;
 var teste = 'MARAVILHA!';
 
@@ -228,6 +226,11 @@ class PowerOnlyPage extends PowerController {
 }
 
 class SimpleModal extends PowerModal {
+	init() {
+		this.commitBt = {
+			label: 'Close',
+		}
+	}
 
 	ctrl({lock, $powerUi}) {
 		this.cats = [

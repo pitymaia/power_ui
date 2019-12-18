@@ -15,14 +15,14 @@ class PowerDialog extends PowerDialogBase {
 class PowerAlert extends PowerDialog {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.confirmBt = true;
+		this.commitBt = true;
 	}
 }
 
 class PowerConfirm extends PowerDialog {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.confirmBt = true;
+		this.commitBt = true;
 		this.cancelBt = true;
 	}
 }

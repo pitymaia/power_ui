@@ -5070,16 +5070,16 @@ class PowerDialogBase extends PowerWidget {
 	}
 
 	$buttons() {
-		if (this.confirmBt || this.cancelBt) {
+		if (this.commitBt || this.cancelBt) {
 			const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
 			let buttons = '';
-			if (this.confirmBt) {
-				const confirmIco = `<span class="pw-ico fa fa-${(this.confirmBt.ico ? this.confirmBt.ico : 'check-circle')}"></span>`;
+			if (this.commitBt) {
+				const commitIco = `<span class="pw-ico fa fa-${(this.commitBt.ico ? this.commitBt.ico : 'check-circle')}"></span>`;
 				const commitBt = `<button
-								class="${(this.confirmBt.css ? this.confirmBt.css : 'pw-btn-default')}"
+								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit()">
-								${(this.confirmBt.ico !== false ? confirmIco : '')}
-								${(this.confirmBt.label ? this.confirmBt.label : 'Ok')}
+								${(this.commitBt.ico !== false ? commitIco : '')}
+								${(this.commitBt.label ? this.commitBt.label : 'Ok')}
 								</button>`;
 				buttons = buttons + commitBt;
 			}
@@ -5133,14 +5133,14 @@ class PowerDialog extends PowerDialogBase {
 class PowerAlert extends PowerDialog {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.confirmBt = true;
+		this.commitBt = true;
 	}
 }
 
 class PowerConfirm extends PowerDialog {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
-		this.confirmBt = true;
+		this.commitBt = true;
 		this.cancelBt = true;
 	}
 }
@@ -5967,8 +5967,6 @@ const someViewTemplate = `<div class="pw-container">
 				</div>
 				<span data-pow-eval="'test 2+2: ' + (2+2)"></span>
 			</div>
-			<br />
-			<button class="pw-btn-default" data-pow-event onclick="closeCurrentRoute()">Close</button>
 		</div>`;
 var teste = 'MARAVILHA!';
 
@@ -6133,6 +6131,11 @@ class PowerOnlyPage extends PowerController {
 }
 
 class SimpleModal extends PowerModal {
+	init() {
+		this.commitBt = {
+			label: 'Close',
+		}
+	}
 
 	ctrl({lock, $powerUi}) {
 		this.cats = [
