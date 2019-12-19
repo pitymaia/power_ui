@@ -26,12 +26,8 @@
 //  }
 // }
 // let app = new TesteUi();
-const simpleDialogTemplate = `<div class="pw-container">
-								<p>This is a dialog</p>
-							</div>`;
 
-const someViewTemplate = `<div class="pw-container">
-			<h1>Cats list</h1>
+const someViewTemplate = `<h1>Cats list</h1>
 			<div data-pow-for="cat of cats">
 				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
 				</div>
@@ -60,8 +56,7 @@ const someViewTemplate = `<div class="pw-container">
 			]">
 				<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 				</div>
-			</div>
-		</div>`;
+			</div>`;
 var teste = 'MARAVILHA!';
 
 class FrontPage extends PowerController {
@@ -199,9 +194,18 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleDialog() {
-		this.openRoute({
-			routeId: 'simple-dialog',
-			target: '_blank',
+		// this.openRoute({
+		// 	routeId: 'simple-dialog',
+		// 	target: '_blank',
+		// });
+
+		this.$powerUi.$services.widget.open({
+			title: 'Confirm dialog',
+			template: '<p>This is a dialog</p>',
+			ctrl: {
+				component: SimpleDialog,
+				params: {pity: true},
+			},
 		});
 	}
 
@@ -251,7 +255,7 @@ class SimpleModal extends PowerModal {
 class SimpleDialog extends PowerConfirm {
 
 	init() {
-		this.confirmBt = {
+		this.commitBt = {
 			label: 'Yes',
 			// ico: 'check',
 		};
@@ -430,9 +434,7 @@ class FakeModal extends PowerModal {
 	}
 }
 
-const t0 = performance.now();
-let app = new PowerUi({
-	routes: [
+const routes = [
 		{
 			id: 'front-page',
 			title: 'PowerUi - Rich UI made easy',
@@ -466,8 +468,8 @@ let app = new PowerUi({
 		{
 			id: 'simple-dialog',
 			route: 'dialog',
-			title: 'Really?',
-			template: simpleDialogTemplate,
+			title: 'Confirm dialog',
+			template: `<p>This is a dialog</p>`,
 			ctrl: {
 				component: SimpleDialog,
 				params: {pity: true},
@@ -500,7 +502,19 @@ let app = new PowerUi({
 			route: '404',
 			templateUrl: '404.html',
 		}
-	],
+	];
+
+const services = {
+	widget: {
+		component: WidgetService,
+		params: {},
+	}
+};
+
+const t0 = performance.now();
+let app = new PowerUi({
+	routes: routes,
+	services: services,
 });
 
 console.log('app', app);

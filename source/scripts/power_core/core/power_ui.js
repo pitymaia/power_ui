@@ -124,6 +124,7 @@ class PowerUi extends _PowerUiBase {
 				$waitingToDelete: [],
 			},
 		};
+		this.$services = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
 		this.numberOfopenModals = 0;
@@ -132,6 +133,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
+		this.instantiateServices(config.services);
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
@@ -140,6 +142,12 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	instantiateServices(services) {
+		for (const key of Object.keys(services || {})) {
+			this.$services[key] = new services[key].component({$powerUi: this, params: services[key].params});
+		}
 	}
 
 	_$dispatchPowerEvent(event, self, viewId, name) {

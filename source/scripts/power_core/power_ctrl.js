@@ -8,7 +8,7 @@ class PowerController {
 		return this.$powerUi.router;
 	}
 
-	openRoute({routeId, params={}, target}) {
+	openRoute({routeId, params, target}) {
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		this.router.openRoute({
 			routeId: routeId || this._routeId, // destRouteId

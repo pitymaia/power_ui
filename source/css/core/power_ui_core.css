@@ -103,7 +103,7 @@
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
 .pw-modal button, .pw-dialog button, .pw-ico {
-    margin-right: .5em;
+    margin-right: 0.5em;
 }
 
 body.modal-open {
@@ -136,8 +136,9 @@ body.modal-open {
     color: #FFF;
     border: none;
     font-weight: bold;
-    padding: 1em;
+    padding: 0.7em;
     cursor: pointer;
+    /*border-radius: 0.3em;*/
 }
 .pw-bt-close.fa.fa-times {
     color: #FFF;
