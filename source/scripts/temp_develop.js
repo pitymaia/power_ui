@@ -470,6 +470,7 @@ const routes = [
 			route: 'dialog',
 			title: 'Confirm dialog',
 			template: `<p>This is a dialog</p>`,
+			hidden: true,
 			ctrl: {
 				component: SimpleDialog,
 				params: {pity: true},
