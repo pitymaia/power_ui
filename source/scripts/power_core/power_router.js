@@ -325,6 +325,7 @@ class Router {
 
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
+			this.removeVolatileViews({viewId: viewId});
 			delete this.$powerUi.controllers[viewId];
 			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
@@ -340,8 +341,18 @@ class Router {
 		if (!this.$powerUi.powerTree) {
 			return;
 		}
+		this.removeVolatileViews({viewId: viewId});
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
+	}
+	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
+	// One route are create for each instante, so we need remove it when the controller are distroyed
+	removeVolatileViews({viewId}) {
+		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
+			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
+				delete this.routes[volatileId];
+			}
+		}
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {

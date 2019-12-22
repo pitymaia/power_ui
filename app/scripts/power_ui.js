@@ -1889,7 +1889,7 @@ class PowerController {
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
-			target: target || '_blank',
+			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,
 		});
 	}
@@ -2349,6 +2349,7 @@ class Router {
 
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
+			this.removeVolatileViews({viewId: viewId});
 			delete this.$powerUi.controllers[viewId];
 			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
@@ -2364,8 +2365,18 @@ class Router {
 		if (!this.$powerUi.powerTree) {
 			return;
 		}
+		this.removeVolatileViews({viewId: viewId});
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
+	}
+	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
+	// One route are create for each instante, so we need remove it when the controller are distroyed
+	removeVolatileViews({viewId}) {
+		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
+			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
+				delete this.routes[volatileId];
+			}
+		}
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
@@ -6267,7 +6278,6 @@ class PowerOnlyPage extends PowerController {
 				component: SimpleDialog,
 				params: {pity: true},
 			},
-			target: '_blank',
 		});
 	}
 
@@ -6527,17 +6537,17 @@ const routes = [
 				params: {lock: true},
 			},
 		},
-		// {
-		// 	id: 'simple-dialog',
-		// 	route: 'dialog',
-		// 	title: 'Confirm dialog',
-		// 	template: `<p>This is a dialog</p>`,
-		// 	hidden: true,
-		// 	ctrl: {
-		// 		component: SimpleDialog,
-		// 		params: {pity: true},
-		// 	},
-		// },
+		{
+			id: 'simple-dialog',
+			route: 'dialog',
+			title: 'Confirm dialog',
+			template: `<p>This is a dialog</p>`,
+			hidden: true,
+			ctrl: {
+				component: SimpleDialog,
+				params: {pity: true},
+			},
+		},
 		{
 			id: 'component1',
 			title: 'Books | PowerUi',

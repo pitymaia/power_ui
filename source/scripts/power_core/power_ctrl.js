@@ -17,7 +17,7 @@ class PowerController {
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
-			target: target || '_blank',
+			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,
 		});
 	}

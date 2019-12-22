@@ -206,7 +206,6 @@ class PowerOnlyPage extends PowerController {
 				component: SimpleDialog,
 				params: {pity: true},
 			},
-			target: '_blank',
 		});
 	}
 
@@ -466,17 +465,17 @@ const routes = [
 				params: {lock: true},
 			},
 		},
-		// {
-		// 	id: 'simple-dialog',
-		// 	route: 'dialog',
-		// 	title: 'Confirm dialog',
-		// 	template: `<p>This is a dialog</p>`,
-		// 	hidden: true,
-		// 	ctrl: {
-		// 		component: SimpleDialog,
-		// 		params: {pity: true},
-		// 	},
-		// },
+		{
+			id: 'simple-dialog',
+			route: 'dialog',
+			title: 'Confirm dialog',
+			template: `<p>This is a dialog</p>`,
+			hidden: true,
+			ctrl: {
+				component: SimpleDialog,
+				params: {pity: true},
+			},
+		},
 		{
 			id: 'component1',
 			title: 'Books | PowerUi',
