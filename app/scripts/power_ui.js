@@ -1519,7 +1519,6 @@ class PowerUi extends _PowerUiBase {
 				$waitingToDelete: [],
 			},
 		};
-		this.$services = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
 		this.numberOfopenModals = 0;
@@ -1528,7 +1527,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this.instantiateServices(config.services);
+		this._services = config.services;
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
@@ -1537,12 +1536,6 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
-	}
-
-	instantiateServices(services) {
-		for (const key of Object.keys(services || {})) {
-			this.$services[key] = new services[key].component({$powerUi: this, params: services[key].params});
-		}
 	}
 
 	_$dispatchPowerEvent(event, self, viewId, name) {
@@ -1828,12 +1821,20 @@ class PowerUi extends _PowerUiBase {
 }
 
 class WidgetService {
-    constructor({$powerUi}) {
-        this.$powerUi = $powerUi;
-    }
-    open(options) {
-        console.log('open', options, this.$powerUi);
-    }
+	constructor({$powerUi, $ctrl}) {
+		this.$powerUi = $powerUi;
+		console.log('instanciate WidgetService', $ctrl);
+	}
+	open(options) {
+		console.log('open', options, this.$powerUi);
+
+		this.$powerUi.router.openRoute({
+			routeId: 'simple-dialog',
+			target: '_blank',
+		});
+
+		// openRoute({routeId, params, target})
+	}
 }
 
 class PowerController {
@@ -1856,6 +1857,10 @@ class PowerController {
 			target: target,
 			title: route.title || null,
 		});
+	}
+
+	$service(name) {
+		return new this.$powerUi._services[name].component({$powerUi: this, $ctrl: this, params: this.$powerUi._services[name].params});
 	}
 
 	closeCurrentRoute() {
@@ -6206,19 +6211,19 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleDialog() {
-		this.openRoute({
-			routeId: 'simple-dialog',
-			target: '_blank',
-		});
-
-		// this.$powerUi.$services.widget.open({
-		// 	title: 'Confirm dialog',
-		// 	template: '<p>This is a dialog</p>',
-		// 	ctrl: {
-		// 		component: SimpleDialog,
-		// 		params: {pity: true},
-		// 	},
+		// this.openRoute({
+		// 	routeId: 'simple-dialog',
+		// 	target: '_blank',
 		// });
+
+		this.$service('widget').open({
+			title: 'Confirm dialog',
+			template: '<p>This is a dialog</p>',
+			ctrl: {
+				component: SimpleDialog,
+				params: {pity: true},
+			},
+		});
 	}
 
 	test() {
@@ -6477,17 +6482,17 @@ const routes = [
 				params: {lock: true},
 			},
 		},
-		{
-			id: 'simple-dialog',
-			route: 'dialog',
-			title: 'Confirm dialog',
-			template: `<p>This is a dialog</p>`,
-			hidden: true,
-			ctrl: {
-				component: SimpleDialog,
-				params: {pity: true},
-			},
-		},
+		// {
+		// 	id: 'simple-dialog',
+		// 	route: 'dialog',
+		// 	title: 'Confirm dialog',
+		// 	template: `<p>This is a dialog</p>`,
+		// 	hidden: true,
+		// 	ctrl: {
+		// 		component: SimpleDialog,
+		// 		params: {pity: true},
+		// 	},
+		// },
 		{
 			id: 'component1',
 			title: 'Books | PowerUi',

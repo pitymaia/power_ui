@@ -194,19 +194,19 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleDialog() {
-		this.openRoute({
-			routeId: 'simple-dialog',
-			target: '_blank',
-		});
-
-		// this.$powerUi.$services.widget.open({
-		// 	title: 'Confirm dialog',
-		// 	template: '<p>This is a dialog</p>',
-		// 	ctrl: {
-		// 		component: SimpleDialog,
-		// 		params: {pity: true},
-		// 	},
+		// this.openRoute({
+		// 	routeId: 'simple-dialog',
+		// 	target: '_blank',
 		// });
+
+		this.$service('widget').open({
+			title: 'Confirm dialog',
+			template: '<p>This is a dialog</p>',
+			ctrl: {
+				component: SimpleDialog,
+				params: {pity: true},
+			},
+		});
 	}
 
 	test() {
@@ -465,17 +465,17 @@ const routes = [
 				params: {lock: true},
 			},
 		},
-		{
-			id: 'simple-dialog',
-			route: 'dialog',
-			title: 'Confirm dialog',
-			template: `<p>This is a dialog</p>`,
-			hidden: true,
-			ctrl: {
-				component: SimpleDialog,
-				params: {pity: true},
-			},
-		},
+		// {
+		// 	id: 'simple-dialog',
+		// 	route: 'dialog',
+		// 	title: 'Confirm dialog',
+		// 	template: `<p>This is a dialog</p>`,
+		// 	hidden: true,
+		// 	ctrl: {
+		// 		component: SimpleDialog,
+		// 		params: {pity: true},
+		// 	},
+		// },
 		{
 			id: 'component1',
 			title: 'Books | PowerUi',

@@ -20,6 +20,10 @@ class PowerController {
 		});
 	}
 
+	$service(name) {
+		return new this.$powerUi._services[name].component({$powerUi: this, $ctrl: this, params: this.$powerUi._services[name].params});
+	}
+
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
