@@ -1857,7 +1857,7 @@ class PowerController {
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		const parts = decodeURI(window.location.hash).split('?');
+		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';
 
@@ -2261,12 +2261,12 @@ class Router {
 	closeOldSecundaryAndHiddenViews() {
 		for (const route of this.oldRoutes.secundaryRoutes) {
 			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryView({secundaryViewId: route.viewId, routeId: route.id});
+				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id});
 			}
 		}
 		for (const route of this.oldRoutes.hiddenRoutes) {
 			if (!this.currentRoutes.hiddenRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryView({secundaryViewId: route.viewId, routeId: route.id});
+				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id});
 			}
 		}
 		this.clearRouteSharedScopes();
@@ -2286,18 +2286,18 @@ class Router {
 		this.$powerUi.controllers.$routeSharedScope.$waitingToDelete = [];
 	}
 
-	removeSecundaryView({secundaryViewId, routeId}) {
+	removeSecundaryOrHiddenView({viewId, routeId}) {
 		// Remove all view power Objects and events
-		if (this.$powerUi.powerTree.allPowerObjsById[secundaryViewId] && this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared']) {
-			this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared']) {
+			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeElementAndInnersFromPower();
 		}
 		// Remove view node
-		const node = document.getElementById(secundaryViewId);
+		const node = document.getElementById(viewId);
 		node.parentNode.removeChild(node);
 
 		// Delete the controller instance of this view if exists
-		if (this.$powerUi.controllers[secundaryViewId]) {
-			delete this.$powerUi.controllers[secundaryViewId];
+		if (this.$powerUi.controllers[viewId]) {
+			delete this.$powerUi.controllers[viewId];
 			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
 				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances - 1;
@@ -2472,8 +2472,8 @@ class Router {
 			}
 		}
 
-		// Test the secundary routes
-		for (const sroute of this.currentRoutes.secundaryRoutes) {
+		// Test the secundary and hidden routes
+		for (const sroute of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
 			if (routeId === sroute.id) {
 				let keyValueExists = false;
 				for (const targetParamKey of Object.keys(params || {})) {
@@ -2582,7 +2582,7 @@ class Router {
 		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
 			return this.currentRoutes;
 		} else {
-			for (const route of this.currentRoutes.secundaryRoutes) {
+			for (const route of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
