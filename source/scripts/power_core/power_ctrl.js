@@ -2,6 +2,8 @@ class PowerController {
 	constructor({$powerUi}) {
 		// Add $powerUi to controller
 		this.$powerUi = $powerUi;
+		this._servicesInstances = {};
+		this.volatileRouteIds = [];
 	}
 
 	get router() {
@@ -15,13 +17,22 @@ class PowerController {
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
-			target: target,
+			target: target || '_blank',
 			title: route.title || null,
 		});
 	}
 
 	$service(name) {
-		return new this.$powerUi._services[name].component({$powerUi: this, $ctrl: this, params: this.$powerUi._services[name].params});
+		if (this._servicesInstances[name]) {
+			return this._servicesInstances[name];
+		} else {
+			this._servicesInstances[name] = new this.$powerUi._services[name].component({
+				$powerUi: this.$powerUi,
+				$ctrl: this,
+				params: this.$powerUi._services[name].params,
+			});
+			return this._servicesInstances[name];
+		}
 	}
 
 	closeCurrentRoute() {

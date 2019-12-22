@@ -1820,20 +1820,53 @@ class PowerUi extends _PowerUiBase {
 	}
 }
 
-class WidgetService {
+class PowerServices {
 	constructor({$powerUi, $ctrl}) {
 		this.$powerUi = $powerUi;
-		console.log('instanciate WidgetService', $ctrl);
+		this.$ctrl = $ctrl;
 	}
-	open(options) {
-		console.log('open', options, this.$powerUi);
+}
 
-		this.$powerUi.router.openRoute({
-			routeId: 'simple-dialog',
-			target: '_blank',
+class WidgetService extends PowerServices {
+
+	open({title, template, ctrl, target, params}) {
+		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;
+		// Register the route for remotion with the controller
+		this.$ctrl.volatileRouteIds.push(routeId);
+		this._open({
+			routeId: routeId,
+			target: target || '_blank',
+			title: title,
+			template: template,
+			ctrl: ctrl,
+			params: params,
 		});
+	}
 
-		// openRoute({routeId, params, target})
+	_open({routeId, params, target, title, template, ctrl}) {
+		// Add it as a hidden route
+		const newRoute = {
+			id: routeId,
+			title: title,
+			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
+			template: template,
+			hidden: true,
+			ctrl: ctrl,
+			isVolatile: true,
+		};
+
+		this.$powerUi.router.routes[routeId] = newRoute;
+
+		console.log('route', this.$powerUi.router.routes);
+		// Now open the new route
+		this.$powerUi.router.openRoute({
+			routeId: routeId || this.$ctrl._routeId, // destRouteId
+			currentRouteId: this.$ctrl._routeId,
+			currentViewId: this.$ctrl._viewId,
+			params: params,
+			target: target,
+			title: title || null,
+		});
 	}
 }
 
@@ -1841,6 +1874,8 @@ class PowerController {
 	constructor({$powerUi}) {
 		// Add $powerUi to controller
 		this.$powerUi = $powerUi;
+		this._servicesInstances = {};
+		this.volatileRouteIds = [];
 	}
 
 	get router() {
@@ -1854,13 +1889,22 @@ class PowerController {
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
-			target: target,
+			target: target || '_blank',
 			title: route.title || null,
 		});
 	}
 
 	$service(name) {
-		return new this.$powerUi._services[name].component({$powerUi: this, $ctrl: this, params: this.$powerUi._services[name].params});
+		if (this._servicesInstances[name]) {
+			return this._servicesInstances[name];
+		} else {
+			this._servicesInstances[name] = new this.$powerUi._services[name].component({
+				$powerUi: this.$powerUi,
+				$ctrl: this,
+				params: this.$powerUi._services[name].params,
+			});
+			return this._servicesInstances[name];
+		}
 	}
 
 	closeCurrentRoute() {
@@ -6223,6 +6267,7 @@ class PowerOnlyPage extends PowerController {
 				component: SimpleDialog,
 				params: {pity: true},
 			},
+			target: '_blank',
 		});
 	}
 

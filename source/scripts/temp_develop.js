@@ -206,6 +206,7 @@ class PowerOnlyPage extends PowerController {
 				component: SimpleDialog,
 				params: {pity: true},
 			},
+			target: '_blank',
 		});
 	}
 

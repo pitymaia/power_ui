@@ -33,6 +33,7 @@ const distJsFiles = [
 	'source/scripts/power_core/core/power_core.js', // Order who goes first
 	'source/scripts/pow_attrs/*.js',
 	'source/scripts/power_core/core/power_ui.js',
+	'source/scripts/services/main/*.js',
 	'source/scripts/services/*.js',
 	'source/scripts/power_core/*.js',
 	'source/scripts/parser/*.js',
