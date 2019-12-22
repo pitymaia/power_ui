@@ -309,7 +309,7 @@ class FakeModal extends PowerModal {
 	}
 
 	init() {
-		const parts = window.location.hash.split('/');
+		const parts = this.$powerUi.router.locationHashWithHiddenRoutes().split('/');
 		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}
 
@@ -482,7 +482,7 @@ const routes = [
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
 			avoidCacheTemplate: false,
-			hidden: true,
+			hidden: false,
 			ctrl: {
 				component: FakeModal,
 				params: {lock: false},
@@ -493,7 +493,7 @@ const routes = [
 			title: 'The simple one | PowerUi',
 			route: 'simple',
 			template: someViewTemplate,
-			hidden: true,
+			hidden: false,
 			ctrl: {
 				component: SimpleModal,
 				params: {lock: false},

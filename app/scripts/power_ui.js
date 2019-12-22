@@ -1564,6 +1564,9 @@ class PowerUi extends _PowerUiBase {
 	pwScope(event) {
 		const self = this;
 		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
+		if (ctrlScope === false) {
+			return;
+		}
 		ctrlScope.event = event.detail.event;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
@@ -2388,12 +2391,12 @@ class Router {
 		return viewId;
 	}
 
-	routeKind(route) {
-		return route.hidden ? 'hr' : 'sr';
+	routeKind(routeId) {
+		return this.routes[routeId].hidden ? 'hr' : 'sr';
 	}
 
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
-		const routeKind = this.routeKind(this.routes[routeId]);
+		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
@@ -2409,12 +2412,12 @@ class Router {
 			// Close the current view and open the route in a new secundary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
-				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route], routeId: routeId});
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
-				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({routeId: routeId});
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
 				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
@@ -2424,12 +2427,12 @@ class Router {
 		}
 	}
 
-	// Get the hash definition of current secundary routes
-	getOpenedSecundaryOrHiddenRoutesHash({filter=[], routeId}) {
+	// Get the hash definition of current secundary and hidden routes
+	getOpenedSecundaryOrHiddenRoutesHash({filter=[]}) {
 		const routeParts = this.extractRouteParts(this.locationHashWithHiddenRoutes());
-		const routeKind = this.routeKind(this.routes[routeId]);
 		let oldHash = routeParts.path.replace(this.config.rootRoute, '');
 		for (let route of routeParts.secundaryRoutes.concat(routeParts.hiddenRoutes)) {
+			const routeKind = routeParts.hiddenRoutes.includes(route) ? 'hr' : 'sr';
 			route = route.replace(this.config.rootRoute, '');
 			if (filter.lenght === 0 || !filter.includes(route)) {
 				oldHash = oldHash + `?${routeKind}=${route}`;
@@ -2448,9 +2451,10 @@ class Router {
 		for (const part of newHashParts.hiddenRoutes) {
 			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootRoute, '')}`;
 		}
+
 		this.hiddenLocationHash = encodeURI(newHiddenHash);
 		// If there is some new secundary or main route
-		if (window.location.hash !== (this.config.rootRoute + newHash)) {
+		if (window.location.hash !== encodeURI(this.config.rootRoute + newHash)) {
 			window.history.pushState(null, title, window.location.href);
 			window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(newHash));
 		} else {
@@ -6317,7 +6321,7 @@ class FakeModal extends PowerModal {
 	}
 
 	init() {
-		const parts = window.location.hash.split('/');
+		const parts = this.$powerUi.router.locationHashWithHiddenRoutes().split('/');
 		this.$title = 'My books: ' + decodeURI(parts[parts.length - 1]);
 	}
 
@@ -6490,7 +6494,7 @@ const routes = [
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
 			avoidCacheTemplate: false,
-			hidden: true,
+			hidden: false,
 			ctrl: {
 				component: FakeModal,
 				params: {lock: false},
@@ -6501,7 +6505,7 @@ const routes = [
 			title: 'The simple one | PowerUi',
 			route: 'simple',
 			template: someViewTemplate,
-			hidden: true,
+			hidden: false,
 			ctrl: {
 				component: SimpleModal,
 				params: {lock: false},
