@@ -170,7 +170,8 @@ class Router {
 
 	}
 	locationHashWithHiddenRoutes() {
-		return decodeURI(window.location.hash);
+		const hash = decodeURI(window.location.hash + (this.hiddenLocationHash || ''));
+		return hash;
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
@@ -246,7 +247,6 @@ class Router {
 							}
 						}
 					} else if (hiddenRoute) {
-						console.log('hiddenRoute', hiddenRoute);
 						// Load hidden route if not already open
 						// Check if the route already open as old route or as new route
 						const thisRoute = hiddenRoute.replace(this.config.rootRoute, '');
@@ -421,7 +421,6 @@ class Router {
 	}
 
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
-		console.log('OPEN ROUTE', routeId, this.routes[routeId]);
 		const routeKind = this.routeKind(this.routes[routeId]);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
@@ -438,12 +437,12 @@ class Router {
 			// Close the current view and open the route in a new secundary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
-				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route], routeKind: routeKind});
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route], routeId: routeId});
 				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
-				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({routeKind: routeKind});
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({routeId: routeId});
 				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
@@ -454,10 +453,11 @@ class Router {
 	}
 
 	// Get the hash definition of current secundary routes
-	getOpenedSecundaryOrHiddenRoutesHash({filter=[], routeKind}) {
+	getOpenedSecundaryOrHiddenRoutesHash({filter=[], routeId}) {
 		const routeParts = this.extractRouteParts(this.locationHashWithHiddenRoutes());
+		const routeKind = this.routeKind(this.routes[routeId]);
 		let oldHash = routeParts.path.replace(this.config.rootRoute, '');
-		for (let route of routeParts.secundaryRoutes) {
+		for (let route of routeParts.secundaryRoutes.concat(routeParts.hiddenRoutes)) {
 			route = route.replace(this.config.rootRoute, '');
 			if (filter.lenght === 0 || !filter.includes(route)) {
 				oldHash = oldHash + `?${routeKind}=${route}`;
@@ -467,8 +467,25 @@ class Router {
 	}
 
 	navigate({hash, title}) {
-		window.history.pushState(null, title, window.location.href);
-		window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(hash));
+		const newHashParts = this.extractRouteParts(hash);
+		let newHash = newHashParts.path || '';
+		let newHiddenHash = '';
+		for (const part of newHashParts.secundaryRoutes) {
+			newHash = `${newHash}?sr=${part.replace(this.config.rootRoute, '')}`;
+		}
+		for (const part of newHashParts.hiddenRoutes) {
+			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootRoute, '')}`;
+		}
+		this.hiddenLocationHash = encodeURI(newHiddenHash);
+		// If there is some new secundary or main route
+		if (window.location.hash !== (this.config.rootRoute + newHash)) {
+			window.history.pushState(null, title, window.location.href);
+			window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(newHash));
+		} else {
+			// If there is only a new hidden rote
+			// Only the hiddenLocationHash change, manually call hasChange
+			this.hashChange();
+		}
 	}
 
 	buildHash({routeId, params, paramKeys}) {

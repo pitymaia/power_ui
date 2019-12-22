@@ -482,6 +482,7 @@ const routes = [
 			route: 'component/:name/:title',
 			templateUrl: 'somecomponent.html',
 			avoidCacheTemplate: false,
+			hidden: true,
 			ctrl: {
 				component: FakeModal,
 				params: {lock: false},
@@ -492,6 +493,7 @@ const routes = [
 			title: 'The simple one | PowerUi',
 			route: 'simple',
 			template: someViewTemplate,
+			hidden: true,
 			ctrl: {
 				component: SimpleModal,
 				params: {lock: false},
