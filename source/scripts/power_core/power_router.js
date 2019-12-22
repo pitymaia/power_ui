@@ -315,6 +315,10 @@ class Router {
 	}
 
 	removeSecundaryOrHiddenView({viewId, routeId}) {
+		// If this is a volatile route remove it from routes
+		if (this.routes[routeId] && this.routes[routeId].isVolatile) {
+			delete this.routes[routeId];
+		}
 		// Remove all view power Objects and events
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared']) {
 			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeElementAndInnersFromPower();
