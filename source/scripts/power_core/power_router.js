@@ -416,7 +416,13 @@ class Router {
 		return viewId;
 	}
 
+	routeKind(route) {
+		return route.hidden ? 'hr' : 'sr';
+	}
+
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+		console.log('OPEN ROUTE', routeId, this.routes[routeId]);
+		const routeKind = this.routeKind(this.routes[routeId]);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
@@ -432,13 +438,13 @@ class Router {
 			// Close the current view and open the route in a new secundary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
-				const oldHash = this.getOpenedSecundaryRoutesHash([selfRoute.route]);
-				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route], routeKind: routeKind});
+				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
-				const oldHash = this.getOpenedSecundaryRoutesHash();
-				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({routeKind: routeKind});
+				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
@@ -448,13 +454,13 @@ class Router {
 	}
 
 	// Get the hash definition of current secundary routes
-	getOpenedSecundaryRoutesHash(filter=[]) {
+	getOpenedSecundaryOrHiddenRoutesHash({filter=[], routeKind}) {
 		const routeParts = this.extractRouteParts(this.locationHashWithHiddenRoutes());
 		let oldHash = routeParts.path.replace(this.config.rootRoute, '');
 		for (let route of routeParts.secundaryRoutes) {
 			route = route.replace(this.config.rootRoute, '');
 			if (filter.lenght === 0 || !filter.includes(route)) {
-				oldHash = oldHash + `?sr=${route}`;
+				oldHash = oldHash + `?${routeKind}=${route}`;
 			}
 		}
 		return oldHash;
