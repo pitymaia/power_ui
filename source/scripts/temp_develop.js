@@ -199,13 +199,19 @@ class PowerOnlyPage extends PowerController {
 		// 	target: '_blank',
 		// });
 
-		this.$service('widget').open({
-			title: 'Confirm dialog',
+		// this.$service('widget').open({
+		// 	title: 'Confirm dialog',
+		// 	template: '<p>This is a dialog</p>',
+		// 	ctrl: {
+		// 		component: SimpleDialog,
+		// 		params: {pity: true},
+		// 	},
+		// });
+		const self = this;
+
+		this.$service('widget').confirm({
+			title: 'Alert dialog',
 			template: '<p>This is a dialog</p>',
-			ctrl: {
-				component: SimpleDialog,
-				params: {pity: true},
-			},
 		});
 	}
 
@@ -458,6 +464,7 @@ const routes = [
 		},
 		{
 			id: 'power-only2',
+			title: 'Power only page 2 | PowerUi',
 			route: 'power_only/:id/:name/:title',
 			templateUrl: 'power_only.html',
 			ctrl: {

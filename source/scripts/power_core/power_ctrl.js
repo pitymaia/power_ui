@@ -53,6 +53,7 @@ class PowerController {
 			}
 		}
 		this.router.navigate({hash: newHash, title: route.title || null});
+		console.log('route', this.$powerUi.router.routes);
 	}
 
 	safeEval(string) {

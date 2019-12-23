@@ -1829,7 +1829,58 @@ class PowerServices {
 
 class WidgetService extends PowerServices {
 
-	open({title, template, ctrl, target, params}) {
+	alert({title, template, ctrl, target, params, controller}) {
+		this.open({
+			title: title,
+			template: template,
+			ctrl: ctrl,
+			target: target,
+			params: params,
+			controller: controller,
+			kind: 'alert',
+		});
+	}
+
+	confirm({title, template, ctrl, target, params, controller}) {
+		this.open({
+			title: title,
+			template: template,
+			ctrl: ctrl,
+			target: target,
+			params: params,
+			controller: controller,
+			kind: 'confirm',
+		});
+	}
+
+	modal({title, template, ctrl, target, params, controller}) {
+		this.open({
+			title: title,
+			template: template,
+			ctrl: ctrl,
+			target: target,
+			params: params,
+			controller: controller,
+			kind: 'modal',
+		});
+	}
+
+	open({title, template, ctrl, target, params, controller, kind}) {
+		// Allow to create some empty controller so it can open without define one
+		if (!ctrl && !controller) {
+			controller = function () {};
+		}
+		if (!ctrl && controller && (typeof controller === 'function')) {
+			// Wrap the functions inside an PowerAlert controller
+			ctrl = {
+				component: wrapFunctionInsideDialog({controller: controller, kind: kind}),
+			};
+		}
+		if (ctrl.params === undefined) {
+			ctrl.params = {};
+		}
+
+		// Create a new volatile then open it
 		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;
 		// Register the route for remotion with the controller
 		this.$ctrl.volatileRouteIds.push(routeId);
@@ -1857,7 +1908,6 @@ class WidgetService extends PowerServices {
 
 		this.$powerUi.router.routes[routeId] = newRoute;
 
-		console.log('route', this.$powerUi.router.routes);
 		// Now open the new route
 		this.$powerUi.router.openRoute({
 			routeId: routeId || this.$ctrl._routeId, // destRouteId
@@ -1925,6 +1975,7 @@ class PowerController {
 			}
 		}
 		this.router.navigate({hash: newHash, title: route.title || null});
+		console.log('route', this.$powerUi.router.routes);
 	}
 
 	safeEval(string) {
@@ -5316,6 +5367,36 @@ class PowerConfirm extends PowerDialog {
 	}
 }
 
+function wrapFunctionInsideDialog({controller, kind}) {
+	class _Alert extends PowerAlert {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+		}
+	}
+
+	class _Confirm extends PowerConfirm {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+		}
+	}
+	class _Modal extends PowerModal {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+		}
+	}
+
+	if (kind === 'confirm') {
+		return _Confirm;
+	} else if (kind === 'modal') {
+		return _Modal;
+	} else {
+		return _Alert;
+	}
+}
+
 class PowerModal extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
@@ -6275,13 +6356,19 @@ class PowerOnlyPage extends PowerController {
 		// 	target: '_blank',
 		// });
 
-		this.$service('widget').open({
-			title: 'Confirm dialog',
+		// this.$service('widget').open({
+		// 	title: 'Confirm dialog',
+		// 	template: '<p>This is a dialog</p>',
+		// 	ctrl: {
+		// 		component: SimpleDialog,
+		// 		params: {pity: true},
+		// 	},
+		// });
+		const self = this;
+
+		this.$service('widget').confirm({
+			title: 'Alert dialog',
 			template: '<p>This is a dialog</p>',
-			ctrl: {
-				component: SimpleDialog,
-				params: {pity: true},
-			},
 		});
 	}
 
@@ -6534,6 +6621,7 @@ const routes = [
 		},
 		{
 			id: 'power-only2',
+			title: 'Power only page 2 | PowerUi',
 			route: 'power_only/:id/:name/:title',
 			templateUrl: 'power_only.html',
 			ctrl: {

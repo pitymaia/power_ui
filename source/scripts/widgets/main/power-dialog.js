@@ -26,3 +26,33 @@ class PowerConfirm extends PowerDialog {
 		this.cancelBt = true;
 	}
 }
+
+function wrapFunctionInsideDialog({controller, kind}) {
+	class _Alert extends PowerAlert {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+		}
+	}
+
+	class _Confirm extends PowerConfirm {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+		}
+	}
+	class _Modal extends PowerModal {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+		}
+	}
+
+	if (kind === 'confirm') {
+		return _Confirm;
+	} else if (kind === 'modal') {
+		return _Modal;
+	} else {
+		return _Alert;
+	}
+}
