@@ -1908,6 +1908,10 @@ class PowerController {
 		return this.$powerUi.router;
 	}
 
+	refresh() {
+		this.router._refresh(this._viewId);
+	}
+
 	openRoute({routeId, params, target}) {
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		this.router.openRoute({
@@ -2220,8 +2224,12 @@ class Router {
 		delete this.savedOldRoutes;
 
 	}
-	_refresh() {
+	_refresh(viewId) {
 		let openedRoutes = this.getOpenedRoutesRefreshData();
+
+		if (viewId) {
+			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
+		}
 		for (const route of openedRoutes) {
 			this.raplaceViewContent(route);
 		}
@@ -6391,8 +6399,7 @@ class PowerOnlyPage extends PowerController {
 		} else if (kind === 'hardRefresh') {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
-			// this.$powerUi.softRefresh(document);
-			this.$powerUi.router._refresh();
+			this.refresh();
 		}
 		console.log('changeModel', this.cats.length);
 	}
@@ -6438,7 +6445,8 @@ class PowerOnlyPage extends PowerController {
 					    </div>
 					</div>
 					<br />
-					<button class="pw-btn-default" data-pow-event onclick="reload()"><span class="pw-ico fa fa-refresh"></span> Reload</button>`,
+					<button class="pw-btn-default" data-pow-event onclick="reload()"><span class="pw-ico fa fa-refresh"></span> Reload all</button>
+					<button class="pw-btn-default" data-pow-event onclick="reload(_viewId)"><span class="pw-ico fa fa-refresh"></span> Reload view</button>`,
 			// templateUrl: 'somecomponent.html',
 			params: {commitBt: true, cancelBt: true},
 			controller: function () {
@@ -6447,13 +6455,13 @@ class PowerOnlyPage extends PowerController {
 					{name: 'Princesa', gender: 'female'},
 					{name: 'Pingo', gender: 'male'},
 				]
-				this.reload = function() {
+				this.reload = function(_viewId) {
 					if (this.cats.length === 3) {
 						this.cats.push({name: 'Sol', gender: 'female'});
 					} else {
 						this.cats.pop();
 					}
-					this.$powerUi.router._refresh();
+					this.$powerUi.router._refresh(_viewId);
 				}
 			},
 			onCommit: function(resolve) {
@@ -6670,8 +6678,7 @@ class FakeModal extends PowerModal {
 		} else if (kind === 'hardRefresh') {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
-			// this.$powerUi.softRefresh(document);
-			this.$powerUi.router._refresh();
+			this.refresh();
 		}
 		console.log('this.cats.length', this.cats.length);
 	}

@@ -10,6 +10,10 @@ class PowerController {
 		return this.$powerUi.router;
 	}
 
+	refresh() {
+		this.router._refresh(this._viewId);
+	}
+
 	openRoute({routeId, params, target}) {
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		this.router.openRoute({

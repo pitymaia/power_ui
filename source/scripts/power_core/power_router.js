@@ -169,8 +169,12 @@ class Router {
 		delete this.savedOldRoutes;
 
 	}
-	_refresh() {
+	_refresh(viewId) {
 		let openedRoutes = this.getOpenedRoutesRefreshData();
+
+		if (viewId) {
+			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
+		}
 		for (const route of openedRoutes) {
 			this.raplaceViewContent(route);
 		}
