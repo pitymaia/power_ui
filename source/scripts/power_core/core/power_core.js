@@ -407,36 +407,11 @@ class PowerTree {
 		this.buildAndInterpolate(document);
 	}
 
-	get rootCompilers() {
-		const rootCompilers = {};
-		for (const id of Object.keys(this.allPowerObjsById || {})) {
-			// TODO: add this to condition? && this.allPowerObjsById[id].$shared.element
-			// TODO: We avoid problems with powEvent in a hard coded way by filtering it out... fix it.
-			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler && !this.allPowerObjsById[id].powEvent) {
-				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
-			}
-		}
-		return rootCompilers;
-	}
-
 	removeAllEvents() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			this.removeEventsOfObject(id);
 		}
 		UEvent.index = {};
-	}
-
-	resetRootCompilers() {
-		for (const id of Object.keys(this.rootCompilers)) {
-			if (this.allPowerObjsById[id]) {
-				// Remove events of this objects
-				this.removeEventsOfObject(id);
-				// delete all inner this.allPowerObjsById[id]
-				this.allPowerObjsById[id]['$shared'].removeInnerElementsFromPower();
-				const element = document.getElementById(id);
-				element.innerHTML = this.rootCompilers[id];
-			}
-		}
 	}
 
 	removeEventsOfObject(id) {

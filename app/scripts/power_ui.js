@@ -407,36 +407,11 @@ class PowerTree {
 		this.buildAndInterpolate(document);
 	}
 
-	get rootCompilers() {
-		const rootCompilers = {};
-		for (const id of Object.keys(this.allPowerObjsById || {})) {
-			// TODO: add this to condition? && this.allPowerObjsById[id].$shared.element
-			// TODO: We avoid problems with powEvent in a hard coded way by filtering it out... fix it.
-			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler && !this.allPowerObjsById[id].powEvent) {
-				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
-			}
-		}
-		return rootCompilers;
-	}
-
 	removeAllEvents() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			this.removeEventsOfObject(id);
 		}
 		UEvent.index = {};
-	}
-
-	resetRootCompilers() {
-		for (const id of Object.keys(this.rootCompilers)) {
-			if (this.allPowerObjsById[id]) {
-				// Remove events of this objects
-				this.removeEventsOfObject(id);
-				// delete all inner this.allPowerObjsById[id]
-				this.allPowerObjsById[id]['$shared'].removeInnerElementsFromPower();
-				const element = document.getElementById(id);
-				element.innerHTML = this.rootCompilers[id];
-			}
-		}
 	}
 
 	removeEventsOfObject(id) {
@@ -1629,32 +1604,6 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 	}
 
-	hardRefresh({node, view}) {
-		node = node || document;
-		const t0 = performance.now();
-		this.powerTree.resetRootCompilers();
-		// Remove all the events
-		this.powerTree.removeAllEvents();
-
-		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAndInterpolate(node, true);
-		this.powerTree._callInit();
-
-		const t1 = performance.now();
-		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
-	softRefresh(node) {
-		const t0 = performance.now();
-		this.powerTree.resetRootCompilers();
-		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
-			// delete this.powerTree.allPowerObjsById[id];
-			this.powerTree.createAndInitObjectsFromCurrentNode({id: id, refresh: true});
-		}
-		const t1 = performance.now();
-		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
 		// Avoid blink uninterpolated data before call compile and interpolate
@@ -2272,7 +2221,6 @@ class Router {
 
 	}
 	_refresh() {
-		console.log(this.routes);
 		let openedRoutes = this.getOpenedRoutesRefreshData();
 		for (const route of openedRoutes) {
 			this.raplaceViewContent(route);
@@ -2289,7 +2237,6 @@ class Router {
 		// Avoid blink uninterpolated data before call compile and interpolate
 		view.style.visibility = 'hidden';
 		this.$powerUi.waitingViews = this.$powerUi.waitingViews + 1;
-		console.log('this.$powerUi.waitingViews', this.$powerUi.waitingViews);
 		this.$powerUi.buildViewTemplateAndMayCallInit({
 			self: this.$powerUi,
 			view: view,
@@ -6479,11 +6426,33 @@ class PowerOnlyPage extends PowerController {
 
 		this.$service('widget').modal({
 			title: 'My Modal',
-			template: '<p>This is a custom modal</p><button data-pow-event onclick="reload()">Reload</button>',
+			template: `<p>This is a custom modal</p>
+					<div id="favorite-cats" data-pow-for="cat of cats">
+					    <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda
+					        <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+					    </div>
+					    <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }}
+					        <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+					    </div>
+					    <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_{{$pwIndex}}_u">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
+					    </div>
+					</div>
+					<br />
+					<button class="pw-btn-default" data-pow-event onclick="reload()"><span class="pw-ico fa fa-refresh"></span> Reload</button>`,
 			// templateUrl: 'somecomponent.html',
 			params: {commitBt: true, cancelBt: true},
 			controller: function () {
+				this.cats = [
+					{name: 'Riquinho', gender: 'male'},
+					{name: 'Princesa', gender: 'female'},
+					{name: 'Pingo', gender: 'male'},
+				]
 				this.reload = function() {
+					if (this.cats.length === 3) {
+						this.cats.push({name: 'Sol', gender: 'female'});
+					} else {
+						this.cats.pop();
+					}
 					this.$powerUi.router._refresh();
 				}
 			},

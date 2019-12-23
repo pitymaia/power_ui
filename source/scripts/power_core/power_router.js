@@ -170,7 +170,6 @@ class Router {
 
 	}
 	_refresh() {
-		console.log(this.routes);
 		let openedRoutes = this.getOpenedRoutesRefreshData();
 		for (const route of openedRoutes) {
 			this.raplaceViewContent(route);
@@ -187,7 +186,6 @@ class Router {
 		// Avoid blink uninterpolated data before call compile and interpolate
 		view.style.visibility = 'hidden';
 		this.$powerUi.waitingViews = this.$powerUi.waitingViews + 1;
-		console.log('this.$powerUi.waitingViews', this.$powerUi.waitingViews);
 		this.$powerUi.buildViewTemplateAndMayCallInit({
 			self: this.$powerUi,
 			view: view,

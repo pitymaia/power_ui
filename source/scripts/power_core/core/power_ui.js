@@ -234,32 +234,6 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 	}
 
-	hardRefresh({node, view}) {
-		node = node || document;
-		const t0 = performance.now();
-		this.powerTree.resetRootCompilers();
-		// Remove all the events
-		this.powerTree.removeAllEvents();
-
-		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAndInterpolate(node, true);
-		this.powerTree._callInit();
-
-		const t1 = performance.now();
-		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
-	softRefresh(node) {
-		const t0 = performance.now();
-		this.powerTree.resetRootCompilers();
-		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
-			// delete this.powerTree.allPowerObjsById[id];
-			this.powerTree.createAndInitObjectsFromCurrentNode({id: id, refresh: true});
-		}
-		const t1 = performance.now();
-		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
 		// Avoid blink uninterpolated data before call compile and interpolate
