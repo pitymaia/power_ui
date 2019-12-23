@@ -212,6 +212,7 @@ class PowerOnlyPage extends PowerController {
 		this.$service('widget').modal({
 			title: 'My Modal',
 			template: '<p>This is a custom modal</p>',
+			// templateUrl: 'somecomponent.html',
 			params: {commitBt: true, cancelBt: true},
 			onCommit: function(resolve) {
 				console.log('Thanks for commiting with me.');

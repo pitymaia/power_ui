@@ -14,10 +14,11 @@ class WidgetService extends PowerServices {
 		return params;
 	}
 
-	alert({title, template, ctrl, target, params, controller, onCommit, onCancel}) {
+	alert({title, template, ctrl, target, params, controller, onCommit, onCancel, templateUrl}) {
 		this.open({
 			title: title,
 			template: template,
+			templateUrl: templateUrl,
 			ctrl: ctrl,
 			target: target,
 			params: params,
@@ -28,10 +29,11 @@ class WidgetService extends PowerServices {
 		});
 	}
 
-	confirm({title, template, ctrl, target, params, controller, onCommit, onCancel}) {
+	confirm({title, template, ctrl, target, params, controller, onCommit, onCancel, templateUrl}) {
 		this.open({
 			title: title,
 			template: template,
+			templateUrl: templateUrl,
 			ctrl: ctrl,
 			target: target,
 			params: params,
@@ -42,10 +44,11 @@ class WidgetService extends PowerServices {
 		});
 	}
 
-	modal({title, template, ctrl, target, params, controller, onCommit, onCancel}) {
+	modal({title, template, ctrl, target, params, controller, onCommit, onCancel, templateUrl}) {
 		this.open({
 			title: title,
 			template: template,
+			templateUrl: templateUrl,
 			ctrl: ctrl,
 			target: target,
 			params: params,
@@ -56,7 +59,7 @@ class WidgetService extends PowerServices {
 		});
 	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel, templateUrl}) {
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
@@ -80,18 +83,20 @@ class WidgetService extends PowerServices {
 			target: target || '_blank',
 			title: title,
 			template: template,
+			templateUrl: templateUrl,
 			ctrl: ctrl,
 			params: params,
 		});
 	}
 
-	_open({routeId, params, target, title, template, ctrl}) {
+	_open({routeId, params, target, title, template, ctrl, templateUrl}) {
 		// Add it as a hidden route
 		const newRoute = {
 			id: routeId,
 			title: title,
 			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
-			template: template,
+			template: templateUrl || template,
+			templateUrl: templateUrl,
 			hidden: true,
 			ctrl: ctrl,
 			isVolatile: true,
