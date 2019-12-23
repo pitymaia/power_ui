@@ -2210,12 +2210,12 @@ class Router {
 	}
 
 	// Copy the current open secundary route, and init the router with the new route
-	hashChange(event) {
+	hashChange(event, reloading) {
 		// Save a copy of currentRoutes as oldRoutes
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.init({onHashChange: event});
+		this.init({onHashChange: event, reloading: reloading});
 	}
 
 	cloneRoutes({source}) {
@@ -2260,11 +2260,11 @@ class Router {
 	_reload() {
 		const viewId = this.currentRoutes.viewId;
 		this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
-		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
+		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.removeMainView({viewId})
-		this.closeOldSecundaryAndHiddenViews();
-		this.hashChange();
+		this.removeMainView({viewId: viewId, reloading: true})
+		this.closeOldSecundaryAndHiddenViews({reloading: true});
+		this.hashChange(null, true); // true for the reloading flag and nul for the event
 		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
 		delete this.savedOldRoutes;
 
@@ -2276,7 +2276,7 @@ class Router {
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
 	// the secundaryRoute param allows to manually match secundary routes
-	init({secundaryRoute, hiddenRoute, onHashChange}={}) {
+	init({secundaryRoute, hiddenRoute, reloading, onHashChange}={}) {
 		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootRoute);
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -2292,7 +2292,7 @@ class Router {
 					if (!secundaryRoute && !hiddenRoute) {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
-							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId});
+							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId, reloading: reloading});
 							this.loadRoute({
 								routeId: routeId,
 								paramKeys: paramKeys,
@@ -2310,14 +2310,14 @@ class Router {
 						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
-							this.init({secundaryRoute: compRoute});
+							this.init({secundaryRoute: compRoute, reloading: reloading});
 						}
 						// Recursively run the init for each possible hiddenRoute
 						for (const compRoute of routeParts.hiddenRoutes) {
-							this.init({hiddenRoute: compRoute});
+							this.init({hiddenRoute: compRoute, reloading: reloading});
 						}
 						// Remove all the old views if needed
-						this.closeOldSecundaryAndHiddenViews();
+						this.closeOldSecundaryAndHiddenViews({reloading: reloading});
 						return true;
 					} else if (secundaryRoute) {
 						// Load secundary route if not already open
@@ -2386,15 +2386,15 @@ class Router {
 	}
 
 	// Only close the old secundary and hidden views that are not also in the currentRoutes.secundaryRoutes
-	closeOldSecundaryAndHiddenViews() {
+	closeOldSecundaryAndHiddenViews({reloading}) {
 		for (const route of this.oldRoutes.secundaryRoutes) {
 			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id});
+				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
 			}
 		}
 		for (const route of this.oldRoutes.hiddenRoutes) {
 			if (!this.currentRoutes.hiddenRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id});
+				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
 			}
 		}
 		this.clearRouteSharedScopes();
@@ -2414,9 +2414,9 @@ class Router {
 		this.$powerUi.controllers.$routeSharedScope.$waitingToDelete = [];
 	}
 
-	removeSecundaryOrHiddenView({viewId, routeId}) {
+	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
 		// If this is a volatile route remove it from routes
-		if (this.routes[routeId] && this.routes[routeId].isVolatile) {
+		if (!reloading && this.routes[routeId] && this.routes[routeId].isVolatile) {
 			delete this.routes[routeId];
 		}
 		// Remove all view power Objects and events
@@ -2429,7 +2429,9 @@ class Router {
 
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
-			this.removeVolatileViews({viewId: viewId});
+			if (!reloading) {
+				this.removeVolatileViews({viewId: viewId});
+			}
 			delete this.$powerUi.controllers[viewId];
 			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
@@ -2441,11 +2443,13 @@ class Router {
 		}
 	}
 
-	removeMainView({viewId}) {
+	removeMainView({viewId, reloading}) {
 		if (!this.$powerUi.powerTree) {
 			return;
 		}
-		this.removeVolatileViews({viewId: viewId});
+		if (!reloading) {
+			this.removeVolatileViews({viewId: viewId});
+		}
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
@@ -6408,9 +6412,14 @@ class PowerOnlyPage extends PowerController {
 
 		this.$service('widget').modal({
 			title: 'My Modal',
-			template: '<p>This is a custom modal</p>',
+			template: '<p>This is a custom modal</p><button data-pow-event onclick="reload()">Reload</button>',
 			// templateUrl: 'somecomponent.html',
 			params: {commitBt: true, cancelBt: true},
+			controller: function () {
+				this.reload = function() {
+					this.$powerUi.pwReload();
+				}
+			},
 			onCommit: function(resolve) {
 				console.log('Thanks for commiting with me.');
 				resolve();

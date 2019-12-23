@@ -211,9 +211,14 @@ class PowerOnlyPage extends PowerController {
 
 		this.$service('widget').modal({
 			title: 'My Modal',
-			template: '<p>This is a custom modal</p>',
+			template: '<p>This is a custom modal</p><button data-pow-event onclick="reload()">Reload</button>',
 			// templateUrl: 'somecomponent.html',
 			params: {commitBt: true, cancelBt: true},
+			controller: function () {
+				this.reload = function() {
+					this.$powerUi.pwReload();
+				}
+			},
 			onCommit: function(resolve) {
 				console.log('Thanks for commiting with me.');
 				resolve();
