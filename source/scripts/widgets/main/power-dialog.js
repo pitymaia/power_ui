@@ -27,11 +27,16 @@ class PowerConfirm extends PowerDialog {
 	}
 }
 
-function wrapFunctionInsideDialog({controller, kind}) {
+function wrapFunctionInsideDialog({controller, kind, params}) {
 	class _Alert extends PowerAlert {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
 		}
 	}
 
@@ -39,12 +44,22 @@ function wrapFunctionInsideDialog({controller, kind}) {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
 		}
 	}
 	class _Modal extends PowerModal {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
 		}
 	}
 

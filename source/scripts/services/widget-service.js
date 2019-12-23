@@ -1,6 +1,20 @@
 class WidgetService extends PowerServices {
 
-	alert({title, template, ctrl, target, params, controller}) {
+	mayAddCtrlParams({params, onCommit, onCancel}) {
+		if (params === undefined) {
+			params = {};
+		}
+		if (onCommit) {
+			params.onCommit = onCommit;
+		}
+		if (onCancel) {
+			params.onCancel = onCancel;
+		}
+
+		return params;
+	}
+
+	alert({title, template, ctrl, target, params, controller, onCommit, onCancel}) {
 		this.open({
 			title: title,
 			template: template,
@@ -9,10 +23,12 @@ class WidgetService extends PowerServices {
 			params: params,
 			controller: controller,
 			kind: 'alert',
+			onCommit: onCommit,
+			onCancel: onCancel,
 		});
 	}
 
-	confirm({title, template, ctrl, target, params, controller}) {
+	confirm({title, template, ctrl, target, params, controller, onCommit, onCancel}) {
 		this.open({
 			title: title,
 			template: template,
@@ -21,10 +37,12 @@ class WidgetService extends PowerServices {
 			params: params,
 			controller: controller,
 			kind: 'confirm',
+			onCommit: onCommit,
+			onCancel: onCancel,
 		});
 	}
 
-	modal({title, template, ctrl, target, params, controller}) {
+	modal({title, template, ctrl, target, params, controller, onCommit, onCancel}) {
 		this.open({
 			title: title,
 			template: template,
@@ -33,24 +51,26 @@ class WidgetService extends PowerServices {
 			params: params,
 			controller: controller,
 			kind: 'modal',
+			onCommit: onCommit,
+			onCancel: onCancel,
 		});
 	}
 
-	open({title, template, ctrl, target, params, controller, kind}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel}) {
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
 		}
 		if (!ctrl && controller && (typeof controller === 'function')) {
 			// Wrap the functions inside an PowerAlert controller
+			params = this.mayAddCtrlParams({params: params, onCommit: onCommit, onCancel: onCancel});
 			ctrl = {
-				component: wrapFunctionInsideDialog({controller: controller, kind: kind}),
+				component: wrapFunctionInsideDialog({controller: controller, kind: kind, params: params}),
 			};
 		}
 		if (ctrl.params === undefined) {
 			ctrl.params = {};
 		}
-
 		// Create a new volatile then open it
 		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;
 		// Register the route for remotion with the controller

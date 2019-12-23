@@ -209,9 +209,18 @@ class PowerOnlyPage extends PowerController {
 		// });
 		const self = this;
 
-		this.$service('widget').confirm({
-			title: 'Alert dialog',
-			template: '<p>This is a dialog</p>',
+		this.$service('widget').modal({
+			title: 'My Modal',
+			template: '<p>This is a custom modal</p>',
+			params: {commitBt: true, cancelBt: true},
+			onCommit: function(resolve) {
+				console.log('Thanks for commiting with me.');
+				resolve();
+			},
+			onCancel: function(resolve) {
+				console.log('This is sad...');
+				resolve();
+			}
 		});
 	}
 
