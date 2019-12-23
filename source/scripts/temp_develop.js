@@ -153,6 +153,7 @@ class PowerOnlyPage extends PowerController {
 			{name: 'Florzinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
+		console.log('changeModel', this.cats.length);
 	}
 
 	changeModel(kind) {
@@ -178,8 +179,10 @@ class PowerOnlyPage extends PowerController {
 		} else if (kind === 'hardRefresh') {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
-			this.$powerUi.softRefresh(document);
+			// this.$powerUi.softRefresh(document);
+			this.$powerUi.router._refresh();
 		}
+		console.log('changeModel', this.cats.length);
 	}
 
 	onViewLoad(view) {
@@ -216,7 +219,7 @@ class PowerOnlyPage extends PowerController {
 			params: {commitBt: true, cancelBt: true},
 			controller: function () {
 				this.reload = function() {
-					this.$powerUi.pwReload();
+					this.$powerUi.router._refresh();
 				}
 			},
 			onCommit: function(resolve) {
@@ -327,6 +330,7 @@ class SimpleDialog extends PowerConfirm {
 class FakeModal extends PowerModal {
 	constructor({$powerUi, lock, viewId, routeId}) {
 		super({$powerUi});
+		console.log('instanciate');
 	}
 
 	init() {
@@ -432,8 +436,10 @@ class FakeModal extends PowerModal {
 		} else if (kind === 'hardRefresh') {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
-			this.$powerUi.softRefresh(document);
+			// this.$powerUi.softRefresh(document);
+			this.$powerUi.router._refresh();
 		}
+		console.log('this.cats.length', this.cats.length);
 	}
 
 	onViewLoad(view) {

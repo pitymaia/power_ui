@@ -325,20 +325,22 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing}) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-			if (self.controllers[viewId].instance.init) {
+			if (!refreshing && self.controllers[viewId].instance.init) {
 				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
 		view.innerHTML = template;
-		self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
+		self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId, refreshing: refreshing});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId, viewId}) {
+	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing}) {
 		const self = this;
-		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
+		if (!refreshing) {
+			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
+		}
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {

@@ -162,13 +162,73 @@ class Router {
 		this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.removeMainView({viewId: viewId, reloading: true})
+		this.removeMainView({viewId: viewId, reloading: true});
 		this.closeOldSecundaryAndHiddenViews({reloading: true});
-		this.hashChange(null, true); // true for the reloading flag and nul for the event
+		this.hashChange(null, true); // true for the reloading flag and null for the event
 		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
 		delete this.savedOldRoutes;
 
 	}
+	_refresh() {
+		console.log(this.routes);
+		let openedRoutes = this.getOpenedRoutesRefreshData();
+		for (const route of openedRoutes) {
+			this.raplaceViewContent(route);
+		}
+	}
+
+	raplaceViewContent({view, viewId, routeId, title, template}) {
+		// delete all inner elements and events from this.allPowerObjsById[id]
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
+			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
+		}
+
+		this.$powerUi.waitingInit.push({node: view, viewId: viewId});
+		// Avoid blink uninterpolated data before call compile and interpolate
+		view.style.visibility = 'hidden';
+		this.$powerUi.waitingViews = this.$powerUi.waitingViews + 1;
+		console.log('this.$powerUi.waitingViews', this.$powerUi.waitingViews);
+		this.$powerUi.buildViewTemplateAndMayCallInit({
+			self: this.$powerUi,
+			view: view,
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			title: title,
+			refreshing: true,
+		});
+	}
+
+	getOpenedRoutesRefreshData() {
+		const viewsList = [];
+		viewsList.push({
+			view: document.getElementById(this.currentRoutes.viewId),
+			routeId: this.currentRoutes.id,
+			viewId: this.currentRoutes.viewId,
+			title: this.currentRoutes.title,
+			template: this.routes[this.currentRoutes.id].template,
+		});
+		for (const route of this.currentRoutes.secundaryRoutes) {
+			viewsList.push({
+				view: document.getElementById(route.viewId),
+				routeId: route.id,
+				viewId: route.viewId,
+				title: route.title,
+				template: this.routes[route.id].template,
+			});
+		}
+		for (const route of this.currentRoutes.hiddenRoutes) {
+			viewsList.push({
+				view: document.getElementById(route.viewId),
+				routeId: route.id,
+				viewId: route.viewId,
+				title: route.title,
+				template: this.routes[route.id].template,
+			});
+		}
+		return viewsList;
+	}
+
 	locationHashWithHiddenRoutes() {
 		const hash = decodeURI(window.location.hash + (this.hiddenLocationHash || ''));
 		return hash;
@@ -232,6 +292,7 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
+							console.log('secundaryViewId', secundaryViewId);
 							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
@@ -259,6 +320,7 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
+							console.log('hiddenViewId', hiddenViewId);
 							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
