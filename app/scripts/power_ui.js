@@ -471,42 +471,7 @@ class PowerTree {
 			const body = document.getElementsByTagName('BODY')[0];
 			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this);
 		}
-
-		// if (!refresh) {
-		// 	const tempTree = {pending: []};
-		// 	const body = document.getElementsByTagName('BODY')[0];
-		// 	// body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
-		// 	for (const id of tempTree.pending) {
-		// 		this.addPowTextObject(id);
-		// 	}
-		// }
 	}
-
-	// Create individual pow-eval powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
-	// addPowTextObject(id) {
-	// 	const newNode = document.getElementById(id);
-	// 	// Search a powerElement parent of currentObj up DOM if exists
-	// 	const currentParentElement = this._getParentElementFromChildElement(newNode);
-	// 	// Get the main and view elements of the currentObj
-	// 	const currentMainElement = this._getMainElementFromChildElement(newNode);
-	// 	const isMain = this.datasetIsMain(newNode.dataset);
-	// 	const currentViewElement = this._getViewElementFromChildElement(newNode);
-	// 	// Get any possible rootCompiler
-	// 	const currentRootCompilerElement = this._getRootCompilerElementFromChildElement(newNode, this);
-	// 	const isRootCompiler = (!currentRootCompilerElement && this.datasetIsCompiler(newNode.dataset));
-	// 	// Make the instance and add the powerObject into a list ordered by id
-	// 	this._instanciateObj({
-	// 		currentElement: newNode,
-	// 		datasetKey: 'powEval',
-	// 		main: currentMainElement,
-	// 		view: currentViewElement,
-	// 		parent: currentParentElement,
-	// 		rootCompiler: currentRootCompilerElement,
-	// 		isRootCompiler: isRootCompiler,
-	// 		isMain: isMain,
-	// 		originalInnerHTML: newNode.innerHTML,
-	// 	});
-	// }
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
 		// let canInstanciatePendings = false;
@@ -665,26 +630,14 @@ class PowerTree {
 			rootCompiler: currentRootCompilerElement,
 		}
 	}
-	createAndInitObjectsFromCurrentNode({id, refresh}) {
+	createAndInitObjectsFromCurrentNode({id}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
-		if (!refresh) {
-			const node = document.getElementById(id);
-			node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
-		}
-		// Replace any interpolation with pow-eval
-		// if (!refresh) {
-		// 	const node = document.getElementById(id);
-		// 	const tempTree = {pending: []};
-		// 	// node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
-		// 	for (const id of tempTree.pending) {
-		// 		this.addPowTextObject(id);
-		// 	}
-		// }
+		const node = document.getElementById(id);
+		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
-
 	}
 
 	_compile({currentNode, datasetKey, isInnerCompiler, view}) {
