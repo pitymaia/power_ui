@@ -214,6 +214,7 @@ class PowerOnlyPage extends PowerController {
 		this.$service('widget').modal({
 			title: 'My Modal',
 			template: `<p>This is a custom modal</p>
+					<p>I love my {{cats.length}} cats multiplied by two: {{cats.length * 2}}</p>
 					<div id="favorite-cats" data-pow-for="cat of cats">
 					    <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda
 					        <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
