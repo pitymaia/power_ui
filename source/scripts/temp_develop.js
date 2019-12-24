@@ -567,6 +567,7 @@ const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
 	services: services,
+	// spinnerLabel: 'carregando',
 });
 
 console.log('app', app);

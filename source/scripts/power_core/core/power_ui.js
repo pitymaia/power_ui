@@ -236,11 +236,36 @@ class PowerUi extends _PowerUiBase {
 
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
+		this.addSpinnerAndHideView(view);
+		this.waitingInit.push({node: view, viewId: viewId});
+		return view;
+	}
+
+	addSpinnerAndHideView(view) {
+		// Only add one spinner when the first view is added to waitingViews
+		if (!document.getElementById('_power-spinner')) {
+			// Backdrop
+			const spinnerBackdrop = document.createElement('div');
+			spinnerBackdrop.classList.add('pw-spinner-backdrop');
+			spinnerBackdrop.id = '_power-spinner';
+
+			// Spinner label
+			const spinnerLabel = document.createElement('p');
+			spinnerLabel.classList.add('pw-spinner-label');
+			spinnerLabel.innerText = this.config.spinnerLabel || 'LOADING';
+			spinnerBackdrop.appendChild(spinnerLabel);
+
+			// Spinner
+			const spinner = document.createElement('div');
+			spinner.classList.add('pw-spinner');
+			spinnerBackdrop.appendChild(spinner);
+
+			// Add to body
+			document.body.appendChild(spinnerBackdrop);
+		}
 		// Avoid blink uninterpolated data before call compile and interpolate
 		view.style.visibility = 'hidden';
 		this.waitingViews = this.waitingViews + 1;
-		this.waitingInit.push({node: view, viewId: viewId});
-		return view;
 	}
 
 	// Run the controller instance for the route
@@ -332,6 +357,8 @@ class PowerUi extends _PowerUiBase {
 						viewId: viewId,
 					});
 				}
+				const spinner = document.getElementById('_power-spinner')
+				spinner.parentNode.removeChild(spinner);
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);

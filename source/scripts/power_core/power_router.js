@@ -185,11 +185,9 @@ class Router {
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
 			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 		}
-
+		this.$powerUi.addSpinnerAndHideView(view);
 		this.$powerUi.waitingInit.push({node: view, viewId: viewId});
-		// Avoid blink uninterpolated data before call compile and interpolate
-		view.style.visibility = 'hidden';
-		this.$powerUi.waitingViews = this.$powerUi.waitingViews + 1;
+
 		this.$powerUi.buildViewTemplateAndMayCallInit({
 			self: this.$powerUi,
 			view: view,
