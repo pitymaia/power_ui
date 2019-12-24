@@ -195,6 +195,13 @@ class PowerOnlyPage extends PowerController {
 		});
 	}
 
+	openWindow() {
+		this.openRoute({
+			routeId: 'some-window',
+			target: '_blank',
+		});
+	}
+
 	openSimpleDialog() {
 		// this.openRoute({
 		// 	routeId: 'simple-dialog',
@@ -347,6 +354,27 @@ class SimpleDialog extends PowerConfirm {
 
 	onCommitError() {
 		console.log('confirm fails');
+	}
+}
+
+class MyWindow extends PowerWindow {
+
+	init() {
+
+	}
+
+	ctrl({$powerUi}) {
+		console.log('Window is here!');
+	}
+
+	onCancel(resolve, reject) {
+		console.log('Really cancel?');
+		resolve();
+	}
+
+	onCommit(resolve, reject) {
+		console.log('It is confirmed!');
+		resolve();
 	}
 }
 
@@ -524,6 +552,15 @@ const routes = [
 			ctrl: {
 				component: SimpleDialog,
 				params: {pity: true},
+			},
+		},
+		{
+			id: 'some-window',
+			route: 'window',
+			title: 'My Window',
+			templateUrl: `some-window.html`,
+			ctrl: {
+				component: MyWindow,
 			},
 		},
 		{

@@ -292,7 +292,6 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
-							console.log('secundaryViewId', secundaryViewId);
 							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
@@ -320,7 +319,6 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
-							console.log('hiddenViewId', hiddenViewId);
 							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
@@ -471,6 +469,9 @@ class Router {
 	}
 	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
 		if (ctrl) {
+			if (!ctrl.params) {
+				ctrl.params = {};
+			}
 			// Create a shared scope for this route if not existas
 			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
 				this.$powerUi.controllers.$routeSharedScope[routeId] = {};

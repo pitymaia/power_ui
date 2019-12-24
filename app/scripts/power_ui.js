@@ -1523,7 +1523,9 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		this.callOnViewLoad(this, viewId);
+		for (const key of Object.keys(this.controllers || {})) {
+			this.callOnViewLoad(this, key);
+		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
@@ -2327,7 +2329,6 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
-							console.log('secundaryViewId', secundaryViewId);
 							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
@@ -2355,7 +2356,6 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
-							console.log('hiddenViewId', hiddenViewId);
 							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
@@ -2506,6 +2506,9 @@ class Router {
 	}
 	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
 		if (ctrl) {
+			if (!ctrl.params) {
+				ctrl.params = {};
+			}
 			// Create a shared scope for this route if not existas
 			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
 				this.$powerUi.controllers.$routeSharedScope[routeId] = {};
@@ -5462,6 +5465,25 @@ class PowerModal extends PowerDialogBase {
 	}
 }
 
+class PowerWindow extends PowerDialogBase {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.isWindow = true;
+	}
+
+	_onViewLoad() {
+		console.log('!!!!!!!!!!!!1 this', this._viewId);
+	}
+
+	template({$title}) {
+		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-dialog pw-dialog-container">
+					${super.template({$title})}
+				</div>`;
+	}
+}
+
 class AccordionModel {
 	constructor(ctx) {
 		this.ctx = ctx;
@@ -6393,6 +6415,13 @@ class PowerOnlyPage extends PowerController {
 		});
 	}
 
+	openWindow() {
+		this.openRoute({
+			routeId: 'some-window',
+			target: '_blank',
+		});
+	}
+
 	openSimpleDialog() {
 		// this.openRoute({
 		// 	routeId: 'simple-dialog',
@@ -6545,6 +6574,27 @@ class SimpleDialog extends PowerConfirm {
 
 	onCommitError() {
 		console.log('confirm fails');
+	}
+}
+
+class MyWindow extends PowerWindow {
+
+	init() {
+
+	}
+
+	ctrl({$powerUi}) {
+		console.log('Window is here!');
+	}
+
+	onCancel(resolve, reject) {
+		console.log('Really cancel?');
+		resolve();
+	}
+
+	onCommit(resolve, reject) {
+		console.log('It is confirmed!');
+		resolve();
 	}
 }
 
@@ -6722,6 +6772,15 @@ const routes = [
 			ctrl: {
 				component: SimpleDialog,
 				params: {pity: true},
+			},
+		},
+		{
+			id: 'some-window',
+			route: 'window',
+			title: 'My Window',
+			templateUrl: `some-window.html`,
+			ctrl: {
+				component: MyWindow,
 			},
 		},
 		{

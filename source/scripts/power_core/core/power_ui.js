@@ -200,7 +200,9 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		this.callOnViewLoad(this, viewId);
+		for (const key of Object.keys(this.controllers || {})) {
+			this.callOnViewLoad(this, key);
+		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
