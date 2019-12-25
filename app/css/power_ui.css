@@ -77,9 +77,6 @@
 .pw-modal-backdrop, .pw-dialog-container {
     position: fixed;
 }
-.pw-window-container {
-    position: absolute;
-}
 .pw-modal-backdrop, .pw-dialog-container, .pw-window-container {
     padding: 1em 0 0 0;
     text-align: center;
@@ -100,16 +97,21 @@
 .pw-window-container  {
     top: 0;
     left: 0;
+    max-width: 100%;
+    position: absolute;
+    margin: 0;
 }
 .pw-window .pw-body {
     resize: both;
     overflow: auto;
+    max-width: 95vw;
+    max-height: 98vh;
 }
 .pw-window .pw-window-resizable {
     position: relative;
     margin: 0 auto;
-    width: 80%;
-    max-width: 98vw;
+    width: 90%;
+    max-width: 95vw;
     max-height: 98vh;
 }
 

@@ -306,9 +306,9 @@ class PowerDropmenu extends PowerTarget {
 				}
 
 				// If the action is fixed, the dropdown also needs to be fixed
-				if (getComputedStyle(self.powerAction.element).position === 'fixed') {
+				if (window.getComputedStyle(self.powerAction.element).position === 'fixed') {
 					self.element.style.position = 'fixed';
-					self.element.style.left = getComputedStyle(self.powerAction.element).left;
+					self.element.style.left = window.getComputedStyle(self.powerAction.element).left;
 				}
 
 				// Find if the position is out of screen and reposition if needed
