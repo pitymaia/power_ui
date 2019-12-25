@@ -6,8 +6,8 @@ class PowerWindow extends PowerDialogBase {
 
 	_onViewLoad() {
 		// Make it draggable
-		const currentView = document.getElementById(this._viewId);
-		this.element = currentView.getElementsByClassName('pw-window')[0];
+		this.currentView = document.getElementById(this._viewId);
+		this.element = this.currentView.getElementsByClassName('pw-window')[0];
 		this.dragElement();
 
 		if (this._top && this._left) {
@@ -16,9 +16,9 @@ class PowerWindow extends PowerDialogBase {
 		}
 
 		// Make it resizable
-		this.bodyEl = currentView.getElementsByClassName('pw-body')[0];
-		this.resizableEl = currentView.getElementsByClassName('pw-window-resizable')[0];
-		this.titleBarEl = currentView.getElementsByClassName('pw-title-bar')[0];
+		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
+		this.resizableEl = this.currentView.getElementsByClassName('pw-window-resizable')[0];
+		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
 		this.resizeElement();
 
 		if (this._width && this._height) {
@@ -30,13 +30,13 @@ class PowerWindow extends PowerDialogBase {
 
 		this.setBodyHeight();
 
-		super._onViewLoad(currentView);
+		super._onViewLoad(this.currentView);
 	}
 
 	template({$title}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-window pw-window-container">
+		return `<div class="pw-window">
 					<div class="pw-window-resizable">
 						${super.template({$title})}
 					</div>
@@ -71,7 +71,7 @@ class PowerWindow extends PowerDialogBase {
 		this.pos3 = 0;
 		this.pos4 = 0;
 
-		const titleBar = document.getElementsByClassName('pw-title-bar')[0];
+		const titleBar = this.currentView.getElementsByClassName('pw-title-bar')[0];
 		if (titleBar) {
 			// if the title bar existis move from it
 			titleBar.onmousedown = this.dragMouseDown.bind(this);
