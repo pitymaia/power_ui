@@ -28,6 +28,8 @@ class PowerWindow extends PowerDialogBase {
 			this.resizableEl.style.height = this._height;
 		}
 
+		this.setBodyHeight();
+
 		super._onViewLoad(currentView);
 	}
 
@@ -107,10 +109,14 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	closeDragElement() {
-		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
+		this.setBodyHeight();
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
 		document.onmouseup = null;
 		document.onmousemove = null;
+	}
+
+	setBodyHeight() {
+		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
 	}
 }
