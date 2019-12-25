@@ -28,6 +28,7 @@ class PowerWindow extends PowerDialogBase {
 			this.resizableEl.style.height = this._height;
 		}
 
+		super._onViewLoad(currentView);
 	}
 
 	template({$title}) {

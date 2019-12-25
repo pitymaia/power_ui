@@ -1891,6 +1891,19 @@ class PowerController {
 	}
 
 	refresh() {
+		const view = document.getElementById(this._viewId);
+		const container = view.getElementsByClassName('pw-container')[0];
+		const body = view.getElementsByClassName('pw-body')[0];
+		// Register the scroll of some containers
+		if (container) {
+			this._containerScrollTop = container.scrollTop || 0;
+			this._containerScrollLeft = container.scrollLeft || 0;
+		}
+		if (body) {
+			this._bodyScrollTop = body.scrollTop || 0;
+			this._bodyScrollLeft = body.scrollLeft || 0;
+		}
+
 		this.router._refresh(this._viewId);
 	}
 
@@ -5318,6 +5331,16 @@ class PowerDialogBase extends PowerWidget {
 				return true;
 			}
 		}
+		const container = view.getElementsByClassName('pw-container')[0];
+		const body = view.getElementsByClassName('pw-body')[0];
+		if (container) {
+			container.scrollTop = this._containerScrollTop || 0;
+			container.scrollLeft = this._containerScrollLeft || 0;
+		}
+		if (body) {
+			body.scrollTop = this._bodyScrollTop || 0;
+			body.scrollLeft = this._bodyScrollLeft || 0;
+		}
 	}
 
 	$buttons() {
@@ -5495,6 +5518,7 @@ class PowerWindow extends PowerDialogBase {
 			this.resizableEl.style.height = this._height;
 		}
 
+		super._onViewLoad(currentView);
 	}
 
 	template({$title}) {
@@ -6677,7 +6701,7 @@ class SimpleDialog extends PowerConfirm {
 class MyWindow extends PowerWindow {
 
 	init() {
-
+		// this.commitBt = true;
 	}
 
 	ctrl({$powerUi}) {

@@ -360,7 +360,7 @@ class SimpleDialog extends PowerConfirm {
 class MyWindow extends PowerWindow {
 
 	init() {
-
+		// this.commitBt = true;
 	}
 
 	ctrl({$powerUi}) {

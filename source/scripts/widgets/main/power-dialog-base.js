@@ -49,6 +49,16 @@ class PowerDialogBase extends PowerWidget {
 				return true;
 			}
 		}
+		const container = view.getElementsByClassName('pw-container')[0];
+		const body = view.getElementsByClassName('pw-body')[0];
+		if (container) {
+			container.scrollTop = this._containerScrollTop || 0;
+			container.scrollLeft = this._containerScrollLeft || 0;
+		}
+		if (body) {
+			body.scrollTop = this._bodyScrollTop || 0;
+			body.scrollLeft = this._bodyScrollLeft || 0;
+		}
 	}
 
 	$buttons() {
