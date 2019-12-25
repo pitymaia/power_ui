@@ -1,6 +1,6 @@
 class WidgetService extends PowerServices {
 
-	mayAddCtrlParams({params, onCommit, onCancel}) {
+	mayAddCtrlParams({params, onCommit, onCancel, onCancelError, onCommitError}) {
 		if (params === undefined) {
 			params = {};
 		}
@@ -10,63 +10,49 @@ class WidgetService extends PowerServices {
 		if (onCancel) {
 			params.onCancel = onCancel;
 		}
+		if (onCommitError) {
+			params.onCommitError = onCommitError;
+		}
+		if (onCancelError) {
+			params.onCancelError = onCancelError;
+		}
 
 		return params;
 	}
 
-	alert({title, template, ctrl, target, params, controller, onCommit, onCancel, templateUrl}) {
-		this.open({
-			title: title,
-			template: template,
-			templateUrl: templateUrl,
-			ctrl: ctrl,
-			target: target,
-			params: params,
-			controller: controller,
-			kind: 'alert',
-			onCommit: onCommit,
-			onCancel: onCancel,
-		});
+	alert(options) {
+		options.kind = 'alert';
+		this.open(options);
 	}
 
-	confirm({title, template, ctrl, target, params, controller, onCommit, onCancel, templateUrl}) {
-		this.open({
-			title: title,
-			template: template,
-			templateUrl: templateUrl,
-			ctrl: ctrl,
-			target: target,
-			params: params,
-			controller: controller,
-			kind: 'confirm',
-			onCommit: onCommit,
-			onCancel: onCancel,
-		});
+	confirm(options) {
+		options.kind = 'confirm';
+		this.open(options);
 	}
 
-	modal({title, template, ctrl, target, params, controller, onCommit, onCancel, templateUrl}) {
-		this.open({
-			title: title,
-			template: template,
-			templateUrl: templateUrl,
-			ctrl: ctrl,
-			target: target,
-			params: params,
-			controller: controller,
-			kind: 'modal',
-			onCommit: onCommit,
-			onCancel: onCancel,
-		});
+	modal(options) {
+		options.kind = 'modal';
+		this.open(options);
+	}
+	window(options) {
+		options.kind = 'window';
+		this.open(options);
 	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel, templateUrl}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl}) {
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
 		}
 		if (!ctrl && controller && (typeof controller === 'function')) {
 			// Wrap the functions inside an PowerAlert controller
-			params = this.mayAddCtrlParams({params: params, onCommit: onCommit, onCancel: onCancel});
+			params = this.mayAddCtrlParams({
+				params: params,
+				onCommit: onCommit,
+				onCancel: onCancel,
+				onCommitError: onCommitError,
+				onCancelError: onCancelError
+			});
 			ctrl = {
 				component: wrapFunctionInsideDialog({controller: controller, kind: kind, params: params}),
 			};

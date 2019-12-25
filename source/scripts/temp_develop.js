@@ -218,7 +218,7 @@ class PowerOnlyPage extends PowerController {
 		// });
 		const self = this;
 
-		this.$service('widget').modal({
+		this.$service('widget').window({
 			title: 'My Modal',
 			template: `<p>This is a custom modal</p>
 					<p>I love my {{cats.length}} cats multiplied by two: {{cats.length * 2}}</p>
