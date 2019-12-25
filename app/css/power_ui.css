@@ -66,14 +66,21 @@
 /* Menu end*/
 
 /* Dialog-Modal-Window start */
-.pw-modal .pw-window, .pw-dialog .pw-window {
-    position: relative;
+.pw-modal .pw-body, .pw-dialog, .pw-window-resizable {
     background-color: #F5F5F5;
-    overflow:auto;
+}
+.pw-modal .pw-body, .pw-dialog {
+    position: relative;
+    overflow: auto;
     max-height: 90vh;
 }
 .pw-modal-backdrop, .pw-dialog-container {
     position: fixed;
+}
+.pw-window-container {
+    position: absolute;
+}
+.pw-modal-backdrop, .pw-dialog-container, .pw-window-container {
     padding: 1em 0 0 0;
     text-align: center;
     width: 100%;
@@ -89,17 +96,33 @@
     top: 20vh;
     left: 0;
 }
-.pw-modal .pw-window, .pw-modal .pw-title-bar {
+
+.pw-window-container  {
+    top: 0;
+    left: 0;
+}
+.pw-window .pw-window-resizable {
+    position: relative;
+    resize: both;
+    overflow: auto;
+    margin: 0 auto;
+    width: 80%;
+    max-width: 98vw;
+    max-height: 98vh;
+}
+
+.pw-modal .pw-body, .pw-modal .pw-title-bar {
     margin: 0 auto;
     width: 80%;
     max-width: 95vw;
 }
-.pw-dialog .pw-window, .pw-dialog .pw-title-bar {
+
+.pw-dialog .pw-body, .pw-dialog .pw-title-bar {
     margin: 0 auto;
     width: 50em;
     max-width: 95vw;
 }
-.pw-modal .pw-window, .pw-modal .pw-title-bar, .pw-dialog .pw-window, .pw-dialog .pw-title-bar {
+.pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window-resizable {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
 .pw-modal button, .pw-dialog button, .pw-ico {
@@ -109,7 +132,7 @@
 body.modal-open {
     overflow: hidden;
 }
-/* ialog-Modal-Window end */
+/* dialog-Modal-Window end */
 
 /* Start All dialogs */
 .pw-title-bar {

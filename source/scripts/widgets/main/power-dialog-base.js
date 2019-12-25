@@ -88,7 +88,7 @@ class PowerDialogBase extends PowerWidget {
 					<span class="pw-title-bar-label">${this.$title}</span>
 					<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
 				</div>
-				<div class="pw-window">
+				<div class="pw-body">
 					<div class="pw-container" data-pw-content>
 					</div>
 					<div class="pw-container">

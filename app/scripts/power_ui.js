@@ -5357,7 +5357,7 @@ class PowerDialogBase extends PowerWidget {
 					<span class="pw-title-bar-label">${this.$title}</span>
 					<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
 				</div>
-				<div class="pw-window">
+				<div class="pw-body">
 					<div class="pw-container" data-pw-content>
 					</div>
 					<div class="pw-container">
@@ -5472,60 +5472,74 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	_onViewLoad() {
-		// Make the DIV element draggable:
+		// Make it draggable:
 		const currentView = document.getElementById(this._viewId);
-		const currentWindow = currentView.getElementsByClassName('pw-dialog-container')[0];
-		console.log('!!!!!!!!!!!! currentWindow', currentWindow);
-		this.dragElement(currentWindow);
+		this.element = currentView.getElementsByClassName('pw-window-container')[0];
+		this.dragElement();
+
+		if (this._top && this._left) {
+			this.element.style.top = this._top;
+			this.element.style.left = this._left;
+		}
 	}
 
 	template({$title}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-dialog pw-dialog-container">
-					${super.template({$title})}
+		return `<div class="pw-window pw-window-container">
+					<div class="pw-window-resizable">
+						${super.template({$title})}
+					</div>
 				</div>`;
 	}
 
-	dragElement(elmnt) {
-		var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-		if (document.getElementById(elmnt.id + "header")) {
-			// if present, the header is where you move the DIV from:
-			document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+	dragElement() {
+		this.pos1 = 0;
+		this.pos2 = 0;
+		this.pos3 = 0;
+		this.pos4 = 0;
+
+		const titleBar = document.getElementsByClassName('pw-title-bar')[0];
+		if (titleBar) {
+			// if the title bar existis move the from it
+			titleBar.onmousedown = this.dragMouseDown.bind(this);
 		} else {
-			// otherwise, move the DIV from anywhere inside the DIV:
-			elmnt.onmousedown = dragMouseDown;
+			// or move it from anywhere inside the container
+			this.element.onmousedown = this.dragMouseDown.bind(this);
 		}
+	}
 
-		function dragMouseDown(e) {
-			e = e || window.event;
-			e.preventDefault();
-			// get the mouse cursor position at startup:
-			pos3 = e.clientX;
-			pos4 = e.clientY;
-			document.onmouseup = closeDragElement;
-			// call a function whenever the cursor moves:
-			document.onmousemove = elementDrag;
-		}
+	elementDrag(event) {
+		event = event || window.event;
+		event.preventDefault();
+		// calculate the new cursor position:
+		this.pos1 = this.pos3 - event.clientX;
+		this.pos2 = this.pos4 - event.clientY;
+		this.pos3 = event.clientX;
+		this.pos4 = event.clientY;
+		// set the element's new position:
+		this.element.style.top = (this.element.offsetTop - this.pos2) + 'px';
+		this.element.style.left = (this.element.offsetLeft - this.pos1) + 'px';
+		this._top = this.element.style.top;
+		this._left = this.element.style.left;
+	}
 
-		function elementDrag(e) {
-			e = e || window.event;
-			e.preventDefault();
-			// calculate the new cursor position:
-			pos1 = pos3 - e.clientX;
-			pos2 = pos4 - e.clientY;
-			pos3 = e.clientX;
-			pos4 = e.clientY;
-			// set the element's new position:
-			elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-		}
+	dragMouseDown(event) {
+		event = event || window.event;
+		event.preventDefault();
+		// get initial mouse cursor position
+		this.pos3 = event.clientX;
+		this.pos4 = event.clientY;
+		// Cancel if user giveup
+		document.onmouseup = this.closeDragElement.bind(this);
+		// call a function when the cursor moves
+		document.onmousemove = this.elementDrag.bind(this);
+	}
 
-		function closeDragElement() {
-			// stop moving when mouse button is released:
-			document.onmouseup = null;
-			document.onmousemove = null;
-		}
+	closeDragElement() {
+		// stop moving when mouse button is released:
+		document.onmouseup = null;
+		document.onmousemove = null;
 	}
 }
 
