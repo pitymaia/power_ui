@@ -50,6 +50,8 @@ class PowerWindow extends PowerDialogBase {
 
 
 	resizeMouseDown() {
+		// Re-order the windows z-index
+		this.windowsOrder();
 		// Cancel if user giveup
 		document.onmouseup = this.closeDragElement.bind(this);
 		// call a function when the cursor moves
@@ -84,6 +86,8 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
+		// Re-order the windows z-index
+		this.windowsOrder();
 		// get initial mouse cursor position
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
@@ -118,5 +122,16 @@ class PowerWindow extends PowerDialogBase {
 
 	setBodyHeight() {
 		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
+	}
+
+	windowsOrder() {
+		const windows = document.getElementsByClassName('pw-window');
+		const currentWindow = this.currentView.getElementsByClassName('pw-window')[0];
+		let zindex = 1002;
+		for (const win of windows) {
+			win.style.zIndex = zindex;
+			zindex = zindex + 1;
+		}
+		currentWindow.style.zIndex = zindex;
 	}
 }
