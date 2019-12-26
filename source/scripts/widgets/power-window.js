@@ -30,6 +30,8 @@ class PowerWindow extends PowerDialogBase {
 
 		this.setBodyHeight();
 
+		this.windowsOrder();
+
 		super._onViewLoad(this.currentView);
 	}
 
@@ -125,13 +127,37 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	windowsOrder() {
-		const windows = document.getElementsByClassName('pw-window');
-		const currentWindow = this.currentView.getElementsByClassName('pw-window')[0];
-		let zindex = 1002;
-		for (const win of windows) {
-			win.style.zIndex = zindex;
-			zindex = zindex + 1;
+		const self = this;
+		// The timeout avoid call the windowOrder multiple times (one for each opened window)
+		if (this.$powerUi._windowsOrderTimeout) {
+			return;
 		}
-		currentWindow.style.zIndex = zindex;
+		this.$powerUi._windowsOrderInterval = setTimeout(function () {
+			let windows = document.getElementsByClassName('pw-window');
+			const currentWindow = self.currentView.getElementsByClassName('pw-window')[0];
+
+			let zindex = 1002;
+			const windowsTosort = {};
+			for (const win of windows) {
+				let winZindex = parseInt(win.style.zIndex || zindex);
+				if (win !== currentWindow) {
+					windowsTosort[winZindex] = win;
+					if (winZindex >= zindex) {
+						// Set zindex to it's bigger value
+						zindex = winZindex + 1;
+					}
+				}
+			}
+			// Sort it
+			const sorted = Object.keys(windowsTosort).sort((a,b) => parseInt(a)-parseInt(b));
+
+			zindex = 1002;
+			// Reorder the real windows z-index
+			for (const key of sorted) {
+				windowsTosort[key].style.zIndex = zindex;
+				zindex = zindex + 1;
+			}
+			currentWindow.style.zIndex = zindex + 1;
+		}, 10);
 	}
 }
