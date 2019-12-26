@@ -96,12 +96,8 @@
 
 .pw-window  {
     position: fixed;
-    top: 0;
-    left: 0;
-    margin: 0;
-    text-align: center;
-    max-width: 95vw;
-    max-height: 98vh;
+    top: 10px;
+    left: 10px;
     z-index: 1001;
 }
 .pw-window .pw-body {
@@ -110,14 +106,17 @@
     max-width: 95vw;
     max-height: 98vh;
 }
-.pw-window .pw-window-resizable {
-    position: relative;
-    margin: 0 auto;
-    width: 90%;
+.pw-window, .pw-window-resizable {
     max-width: 95vw;
     max-height: 98vh;
+    text-align: center;
 }
-
+.pw-window-resizable {
+    overflow: hidden;
+}
+.pw-window .pw-title-bar {
+    cursor: grabbing;
+}
 .pw-modal .pw-body, .pw-modal .pw-title-bar {
     margin: 0 auto;
     width: 80%;
@@ -132,7 +131,7 @@
 .pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window-resizable {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
-.pw-modal button, .pw-dialog button, .pw-ico {
+.pw-modal button, .pw-dialog button, .pw-window button, .pw-ico {
     margin-right: 0.5em;
 }
 
