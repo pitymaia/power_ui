@@ -1,11 +1,15 @@
 class PowerDialogBase extends PowerWidget {
-	constructor({$powerUi}) {
+	constructor({$powerUi, noEsc}) {
 		super({$powerUi: $powerUi});
 
+		if (noEsc) {
+			return;
+		}
 		const self = this;
 		this._closeWindow = function() {
 			self._cancel();
 		}
+
 		$powerUi._events['Escape'].subscribe(this._closeWindow);
 	}
 	// Allow async calls to implement onCancel

@@ -139,6 +139,7 @@ class FrontPage extends PowerController {
 
 class PowerOnlyPage extends PowerController {
 	ctrl({lock, $powerUi}) {
+		this.next = 0;
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
 			{name: 'Lion', gender: 'male'},
@@ -196,9 +197,11 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openWindow() {
+		const self = this;
 		this.openRoute({
 			routeId: 'some-window',
 			target: '_blank',
+			params: {id: self.cats[self.next].name},
 		});
 	}
 
@@ -364,6 +367,8 @@ class MyWindow extends PowerWindow {
 	}
 
 	ctrl({$powerUi}) {
+		this.$powerUi.controllers['main-view'].instance.next = this.$powerUi.controllers['main-view'].instance.next +1;
+		console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
 		console.log('Window is here!');
 	}
 
@@ -556,7 +561,7 @@ const routes = [
 		},
 		{
 			id: 'some-window',
-			route: 'window',
+			route: 'window/:id',
 			title: 'My Window',
 			templateUrl: `some-window.html`,
 			ctrl: {

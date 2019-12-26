@@ -54,6 +54,7 @@ class PowerController {
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+		console.log('current route', route);
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';
@@ -70,7 +71,6 @@ class PowerController {
 			}
 		}
 		this.router.navigate({hash: newHash, title: route.title || null});
-		console.log('route', this.$powerUi.router.routes);
 	}
 
 	safeEval(string) {

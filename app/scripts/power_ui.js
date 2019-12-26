@@ -1524,7 +1524,9 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 
 		for (const key of Object.keys(this.controllers || {})) {
-			this.callOnViewLoad(this, key);
+			if (key !== '$routeSharedScope') {
+				this.callOnViewLoad(this, key);
+			}
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -1538,10 +1540,12 @@ class PowerUi extends _PowerUiBase {
 	callOnViewLoad(self, viewId) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance) {
 			if (self.controllers[viewId].instance.onViewLoad) {
-				self.controllers[viewId].instance.onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+				self.controllers[viewId].instance.onViewLoad(
+					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
 			}
 			if (self.controllers[viewId].instance._onViewLoad) {
-				self.controllers[viewId].instance._onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+				self.controllers[viewId].instance._onViewLoad(
+					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
 			}
 		}
 	}
@@ -1595,10 +1599,10 @@ class PowerUi extends _PowerUiBase {
 
 	// Run the controller instance for the route
 	runRouteController() {
+		let v = 1;
 		for (const ctrl of this.ctrlWaitingToRun) {
+			v = v+1;
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
-				this.controllers[ctrl.viewId].instance._viewId = ctrl.viewId;
-				this.controllers[ctrl.viewId].instance._routeId = ctrl.routeId;
 				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
 			}
 		}
@@ -1920,6 +1924,7 @@ class PowerController {
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+		console.log('current route', route);
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';
@@ -1936,7 +1941,6 @@ class PowerController {
 			}
 		}
 		this.router.navigate({hash: newHash, title: route.title || null});
-		console.log('route', this.$powerUi.router.routes);
 	}
 
 	safeEval(string) {
@@ -2460,16 +2464,22 @@ class Router {
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
+		const _viewId = this.routes[routeId].viewId || viewId;
 		if (ctrl) {
 			// Register the controller with $powerUi
-			this.$powerUi.controllers[viewId] = ctrl;
+			this.$powerUi.controllers[_viewId] = {
+				component: ctrl.component,
+				params: ctrl.params,
+			};
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
-			$params.viewId = viewId;
+			$params.viewId = _viewId;
 			$params.routeId = routeId;
 			$params.title = title;
-			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
+			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
 		}
 
 		// If have a template to load let's do it
@@ -2481,7 +2491,7 @@ class Router {
 			if (this.routes[routeId].templateUrl && this.routes[routeId].templateIsCached !== true) {
 				this.$powerUi.loadTemplateUrl({
 					template: this.routes[routeId].template,
-					viewId: this.routes[routeId].viewId || viewId,
+					viewId: _viewId,
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
@@ -5267,13 +5277,17 @@ class PowerWidget extends PowerController {
 }
 
 class PowerDialogBase extends PowerWidget {
-	constructor({$powerUi}) {
+	constructor({$powerUi, noEsc}) {
 		super({$powerUi: $powerUi});
 
+		if (noEsc) {
+			return;
+		}
 		const self = this;
 		this._closeWindow = function() {
 			self._cancel();
 		}
+
 		$powerUi._events['Escape'].subscribe(this._closeWindow);
 	}
 	// Allow async calls to implement onCancel
@@ -5489,13 +5503,13 @@ class PowerModal extends PowerDialogBase {
 
 class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+		super({$powerUi: $powerUi, noEsc: true});
 		this.isWindow = true;
 	}
 
-	_onViewLoad() {
+	_onViewLoad(view) {
 		// Make it draggable
-		this.currentView = document.getElementById(this._viewId);
+		this.currentView = view;
 		this.element = this.currentView.getElementsByClassName('pw-window')[0];
 		this.dragElement();
 
@@ -6500,6 +6514,7 @@ class FrontPage extends PowerController {
 
 class PowerOnlyPage extends PowerController {
 	ctrl({lock, $powerUi}) {
+		this.next = 0;
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
 			{name: 'Lion', gender: 'male'},
@@ -6557,9 +6572,11 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openWindow() {
+		const self = this;
 		this.openRoute({
 			routeId: 'some-window',
 			target: '_blank',
+			params: {id: self.cats[self.next].name},
 		});
 	}
 
@@ -6725,6 +6742,8 @@ class MyWindow extends PowerWindow {
 	}
 
 	ctrl({$powerUi}) {
+		this.$powerUi.controllers['main-view'].instance.next = this.$powerUi.controllers['main-view'].instance.next +1;
+		console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
 		console.log('Window is here!');
 	}
 
@@ -6917,7 +6936,7 @@ const routes = [
 		},
 		{
 			id: 'some-window',
-			route: 'window',
+			route: 'window/:id',
 			title: 'My Window',
 			templateUrl: `some-window.html`,
 			ctrl: {

@@ -424,16 +424,22 @@ class Router {
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
+		const _viewId = this.routes[routeId].viewId || viewId;
 		if (ctrl) {
 			// Register the controller with $powerUi
-			this.$powerUi.controllers[viewId] = ctrl;
+			this.$powerUi.controllers[_viewId] = {
+				component: ctrl.component,
+				params: ctrl.params,
+			};
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
-			$params.viewId = viewId;
+			$params.viewId = _viewId;
 			$params.routeId = routeId;
 			$params.title = title;
-			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
+			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
 		}
 
 		// If have a template to load let's do it
@@ -445,7 +451,7 @@ class Router {
 			if (this.routes[routeId].templateUrl && this.routes[routeId].templateIsCached !== true) {
 				this.$powerUi.loadTemplateUrl({
 					template: this.routes[routeId].template,
-					viewId: this.routes[routeId].viewId || viewId,
+					viewId: _viewId,
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,

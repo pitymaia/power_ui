@@ -201,7 +201,9 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 
 		for (const key of Object.keys(this.controllers || {})) {
-			this.callOnViewLoad(this, key);
+			if (key !== '$routeSharedScope') {
+				this.callOnViewLoad(this, key);
+			}
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -215,10 +217,12 @@ class PowerUi extends _PowerUiBase {
 	callOnViewLoad(self, viewId) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance) {
 			if (self.controllers[viewId].instance.onViewLoad) {
-				self.controllers[viewId].instance.onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+				self.controllers[viewId].instance.onViewLoad(
+					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
 			}
 			if (self.controllers[viewId].instance._onViewLoad) {
-				self.controllers[viewId].instance._onViewLoad(self.powerTree.allPowerObjsById[viewId].$shared.element);
+				self.controllers[viewId].instance._onViewLoad(
+					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
 			}
 		}
 	}
@@ -272,10 +276,10 @@ class PowerUi extends _PowerUiBase {
 
 	// Run the controller instance for the route
 	runRouteController() {
+		let v = 1;
 		for (const ctrl of this.ctrlWaitingToRun) {
+			v = v+1;
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
-				this.controllers[ctrl.viewId].instance._viewId = ctrl.viewId;
-				this.controllers[ctrl.viewId].instance._routeId = ctrl.routeId;
 				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
 			}
 		}

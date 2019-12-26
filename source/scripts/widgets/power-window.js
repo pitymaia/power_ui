@@ -1,12 +1,12 @@
 class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+		super({$powerUi: $powerUi, noEsc: true});
 		this.isWindow = true;
 	}
 
-	_onViewLoad() {
+	_onViewLoad(view) {
 		// Make it draggable
-		this.currentView = document.getElementById(this._viewId);
+		this.currentView = view;
 		this.element = this.currentView.getElementsByClassName('pw-window')[0];
 		this.dragElement();
 
