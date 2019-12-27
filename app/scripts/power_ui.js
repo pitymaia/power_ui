@@ -5324,13 +5324,6 @@ class PowerDialogBase extends PowerWidget {
 	}
 
 	_onViewLoad(view) {
-		const buttons = view.querySelectorAll('[data-pow-click]');
-		for (const bt of buttons) {
-			if (bt.getAttribute('data-pow-click').includes('_commit')) {
-				bt.focus();
-				return true;
-			}
-		}
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
 		if (container) {
@@ -5495,7 +5488,7 @@ class PowerModal extends PowerDialogBase {
 		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-modal pw-modal-backdrop" data-pow-event onclick="clickOutside(event)">
+		return `<div class="pw-modal pw-modal-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}" data-pow-event onclick="clickOutside(event)">
 					${super.template({$title})}
 				</div>`;
 	}
@@ -5541,7 +5534,7 @@ class PowerWindow extends PowerDialogBase {
 	template({$title}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-window">
+		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
 					<div class="pw-window-resizable">
 						${super.template({$title})}
 					</div>

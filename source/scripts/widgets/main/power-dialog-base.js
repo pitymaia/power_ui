@@ -46,13 +46,6 @@ class PowerDialogBase extends PowerWidget {
 	}
 
 	_onViewLoad(view) {
-		const buttons = view.querySelectorAll('[data-pow-click]');
-		for (const bt of buttons) {
-			if (bt.getAttribute('data-pow-click').includes('_commit')) {
-				bt.focus();
-				return true;
-			}
-		}
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
 		if (container) {

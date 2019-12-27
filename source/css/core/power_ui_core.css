@@ -100,6 +100,10 @@
     left: 10px;
     z-index: 1001;
 }
+.pw-window.pw-touchdevice {
+    top: 0;
+    left: 0;
+}
 .pw-window .pw-body {
     resize: both;
     overflow: auto;
@@ -110,6 +114,14 @@
     max-width: 95vw;
     max-height: 98vh;
     text-align: center;
+}
+.pw-window.pw-touchdevice .pw-body, .pw-window.pw-touchdevice .pw-window-resizable {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
 }
 .pw-window-resizable {
     overflow: hidden;
@@ -122,7 +134,10 @@
     width: 80%;
     max-width: 95vw;
 }
-
+.pw-modal.pw-touchdevice .pw-body, .pw-modal.pw-touchdevice .pw-title-bar {
+    width: 95%;
+    max-width: 100vw;
+}
 .pw-dialog .pw-body, .pw-dialog .pw-title-bar {
     margin: 0 auto;
     width: 50em;
