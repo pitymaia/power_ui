@@ -1455,7 +1455,8 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services;
+		this._services = config.services || {};
+		this._addServices();
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
@@ -1464,6 +1465,16 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	_addService(key, service) {
+		this._services[key] = service;
+	}
+	_addServices() {
+		this._addService('widget', {
+			component: WidgetService,
+			// params: {},
+		});
 	}
 
 	_$dispatchPowerEvent(event, self, viewId, name) {
@@ -1757,6 +1768,8 @@ class PowerUi extends _PowerUiBase {
 	}
 }
 
+export { PowerUi };
+
 class PowerServices {
 	constructor({$powerUi, $ctrl}) {
 		this.$powerUi = $powerUi;
@@ -1947,6 +1960,8 @@ class PowerController {
 		return this.$powerUi.safeEval({text: string, scope: this});
 	}
 }
+
+export { PowerController };
 
 class Request {
 	constructor(config) {
@@ -5271,6 +5286,8 @@ class PowerWidget extends PowerController {
     }
 }
 
+export { PowerWidget };
+
 class PowerDialogBase extends PowerWidget {
 	constructor({$powerUi, noEsc}) {
 		super({$powerUi: $powerUi});
@@ -5378,6 +5395,8 @@ class PowerDialogBase extends PowerWidget {
 	}
 }
 
+export { PowerDialogBase };
+
 class PowerDialog extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
@@ -5465,6 +5484,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 	}
 }
 
+export { PowerDialog, PowerAlert, PowerConfirm };
+
 class PowerModal extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
@@ -5488,6 +5509,8 @@ class PowerModal extends PowerDialogBase {
 				</div>`;
 	}
 }
+
+export { PowerModal };
 
 class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi}) {
@@ -5652,6 +5675,8 @@ class PowerWindow extends PowerDialogBase {
 		}, 10);
 	}
 }
+
+export { PowerWindow };
 
 class AccordionModel {
 	constructor(ctx) {
