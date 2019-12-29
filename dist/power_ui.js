@@ -176,6 +176,7 @@ const _Unique = { // produce unique IDs
 	next: () => ++_Unique.n,
 	domID: (tagName) => `_pow${tagName ? '_' + tagName : 'er'}_${_Unique.next()}`,
 	scopeID: () => `_scope_${_Unique.next()}`,
+	last: () => _Unique.n,
 };
 
 
@@ -197,6 +198,13 @@ class UEvent {
 
 	broadcast() { // Accepts arguments.
 		for (const o of this.observers) {
+			o.fn.apply(o.ctx, o.arguments);
+		}
+	}
+	// Broadcast only to the last item in array
+	popBroadcast() { // Accepts arguments.
+		if (this.observers.length > 0) {
+			const o = this.observers[this.observers.length - 1];
 			o.fn.apply(o.ctx, o.arguments);
 		}
 	}
@@ -399,36 +407,11 @@ class PowerTree {
 		this.buildAndInterpolate(document);
 	}
 
-	get rootCompilers() {
-		const rootCompilers = {};
-		for (const id of Object.keys(this.allPowerObjsById || {})) {
-			// TODO: add this to condition? && this.allPowerObjsById[id].$shared.element
-			// TODO: We avoid problems with powEvent in a hard coded way by filtering it out... fix it.
-			if (this.allPowerObjsById[id] && this.allPowerObjsById[id].$shared.isRootCompiler && !this.allPowerObjsById[id].powEvent) {
-				rootCompilers[id] = this.allPowerObjsById[id].$shared.originalInnerHTML;
-			}
-		}
-		return rootCompilers;
-	}
-
 	removeAllEvents() {
 		for (const id of Object.keys(this.allPowerObjsById || {})) {
 			this.removeEventsOfObject(id);
 		}
 		UEvent.index = {};
-	}
-
-	resetRootCompilers() {
-		for (const id of Object.keys(this.rootCompilers)) {
-			if (this.allPowerObjsById[id]) {
-				// Remove events of this objects
-				this.removeEventsOfObject(id);
-				// delete all inner this.allPowerObjsById[id]
-				this.allPowerObjsById[id]['$shared'].removeInnerElementsFromPower();
-				const element = document.getElementById(id);
-				element.innerHTML = this.rootCompilers[id];
-			}
-		}
 	}
 
 	removeEventsOfObject(id) {
@@ -488,42 +471,7 @@ class PowerTree {
 			const body = document.getElementsByTagName('BODY')[0];
 			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this);
 		}
-
-		// if (!refresh) {
-		// 	const tempTree = {pending: []};
-		// 	const body = document.getElementsByTagName('BODY')[0];
-		// 	// body.innerHTML = this.$powerUi.interpolation.interpolationToPowText(body.innerHTML, tempTree, this);
-		// 	for (const id of tempTree.pending) {
-		// 		this.addPowTextObject(id);
-		// 	}
-		// }
 	}
-
-	// Create individual pow-eval powerObject instances of element already in the DOM and add it to this.allPowerObjectsById
-	// addPowTextObject(id) {
-	// 	const newNode = document.getElementById(id);
-	// 	// Search a powerElement parent of currentObj up DOM if exists
-	// 	const currentParentElement = this._getParentElementFromChildElement(newNode);
-	// 	// Get the main and view elements of the currentObj
-	// 	const currentMainElement = this._getMainElementFromChildElement(newNode);
-	// 	const isMain = this.datasetIsMain(newNode.dataset);
-	// 	const currentViewElement = this._getViewElementFromChildElement(newNode);
-	// 	// Get any possible rootCompiler
-	// 	const currentRootCompilerElement = this._getRootCompilerElementFromChildElement(newNode, this);
-	// 	const isRootCompiler = (!currentRootCompilerElement && this.datasetIsCompiler(newNode.dataset));
-	// 	// Make the instance and add the powerObject into a list ordered by id
-	// 	this._instanciateObj({
-	// 		currentElement: newNode,
-	// 		datasetKey: 'powEval',
-	// 		main: currentMainElement,
-	// 		view: currentViewElement,
-	// 		parent: currentParentElement,
-	// 		rootCompiler: currentRootCompilerElement,
-	// 		isRootCompiler: isRootCompiler,
-	// 		isMain: isMain,
-	// 		originalInnerHTML: newNode.innerHTML,
-	// 	});
-	// }
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
 		// let canInstanciatePendings = false;
@@ -682,26 +630,14 @@ class PowerTree {
 			rootCompiler: currentRootCompilerElement,
 		}
 	}
-	createAndInitObjectsFromCurrentNode({id, refresh}) {
+	createAndInitObjectsFromCurrentNode({id}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
-		if (!refresh) {
-			const node = document.getElementById(id);
-			node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
-		}
-		// Replace any interpolation with pow-eval
-		// if (!refresh) {
-		// 	const node = document.getElementById(id);
-		// 	const tempTree = {pending: []};
-		// 	// node.innerHTML = this.$powerUi.interpolation.interpolationToPowText(node.innerHTML, tempTree, this);
-		// 	for (const id of tempTree.pending) {
-		// 		this.addPowTextObject(id);
-		// 	}
-		// }
+		const node = document.getElementById(id);
+		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
-
 	}
 
 	_compile({currentNode, datasetKey, isInnerCompiler, view}) {
@@ -1250,8 +1186,9 @@ class PowEvent extends _PowerBasicElementWithEvents {
         for (const attr of this.element.attributes) {
             if (attr.name.includes('on')) {
                 const name = attr.name.slice(2, attr.name.length);
-                this.element.setAttribute(`data-pow-${name}`, encodeURIComponent(attr.value));
-                attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+                this.element.setAttribute(`data-pow-${name}`, this.$powerUi.interpolation.encodeHtml(attr.value));
+                // attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
+                attr.value = `window._$dispatchPowerEvent(event, this, '${view.id}', '${name}')`;
             }
         }
     }
@@ -1276,7 +1213,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 
-		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
+		const parts = this.$powerUi.interpolation.decodeHtml(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
 		// Remove parts[0]
@@ -1314,7 +1251,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
-				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+				newValue: this.$powerUi.interpolation.encodeHtml(`_tempScope['${scope}']`),
 			});
 
 		}
@@ -1344,7 +1281,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
-				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+				newValue: this.$powerUi.interpolation.encodeHtml(`_tempScope['${scope}']`),
 			});
 		}
 		this.element.innerHTML = newHtml;
@@ -1367,7 +1304,7 @@ class PowIf extends _PowerBasicElementWithEvents {
 	compile({view}) {
 		// The scope of the controller of the view of this element
 		const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
-		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: ctrlScope});
+		const value = this.$powerUi.safeEval({text: this.$powerUi.interpolation.decodeHtml(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: ctrlScope});
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
@@ -1504,36 +1441,57 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
 				$waitingToDelete: [],
 			},
 		};
+		this._Unique = _Unique;
 		this.addScopeEventListener();
+		this.numberOfopenModals = 0;
 		this.ctrlWaitingToRun = [];
 		this.config = config;
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
+		this._services = config.services;
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
+		this._events['Escape'] = new UEvent();
 		this.request = new Request(config);
 		this.router = new Router(config, this); // Router calls this.init();
+
+		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
-	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
+
+	_$dispatchPowerEvent(event, self, viewId, name) {
+		document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: viewId, elementId: self.id, attrName: name, event: event}}));
+	}
+
+	_keyUp(event) {
+		if (event.key == 'Escape' || event.keyCode == 27) {
+			this._events['Escape'].popBroadcast();
+		}
+	}
 	addScopeEventListener() {
 		document.removeEventListener('pwScope', this.pwScope.bind(this), false);
 		document.addEventListener('pwScope', this.pwScope.bind(this), false);
 	}
 
+	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
+	// This also add the Event to controller scope so it can be evaluated and passed to the funcion on data-pow-event as argument
 	pwScope(event) {
 		const self = this;
-		// console.log('ecope event', event.detail, event);
 		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
+		if (ctrlScope === false) {
+			return;
+		}
+		ctrlScope.event = event.detail.event;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
-		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;
+		const text = (element && attrName) ? this.interpolation.decodeHtml(element.getAttribute(attrName)) : false;
 
 		if (text) {
 			self.safeEval({text: text, $powerUi: self, scope: ctrlScope});
@@ -1565,8 +1523,10 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.waitingInit = [];
 
-		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
-			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
+		for (const key of Object.keys(this.controllers || {})) {
+			if (key !== '$routeSharedScope') {
+				this.callOnViewLoad(this, key);
+			}
 		}
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -1577,6 +1537,19 @@ class PowerUi extends _PowerUiBase {
 		this.router._reload();
 	}
 
+	callOnViewLoad(self, viewId) {
+		if (self.controllers[viewId] && self.controllers[viewId].instance) {
+			if (self.controllers[viewId].instance.onViewLoad) {
+				self.controllers[viewId].instance.onViewLoad(
+					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
+			}
+			if (self.controllers[viewId].instance._onViewLoad) {
+				self.controllers[viewId].instance._onViewLoad(
+					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
+			}
+		}
+	}
+
 	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
@@ -1584,62 +1557,59 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 
-		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.onViewLoad) {
-			this.controllers[viewId].instance.onViewLoad(this.powerTree.allPowerObjsById[viewId].$shared.element);
-		}
+		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
 	}
 
-	hardRefresh({node, view}) {
-		node = node || document;
-		const t0 = performance.now();
-		this.powerTree.resetRootCompilers();
-		// Remove all the events
-		this.powerTree.removeAllEvents();
-
-		this.powerTree.allPowerObjsById = {};
-		this.powerTree.buildAndInterpolate(node, true);
-		this.powerTree._callInit();
-
-		const t1 = performance.now();
-		console.log('hardRefresh run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
-	softRefresh(node) {
-		const t0 = performance.now();
-		this.powerTree.resetRootCompilers();
-		for (const id of Object.keys(this.powerTree.rootCompilers || {})) {
-			// delete this.powerTree.allPowerObjsById[id];
-			this.powerTree.createAndInitObjectsFromCurrentNode({id: id, refresh: true});
-		}
-		const t1 = performance.now();
-		console.log('softRefresh run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
-		// Avoid blink uninterpolated data before call compile and interpolate
-		view.style.visibility = 'hidden';
-		this.waitingViews = this.waitingViews + 1;
+		this.addSpinnerAndHideView(view);
 		this.waitingInit.push({node: view, viewId: viewId});
 		return view;
 	}
 
+	addSpinnerAndHideView(view) {
+		// Only add one spinner when the first view is added to waitingViews
+		if (!document.getElementById('_power-spinner')) {
+			// Backdrop
+			const spinnerBackdrop = document.createElement('div');
+			spinnerBackdrop.classList.add('pw-spinner-backdrop');
+			spinnerBackdrop.id = '_power-spinner';
+
+			// Spinner label
+			const spinnerLabel = document.createElement('p');
+			spinnerLabel.classList.add('pw-spinner-label');
+			spinnerLabel.innerText = this.config.spinnerLabel || 'LOADING';
+			spinnerBackdrop.appendChild(spinnerLabel);
+
+			// Spinner
+			const spinner = document.createElement('div');
+			spinner.classList.add('pw-spinner');
+			spinnerBackdrop.appendChild(spinner);
+
+			// Add to body
+			document.body.appendChild(spinnerBackdrop);
+		}
+		// Avoid blink uninterpolated data before call compile and interpolate
+		view.style.visibility = 'hidden';
+		this.waitingViews = this.waitingViews + 1;
+	}
+
 	// Run the controller instance for the route
 	runRouteController() {
+		let v = 1;
 		for (const ctrl of this.ctrlWaitingToRun) {
+			v = v+1;
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
-				this.controllers[ctrl.viewId].instance._viewId = ctrl.viewId;
-				this.controllers[ctrl.viewId].instance._routeId = ctrl.routeId;
 				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
 			}
 		}
 		this.ctrlWaitingToRun = [];
 	}
 
-	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes}) {
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
@@ -1648,8 +1618,15 @@ class PowerUi extends _PowerUiBase {
 				status: "Loading page",
 				withCredentials: false,
 		}).then(function (response, xhr) {
-			view.innerHTML = xhr.responseText;
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			template = xhr.responseText;
+			self.buildViewTemplateAndMayCallInit({
+				self: self,
+				view: view,
+				template: template,
+				routeId: routeId,
+				viewId: viewId,
+				title: title,
+			});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
 			if (routeConfig.avoidCacheTemplate !== true) {
@@ -1663,15 +1640,35 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	loadTemplate({template, viewId, currentRoutes, routeId, routes}) {
+	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		view.innerHTML = template;
-		this.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId});
+		this.buildViewTemplateAndMayCallInit({
+			self: this,
+			view: view,
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			title: title,
+		});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId, viewId}) {
+	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing}) {
+		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
+			if (!refreshing && self.controllers[viewId].instance.init) {
+				self.controllers[viewId].instance.init();
+			}
+			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
+		}
+		view.innerHTML = template;
+		self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId, refreshing: refreshing});
+	}
+
+	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing}) {
 		const self = this;
-		self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
+		if (!refreshing) {
+			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
+		}
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
@@ -1689,6 +1686,8 @@ class PowerUi extends _PowerUiBase {
 						viewId: viewId,
 					});
 				}
+				const spinner = document.getElementById('_power-spinner')
+				spinner.parentNode.removeChild(spinner);
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
@@ -1758,29 +1757,175 @@ class PowerUi extends _PowerUiBase {
 	}
 }
 
+class PowerServices {
+	constructor({$powerUi, $ctrl}) {
+		this.$powerUi = $powerUi;
+		this.$ctrl = $ctrl;
+	}
+}
+
+class WidgetService extends PowerServices {
+
+	mayAddCtrlParams({params, onCommit, onCancel, onCancelError, onCommitError}) {
+		if (params === undefined) {
+			params = {};
+		}
+		if (onCommit) {
+			params.onCommit = onCommit;
+		}
+		if (onCancel) {
+			params.onCancel = onCancel;
+		}
+		if (onCommitError) {
+			params.onCommitError = onCommitError;
+		}
+		if (onCancelError) {
+			params.onCancelError = onCancelError;
+		}
+
+		return params;
+	}
+
+	alert(options) {
+		options.kind = 'alert';
+		this.open(options);
+	}
+
+	confirm(options) {
+		options.kind = 'confirm';
+		this.open(options);
+	}
+
+	modal(options) {
+		options.kind = 'modal';
+		this.open(options);
+	}
+	window(options) {
+		options.kind = 'window';
+		this.open(options);
+	}
+
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl}) {
+		// Allow to create some empty controller so it can open without define one
+		if (!ctrl && !controller) {
+			controller = function () {};
+		}
+		if (!ctrl && controller && (typeof controller === 'function')) {
+			// Wrap the functions inside an PowerAlert controller
+			params = this.mayAddCtrlParams({
+				params: params,
+				onCommit: onCommit,
+				onCancel: onCancel,
+				onCommitError: onCommitError,
+				onCancelError: onCancelError
+			});
+			ctrl = {
+				component: wrapFunctionInsideDialog({controller: controller, kind: kind, params: params}),
+			};
+		}
+		if (ctrl.params === undefined) {
+			ctrl.params = {};
+		}
+		// Create a new volatile then open it
+		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;
+		// Register the route for remotion with the controller
+		this.$ctrl.volatileRouteIds.push(routeId);
+		this._open({
+			routeId: routeId,
+			target: target || '_blank',
+			title: title,
+			template: template,
+			templateUrl: templateUrl,
+			ctrl: ctrl,
+			params: params,
+		});
+	}
+
+	_open({routeId, params, target, title, template, ctrl, templateUrl}) {
+		// Add it as a hidden route
+		const newRoute = {
+			id: routeId,
+			title: title,
+			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
+			template: templateUrl || template,
+			templateUrl: templateUrl,
+			hidden: true,
+			ctrl: ctrl,
+			isVolatile: true,
+		};
+
+		this.$powerUi.router.routes[routeId] = newRoute;
+
+		// Now open the new route
+		this.$powerUi.router.openRoute({
+			routeId: routeId || this.$ctrl._routeId, // destRouteId
+			currentRouteId: this.$ctrl._routeId,
+			currentViewId: this.$ctrl._viewId,
+			params: params,
+			target: target,
+			title: title || null,
+		});
+	}
+}
+
 class PowerController {
 	constructor({$powerUi}) {
 		// Add $powerUi to controller
 		this.$powerUi = $powerUi;
+		this._servicesInstances = {};
+		this.volatileRouteIds = [];
 	}
 
 	get router() {
 		return this.$powerUi.router;
 	}
 
-	openRoute({routeId, params={}, target}) {
+	refresh() {
+		const view = document.getElementById(this._viewId);
+		const container = view.getElementsByClassName('pw-container')[0];
+		const body = view.getElementsByClassName('pw-body')[0];
+		// Register the scroll of some containers
+		if (container) {
+			this._containerScrollTop = container.scrollTop || 0;
+			this._containerScrollLeft = container.scrollLeft || 0;
+		}
+		if (body) {
+			this._bodyScrollTop = body.scrollTop || 0;
+			this._bodyScrollLeft = body.scrollLeft || 0;
+		}
+
+		this.router._refresh(this._viewId);
+	}
+
+	openRoute({routeId, params, target}) {
+		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		this.router.openRoute({
 			routeId: routeId || this._routeId, // destRouteId
 			currentRouteId: this._routeId,
 			currentViewId: this._viewId,
 			params: params,
-			target: target,
+			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
+			title: route.title || null,
 		});
+	}
+
+	$service(name) {
+		if (this._servicesInstances[name]) {
+			return this._servicesInstances[name];
+		} else {
+			this._servicesInstances[name] = new this.$powerUi._services[name].component({
+				$powerUi: this.$powerUi,
+				$ctrl: this,
+				params: this.$powerUi._services[name].params,
+			});
+			return this._servicesInstances[name];
+		}
 	}
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		const parts = decodeURI(window.location.hash).split('?');
+		console.log('current route', route);
+		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';
 
@@ -1795,7 +1940,7 @@ class PowerController {
 				counter = counter + 1;
 			}
 		}
-		this.router.changeHash(newHash);
+		this.router.navigate({hash: newHash, title: route.title || null});
 	}
 
 	safeEval(string) {
@@ -1812,7 +1957,6 @@ class Request {
 			if (config.authCookie) {
 				d.headers['Authorization'] = getCookie(config.authCookie) || null;
 			}
-			console.log('headers', d.headers);
 			const promise = {
 				then: function (onsucess) {
 					this.onsucess = onsucess;
@@ -1901,6 +2045,7 @@ function getEmptyRouteObjetc() {
 		viewId: '',
 		route: '',
 		secundaryRoutes: [],
+		hiddenRoutes: [],
 	};
 }
 
@@ -1925,7 +2070,7 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl}) {
+	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
 		template = templateUrl || template;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
@@ -1971,6 +2116,7 @@ class Router {
 		}
 
 		const entry = {
+			title: title,
 			route: this.config.rootRoute + route,
 			callback: callback || null,
 			template: template || null,
@@ -1979,6 +2125,7 @@ class Router {
 			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
 			ctrl: ctrl || null,
+			hidden: hidden || null,
 		};
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
@@ -2003,12 +2150,12 @@ class Router {
 	}
 
 	// Copy the current open secundary route, and init the router with the new route
-	hashChange(event) {
+	hashChange(event, reloading) {
 		// Save a copy of currentRoutes as oldRoutes
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.init({onHashChange: event});
+		this.init({onHashChange: event, reloading: reloading});
 	}
 
 	cloneRoutes({source}) {
@@ -2018,6 +2165,7 @@ class Router {
 			viewId: source.viewId,
 			route: source.route,
 			secundaryRoutes: [],
+			hiddenRoutes: [],
 		};
 		for (const param of source.params) {
 			dest.params.push({key: param.key, value: param.value});
@@ -2034,27 +2182,102 @@ class Router {
 			}
 			dest.secundaryRoutes.push(secundaryRoutes);
 		}
+		for (const route of source.hiddenRoutes) {
+			const hiddenRoutes = {
+				id: route.id,
+				viewId: route.viewId,
+				route: route.route,
+				params: [],
+			}
+			for (const param of route.params) {
+				hiddenRoutes.params.push({key: param.key, value: param.value});
+			}
+			dest.hiddenRoutes.push(hiddenRoutes);
+		}
 		return dest;
 	}
 
 	_reload() {
 		const viewId = this.currentRoutes.viewId;
 		this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
-		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
+		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.removeMainView({viewId})
-		this.closeOldSecundaryViews();
-		this.hashChange();
+		this.removeMainView({viewId: viewId, reloading: true});
+		this.closeOldSecundaryAndHiddenViews({reloading: true});
+		this.hashChange(null, true); // true for the reloading flag and null for the event
 		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
 		delete this.savedOldRoutes;
 
 	}
+	_refresh(viewId) {
+		let openedRoutes = this.getOpenedRoutesRefreshData();
+
+		if (viewId) {
+			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
+		}
+		for (const route of openedRoutes) {
+			this.raplaceViewContent(route);
+		}
+	}
+
+	raplaceViewContent({view, viewId, routeId, title, template}) {
+		// delete all inner elements and events from this.allPowerObjsById[id]
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
+			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
+		}
+		this.$powerUi.addSpinnerAndHideView(view);
+		this.$powerUi.waitingInit.push({node: view, viewId: viewId});
+
+		this.$powerUi.buildViewTemplateAndMayCallInit({
+			self: this.$powerUi,
+			view: view,
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			title: title,
+			refreshing: true,
+		});
+	}
+
+	getOpenedRoutesRefreshData() {
+		const viewsList = [];
+		viewsList.push({
+			view: document.getElementById(this.currentRoutes.viewId),
+			routeId: this.currentRoutes.id,
+			viewId: this.currentRoutes.viewId,
+			title: this.currentRoutes.title,
+			template: this.routes[this.currentRoutes.id].template,
+		});
+		for (const route of this.currentRoutes.secundaryRoutes) {
+			viewsList.push({
+				view: document.getElementById(route.viewId),
+				routeId: route.id,
+				viewId: route.viewId,
+				title: route.title,
+				template: this.routes[route.id].template,
+			});
+		}
+		for (const route of this.currentRoutes.hiddenRoutes) {
+			viewsList.push({
+				view: document.getElementById(route.viewId),
+				routeId: route.id,
+				viewId: route.viewId,
+				title: route.title,
+				template: this.routes[route.id].template,
+			});
+		}
+		return viewsList;
+	}
+
+	locationHashWithHiddenRoutes() {
+		const hash = decodeURI(window.location.hash + (this.hiddenLocationHash || ''));
+		return hash;
+	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootRoute
 	// the secundaryRoute param allows to manually match secundary routes
-	init({secundaryRoute, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute);
-
+	init({secundaryRoute, hiddenRoute, reloading, onHashChange}={}) {
+		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootRoute);
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
@@ -2063,15 +2286,19 @@ class Router {
 				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
 				// our route logic is true,
 				if (routeParts.path.match(regEx)) {
-					if (!secundaryRoute) {
+					if (this.routes[routeId] && this.routes[routeId].title) {
+						document.title = this.routes[routeId].title;
+					}
+					if (!secundaryRoute && !hiddenRoute) {
 						// Load main route only if it is a new route
 						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
-							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId});
+							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId, reloading: reloading});
 							this.loadRoute({
 								routeId: routeId,
 								paramKeys: paramKeys,
 								viewId: this.config.routerMainViewId,
 								ctrl: this.routes[routeId].ctrl,
+								title: this.routes[routeId].title,
 							});
 						}
 						this.setMainRouteState({
@@ -2079,38 +2306,71 @@ class Router {
 							paramKeys: paramKeys,
 							route: routeParts.path,
 							viewId: this.config.routerMainViewId,
+							title: this.routes[routeId].title,
 						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
-							this.init({secundaryRoute: compRoute});
+							this.init({secundaryRoute: compRoute, reloading: reloading});
 						}
-						// After create all new secundary views remove the old ones if needed
-						this.closeOldSecundaryViews();
+						// Recursively run the init for each possible hiddenRoute
+						for (const compRoute of routeParts.hiddenRoutes) {
+							this.init({hiddenRoute: compRoute, reloading: reloading});
+						}
+						// Remove all the old views if needed
+						this.closeOldSecundaryAndHiddenViews({reloading: reloading});
 						return true;
-					} else {
+					} else if (secundaryRoute) {
 						// Load secundary route if not already open
 						// Check if the route already open as old route or as new route
 						const thisRoute = secundaryRoute.replace(this.config.rootRoute, '');
 						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						if (!oldSecundaryRoute && !newSecundaryRoute) {
-							const secundaryViewId = this.loadSecundaryRoute({
+							const secundaryViewId = this.loadSecundaryOrHiddenRoute({
 								routeId: routeId,
 								paramKeys: paramKeys,
-								routerSecundaryViewId: this.config.routerSecundaryViewId,
+								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 							});
-							this.setSecundaryRouteState({
+							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
-								secundaryRoute: secundaryRoute,
-								secundaryViewId: secundaryViewId,
-							});
+								route: secundaryRoute,
+								viewId: secundaryViewId,
+								title: this.routes[routeId].title,
+							}));
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
 							// Only add if it is only on oldSecundaryRoute list
 							if (!newSecundaryRoute) {
 								this.currentRoutes.secundaryRoutes.push(oldSecundaryRoute);
+							}
+						}
+					} else if (hiddenRoute) {
+						// Load hidden route if not already open
+						// Check if the route already open as old route or as new route
+						const thisRoute = hiddenRoute.replace(this.config.rootRoute, '');
+						const oldHiddenRoute = this.oldRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
+						const newHiddenRoute = this.currentRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
+						if (!oldHiddenRoute && !newHiddenRoute) {
+							const hiddenViewId = this.loadSecundaryOrHiddenRoute({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								routeViewId: this.config.routerSecundaryViewId,
+								ctrl: this.routes[routeId].ctrl,
+							});
+							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
+								routeId: routeId,
+								paramKeys: paramKeys,
+								route: hiddenRoute,
+								viewId: hiddenViewId,
+								title: this.routes[routeId].title,
+							}));
+						} else {
+							// If the newHiddenRoute is already on the list do nothing
+							// Only add if it is only on oldHiddenRoute list
+							if (!newHiddenRoute) {
+								this.currentRoutes.hiddenRoutes.push(oldHiddenRoute);
 							}
 						}
 					}
@@ -2119,20 +2379,30 @@ class Router {
 		}
 		// otherwise
 		// (doesn't run otherwise for secundary routes)
-		if (!secundaryRoute) {
+		if (!secundaryRoute && !hiddenRoute) {
 			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
 			window.location.replace(encodeURI(newRoute));
 		}
 	}
 
-	// Only close the old secundary views that are not also in the currentRoutes.secundaryRoutes
-	closeOldSecundaryViews() {
+	// Only close the old secundary and hidden views that are not also in the currentRoutes.secundaryRoutes
+	closeOldSecundaryAndHiddenViews({reloading}) {
 		for (const route of this.oldRoutes.secundaryRoutes) {
 			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryView({secundaryViewId: route.viewId, routeId: route.id});
+				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
+			}
+		}
+		for (const route of this.oldRoutes.hiddenRoutes) {
+			if (!this.currentRoutes.hiddenRoutes.find(r=>r.route === route.route)) {
+				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
 			}
 		}
 		this.clearRouteSharedScopes();
+		// Remove 'modal-open' css class from body if all modals are closed
+		const modals = document.body.getElementsByClassName('pw-modal-backdrop');
+		if (modals.length === 0) {
+			document.body.classList.remove('modal-open');
+		}
 	}
 
 	clearRouteSharedScopes() {
@@ -2144,18 +2414,25 @@ class Router {
 		this.$powerUi.controllers.$routeSharedScope.$waitingToDelete = [];
 	}
 
-	removeSecundaryView({secundaryViewId, routeId}) {
+	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
+		// If this is a volatile route remove it from routes
+		if (!reloading && this.routes[routeId] && this.routes[routeId].isVolatile) {
+			delete this.routes[routeId];
+		}
 		// Remove all view power Objects and events
-		if (this.$powerUi.powerTree.allPowerObjsById[secundaryViewId] && this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared']) {
-			this.$powerUi.powerTree.allPowerObjsById[secundaryViewId]['$shared'].removeElementAndInnersFromPower();
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared']) {
+			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeElementAndInnersFromPower();
 		}
 		// Remove view node
-		const node = document.getElementById(secundaryViewId);
+		const node = document.getElementById(viewId);
 		node.parentNode.removeChild(node);
 
 		// Delete the controller instance of this view if exists
-		if (this.$powerUi.controllers[secundaryViewId]) {
-			delete this.$powerUi.controllers[secundaryViewId];
+		if (this.$powerUi.controllers[viewId]) {
+			if (!reloading) {
+				this.removeVolatileViews({viewId: viewId});
+			}
+			delete this.$powerUi.controllers[viewId];
 			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
 				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances - 1;
@@ -2166,22 +2443,43 @@ class Router {
 		}
 	}
 
-	removeMainView({viewId}) {
+	removeMainView({viewId, reloading}) {
 		if (!this.$powerUi.powerTree) {
 			return;
+		}
+		if (!reloading) {
+			this.removeVolatileViews({viewId: viewId});
 		}
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
+	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
+	// One route are create for each instante, so we need remove it when the controller are distroyed
+	removeVolatileViews({viewId}) {
+		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
+			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
+				delete this.routes[volatileId];
+			}
+		}
+	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
+		const _viewId = this.routes[routeId].viewId || viewId;
 		if (ctrl) {
 			// Register the controller with $powerUi
-			this.$powerUi.controllers[viewId] = ctrl;
+			this.$powerUi.controllers[_viewId] = {
+				component: ctrl.component,
+				params: ctrl.params,
+			};
 			// Instanciate the controller
 			const $params = ctrl.params || {};
 			$params.$powerUi = this.$powerUi;
-			this.$powerUi.controllers[viewId].instance = new ctrl.component($params);
+			$params.viewId = _viewId;
+			$params.routeId = routeId;
+			$params.title = title;
+			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
+			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
+			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
 		}
 
 		// If have a template to load let's do it
@@ -2193,10 +2491,11 @@ class Router {
 			if (this.routes[routeId].templateUrl && this.routes[routeId].templateIsCached !== true) {
 				this.$powerUi.loadTemplateUrl({
 					template: this.routes[routeId].template,
-					viewId: this.routes[routeId].viewId || viewId,
+					viewId: _viewId,
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
+					title: title,
 				});
 			} else {
 				this.$powerUi.loadTemplate({
@@ -2205,6 +2504,7 @@ class Router {
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
+					title: title,
 				});
 			}
 		}
@@ -2213,8 +2513,11 @@ class Router {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
-	loadSecundaryRoute({routeId, paramKeys, routerSecundaryViewId, ctrl}) {
+	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
 		if (ctrl) {
+			if (!ctrl.params) {
+				ctrl.params = {};
+			}
 			// Create a shared scope for this route if not existas
 			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
 				this.$powerUi.controllers.$routeSharedScope[routeId] = {};
@@ -2228,18 +2531,25 @@ class Router {
 		const viewId = getIdAndCreateIfDontHave(newViewNode);
 		newViewNode.id = viewId;
 		newViewNode.classList.add('power-view');
-		document.getElementById(routerSecundaryViewId).appendChild(newViewNode);
+		document.getElementById(routeViewId).appendChild(newViewNode);
 		// Load the route inside the new element view
 		this.loadRoute({
+			title: title,
 			routeId: routeId,
 			paramKeys: paramKeys,
 			viewId: viewId,
 			ctrl: this.routes[routeId].ctrl,
+			title: this.routes[routeId].title,
 		});
 		return viewId;
 	}
 
-	openRoute({routeId, params, target, currentRouteId, currentViewId}) {
+	routeKind(routeId) {
+		return this.routes[routeId].hidden ? 'hr' : 'sr';
+	}
+
+	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
@@ -2255,38 +2565,56 @@ class Router {
 			// Close the current view and open the route in a new secundary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
-				const oldHash = this.getOpenedSecundaryRoutesHash([selfRoute.route]);
-				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
-				this.changeHash(newRoute);
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
+				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
-				const oldHash = this.getOpenedSecundaryRoutesHash();
-				const newRoute = oldHash + `?sr=${this.buildHash({routeId, params, paramKeys})}`;
-				this.changeHash(newRoute);
+				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
+				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.changeHash(this.buildHash({routeId, params, paramKeys}));
+				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title});
 			}
 		}
 	}
 
-	// Get the hash definition of current secundary routes
-	getOpenedSecundaryRoutesHash(filter=[]) {
-		const routeParts = this.extractRouteParts(decodeURI(window.location.hash));
+	// Get the hash definition of current secundary and hidden routes
+	getOpenedSecundaryOrHiddenRoutesHash({filter=[]}) {
+		const routeParts = this.extractRouteParts(this.locationHashWithHiddenRoutes());
 		let oldHash = routeParts.path.replace(this.config.rootRoute, '');
-		for (let route of routeParts.secundaryRoutes) {
+		for (let route of routeParts.secundaryRoutes.concat(routeParts.hiddenRoutes)) {
+			const routeKind = routeParts.hiddenRoutes.includes(route) ? 'hr' : 'sr';
 			route = route.replace(this.config.rootRoute, '');
 			if (filter.lenght === 0 || !filter.includes(route)) {
-				oldHash = oldHash + `?sr=${route}`;
+				oldHash = oldHash + `?${routeKind}=${route}`;
 			}
-			console.log('route', route);
 		}
 		return oldHash;
 	}
 
-	changeHash(hash) {
-		window.history.pushState(null, null, window.location.href);
-		window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(hash));
+	navigate({hash, title}) {
+		const newHashParts = this.extractRouteParts(hash);
+		let newHash = newHashParts.path || '';
+		let newHiddenHash = '';
+		for (const part of newHashParts.secundaryRoutes) {
+			newHash = `${newHash}?sr=${part.replace(this.config.rootRoute, '')}`;
+		}
+		for (const part of newHashParts.hiddenRoutes) {
+			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootRoute, '')}`;
+		}
+
+		this.hiddenLocationHash = encodeURI(newHiddenHash);
+		// If there is some new secundary or main route
+		if (window.location.hash !== encodeURI(this.config.rootRoute + newHash)) {
+			window.history.pushState(null, title, window.location.href);
+			window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(newHash));
+		} else {
+			// If there is only a new hidden rote
+			// Only the hiddenLocationHash change, manually call hasChange
+			this.hashChange();
+		}
 	}
 
 	buildHash({routeId, params, paramKeys}) {
@@ -2324,8 +2652,8 @@ class Router {
 			}
 		}
 
-		// Test the secundary routes
-		for (const sroute of this.currentRoutes.secundaryRoutes) {
+		// Test the secundary and hidden routes
+		for (const sroute of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
 			if (routeId === sroute.id) {
 				let keyValueExists = false;
 				for (const targetParamKey of Object.keys(params || {})) {
@@ -2344,12 +2672,13 @@ class Router {
 	return exists;
 	}
 
-	setMainRouteState({routeId, paramKeys, route, viewId}) {
+	setMainRouteState({routeId, paramKeys, route, viewId, title}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootRoute, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
+		this.currentRoutes.title = title;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -2357,27 +2686,29 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setSecundaryRouteState({routeId, paramKeys, secundaryRoute, secundaryViewId}) {
-		const route = {
+	setSecundaryOrHiddenRouteState({routeId, paramKeys, route, viewId, title}) {
+		const newRoute = {
+			title: title,
 			isMainView: false,
 			params: [],
 			id: '',
-			route: secundaryRoute.replace(this.config.rootRoute, ''), // remove #!/
-			viewId: this.routes[routeId].viewId || secundaryViewId,
+			route: route.replace(this.config.rootRoute, ''), // remove #!/
+			viewId: this.routes[routeId].viewId || viewId,
 		}
 		// Register current route id
-		route.id = routeId;
+		newRoute.id = routeId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
-			route.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, secundaryRoute: secundaryRoute});
+			newRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, route: route});
 		}
-		this.currentRoutes.secundaryRoutes.push(route);
+		return newRoute;
 	}
 
 	extractRouteParts(path) {
 		const routeParts = {
 			path: path,
 			secundaryRoutes: [],
+			hiddenRoutes: [],
 		};
 		if (path.includes('?')) {
 			const splited = path.split('?');
@@ -2387,6 +2718,12 @@ class Router {
 					for (const fragment of part.split('sr=')) {
 						if (fragment) {
 							routeParts.secundaryRoutes.push(this.config.rootRoute + fragment);
+						}
+					}
+				} else	if (part.includes('hr=')) {
+					for (const fragment of part.split('hr=')) {
+						if (fragment) {
+							routeParts.hiddenRoutes.push(this.config.rootRoute + fragment);
 						}
 					}
 				}
@@ -2425,7 +2762,7 @@ class Router {
 		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
 			return this.currentRoutes;
 		} else {
-			for (const route of this.currentRoutes.secundaryRoutes) {
+			for (const route of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
@@ -2446,14 +2783,15 @@ class Router {
 		return keys;
 	}
 
-	getRouteParamValues({routeId, paramKeys, secundaryRoute}) {
+	getRouteParamValues({routeId, paramKeys, route}) {
 		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (secundaryRoute || decodeURI(window.location.hash) || this.config.rootRoute).split('/');
+		const hashParts = (route || this.locationHashWithHiddenRoutes() || this.config.rootRoute).split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value
+			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)]});
 			// Also remove any ?sr=route from the value
-			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?sr=[^]*)/, '')});
+			// params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?sr=[^]*)/, '')});
 		}
 		return params;
 	}
@@ -2481,7 +2819,7 @@ class PowerInterpolation {
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template, scope) {
-		return this.compile({template: `${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`, scope: scope});
+		return this.compile({template: `${this.startSymbol} ${this.decodeHtml(template)} ${this.endSymbol}`, scope: scope});
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -2501,24 +2839,6 @@ class PowerInterpolation {
 		}
 		return template.trim();
 	}
-
-	// interpolationToPowText(template, tempTree, scope) {
-	// 	const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
-	// 	const match = templateWithoutComments.match(this.standardRegex());
-	// 	if (match) {
-	// 		for (const entry of match) {
-	// 			const id = _Unique.domID('span');
-	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
-	// 			const value = `<span data-pow-eval="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
-	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
-	// 			template = template.replace(entry, value);
-
-	// 			// Regiter any new element on tempTree pending to add after interpolation
-	// 			tempTree.pending.push(id);
-	// 		}
-	// 	}
-	// 	return template;
-	// }
 
 	stripWhiteChars(entry) {
 		// Replace multiple spaces with a single one
@@ -2574,7 +2894,7 @@ class PowerInterpolation {
 				child.innerHTML = this.replaceIdsAndRemoveInterpolationSymbol({
 					entry: child.innerHTML,
 					regexOldValue: regexOldValue,
-					newValue: newValue
+					newValue: newValue,
 				});
 			}
 		}
@@ -2584,13 +2904,13 @@ class PowerInterpolation {
 	getInterpolationValue(entry, scope) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
-		return this.safeEvaluate(newEntry, scope);
+		return this.encodeHtml(this.safeEvaluate(newEntry, scope));
 	}
 
 	safeEvaluate(entry, scope) {
 		let result;
 		try {
-			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: scope, $powerUi: this.$powerUi});
+			result = this.$powerUi.safeEval({text: entry, scope: scope, $powerUi: this.$powerUi});
 		} catch(e) {
 			result = '';
 		}
@@ -2606,6 +2926,19 @@ class PowerInterpolation {
 		tmp.textContent = content;
 		return tmp.innerHTML;
 	};
+
+	encodeHtml(html) {
+	  const element = document.createElement('div');
+	  element.innerText = element.textContent = html;
+	  html = element.innerHTML;
+	  return html;
+	}
+
+	decodeHtml(html) {
+	    const element = document.createElement('textarea');
+	    element.innerHTML = html;
+	    return element.value;
+	}
 }
 
 class PowerView extends _PowerBasicElementWithEvents {
@@ -4921,6 +5254,405 @@ class EmptyPattern {
 	}
 }
 
+class PowerWidget extends PowerController {
+    constructor({$powerUi}) {
+        super({$powerUi: $powerUi});
+        this.isWidget = true;
+    }
+
+    $buildTemplate({template, title}) {
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = this.template({$title: title || null});
+        const content = tempElement.querySelectorAll('[data-pw-content]');
+        content[0].innerHTML = template;
+        template = tempElement.innerHTML;
+
+        return template;
+    }
+}
+
+class PowerDialogBase extends PowerWidget {
+	constructor({$powerUi, noEsc}) {
+		super({$powerUi: $powerUi});
+
+		if (noEsc) {
+			return;
+		}
+		const self = this;
+		this._closeWindow = function() {
+			self._cancel();
+		}
+
+		$powerUi._events['Escape'].subscribe(this._closeWindow);
+	}
+	// Allow async calls to implement onCancel
+	_cancel() {
+		if (this.onCancel) {
+			new Promise(this.onCancel.bind(this)).then(
+				this.closeCurrentRoute.bind(this)
+			).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
+		} else {
+			this.closeCurrentRoute();
+		}
+	}
+	// Allow async calls to implement onCommit
+	_commit() {
+		if (this.onCommit) {
+			new Promise(this.onCommit.bind(this)).then(
+				this.closeCurrentRoute.bind(this)
+			).catch(()=> (this.onCommitError) ? this.onCommitError() : null);
+		} else {
+			this.closeCurrentRoute();
+		}
+	}
+
+	closeCurrentRoute() {
+		// Only close if is opened, if not just remove the event
+		const view = document.getElementById(this._viewId);
+		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
+		if (view) {
+			super.closeCurrentRoute();
+		} else {
+			// If not opened, call the next in the queue
+			this.$powerUi._events['Escape'].broadcast();
+		}
+	}
+
+	_onViewLoad(view) {
+		const container = view.getElementsByClassName('pw-container')[0];
+		const body = view.getElementsByClassName('pw-body')[0];
+		if (container) {
+			container.scrollTop = this._containerScrollTop || 0;
+			container.scrollLeft = this._containerScrollLeft || 0;
+		}
+		if (body) {
+			body.scrollTop = this._bodyScrollTop || 0;
+			body.scrollLeft = this._bodyScrollLeft || 0;
+		}
+	}
+
+	$buttons() {
+		if (this.commitBt || this.cancelBt) {
+			const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
+			let buttons = '';
+			if (this.commitBt) {
+				const commitIco = `<span class="pw-ico fa fa-${(this.commitBt.ico ? this.commitBt.ico : 'check-circle')}"></span>`;
+				const commitBt = `<button
+								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
+								data-pow-event onclick="_commit()">
+								${(this.commitBt.ico !== false ? commitIco : '')}
+								${(this.commitBt.label ? this.commitBt.label : 'Ok')}
+								</button>`;
+				buttons = buttons + commitBt;
+			}
+			if (this.cancelBt) {
+				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
+				const cancelBt = `<button
+								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
+								data-pow-event onclick="_cancel()">
+								${(this.cancelBt.ico !== false ? cancelIco : '')}
+								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+								</button>`;
+				buttons = buttons + cancelBt;
+			}
+			return buttons;
+		} else {
+			return '';
+		}
+	}
+
+	template({$title}) {
+		// This allow the user define a this.$title on controller constructor, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-title-bar">
+					<span class="pw-title-bar-label">${this.$title}</span>
+					<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+				</div>
+				<div class="pw-body">
+					<div class="pw-container" data-pw-content>
+					</div>
+					<div class="pw-container">
+						${this.$buttons()}
+					</div>
+				</div>`;
+	}
+}
+
+class PowerDialog extends PowerDialogBase {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+	}
+
+	template({$title}) {
+		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-dialog pw-dialog-container">
+					${super.template({$title})}
+				</div>`;
+	}
+}
+
+class PowerAlert extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.commitBt = true;
+	}
+}
+
+class PowerConfirm extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.commitBt = true;
+		this.cancelBt = true;
+	}
+}
+
+function wrapFunctionInsideDialog({controller, kind, params}) {
+	class _Alert extends PowerAlert {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+
+	class _Confirm extends PowerConfirm {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+	class _Modal extends PowerModal {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+	class _Window extends PowerWindow {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+
+	if (kind === 'confirm') {
+		return _Confirm;
+	} else if (kind === 'modal') {
+		return _Modal;
+	} else if (kind === 'window') {
+		return _Window;
+	} else {
+		return _Alert;
+	}
+}
+
+class PowerModal extends PowerDialogBase {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.isModal = true;
+	}
+
+	clickOutside(event) {
+		if (event.target.classList.contains('pw-modal-backdrop')) {
+			this._cancel();
+		}
+	}
+
+	template({$title}) {
+		if (document.body && document.body.classList) {
+			document.body.classList.add('modal-open');
+		}
+		// This allow the user define a this.$title on controller constructor, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-modal pw-modal-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}" data-pow-event onclick="clickOutside(event)">
+					${super.template({$title})}
+				</div>`;
+	}
+}
+
+class PowerWindow extends PowerDialogBase {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi, noEsc: true});
+		this.isWindow = true;
+	}
+
+	_onViewLoad(view) {
+		// Make it draggable
+		this.currentView = view;
+		this.element = this.currentView.getElementsByClassName('pw-window')[0];
+		this.dragElement();
+
+		if (this._top && this._left) {
+			this.element.style.top = this._top;
+			this.element.style.left = this._left;
+		}
+
+		// Make it resizable
+		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
+		this.resizableEl = this.currentView.getElementsByClassName('pw-window-resizable')[0];
+		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
+		this.resizeElement();
+
+		if (this._width && this._height) {
+			this.bodyEl.style.width = this._width;
+			this.bodyEl.style.height = this._bodyHeight;
+			this.resizableEl.style.width = this._width;
+			this.resizableEl.style.height = this._height;
+		}
+
+		this.setBodyHeight();
+
+		this.windowsOrder();
+
+		super._onViewLoad(this.currentView);
+	}
+
+	template({$title}) {
+		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
+					<div class="pw-window-resizable">
+						${super.template({$title})}
+					</div>
+				</div>`;
+	}
+
+	resizeElement() {
+		// or move it from anywhere inside the container
+		this.bodyEl.onmousedown = this.resizeMouseDown.bind(this);
+	}
+
+
+	resizeMouseDown() {
+		// Re-order the windows z-index
+		this.windowsOrder();
+		// Cancel if user giveup
+		document.onmouseup = this.closeDragElement.bind(this);
+		// call a function when the cursor moves
+		document.onmousemove = this.resizeMove.bind(this);
+	}
+
+	resizeMove() {
+		// set the element's new size
+		this.resizableEl.style.width = window.getComputedStyle(this.bodyEl).width;
+		this.resizableEl.style.height = parseInt(window.getComputedStyle(this.bodyEl).height.replace('px', '')) + parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
+		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
+		this._width = this.resizableEl.style.width;
+		this._height = this.resizableEl.style.height;
+	}
+
+	dragElement() {
+		this.pos1 = 0;
+		this.pos2 = 0;
+		this.pos3 = 0;
+		this.pos4 = 0;
+
+		const titleBar = this.currentView.getElementsByClassName('pw-title-bar')[0];
+		if (titleBar) {
+			// if the title bar existis move from it
+			titleBar.onmousedown = this.dragMouseDown.bind(this);
+		} else {
+			// or move from anywhere inside the container
+			this.element.onmousedown = this.dragMouseDown.bind(this);
+		}
+	}
+
+	dragMouseDown(event) {
+		event = event || window.event;
+		event.preventDefault();
+		// Re-order the windows z-index
+		this.windowsOrder();
+		// get initial mouse cursor position
+		this.pos3 = event.clientX;
+		this.pos4 = event.clientY;
+		// Cancel if user giveup
+		document.onmouseup = this.closeDragElement.bind(this);
+		// call a function when the cursor moves
+		document.onmousemove = this.elementDrag.bind(this);
+	}
+
+	elementDrag(event) {
+		event = event || window.event;
+		event.preventDefault();
+		// calculate the new cursor position
+		this.pos1 = this.pos3 - event.clientX;
+		this.pos2 = this.pos4 - event.clientY;
+		this.pos3 = event.clientX;
+		this.pos4 = event.clientY;
+		// set the element's new position
+		this.element.style.top = (this.element.offsetTop - this.pos2) + 'px';
+		this.element.style.left = (this.element.offsetLeft - this.pos1) + 'px';
+		this._top = this.element.style.top;
+		this._left = this.element.style.left;
+	}
+
+	closeDragElement() {
+		this.setBodyHeight();
+		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
+		// stop moving when mouse button is released:
+		document.onmouseup = null;
+		document.onmousemove = null;
+	}
+
+	setBodyHeight() {
+		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
+	}
+
+	windowsOrder() {
+		const self = this;
+		// The timeout avoid call the windowOrder multiple times (one for each opened window)
+		if (this.$powerUi._windowsOrderTimeout) {
+			return;
+		}
+		this.$powerUi._windowsOrderInterval = setTimeout(function () {
+			let windows = document.getElementsByClassName('pw-window');
+			const currentWindow = self.currentView.getElementsByClassName('pw-window')[0];
+
+			let zindex = 1002;
+			const windowsTosort = {};
+			for (const win of windows) {
+				let winZindex = parseInt(win.style.zIndex || zindex);
+				if (win !== currentWindow) {
+					windowsTosort[winZindex] = win;
+					if (winZindex >= zindex) {
+						// Set zindex to it's bigger value
+						zindex = winZindex + 1;
+					}
+				}
+			}
+			// Sort it
+			const sorted = Object.keys(windowsTosort).sort((a,b) => parseInt(a)-parseInt(b));
+
+			zindex = 1002;
+			// Reorder the real windows z-index
+			for (const key of sorted) {
+				windowsTosort[key].style.zIndex = zindex;
+				zindex = zindex + 1;
+			}
+			currentWindow.style.zIndex = zindex + 1;
+		}, 10);
+	}
+}
+
 class AccordionModel {
 	constructor(ctx) {
 		this.ctx = ctx;
@@ -5414,9 +6146,9 @@ class PowerDropmenu extends PowerTarget {
 				}
 
 				// If the action is fixed, the dropdown also needs to be fixed
-				if (getComputedStyle(self.powerAction.element).position === 'fixed') {
+				if (window.getComputedStyle(self.powerAction.element).position === 'fixed') {
 					self.element.style.position = 'fixed';
-					self.element.style.left = getComputedStyle(self.powerAction.element).left;
+					self.element.style.left = window.getComputedStyle(self.powerAction.element).left;
 				}
 
 				// Find if the position is out of screen and reposition if needed
