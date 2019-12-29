@@ -168,7 +168,7 @@ class PowerUi extends _PowerUiBase {
 		ctrlScope.event = event.detail.event;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
-		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;
+		const text = (element && attrName) ? this.interpolation.decodeHtml(element.getAttribute(attrName)) : false;
 
 		if (text) {
 			self.safeEval({text: text, $powerUi: self, scope: ctrlScope});

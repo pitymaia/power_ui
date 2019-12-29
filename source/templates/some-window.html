@@ -1,8 +1,12 @@
 <div>
-    <p>Essa é minha janela 2 + 2 é igual a {{ 2+2 }} e não {{ 2+1 }}.</p>
     <p>
-        Loerem ipson tramatium gloriosuns
+        Essa é minha janela 2 + 2 é igual a {{ 2+2 }} e não {{ 2+1 }}.
     </p>
+    <p> Loerem ipson tramatium gloriosuns</p>
+    <div data-pow-for="cat of ['Riquinho', 'Princesa', 'Sol', 'Drew']">
+        <p data-pow-if="$pwIndex &lt; 2"><span data-pow-eval="cat + ' não é maior (>) que 2'"></span></p>
+        <p data-pow-if="$pwIndex &gt;= 2"><span data-pow-eval="cat + ' 4 é maior (>) que 2 <u>teste</u>'"></span></p>
+    </div>
 <!--     <code>
         var p = document.querySelector('p'); // element to make resizable
 

@@ -1186,7 +1186,7 @@ class PowEvent extends _PowerBasicElementWithEvents {
         for (const attr of this.element.attributes) {
             if (attr.name.includes('on')) {
                 const name = attr.name.slice(2, attr.name.length);
-                this.element.setAttribute(`data-pow-${name}`, encodeURIComponent(attr.value));
+                this.element.setAttribute(`data-pow-${name}`, this.$powerUi.interpolation.encodeHtml(attr.value));
                 // attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;
                 attr.value = `window._$dispatchPowerEvent(event, this, '${view.id}', '${name}')`;
             }
@@ -1213,7 +1213,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 
-		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
+		const parts = this.$powerUi.interpolation.decodeHtml(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
 		// Remove parts[0]
@@ -1251,7 +1251,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
-				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+				newValue: this.$powerUi.interpolation.encodeHtml(`_tempScope['${scope}']`),
 			});
 
 		}
@@ -1281,7 +1281,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
-				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+				newValue: this.$powerUi.interpolation.encodeHtml(`_tempScope['${scope}']`),
 			});
 		}
 		this.element.innerHTML = newHtml;
@@ -1304,7 +1304,7 @@ class PowIf extends _PowerBasicElementWithEvents {
 	compile({view}) {
 		// The scope of the controller of the view of this element
 		const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
-		const value = this.$powerUi.safeEval({text: decodeURIComponent(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: ctrlScope});
+		const value = this.$powerUi.safeEval({text: this.$powerUi.interpolation.decodeHtml(this.element.dataset.powIf), $powerUi: this.$powerUi, scope: ctrlScope});
 		// Hide if element is false
 		if (value === false) {
 			this.element.style.display = 'none';
@@ -1491,7 +1491,7 @@ class PowerUi extends _PowerUiBase {
 		ctrlScope.event = event.detail.event;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
-		const text = (element && attrName) ? decodeURIComponent(element.getAttribute(attrName)) : false;
+		const text = (element && attrName) ? this.interpolation.decodeHtml(element.getAttribute(attrName)) : false;
 
 		if (text) {
 			self.safeEval({text: text, $powerUi: self, scope: ctrlScope});
@@ -2819,7 +2819,7 @@ class PowerInterpolation {
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template, scope) {
-		return this.compile({template: `${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`, scope: scope});
+		return this.compile({template: `${this.startSymbol} ${this.decodeHtml(template)} ${this.endSymbol}`, scope: scope});
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -2839,24 +2839,6 @@ class PowerInterpolation {
 		}
 		return template.trim();
 	}
-
-	// interpolationToPowText(template, tempTree, scope) {
-	// 	const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
-	// 	const match = templateWithoutComments.match(this.standardRegex());
-	// 	if (match) {
-	// 		for (const entry of match) {
-	// 			const id = _Unique.domID('span');
-	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
-	// 			const value = `<span data-pow-eval="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
-	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
-	// 			template = template.replace(entry, value);
-
-	// 			// Regiter any new element on tempTree pending to add after interpolation
-	// 			tempTree.pending.push(id);
-	// 		}
-	// 	}
-	// 	return template;
-	// }
 
 	stripWhiteChars(entry) {
 		// Replace multiple spaces with a single one
@@ -2912,7 +2894,7 @@ class PowerInterpolation {
 				child.innerHTML = this.replaceIdsAndRemoveInterpolationSymbol({
 					entry: child.innerHTML,
 					regexOldValue: regexOldValue,
-					newValue: newValue
+					newValue: newValue,
 				});
 			}
 		}
@@ -2922,13 +2904,13 @@ class PowerInterpolation {
 	getInterpolationValue(entry, scope) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
-		return this.safeEvaluate(newEntry, scope);
+		return this.encodeHtml(this.safeEvaluate(newEntry, scope));
 	}
 
 	safeEvaluate(entry, scope) {
 		let result;
 		try {
-			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: scope, $powerUi: this.$powerUi});
+			result = this.$powerUi.safeEval({text: entry, scope: scope, $powerUi: this.$powerUi});
 		} catch(e) {
 			result = '';
 		}
@@ -2944,6 +2926,19 @@ class PowerInterpolation {
 		tmp.textContent = content;
 		return tmp.innerHTML;
 	};
+
+	encodeHtml(html) {
+	  const element = document.createElement('div');
+	  element.innerText = element.textContent = html;
+	  html = element.innerHTML;
+	  return html;
+	}
+
+	decodeHtml(html) {
+	    const element = document.createElement('textarea');
+	    element.innerHTML = html;
+	    return element.value;
+	}
 }
 
 class PowerView extends _PowerBasicElementWithEvents {

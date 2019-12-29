@@ -15,7 +15,7 @@ class PowerInterpolation {
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template, scope) {
-		return this.compile({template: `${this.startSymbol} ${decodeURIComponent(template)} ${this.endSymbol}`, scope: scope});
+		return this.compile({template: `${this.startSymbol} ${this.decodeHtml(template)} ${this.endSymbol}`, scope: scope});
 	}
 	// REGEX {{[^]*?}} INTERPOLETE THIS {{ }}
 	standardRegex() {
@@ -35,24 +35,6 @@ class PowerInterpolation {
 		}
 		return template.trim();
 	}
-
-	// interpolationToPowText(template, tempTree, scope) {
-	// 	const templateWithoutComments = template.replace(/<!--[\s\S]*?-->/gm, '');
-	// 	const match = templateWithoutComments.match(this.standardRegex());
-	// 	if (match) {
-	// 		for (const entry of match) {
-	// 			const id = _Unique.domID('span');
-	// 			const innerTEXT = this.getInterpolationValue(entry, scope);
-	// 			const value = `<span data-pow-eval="${encodeURIComponent(this.stripInterpolation(entry).trim())}"
-	// 				data-pwhascomp="true" id="${id}">${innerTEXT}</span>`;
-	// 			template = template.replace(entry, value);
-
-	// 			// Regiter any new element on tempTree pending to add after interpolation
-	// 			tempTree.pending.push(id);
-	// 		}
-	// 	}
-	// 	return template;
-	// }
 
 	stripWhiteChars(entry) {
 		// Replace multiple spaces with a single one
@@ -108,7 +90,7 @@ class PowerInterpolation {
 				child.innerHTML = this.replaceIdsAndRemoveInterpolationSymbol({
 					entry: child.innerHTML,
 					regexOldValue: regexOldValue,
-					newValue: newValue
+					newValue: newValue,
 				});
 			}
 		}
@@ -118,13 +100,13 @@ class PowerInterpolation {
 	getInterpolationValue(entry, scope) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
-		return this.safeEvaluate(newEntry, scope);
+		return this.encodeHtml(this.safeEvaluate(newEntry, scope));
 	}
 
 	safeEvaluate(entry, scope) {
 		let result;
 		try {
-			result = this.$powerUi.safeEval({text: decodeURIComponent(entry), scope: scope, $powerUi: this.$powerUi});
+			result = this.$powerUi.safeEval({text: entry, scope: scope, $powerUi: this.$powerUi});
 		} catch(e) {
 			result = '';
 		}
@@ -140,4 +122,17 @@ class PowerInterpolation {
 		tmp.textContent = content;
 		return tmp.innerHTML;
 	};
+
+	encodeHtml(html) {
+	  const element = document.createElement('div');
+	  element.innerText = element.textContent = html;
+	  html = element.innerHTML;
+	  return html;
+	}
+
+	decodeHtml(html) {
+	    const element = document.createElement('textarea');
+	    element.innerHTML = html;
+	    return element.value;
+	}
 }

@@ -12,7 +12,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			return;
 		}
 
-		const parts = decodeURIComponent(this.element.dataset.powFor).split(' ');
+		const parts = this.$powerUi.interpolation.decodeHtml(this.element.dataset.powFor).split(' ');
 		const item = `\\b(${parts[0]})\\b`;
 		const operation = parts[1];
 		// Remove parts[0]
@@ -50,7 +50,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
-				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+				newValue: this.$powerUi.interpolation.encodeHtml(`_tempScope['${scope}']`),
 			});
 
 		}
@@ -80,7 +80,7 @@ class PowFor extends _PowerBasicElementWithEvents {
 			newHtml = newHtml + this.$powerUi.interpolation.replaceWith({
 				entry: currentHtml,
 				oldValue: selector,
-				newValue: encodeURIComponent(`_tempScope['${scope}']`),
+				newValue: this.$powerUi.interpolation.encodeHtml(`_tempScope['${scope}']`),
 			});
 		}
 		this.element.innerHTML = newHtml;
