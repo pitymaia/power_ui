@@ -132,7 +132,8 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services;
+		this._services = config.services || {};
+		this._addServices();
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
@@ -141,6 +142,16 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	_addService(key, service) {
+		this._services[key] = service;
+	}
+	_addServices() {
+		this._addService('widget', {
+			component: WidgetService,
+			// params: {},
+		});
 	}
 
 	_$dispatchPowerEvent(event, self, viewId, name) {

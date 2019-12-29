@@ -1,6 +1,6 @@
 "use strict";
 
-import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, WidgetService } from './power_ui.js';
+import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow } from './power_ui.js';
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -601,17 +601,10 @@ const routes = [
 		}
 	];
 
-const services = {
-	widget: {
-		component: WidgetService,
-		params: {},
-	}
-};
-
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
-	services: services,
+	// services: services,
 	// spinnerLabel: 'carregando',
 });
 
