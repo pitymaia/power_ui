@@ -14,3 +14,5 @@ class PowerWidget extends PowerController {
         return template;
     }
 }
+
+export { PowerWidget };

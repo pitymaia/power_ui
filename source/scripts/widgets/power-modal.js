@@ -21,3 +21,5 @@ class PowerModal extends PowerDialogBase {
 				</div>`;
 	}
 }
+
+export { PowerModal };

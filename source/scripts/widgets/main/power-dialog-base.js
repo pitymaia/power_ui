@@ -104,3 +104,5 @@ class PowerDialogBase extends PowerWidget {
 				</div>`;
 	}
 }
+
+export { PowerDialogBase };

@@ -84,3 +84,5 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		return _Alert;
 	}
 }
+
+export { PowerDialog, PowerAlert, PowerConfirm };

@@ -433,3 +433,5 @@ class PowerUi extends _PowerUiBase {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 }
+
+export { PowerUi };

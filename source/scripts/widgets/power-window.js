@@ -161,3 +161,5 @@ class PowerWindow extends PowerDialogBase {
 		}, 10);
 	}
 }
+
+export { PowerWindow };

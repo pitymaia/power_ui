@@ -101,3 +101,5 @@ class WidgetService extends PowerServices {
 		});
 	}
 }
+
+export { WidgetService }

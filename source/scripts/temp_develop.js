@@ -1,3 +1,6 @@
+"use strict";
+
+import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, WidgetService } from './power_ui.js';
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -26,7 +29,6 @@
 //  }
 // }
 // let app = new TesteUi();
-
 const someViewTemplate = `<h1>Cats list</h1>
 			<div data-pow-for="cat of cats">
 				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>

@@ -77,3 +77,5 @@ class PowerController {
 		return this.$powerUi.safeEval({text: string, scope: this});
 	}
 }
+
+export { PowerController };

@@ -43,13 +43,19 @@ const distJsFiles = [
 	'source/scripts/widgets/*.js',
 	'source/scripts/interface/*.js',
 ];
-const devJsFiles = distJsFiles.concat(['source/scripts/temp_develop.js']);
+const devJsFiles = distJsFiles; //.concat(['source/scripts/temp_develop.js']);
+const tmpJsFiles = [
+	'source/scripts/temp_develop.js',
+];
 
 const distCssFiles = [
 	'source/css/core/*.css',
 	'source/css/designs/*.css',
 ];
-const devCssFiles = distCssFiles.concat(['source/css/temp_for_dev.css']);
+const devCssFiles = distCssFiles; //.concat(['source/css/temp_for_dev.css']);
+const tmpCssFiles = [
+	'source/css/temp_for_dev.css',
+];
 
 gulp.task('develop', function (done) {
 	gulp.src('source/templates/index.html')
@@ -59,6 +65,8 @@ gulp.task('develop', function (done) {
 	})).pipe(gulp.dest('app/'));
 	gulp.src(devJsFiles).pipe(concat('power_ui.js')).pipe(gulp.dest('app/scripts/'));
 	gulp.src(devCssFiles).pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
+	gulp.src(tmpJsFiles).pipe(concat('temp_develop.js')).pipe(gulp.dest('app/scripts/'));
+	gulp.src(tmpCssFiles).pipe(concat('temp_develop.css')).pipe(gulp.dest('app/css/'));
 	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
 
 	reloadTask(done);
