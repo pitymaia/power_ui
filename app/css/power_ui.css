@@ -206,10 +206,12 @@ body.modal-open {
     z-index: 2000;
     background-color: rgb(0, 0, 0, 0.7);
 }
-.pw-spinner {
+.pw-spinner, p.pw-spinner-label {
     position: relative;
     top: 43vh;
-    margin: -5.8em auto;
+}
+.pw-spinner {
+    margin: -115px auto;
     border: 16px solid #000;
     border-radius: 50%;
     border-top: 16px solid #f3f3f3;
@@ -232,22 +234,20 @@ body.modal-open {
 }
 
 p.pw-spinner-label {
-  position: relative;
-  top: 43vh;
-  margin-left: 0.4em;
-  font-family: sans-serif;
-  text-transform: uppercase;
-  font-size: 0.8em;
-  font-weight: bold;
-  letter-spacing: 4px;
-  overflow: hidden;
-  background: linear-gradient(90deg, #000, #fff, #000);
-  background-repeat: no-repeat;
-  background-size: 80%;
-  animation: animate 2s linear infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: rgba(255, 255, 255, 0);
-  z-index: 2002;
+    margin-left: 0.2em;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    font-size: 1.3em;
+    font-weight: bold;
+    letter-spacing: 4px;
+    overflow: hidden;
+    background: linear-gradient(90deg, #000, #fff, #000);
+    background-repeat: no-repeat;
+    background-size: 80%;
+    animation: animate 2s linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0);
+    z-index: 2002;
 }
 
 @keyframes animate {
