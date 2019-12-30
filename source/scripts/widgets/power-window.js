@@ -92,6 +92,9 @@ class PowerWindow extends PowerDialogBase {
 		this.resizableEl.style.height = this._height;
 		this.bodyEl.style.width = this._width;
 		this.bodyEl.style.height = this.resizableEl.offsetHeight - titleHeight + 'px';
+		if (this.onResize) {
+			this.onResize();
+		}
 	}
 
 	dragElement() {
