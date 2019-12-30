@@ -5536,13 +5536,22 @@ class PowerWindow extends PowerDialogBase {
 		this.resizeElement();
 
 		if (this._width && this._height) {
+			// Keep the size if user refresh the window
 			this.bodyEl.style.width = this._width;
 			this.bodyEl.style.height = this._bodyHeight;
 			this.resizableEl.style.width = this._width;
 			this.resizableEl.style.height = this._height;
+		} else {
+			// Makes an initial adjustiment on window size to avoid it starts with a scrollbar
+			const height = (this.bodyEl.offsetHeight + 50) + 'px';
+			const width = (this.bodyEl.offsetWidth + 50) + 'px';
+			this.bodyEl.style.height = height;
+			this.resizableEl.style.height = height;
+			this.bodyEl.style.width = width;
+			this.resizableEl.style.width = width;
 		}
 
-		this.setBodyHeight();
+		this.resizeWindow();
 
 		this.windowsOrder();
 
@@ -5571,16 +5580,35 @@ class PowerWindow extends PowerDialogBase {
 		// Cancel if user giveup
 		document.onmouseup = this.closeDragElement.bind(this);
 		// call a function when the cursor moves
-		document.onmousemove = this.resizeMove.bind(this);
+		document.onmousemove = this.resizeWindow.bind(this);
 	}
 
-	resizeMove() {
+	resizeWindow() {
+		const minWidth = 130;
+		const minHeight = 130;
 		// set the element's new size
-		this.resizableEl.style.width = window.getComputedStyle(this.bodyEl).width;
-		this.resizableEl.style.height = parseInt(window.getComputedStyle(this.bodyEl).height.replace('px', '')) + parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
-		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
-		this._width = this.resizableEl.style.width;
-		this._height = this.resizableEl.style.height;
+		this._width = this.bodyEl.offsetWidth;
+		const bodyHeight = this.bodyEl.offsetHeight;
+		const titleHeight = this.titleBarEl.offsetHeight;
+		this._height = bodyHeight + titleHeight;
+
+		if (this._width < minWidth) {
+			this._width = minWidth;
+		}
+		if (this._height < minHeight) {
+			this._height = minHeight;
+		}
+
+		this._width = `${this._width}px`;
+		this._height = `${this._height}px`;
+
+		this.resizableEl.style.width = this._width;
+		this.resizableEl.style.height = this._height;
+		this.bodyEl.style.width = this._width;
+		this.bodyEl.style.height = this.resizableEl.offsetHeight - titleHeight + 'px';
+		if (this.onResize) {
+			this.onResize();
+		}
 	}
 
 	dragElement() {
@@ -5629,15 +5657,11 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	closeDragElement() {
-		this.setBodyHeight();
+		this.resizeWindow();
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
 		document.onmouseup = null;
 		document.onmousemove = null;
-	}
-
-	setBodyHeight() {
-		this.bodyEl.style.height = parseInt(window.getComputedStyle(this.resizableEl).height.replace('px', '')) - parseInt(window.getComputedStyle(this.titleBarEl).height.replace('px', '')) + 'px';
 	}
 
 	windowsOrder() {
