@@ -1,11 +1,12 @@
 class Request {
-	constructor(config) {
+	constructor({config, $powerUi}) {
+		this.$powerUi = $powerUi;
 		const self = this;
 		return function (d) {
 			d.withCredentials = d.withCredentials === undefined ? true : d.withCredentials;
 			d.headers = d.headers || config.headers || {};
 			if (config.authCookie) {
-				d.headers['Authorization'] = self.getCookie(config.authCookie) || null;
+				d.headers['Authorization'] = self.$powerUi.getCookie(config.authCookie) || null;
 			}
 			const promise = {
 				then: function (onsucess) {
@@ -42,17 +43,6 @@ class Request {
 			});
 			return promise;
 		}
-	}
-
-	getCookie(name) {
-		const nameEQ = name + "=";
-		const ca = document.cookie.split(';');
-		for(var i=0;i < ca.length;i++) {
-			var c = ca[i];
-			while (c.charAt(0)==' ') c = c.substring(1,c.length);
-			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-		}
-		return null;
 	}
 
 	encodedParams(object) {
