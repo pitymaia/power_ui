@@ -1478,14 +1478,18 @@ class PowerUi extends _PowerUiBase {
 		return null;
 	}
 
-	setCookie(name, value, days, domain) {
+	setCookie({name, value, days, domain, path}) {
 	    var expires = "";
 	    if (days) {
 	        var date = new Date();
 	        date.setTime(date.getTime() + (days*24*60*60*1000));
 	        expires = ";expires=" + date.toUTCString();
 	    }
-	    document.cookie = name + "=" + (value || "")  + expires + `${'; ' + domain || ''}; path=/`;
+	    document.cookie = name + "=" + (value || "")  + expires + `;${domain ? domain + ';' : ''}path=${path || '/'};`;
+	}
+
+	removeCookie({name, value, domain, path}) {
+		document.cookie = `${name}=${value ? value : ''};${domain ? (domain + ';') : ''}Max-Age=-99999999;path=${path || '/'};`;
 	}
 
 	_addService(key, service) {
