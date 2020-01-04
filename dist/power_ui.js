@@ -1606,7 +1606,11 @@ class PowerUi extends _PowerUiBase {
 		return view;
 	}
 
-	addSpinnerAndHideView(view) {
+	addSpinner(view) {
+		this.addSpinnerAndHideView(view, true);
+	}
+
+	addSpinnerAndHideView(view, doNotWait) {
 		// Only add one spinner when the first view is added to waitingViews
 		if (!document.getElementById('_power-spinner')) {
 			// Backdrop
@@ -1632,7 +1636,9 @@ class PowerUi extends _PowerUiBase {
 		if (view) {
 			// Hidding a view is optional
 			view.style.visibility = 'hidden';
-			this.waitingViews = this.waitingViews + 1;
+			if (!doNotWait) {
+				this.waitingViews = this.waitingViews + 1;
+			}
 		}
 	}
 
