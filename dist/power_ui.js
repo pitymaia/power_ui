@@ -1632,8 +1632,8 @@ class PowerUi extends _PowerUiBase {
 		if (view) {
 			// Hidding a view is optional
 			view.style.visibility = 'hidden';
+			this.waitingViews = this.waitingViews + 1;
 		}
-		this.waitingViews = this.waitingViews + 1;
 	}
 
 	// Run the controller instance for the route
