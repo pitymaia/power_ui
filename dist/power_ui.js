@@ -1737,9 +1737,12 @@ class PowerUi extends _PowerUiBase {
 		}, 10);
 	}
 
-	removeSpinner() {
+	removeSpinner(view) {
 		const spinner = document.getElementById('_power-spinner');
 		spinner.parentNode.removeChild(spinner);
+		if (view) {
+			view.style.visibility = null;
+		}
 	}
 
 	sanitizeHTML(str) {
