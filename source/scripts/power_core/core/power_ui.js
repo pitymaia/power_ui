@@ -306,7 +306,10 @@ class PowerUi extends _PowerUiBase {
 			document.body.appendChild(spinnerBackdrop);
 		}
 		// Avoid blink uninterpolated data before call compile and interpolate
-		view.style.visibility = 'hidden';
+		if (view) {
+			// Hidding a view is optional
+			view.style.visibility = 'hidden';
+		}
 		this.waitingViews = this.waitingViews + 1;
 	}
 
@@ -406,7 +409,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	removeSpinner() {
-		const spinner = document.getElementById('_power-spinner')
+		const spinner = document.getElementById('_power-spinner');
 		spinner.parentNode.removeChild(spinner);
 	}
 
