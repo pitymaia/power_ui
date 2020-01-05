@@ -1779,6 +1779,10 @@ class PowerUi extends _PowerUiBase {
 		return new PowerAccordionSection(element, this);
 	}
 
+	_powerList(element) {
+		return new PowerList(element, this);
+	}
+
 	_powerAction(element) {
 		return new PowerAction(element, this);
 	}
@@ -1788,6 +1792,10 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_powerDropmenu(element) {
+		return new PowerDropmenu(element, this);
+	}
+
+	_powerTreeView(element) {
 		return new PowerDropmenu(element, this);
 	}
 
@@ -5825,20 +5833,20 @@ class PowerAccordionSection extends PowerTarget {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-accordion-section'});
 
-class PowerAction extends PowerTarget {
+class PowerList extends PowerTarget {
 	constructor(element) {
 		super(element);
 
 		this._target = this.element.dataset.powerTarget;
 		if (!this._target) {
-			console.error('power-action selector needs a power element target', this.element);
-			throw 'Missing power-action target. Please define it: data-power-target="power_element_id"';
+			console.error('power-action/power-list/power-toggle selectors needs a power element target', this.element);
+			throw 'Missing power-action/power-list/power-toggle target. Please define it: data-power-target="power_element_id"';
 		}
 	}
 
 	init() {
-		// Add the target Class to the Action
-		// It selects the first element with this id with is has powerTarget
+		// Add the target element to the list/action
+		// It selects the first element with this id that have a powerTarget
 		const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById[this._target];
 		for (const index in allPowerObjsById) {
 			if (allPowerObjsById[index].powerTarget) {
@@ -5846,15 +5854,10 @@ class PowerAction extends PowerTarget {
 			}
 		}
 		// Add the action to the target Class
-		this.targetObj.powerAction = this;
 		this.subscribe({event: 'click', fn: this.toggle});
 	}
 
-	// Params allows a flag to "avoidCallAction"
-	// Some times the targetObj.action needs to call the action.toggle, but it the action.toggle also calls the targetObj.action a loop will occurs
-	// The avoidCallAction flag avoid the loop
-	toggle(params={}) {
-		if (this.targetObj.action && !params.avoidCallAction) this.targetObj.action();
+	toggle() {
 		if (this._$pwActive) {
 			this._$pwActive = false; // powerAction
 			this.targetObj._$pwActive = false;
@@ -5868,6 +5871,29 @@ class PowerAction extends PowerTarget {
 		}
 		// Broadcast toggle custom event
 		this.broadcast('toggle', true);
+	}
+}
+
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-list'});
+
+class PowerAction extends PowerList {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		super.init();
+		this.targetObj.powerAction = this;
+		// this.subscribe({event: 'click', fn: this.toggle});
+	}
+
+	// Params allows a flag to "avoidCallAction"
+	// Some times the targetObj.action needs to call the action.toggle, but if the action.toggle also calls the targetObj.action a loop will occurs
+	// The avoidCallAction flag avoid the loop
+	toggle(params={}) {
+		if (this.targetObj.action && !params.avoidCallAction) this.targetObj.action();
+		super.toggle();
 	}
 
 	ifClickOut() {
@@ -6477,3 +6503,11 @@ class PowerStatus extends PowerTarget {
 }
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-status'});
+
+class PowerTreeView extends PowerTarget {
+    constructor(element) {
+        super(element);
+    }
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-tree-view'});
