@@ -144,6 +144,10 @@ class PowerUi extends _PowerUiBase {
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
+	treeTemplate(tree) {
+		return new PowerTreeTemplate({$powerUi: this, tree: tree}).template;
+	}
+
 	getCookie(name) {
 		const nameEQ = name + "=";
 		const ca = document.cookie.split(';');
