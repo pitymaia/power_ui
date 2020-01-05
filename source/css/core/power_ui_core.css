@@ -36,6 +36,9 @@
 }
 
 /* start power tree view */
+.power-tree-view .power-tree-view {
+    padding-left: 1em;
+}
 .power-tree-view, .power-tree-view .power-item, .power-tree-view .power-tree-view, .power-tree-view .power-list {
     display: block;
     cursor: pointer;
@@ -126,7 +129,7 @@
 .pw-window, .pw-window-resizable {
     max-width: 95vw;
     max-height: 98vh;
-    text-align: center;
+    /*text-align: center;*/
 }
 .pw-window.pw-touchdevice .pw-body, .pw-window.pw-touchdevice .pw-window-resizable {
     top: 0;
@@ -141,6 +144,7 @@
 }
 .pw-window .pw-title-bar {
     cursor: grabbing;
+    text-align: center;
 }
 .pw-modal .pw-body, .pw-modal .pw-title-bar {
     margin: 0 auto;
