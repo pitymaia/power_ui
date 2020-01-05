@@ -35,6 +35,19 @@
     position: absolute;
 }
 
+/* start power tree view */
+.power-tree-view, .power-tree-view .power-item, .power-tree-view .power-tree-view, .power-tree-view .power-list {
+    display: block;
+    cursor: pointer;
+}
+.power-tree-view .power-tree-view {
+    display: none;
+}
+.power-tree-view .power-tree-view.power-active {
+    display: block;;
+}
+/* end power tree view*/
+
 @media screen and (max-width: 800px) {
     .power-menu.power-horizontal .power-action, .power-menu.power-horizontal .power-item {
         display: none;

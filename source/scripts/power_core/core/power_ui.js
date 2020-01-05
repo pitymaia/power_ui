@@ -456,6 +456,10 @@ class PowerUi extends _PowerUiBase {
 		return new PowerAccordionSection(element, this);
 	}
 
+	_powerList(element) {
+		return new PowerList(element, this);
+	}
+
 	_powerAction(element) {
 		return new PowerAction(element, this);
 	}
@@ -465,6 +469,10 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_powerDropmenu(element) {
+		return new PowerDropmenu(element, this);
+	}
+
+	_powerTreeView(element) {
 		return new PowerDropmenu(element, this);
 	}
 
