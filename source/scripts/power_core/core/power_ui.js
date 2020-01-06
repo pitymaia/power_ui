@@ -148,6 +148,10 @@ class PowerUi extends _PowerUiBase {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree}).template;
 	}
 
+	treeTemplatePlus(tree) {
+		return new PowerTreeTemplate({$powerUi: this, tree: tree, boilerplate: true}).template;
+	}
+
 	getCookie(name) {
 		const nameEQ = name + "=";
 		const ca = document.cookie.split(';');

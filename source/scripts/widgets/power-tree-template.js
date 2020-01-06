@@ -1,5 +1,6 @@
 class PowerTreeTemplate {
-	constructor({$powerUi, tree}) {
+	constructor({$powerUi, tree, boilerplate}) {
+		this.boilerplate = boilerplate || false;
 		this.$powerUi = $powerUi;
 		this.tree = tree;
 		this.template = this.buildTemplate(this.tree);
@@ -9,8 +10,13 @@ class PowerTreeTemplate {
 		let template = `<nav ${id ? 'id="' + id + '"' : ''} class="power-tree-view">`;
 		for (const item of tree) {
 			if (item.kind === 'file') {
-				template = `${template}
+				if (this.boilerplate) {
+					template = `${template}
 					<a class="power-item" data-pow-event onclick="openFile({path:'${item.path}'})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+				} else {
+					template = `${template}
+					<a class="power-item"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+				}
 			} else if (item.kind === 'folder') {
 				const id = `list-${this.$powerUi._Unique.next()}`;
 				template = `${template}
