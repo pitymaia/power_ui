@@ -267,6 +267,28 @@ class PowerOnlyPage extends PowerController {
 				resolve();
 			}
 		});
+
+		// this.$service('widget').open({
+		// 	kind: 'modal',
+		// 	title: 'Confirm dialog',
+		// 	template: '<p>This is a dialog</p>',
+		// 	params: {commitBt: {label: 'Save', ico: 'check'},  cancelBt: true},
+		// 	controller: function () {
+		// 		this.cats = [
+		// 			{name: 'Riquinho', gender: 'male'},
+		// 			{name: 'Princesa', gender: 'female'},
+		// 			{name: 'Pingo', gender: 'male'},
+		// 		]
+		// 	},
+		// 	onCommit: function(resolve) {
+		// 		console.log('Thanks for commiting with me.');
+		// 		resolve();
+		// 	},
+		// 	onCancel: function(resolve) {
+		// 		console.log('This is sad...');
+		// 		resolve();
+		// 	}
+		// });
 	}
 
 	test() {
