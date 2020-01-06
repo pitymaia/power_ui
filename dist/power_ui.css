@@ -277,6 +277,13 @@ p.pw-spinner-label {
 }
 /* end spinner */
 
+.grid-flex {
+    margin: .5em;
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
 .pwdesign-white-smoke {
     font-family: Verdana, Arial, "Courier New";
 }
