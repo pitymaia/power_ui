@@ -58,7 +58,8 @@ const someViewTemplate = `<h1>Cats list</h1>
 			]">
 				<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 				</div>
-			</div>`;
+			</div>
+			<button class="pw-btn-default" data-pow-event onclick="refresh()">Refresh</button>`;
 var teste = 'MARAVILHA!';
 
 class FrontPage extends PowerController {
