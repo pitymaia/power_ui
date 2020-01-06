@@ -82,10 +82,10 @@
 /* Menu end*/
 
 /* Dialog-Modal-Window start */
-.pw-modal .pw-body, .pw-dialog, .pw-window-resizable {
+.pw-modal .pw-body, .pw-dialog .pw-body, .pw-window .pw-body {
     background-color: #F5F5F5;
 }
-.pw-modal .pw-body, .pw-dialog {
+.pw-modal .pw-body, .pw-dialog .pw-body {
     position: relative;
     overflow: auto;
     max-height: 90vh;
