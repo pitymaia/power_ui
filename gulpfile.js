@@ -50,6 +50,7 @@ const tmpJsFiles = [
 
 const distCssFiles = [
 	'source/css/core/*.css',
+	'source/css/components/**/*.css',
 	'source/css/designs/*.css',
 ];
 const devCssFiles = distCssFiles; //.concat(['source/css/temp_for_dev.css']);
