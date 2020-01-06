@@ -10,7 +10,7 @@ class PowerTreeTemplate {
 		for (const item of tree) {
 			if (item.kind === 'file') {
 				template = `${template}
-					<a class="power-item" data-pow-event onclick="openFile({path:${item.path}})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+					<a class="power-item" data-pow-event onclick="openFile({path:'${item.path}'})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
 			} else if (item.kind === 'folder') {
 				const id = `list-${this.$powerUi._Unique.next()}`;
 				template = `${template}
