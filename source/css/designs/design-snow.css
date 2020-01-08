@@ -75,14 +75,18 @@
     background-color: #fff;
 }
 .pwdesign-white-smoke .power-accordion > .power-accordion-section {
-    padding: 0.5em;
-    display: none;
+    visibility: hidden;
+    overflow: hidden;
+    max-height: 0;
 }
 .pwdesign-white-smoke .power-accordion > .power-accordion-section.power-active {
-    display: block;
+    visibility: visible;
+    padding: 0.5em;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     margin-bottom: 0.2em;
+    max-height: 100vh;
+    transition: max-height 0.4s ease-in-out;
 }
 .pwdesign-white-smoke .power-accordion > .power-action {
     display: flex;
