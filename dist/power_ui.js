@@ -5590,7 +5590,7 @@ class PowerTreeTemplate {
 			if (item.kind === 'file') {
 				if (this.boilerplate) {
 					template = `${template}
-					<a class="power-item" data-pow-event onclick="openFile({path:'${item.path}'})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+					<a class="power-item" data-pow-event onclick="_commit({path:'${item.path}'})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
 				} else {
 					template = `${template}
 					<a class="power-item"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
