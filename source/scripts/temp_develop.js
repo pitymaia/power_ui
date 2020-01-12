@@ -423,8 +423,8 @@ class SimpleDialog extends PowerConfirm {
 	// onViewLoad(view) {
 	// 	console.log('aqui', view);
 	// }
-	onCancel(resolve, reject) {
-		console.log('Really cancel?');
+	onCancel(resolve, reject, ...args) {
+		console.log('Really cancel?', args);
 		resolve();
 		// this.$powerUi.request({
 		// 		url: 'somecomponent.html',
@@ -440,8 +440,8 @@ class SimpleDialog extends PowerConfirm {
 		// });
 	}
 
-	onCommit(resolve, reject) {
-		console.log('It is confirmed!');
+	onCommit(resolve, reject, ...args) {
+		console.log('It is confirmed!', args);
 		resolve();
 	}
 

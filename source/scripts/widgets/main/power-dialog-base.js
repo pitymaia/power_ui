@@ -13,9 +13,12 @@ class PowerDialogBase extends PowerWidget {
 		$powerUi._events['Escape'].subscribe(this._closeWindow);
 	}
 	// Allow async calls to implement onCancel
-	_cancel() {
+	_cancel(...args) {
 		if (this.onCancel) {
-			new Promise(this.onCancel.bind(this)).then(
+			const self = this;
+			new Promise(function (resolve, reject) {
+				self.onCancel(resolve, reject, ...args);
+			}).then(
 				this.closeCurrentRoute.bind(this)
 			).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
 		} else {
@@ -23,9 +26,12 @@ class PowerDialogBase extends PowerWidget {
 		}
 	}
 	// Allow async calls to implement onCommit
-	_commit() {
+	_commit(...args) {
 		if (this.onCommit) {
-			new Promise(this.onCommit.bind(this)).then(
+			const self = this;
+			new Promise(function (resolve, reject) {
+				self.onCommit(resolve, reject, ...args);
+			}).then(
 				this.closeCurrentRoute.bind(this)
 			).catch(()=> (this.onCommitError) ? this.onCommitError() : null);
 		} else {
