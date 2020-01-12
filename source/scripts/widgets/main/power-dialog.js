@@ -27,6 +27,15 @@ class PowerConfirm extends PowerDialog {
 	}
 }
 
+class PowerYesNo extends PowerDialog {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.commitBt = true;
+		this.noBt = true;
+		this.cancelBt = true;
+	}
+}
+
 function wrapFunctionInsideDialog({controller, kind, params}) {
 	class _Alert extends PowerAlert {
 		constructor({$powerUi}) {
@@ -51,6 +60,19 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 			}
 		}
 	}
+
+	class _YesNo extends PowerYesNo {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+
 	class _Modal extends PowerModal {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
@@ -76,6 +98,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 
 	if (kind === 'confirm') {
 		return _Confirm;
+	} else if (kind === 'yesno') {
+		return _YesNo;
 	} else if (kind === 'modal') {
 		return _Modal;
 	} else if (kind === 'window') {

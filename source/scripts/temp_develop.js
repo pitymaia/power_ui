@@ -214,81 +214,37 @@ class PowerOnlyPage extends PowerController {
 		// 	target: '_blank',
 		// });
 
-		this.$service('widget').open({
-			title: 'Confirm dialog',
-			template: '<p>This is a dialog</p>',
-			ctrl: {
-				component: SimpleDialog,
-				params: {pity: true},
-			},
-		});
-		const self = this;
-
-		// this.$service('widget').window({
-		// 	title: 'My Modal',
-		// 	template: `<p>This is a custom modal</p>
-		// 			<p>I love my {{cats.length}} cats multiplied by two: {{cats.length * 2}}</p>
-		// 			<div id="favorite-cats" data-pow-for="cat of cats">
-		// 			    <div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda
-		// 			        <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
-		// 			    </div>
-		// 			    <div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }}
-		// 			        <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
-		// 			    </div>
-		// 			    <div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_{{$pwIndex}}_u">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
-		// 			    </div>
-		// 			</div>
-		// 			<br />
-		// 			<button class="pw-btn-default" data-pow-event onclick="reload()"><span class="pw-ico fa fa-refresh"></span> Reload all</button>
-		// 			<button class="pw-btn-default" data-pow-event onclick="reload(_viewId)"><span class="pw-ico fa fa-refresh"></span> Reload view</button>`,
-		// 	// templateUrl: 'somecomponent.html',
-		// 	params: {commitBt: true, cancelBt: true},
-		// 	controller: function () {
-		// 		this.cats = [
-		// 			{name: 'Riquinho', gender: 'male'},
-		// 			{name: 'Princesa', gender: 'female'},
-		// 			{name: 'Pingo', gender: 'male'},
-		// 		]
-		// 		this.reload = function(_viewId) {
-		// 			if (this.cats.length === 3) {
-		// 				this.cats.push({name: 'Sol', gender: 'female'});
-		// 			} else {
-		// 				this.cats.pop();
-		// 			}
-		// 			this.$powerUi.router._refresh(_viewId);
-		// 		}
-		// 	},
-		// 	onCommit: function(resolve) {
-		// 		console.log('Thanks for commiting with me.');
-		// 		resolve();
-		// 	},
-		// 	onCancel: function(resolve) {
-		// 		console.log('This is sad...');
-		// 		resolve();
-		// 	}
-		// });
-
 		// this.$service('widget').open({
-		// 	kind: 'modal',
 		// 	title: 'Confirm dialog',
 		// 	template: '<p>This is a dialog</p>',
-		// 	params: {commitBt: {label: 'Save', ico: 'check'},  cancelBt: true},
-		// 	controller: function () {
-		// 		this.cats = [
-		// 			{name: 'Riquinho', gender: 'male'},
-		// 			{name: 'Princesa', gender: 'female'},
-		// 			{name: 'Pingo', gender: 'male'},
-		// 		]
+		// 	ctrl: {
+		// 		component: SimpleDialog,
+		// 		params: {pity: true},
 		// 	},
-		// 	onCommit: function(resolve) {
-		// 		console.log('Thanks for commiting with me.');
-		// 		resolve();
-		// 	},
-		// 	onCancel: function(resolve) {
-		// 		console.log('This is sad...');
-		// 		resolve();
-		// 	}
 		// });
+		const self = this;
+
+		this.$service('widget').open({
+			kind: 'yesno',
+			title: 'YesNo dialog',
+			template: '<p>This is a Yes or No dialog</p>',
+			// params: {commitBt: {label: 'Save', ico: 'check'},  cancelBt: true},
+			// controller: function () {
+			// 	this.cats = [
+			// 		{name: 'Riquinho', gender: 'male'},
+			// 		{name: 'Princesa', gender: 'female'},
+			// 		{name: 'Pingo', gender: 'male'},
+			// 	]
+			// },
+			onCommit: function(resolve, reject, value) {
+				console.log('Thanks for commiting with me.', value);
+				resolve();
+			},
+			onCancel: function(resolve) {
+				console.log('This is sad...');
+				resolve();
+			}
+		});
 	}
 
 	test() {

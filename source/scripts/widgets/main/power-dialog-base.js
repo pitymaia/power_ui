@@ -69,17 +69,29 @@ class PowerDialogBase extends PowerWidget {
 			const cancelBt = '<button class="pw-btn-default" data-pow-event onclick="_cancel()">Cancel</button>';
 			let buttons = '';
 			if (this.commitBt) {
+				const defaultLabel = this.noBt ? 'Yes' : 'Ok';
 				const commitIco = `<span class="pw-ico fa fa-${(this.commitBt.ico ? this.commitBt.ico : 'check-circle')}"></span>`;
 				const commitBt = `<button
 								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
-								data-pow-event onclick="_commit()">
+								data-pow-event onclick="_commit(true)">
 								${(this.commitBt.ico !== false ? commitIco : '')}
-								${(this.commitBt.label ? this.commitBt.label : 'Ok')}
+								${(this.commitBt.label ? this.commitBt.label : defaultLabel)}
 								</button>`;
 				buttons = buttons + commitBt;
 			}
+			if (this.noBt) {
+				const noIco = `<span class="pw-ico fa fa-${(this.noBt.ico ? this.noBt.ico : 'times-circle')}"></span>`;
+				const noBt = `<button
+								class="${(this.noBt.css ? this.noBt.css : 'pw-btn-default')}"
+								data-pow-event onclick="_commit(false)">
+								${(this.noBt.ico !== false ? noIco : '')}
+								${(this.noBt.label ? this.noBt.label : 'No')}
+								</button>`;
+				buttons = buttons + noBt;
+			}
 			if (this.cancelBt) {
-				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : 'times-circle')}"></span>`;
+				const defaultIco = this.noBt ? 'times' : 'times-circle';
+				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : defaultIco)}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_cancel()">
