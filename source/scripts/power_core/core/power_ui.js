@@ -374,7 +374,9 @@ class PowerUi extends _PowerUiBase {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		const component = new template({$powerUi: this});
+		// Add $tscope to controller and save it with the route
 		this.controllers[viewId].instance.$tscope = component.component;
+		routes[routeId].$tscope = component.component;
 
 		component.template.then(function (response) {
 			template = response;
@@ -401,6 +403,10 @@ class PowerUi extends _PowerUiBase {
 
 	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		// Add $tscope to controller if have a saved $tscope
+		if (routes[routeId].$tscope) {
+			this.controllers[viewId].instance.$tscope = routes[routeId].$tscope;
+		}
 		this.buildViewTemplateAndMayCallInit({
 			self: this,
 			view: view,

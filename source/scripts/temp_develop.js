@@ -209,18 +209,18 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleDialog() {
-		// this.openRoute({
-		// 	routeId: 'simple-dialog',
-		// 	target: '_blank',
-		// });
-
-		this.$service('widget').yesno({
-			title: 'Template dialog',
-			templateComponent: SimpleTemplate,
-			controller: function() {
-				console.log(this.$tscope.pity);
-			}
+		this.openRoute({
+			routeId: 'simple-dialog',
+			target: '_blank',
 		});
+
+		// this.$service('widget').yesno({
+		// 	title: 'Template dialog',
+		// 	templateComponent: SimpleTemplate,
+		// 	controller: function() {
+		// 		console.log(this.$tscope.pity);
+		// 	}
+		// });
 		const self = this;
 
 		// this.$service('widget').open({
@@ -394,6 +394,7 @@ class SimpleDialog extends PowerWindow {
 	// }
 
 	ctrl({lock, $powerUi}) {
+		console.log('ctrl', this.$tscope.pity);
 	}
 
 	// onViewLoad(view) {
