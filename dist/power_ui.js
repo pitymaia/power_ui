@@ -1696,7 +1696,7 @@ class PowerUi extends _PowerUiBase {
 	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		const component = new template({$powerUi: this});
+		const component = new template({$powerUi: this, ctrl: this.controllers[viewId].instance});
 
 		component.then(function (response) {
 			template = response;

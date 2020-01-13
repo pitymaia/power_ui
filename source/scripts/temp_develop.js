@@ -355,6 +355,7 @@ class SimpleModal extends PowerModal {
 
 class SimpleTemplate extends PowerTemplate {
 	template(resolve, reject) {
+		console.log('this ctrl', this.ctrl);
 		this.$powerUi.request({
 				url: '/some-window.html',
 				method: 'GET',
