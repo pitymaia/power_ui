@@ -54,7 +54,6 @@ class PowerController {
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		console.log('current route', route);
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';

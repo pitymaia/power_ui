@@ -1693,6 +1693,34 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
+	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
+		const self = this;
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		const component = new template({$powerUi: this});
+
+		component.then(function (response) {
+			template = response;
+			self.buildViewTemplateAndMayCallInit({
+				self: self,
+				view: view,
+				template: template,
+				routeId: routeId,
+				viewId: viewId,
+				title: title,
+			});
+			// Cache this template for new requests if avoidCacheTemplate not setted as true
+			const routeConfig = routes[routeId];
+			if (routeConfig.avoidCacheTemplate !== true) {
+				routeConfig.template = template;
+				routeConfig.templateIsCached = true;
+			} else {
+				routeConfig.templateIsCached = false;
+			}
+		}).catch(function (response, xhr) {
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+		});
+	}
+
 	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.buildViewTemplateAndMayCallInit({
@@ -1866,6 +1894,11 @@ class WidgetService extends PowerServices {
 		this.open(options);
 	}
 
+	yesno(options) {
+		options.kind = 'yesno';
+		this.open(options);
+	}
+
 	modal(options) {
 		options.kind = 'modal';
 		this.open(options);
@@ -1875,7 +1908,7 @@ class WidgetService extends PowerServices {
 		this.open(options);
 	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl, templateComponent}) {
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
@@ -1906,19 +1939,21 @@ class WidgetService extends PowerServices {
 			title: title,
 			template: template,
 			templateUrl: templateUrl,
+			templateComponent: templateComponent,
 			ctrl: ctrl,
 			params: params,
 		});
 	}
 
-	_open({routeId, params, target, title, template, ctrl, templateUrl}) {
+	_open({routeId, params, target, title, template, ctrl, templateUrl, templateComponent}) {
 		// Add it as a hidden route
 		const newRoute = {
 			id: routeId,
 			title: title,
 			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
-			template: templateUrl || template,
+			template: templateUrl || templateComponent || template,
 			templateUrl: templateUrl,
+			templateComponent: templateComponent,
 			hidden: true,
 			ctrl: ctrl,
 			isVolatile: true,
@@ -1994,7 +2029,6 @@ class PowerController {
 
 	closeCurrentRoute() {
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		console.log('current route', route);
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';
@@ -2143,8 +2177,8 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
-		template = templateUrl || template;
+	add({id, route, template, templateUrl, templateComponent, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
+		template = templateUrl || template || templateComponent;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
@@ -2194,8 +2228,9 @@ class Router {
 			callback: callback || null,
 			template: template || null,
 			templateUrl: templateUrl || null,
+			templateComponent: templateComponent || null,
 			avoidCacheTemplate: avoidCacheTemplate === true ? true : false,
-			templateIsCached: templateUrl ? false : true,
+			templateIsCached: (templateUrl || templateComponent) ? false : true,
 			viewId: viewId || null,
 			ctrl: ctrl || null,
 			hidden: hidden || null,
@@ -2570,6 +2605,16 @@ class Router {
 					routes: this.routes,
 					title: title,
 				});
+			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached !== true) {
+
+				this.$powerUi.loadTemplateComponent({
+					template: this.routes[routeId].template,
+					viewId: _viewId,
+					currentRoutes: this.currentRoutes,
+					routeId: routeId,
+					routes: this.routes,
+					title: title,
+				});
 			} else {
 				this.$powerUi.loadTemplate({
 					template: this.routes[routeId].template,
@@ -2874,6 +2919,20 @@ class Router {
 		return param ? param.value : null;
 	}
 }
+
+class PowerTemplate {
+    constructor({$powerUi, ctrl}) {
+        this.$powerUi = $powerUi;
+        this.ctrl = ctrl;
+        return this._template();
+    }
+
+    _template() {
+        return new Promise(this.template.bind(this));
+    }
+}
+
+export { PowerTemplate };
 
 class PowerInterpolation {
 	constructor(config={}, powerUi) {

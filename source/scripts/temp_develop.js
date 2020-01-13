@@ -1,6 +1,6 @@
 "use strict";
 
-import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow } from './power_ui.js';
+import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, PowerTemplate } from './power_ui.js';
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -214,37 +214,33 @@ class PowerOnlyPage extends PowerController {
 		// 	target: '_blank',
 		// });
 
-		// this.$service('widget').open({
-		// 	title: 'Confirm dialog',
-		// 	template: '<p>This is a dialog</p>',
-		// 	ctrl: {
-		// 		component: SimpleDialog,
-		// 		params: {pity: true},
-		// 	},
-		// });
+		this.$service('widget').yesno({
+			title: 'Template dialog',
+			templateComponent: SimpleTemplate,
+		});
 		const self = this;
 
-		this.$service('widget').open({
-			kind: 'yesno',
-			title: 'YesNo dialog',
-			template: '<p>This is a Yes or No dialog</p>',
-			// params: {commitBt: {label: 'Save', ico: 'check'},  cancelBt: true},
-			// controller: function () {
-			// 	this.cats = [
-			// 		{name: 'Riquinho', gender: 'male'},
-			// 		{name: 'Princesa', gender: 'female'},
-			// 		{name: 'Pingo', gender: 'male'},
-			// 	]
-			// },
-			onCommit: function(resolve, reject, value) {
-				console.log('Thanks for commiting with me.', value);
-				resolve();
-			},
-			onCancel: function(resolve) {
-				console.log('This is sad...');
-				resolve();
-			}
-		});
+		// this.$service('widget').open({
+		// 	kind: 'yesno',
+		// 	title: 'YesNo dialog',
+		// 	template: '<p>This is a Yes or No dialog</p>',
+		// 	// params: {commitBt: {label: 'Save', ico: 'check'},  cancelBt: true},
+		// 	// controller: function () {
+		// 	// 	this.cats = [
+		// 	// 		{name: 'Riquinho', gender: 'male'},
+		// 	// 		{name: 'Princesa', gender: 'female'},
+		// 	// 		{name: 'Pingo', gender: 'male'},
+		// 	// 	]
+		// 	// },
+		// 	onCommit: function(resolve, reject, value) {
+		// 		console.log('Thanks for commiting with me.', value);
+		// 		resolve();
+		// 	},
+		// 	onCancel: function(resolve) {
+		// 		console.log('This is sad...');
+		// 		resolve();
+		// 	}
+		// });
 	}
 
 	test() {
@@ -268,7 +264,6 @@ class PowerOnlyPage extends PowerController {
 
 class SimpleModal extends PowerModal {
 	init() {
-		console.log('Modal init');
 		this.commitBt = {
 			label: 'Close',
 		}
@@ -342,7 +337,6 @@ class SimpleModal extends PowerModal {
 	}
 
 	ctrl({lock, $powerUi}) {
-		console.log('Modal controller');
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
 			{name: 'Lion', gender: 'male'},
@@ -359,21 +353,42 @@ class SimpleModal extends PowerModal {
 	}
 }
 
-class SimpleDialog extends PowerConfirm {
-
-	init() {
-		this.commitBt = {
-			label: 'Yes',
-			// ico: 'check',
-		};
-		this.cancelBt = {
-			label: 'No',
-			// ico: 'close',
-		};
+class SimpleTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		this.$powerUi.request({
+				url: '/some-window.html',
+				method: 'GET',
+				status: "Loading page",
+		}).then(function (response, xhr) {
+			let tmpEl = document.createElement("div");
+			tmpEl.innerHTML = response;
+			const treeGrid = tmpEl.getElementsByClassName('grid-flex')[0];
+			tmpEl = document.createElement("div");
+			tmpEl.innerHTML = '<h1>Pity o bom</h1>';
+			tmpEl.appendChild(treeGrid);
+			resolve(tmpEl.innerHTML);
+		}).catch(function (response, xhr) {
+			console.log('SimpleTemplate', response, xhr);
+			reject();
+		});
 	}
+}
+
+class SimpleDialog extends PowerWindow {
+
+	// init() {
+	// 	this.commitBt = {
+	// 		label: 'Yes',
+	// 		// ico: 'check',
+	// 	};
+	// 	this.noBt = {};
+	// 	this.cancelBt = {
+	// 		label: 'Cancel',
+	// 		// ico: 'close',
+	// 	};
+	// }
 
 	ctrl({lock, $powerUi}) {
-
 	}
 
 	// onViewLoad(view) {
@@ -601,9 +616,8 @@ const routes = [
 		{
 			id: 'simple-dialog',
 			route: 'dialog',
-			title: 'Confirm dialog',
-			template: `<p>This is a dialog</p>`,
-			hidden: true,
+			title: 'Window dialog',
+			templateComponent: SimpleTemplate,
 			ctrl: {
 				component: SimpleDialog,
 				params: {pity: true},

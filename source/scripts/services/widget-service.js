@@ -30,6 +30,11 @@ class WidgetService extends PowerServices {
 		this.open(options);
 	}
 
+	yesno(options) {
+		options.kind = 'yesno';
+		this.open(options);
+	}
+
 	modal(options) {
 		options.kind = 'modal';
 		this.open(options);
@@ -39,7 +44,7 @@ class WidgetService extends PowerServices {
 		this.open(options);
 	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl, templateComponent}) {
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
@@ -70,19 +75,21 @@ class WidgetService extends PowerServices {
 			title: title,
 			template: template,
 			templateUrl: templateUrl,
+			templateComponent: templateComponent,
 			ctrl: ctrl,
 			params: params,
 		});
 	}
 
-	_open({routeId, params, target, title, template, ctrl, templateUrl}) {
+	_open({routeId, params, target, title, template, ctrl, templateUrl, templateComponent}) {
 		// Add it as a hidden route
 		const newRoute = {
 			id: routeId,
 			title: title,
 			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
-			template: templateUrl || template,
+			template: templateUrl || templateComponent || template,
 			templateUrl: templateUrl,
+			templateComponent: templateComponent,
 			hidden: true,
 			ctrl: ctrl,
 			isVolatile: true,

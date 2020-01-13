@@ -370,6 +370,34 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
+	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
+		const self = this;
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		const component = new template({$powerUi: this});
+
+		component.then(function (response) {
+			template = response;
+			self.buildViewTemplateAndMayCallInit({
+				self: self,
+				view: view,
+				template: template,
+				routeId: routeId,
+				viewId: viewId,
+				title: title,
+			});
+			// Cache this template for new requests if avoidCacheTemplate not setted as true
+			const routeConfig = routes[routeId];
+			if (routeConfig.avoidCacheTemplate !== true) {
+				routeConfig.template = template;
+				routeConfig.templateIsCached = true;
+			} else {
+				routeConfig.templateIsCached = false;
+			}
+		}).catch(function (response, xhr) {
+			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+		});
+	}
+
 	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.buildViewTemplateAndMayCallInit({

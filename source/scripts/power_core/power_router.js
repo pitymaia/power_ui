@@ -30,8 +30,8 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
-		template = templateUrl || template;
+	add({id, route, template, templateUrl, templateComponent, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
+		template = templateUrl || template || templateComponent;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
@@ -81,8 +81,9 @@ class Router {
 			callback: callback || null,
 			template: template || null,
 			templateUrl: templateUrl || null,
+			templateComponent: templateComponent || null,
 			avoidCacheTemplate: avoidCacheTemplate === true ? true : false,
-			templateIsCached: templateUrl ? false : true,
+			templateIsCached: (templateUrl || templateComponent) ? false : true,
 			viewId: viewId || null,
 			ctrl: ctrl || null,
 			hidden: hidden || null,
@@ -450,6 +451,16 @@ class Router {
 			}
 			if (this.routes[routeId].templateUrl && this.routes[routeId].templateIsCached !== true) {
 				this.$powerUi.loadTemplateUrl({
+					template: this.routes[routeId].template,
+					viewId: _viewId,
+					currentRoutes: this.currentRoutes,
+					routeId: routeId,
+					routes: this.routes,
+					title: title,
+				});
+			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached !== true) {
+
+				this.$powerUi.loadTemplateComponent({
 					template: this.routes[routeId].template,
 					viewId: _viewId,
 					currentRoutes: this.currentRoutes,
