@@ -217,6 +217,9 @@ class PowerOnlyPage extends PowerController {
 		this.$service('widget').yesno({
 			title: 'Template dialog',
 			templateComponent: SimpleTemplate,
+			controller: function() {
+				console.log(this.$tscope.pity);
+			}
 		});
 		const self = this;
 
@@ -355,7 +358,7 @@ class SimpleModal extends PowerModal {
 
 class SimpleTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('this ctrl', this.ctrl);
+		const self = this;
 		this.$powerUi.request({
 				url: '/some-window.html',
 				method: 'GET',
@@ -367,6 +370,7 @@ class SimpleTemplate extends PowerTemplate {
 			tmpEl = document.createElement("div");
 			tmpEl.innerHTML = '<h1>Pity o bom</h1>';
 			tmpEl.appendChild(treeGrid);
+			self.pity = "Pity o bom";
 			resolve(tmpEl.innerHTML);
 		}).catch(function (response, xhr) {
 			console.log('SimpleTemplate', response, xhr);

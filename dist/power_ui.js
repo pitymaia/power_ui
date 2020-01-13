@@ -1696,9 +1696,10 @@ class PowerUi extends _PowerUiBase {
 	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		const component = new template({$powerUi: this, ctrl: this.controllers[viewId].instance});
+		const component = new template({$powerUi: this});
+		this.controllers[viewId].instance.$tscope = component.component;
 
-		component.then(function (response) {
+		component.template.then(function (response) {
 			template = response;
 			self.buildViewTemplateAndMayCallInit({
 				self: self,
@@ -2921,15 +2922,14 @@ class Router {
 }
 
 class PowerTemplate {
-    constructor({$powerUi, ctrl}) {
-        this.$powerUi = $powerUi;
-        this.ctrl = ctrl;
-        return this._template();
-    }
+	constructor({$powerUi}) {
+		this.$powerUi = $powerUi;
+		return {template: this._template(), component: this};
+	}
 
-    _template() {
-        return new Promise(this.template.bind(this));
-    }
+	_template() {
+		return new Promise(this.template.bind(this));
+	}
 }
 
 export { PowerTemplate };
