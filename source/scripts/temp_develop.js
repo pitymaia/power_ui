@@ -209,9 +209,17 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleDialog() {
-		this.openRoute({
-			routeId: 'simple-dialog',
-			target: '_blank',
+		// this.openRoute({
+		// 	routeId: 'simple-dialog',
+		// 	target: '_blank',
+		// });
+
+		this.$service('widget').windowIframe({
+			title: 'Template dialog',
+			url: 'http://localhost:3000/#!/power_only',
+			controller: function() {
+				console.log('CONTROLLER IFRAME');
+			}
 		});
 
 		// this.$service('widget').yesno({

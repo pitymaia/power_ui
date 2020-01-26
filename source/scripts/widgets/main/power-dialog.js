@@ -96,6 +96,18 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		}
 	}
 
+	class _WindowIframe extends PowerWindowIframe {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+
 	if (kind === 'confirm') {
 		return _Confirm;
 	} else if (kind === 'yesno') {
@@ -104,6 +116,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		return _Modal;
 	} else if (kind === 'window') {
 		return _Window;
+	} else if (kind === 'windowIframe') {
+		return _WindowIframe;
 	} else {
 		return _Alert;
 	}
