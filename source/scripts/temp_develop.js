@@ -1,6 +1,6 @@
 "use strict";
 
-import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, PowerTemplate } from './power_ui.js';
+import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, PowerWindowIframe, PowerTemplate } from './power_ui.js';
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -431,7 +431,7 @@ class SimpleDialog extends PowerWindow {
 	}
 }
 
-class MyWindow extends PowerWindow {
+class MyWindow extends PowerWindowIframe {
 
 	init() {
 		// this.commitBt = true;
@@ -633,7 +633,7 @@ const routes = [
 			id: 'some-window',
 			route: 'window/:id',
 			title: 'My Window',
-			templateUrl: `some-window.html`,
+			url: 'http://localhost:3000/#!/power_only',
 			ctrl: {
 				component: MyWindow,
 			},

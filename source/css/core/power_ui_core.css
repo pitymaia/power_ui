@@ -82,8 +82,8 @@
 /* Menu end*/
 
 /* Dialog-Modal-Window start */
-.pw-modal .pw-body, .pw-dialog .pw-body, .pw-window .pw-body {
-    background-color: #F5F5F5;
+.pw-body-iframe iframe {
+    margin-left: 5px;
 }
 .pw-modal .pw-body, .pw-dialog .pw-body {
     position: relative;

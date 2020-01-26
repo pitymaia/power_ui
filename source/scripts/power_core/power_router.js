@@ -30,8 +30,8 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, templateComponent, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
-		template = templateUrl || template || templateComponent;
+	add({id, route, template, templateUrl, templateComponent, url, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
+		template = templateUrl || template || templateComponent || url;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {

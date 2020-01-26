@@ -186,4 +186,47 @@ class PowerWindow extends PowerDialogBase {
 	}
 }
 
-export { PowerWindow };
+class PowerWindowIframe extends PowerWindow {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi, noEsc: true});
+		this.isWindow = true;
+	}
+
+	_onViewLoad(view) {
+		// Make it draggable
+		this.currentView = view;
+		// Make it resizable
+		this.iframe = this.currentView.getElementsByTagName('iframe')[0];
+		super._onViewLoad(view);
+	}
+
+	resizeWindow() {
+		super.resizeWindow();
+		this.iframe.style.width = parseInt(this._width.replace('px', '')) -10 + 'px';
+		this.iframe.style.height = parseInt(this._height.replace('px', '')) -53 + 'px';
+	}
+
+	template({$title, $url}) {
+		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
+					<div class="pw-window-resizable">
+						<div class="pw-title-bar">
+							<span class="pw-title-bar-label">${this.$title}</span>
+							<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+						</div>
+						<div class="pw-body pw-body-iframe">
+							<iframe frameBorder="0" data-pw-content src="${$url}">
+							</iframe>
+						</div>
+					</div>
+				</div>`;
+	}
+
+	// Override PowerWidget $buildTemplate
+	$buildTemplate({template, title}) {
+		return this.template({$title: title || null, $url: template});
+	}
+}
+
+export { PowerWindow, PowerWindowIframe };

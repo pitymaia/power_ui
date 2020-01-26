@@ -129,3 +129,12 @@
     z-index: 1999 !important;
 }
 /* keyboard mode on*/
+
+/* Dialog-Modal-Window start */
+.pwdesign-white-smoke .pw-modal .pw-body, .pwdesign-white-smoke .pw-dialog .pw-body, .pwdesign-white-smoke .pw-window .pw-body {
+    background-color: #F5F5F5;
+}
+.pwdesign-white-smoke .pw-body.pw-body-iframe {
+    background-color: #000;
+}
+/* Dialog-Modal-Window end */
