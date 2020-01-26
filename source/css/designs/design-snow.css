@@ -137,4 +137,7 @@
 .pwdesign-white-smoke .pw-body.pw-body-iframe {
     background-color: #000;
 }
+.pwdesign-white-smoke .pw-body.pw-body-iframe iframe {
+    background-color: #fff;
+}
 /* Dialog-Modal-Window end */
