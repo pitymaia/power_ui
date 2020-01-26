@@ -1914,8 +1914,12 @@ class WidgetService extends PowerServices {
 		options.kind = 'window';
 		this.open(options);
 	}
+	windowIframe(options) {
+		options.kind = 'windowIframe';
+		this.open(options);
+	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl, templateComponent}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl, templateComponent, url}) {
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
@@ -1947,18 +1951,19 @@ class WidgetService extends PowerServices {
 			template: template,
 			templateUrl: templateUrl,
 			templateComponent: templateComponent,
+			url: url,
 			ctrl: ctrl,
 			params: params,
 		});
 	}
 
-	_open({routeId, params, target, title, template, ctrl, templateUrl, templateComponent}) {
+	_open({routeId, params, target, title, template, ctrl, templateUrl, templateComponent, url}) {
 		// Add it as a hidden route
 		const newRoute = {
 			id: routeId,
 			title: title,
 			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
-			template: templateUrl || templateComponent || template,
+			template: templateUrl || templateComponent || template || url,
 			templateUrl: templateUrl,
 			templateComponent: templateComponent,
 			hidden: true,
@@ -2184,8 +2189,8 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, templateComponent, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
-		template = templateUrl || template || templateComponent;
+	add({id, route, template, templateUrl, templateComponent, url, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
+		template = templateUrl || template || templateComponent || url;
 		// Ensure user have a element to render the main view
 		// If the user doesn't define an id to use as main view, "main-view" will be used as id
 		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
@@ -5642,6 +5647,18 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		}
 	}
 
+	class _WindowIframe extends PowerWindowIframe {
+		constructor({$powerUi}) {
+			super({$powerUi: $powerUi});
+			this.ctrl = controller;
+			if (params) {
+				for (const key of Object.keys(params || {})) {
+					this[key] = params[key];
+				}
+			}
+		}
+	}
+
 	if (kind === 'confirm') {
 		return _Confirm;
 	} else if (kind === 'yesno') {
@@ -5650,6 +5667,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		return _Modal;
 	} else if (kind === 'window') {
 		return _Window;
+	} else if (kind === 'windowIframe') {
+		return _WindowIframe;
 	} else {
 		return _Alert;
 	}
@@ -5908,7 +5927,50 @@ class PowerWindow extends PowerDialogBase {
 	}
 }
 
-export { PowerWindow };
+class PowerWindowIframe extends PowerWindow {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi, noEsc: true});
+		this.isWindow = true;
+	}
+
+	_onViewLoad(view) {
+		// Make it draggable
+		this.currentView = view;
+		// Make it resizable
+		this.iframe = this.currentView.getElementsByTagName('iframe')[0];
+		super._onViewLoad(view);
+	}
+
+	resizeWindow() {
+		super.resizeWindow();
+		this.iframe.style.width = parseInt(this._width.replace('px', '')) -10 + 'px';
+		this.iframe.style.height = parseInt(this._height.replace('px', '')) -53 + 'px';
+	}
+
+	template({$title, $url}) {
+		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
+		this.$title = this.$title || $title;
+		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
+					<div class="pw-window-resizable">
+						<div class="pw-title-bar">
+							<span class="pw-title-bar-label">${this.$title}</span>
+							<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+						</div>
+						<div class="pw-body pw-body-iframe">
+							<iframe frameBorder="0" data-pw-content src="${$url}">
+							</iframe>
+						</div>
+					</div>
+				</div>`;
+	}
+
+	// Override PowerWidget $buildTemplate
+	$buildTemplate({template, title}) {
+		return this.template({$title: title || null, $url: template});
+	}
+}
+
+export { PowerWindow, PowerWindowIframe };
 
 class AccordionModel {
 	constructor(ctx) {
