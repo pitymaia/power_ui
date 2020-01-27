@@ -130,13 +130,22 @@ class PowerUi extends _PowerUiBase {
 						ctrl.windowsOrder();
 					}
 
-					// if (event.data.command === 'getElementById') {
-					// 	const element = document.getElementById(event.data.id);
-					// 	if (event.data.onElement === 'innerHTML') {
-					// 		element.innerHTML = element.innerHTML + event.data.onElementAttr;
-					// 	}
-					// 	window.parent.postMessage({element: JSON.stringify(element.innerHTML)}, config.devMode.iframe);
-					// }
+					// Commands only to iframe element
+					if (window.location.href.startsWith(config.devMode.iframe)) {
+						if (event.data.command === 'addInnerHTML') {
+							const element = document.getElementById(event.data.id);
+							element.innerHTML = element.innerHTML + event.data.value;
+						} else if (event.data.command === 'replaceInnerHTML') {
+							const element = document.getElementById(event.data.id);
+							element.innerHTML = event.data.value;
+						} else if (event.data.command === 'addClassList') {
+							const element = document.getElementById(event.data.id);
+							element.classList.add(event.data.value);
+						} else if (event.data.command === 'removeClassList') {
+							const element = document.getElementById(event.data.id);
+							element.classList.remove(event.data.value);
+						}
+					}
 
 				} else {
 					console.log('DANGER', event.origin);
