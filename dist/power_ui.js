@@ -1441,6 +1441,50 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+
+		if (config.devMode) {
+			window.addEventListener('message', event => {
+				// IMPORTANT: check the origin of the data!
+				if (event.origin.startsWith(config.devMode.main) || event.origin.startsWith(config.devMode.iframe)) {
+					// The data was sent from your site.
+					// Data sent with postMessage is stored in event.data:
+					if (event.data.click === true && event.data.id) {
+						const ctrl = this.getCurrentElementCtrl(document.getElementById(event.data.id));
+						ctrl.windowsOrder();
+					}
+
+					// Commands only to iframe element
+					if (window.location.href.startsWith(config.devMode.iframe)) {
+						if (event.data.command === 'addInnerHTML') {
+							const element = document.getElementById(event.data.id);
+							element.innerHTML = element.innerHTML + event.data.value;
+						} else if (event.data.command === 'replaceInnerHTML') {
+							const element = document.getElementById(event.data.id);
+							element.innerHTML = event.data.value;
+						} else if (event.data.command === 'addClassList') {
+							const element = document.getElementById(event.data.id);
+							element.classList.add(event.data.value);
+						} else if (event.data.command === 'removeClassList') {
+							const element = document.getElementById(event.data.id);
+							element.classList.remove(event.data.value);
+						}
+					}
+
+				} else {
+					console.log('DANGER', event.origin);
+					// The data was NOT sent from your site!
+					// Be careful! Do not use it. This else branch is
+					// here just for clarity, you usually shouldn't need it.
+					return;
+				}
+			});
+			if (window.location.href.startsWith(config.devMode.iframe)) {
+				window.addEventListener('click', event => {
+					window.parent.postMessage({click: true, id: window.name}, config.devMode.main);
+				});
+			}
+		}
+
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
@@ -1465,6 +1509,19 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	// Return the "view" controller of any element inside the current view
+	getCurrentElementCtrl(node) {
+		if (node.classList && node.classList.contains('power-view') && this.controllers[node.id]) {
+			return this.controllers[node.id].instance;
+		} else {
+			if (node.parentNode) {
+				return this.getCurrentElementCtrl(node.parentNode);
+			} else {
+				return null;
+			}
+		}
 	}
 
 	treeTemplate(tree) {
@@ -5950,6 +6007,7 @@ class PowerWindowIframe extends PowerWindow {
 	template({$title, $url}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
+		const id = `iframe_${this.$powerUi._Unique.next()}`;
 		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
 					<div class="pw-window-resizable">
 						<div class="pw-title-bar">
@@ -5957,7 +6015,7 @@ class PowerWindowIframe extends PowerWindow {
 							<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
 						</div>
 						<div class="pw-body pw-body-iframe">
-							<iframe frameBorder="0" data-pw-content src="${$url}">
+							<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
 							</iframe>
 						</div>
 					</div>
