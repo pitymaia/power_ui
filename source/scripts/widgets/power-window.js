@@ -209,6 +209,7 @@ class PowerWindowIframe extends PowerWindow {
 	template({$title, $url}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
+		const id = `iframe_${this.$powerUi._Unique.next()}`;
 		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
 					<div class="pw-window-resizable">
 						<div class="pw-title-bar">
@@ -216,7 +217,7 @@ class PowerWindowIframe extends PowerWindow {
 							<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
 						</div>
 						<div class="pw-body pw-body-iframe">
-							<iframe frameBorder="0" data-pw-content src="${$url}">
+							<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
 							</iframe>
 						</div>
 					</div>

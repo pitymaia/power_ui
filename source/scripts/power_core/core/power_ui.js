@@ -118,6 +118,41 @@ class KeyboardManager {
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
+
+		if (config.devMode) {
+			window.addEventListener('message', event => {
+				// IMPORTANT: check the origin of the data!
+				if (event.origin.startsWith(config.devMode.main) || event.origin.startsWith(config.devMode.iframe)) {
+					// The data was sent from your site.
+					// Data sent with postMessage is stored in event.data:
+					if (event.data.click === true && event.data.id) {
+						const ctrl = this.getCurrentElementCtrl(document.getElementById(event.data.id));
+						ctrl.windowsOrder();
+					}
+
+					// if (event.data.command === 'getElementById') {
+					// 	const element = document.getElementById(event.data.id);
+					// 	if (event.data.onElement === 'innerHTML') {
+					// 		element.innerHTML = element.innerHTML + event.data.onElementAttr;
+					// 	}
+					// 	window.parent.postMessage({element: JSON.stringify(element.innerHTML)}, config.devMode.iframe);
+					// }
+
+				} else {
+					console.log('DANGER', event.origin);
+					// The data was NOT sent from your site!
+					// Be careful! Do not use it. This else branch is
+					// here just for clarity, you usually shouldn't need it.
+					return;
+				}
+			});
+			if (window.location.href.startsWith(config.devMode.iframe)) {
+				window.addEventListener('click', event => {
+					window.parent.postMessage({click: true, id: window.name}, config.devMode.main);
+				});
+			}
+		}
+
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
@@ -142,6 +177,19 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	// Return the "view" controller of any element inside the current view
+	getCurrentElementCtrl(node) {
+		if (node.classList && node.classList.contains('power-view') && this.controllers[node.id]) {
+			return this.controllers[node.id].instance;
+		} else {
+			if (node.parentNode) {
+				return this.getCurrentElementCtrl(node.parentNode);
+			} else {
+				return null;
+			}
+		}
 	}
 
 	treeTemplate(tree) {
