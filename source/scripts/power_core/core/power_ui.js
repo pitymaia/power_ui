@@ -155,11 +155,6 @@ class PowerUi extends _PowerUiBase {
 					return;
 				}
 			});
-			if (window.location.href.startsWith(config.devMode.iframe)) {
-				window.addEventListener('click', event => {
-					window.parent.postMessage({click: true, id: window.name}, config.devMode.main);
-				});
-			}
 		}
 
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;

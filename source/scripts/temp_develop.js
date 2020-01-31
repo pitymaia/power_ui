@@ -216,7 +216,7 @@ class PowerOnlyPage extends PowerController {
 
 		this.$service('widget').windowIframe({
 			title: 'Template dialog',
-			url: 'http://localhost:3004/#!/power_only',
+			url: 'http://localhost:3002',
 			controller: function() {
 				console.log('CONTROLLER IFRAME');
 			}
@@ -682,7 +682,7 @@ let app = new PowerUi({
 	routes: routes,
 	// services: services,
 	// spinnerLabel: 'carregando',
-	devMode: {iframe: 'http://localhost:3004', main: 'http://localhost:3000'},
+	devMode: {iframe: 'http://localhost:3002', main: 'http://localhost:3000'},
 });
 
 console.log('app', app);

@@ -62,7 +62,7 @@ class PowerWindow extends PowerDialogBase {
 
 	resizeMouseDown() {
 		// Re-order the windows z-index
-		this.windowsOrder();
+		this.windowsOrder(true);
 		// Cancel if user giveup
 		document.onmouseup = this.closeDragElement.bind(this);
 		// call a function when the cursor moves
@@ -117,7 +117,7 @@ class PowerWindow extends PowerDialogBase {
 		event = event || window.event;
 		event.preventDefault();
 		// Re-order the windows z-index
-		this.windowsOrder();
+		this.windowsOrder(true);
 		// get initial mouse cursor position
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
@@ -143,6 +143,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	closeDragElement() {
+		this.element.classList.add('pw-active');
 		this.resizeWindow();
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
@@ -150,7 +151,7 @@ class PowerWindow extends PowerDialogBase {
 		document.onmousemove = null;
 	}
 
-	windowsOrder() {
+	windowsOrder(activateWindow) {
 		const self = this;
 		// The timeout avoid call the windowOrder multiple times (one for each opened window)
 		if (this.$powerUi._windowsOrderTimeout) {
@@ -180,8 +181,15 @@ class PowerWindow extends PowerDialogBase {
 			for (const key of sorted) {
 				windowsTosort[key].style.zIndex = zindex;
 				zindex = zindex + 1;
+				windowsTosort[key].classList.remove('pw-active');
 			}
 			currentWindow.style.zIndex = zindex + 1;
+			// Prevent set the active if dragging or resizing
+			if (!activateWindow) {
+				currentWindow.classList.add('pw-active');
+			} else {
+				currentWindow.classList.remove('pw-active');
+			}
 		}, 10);
 	}
 }
@@ -214,7 +222,9 @@ class PowerWindowIframe extends PowerWindow {
 					<div class="pw-window-resizable">
 						<div class="pw-title-bar">
 							<span class="pw-title-bar-label">${this.$title}</span>
-							<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close fa fa-times"></div>
+						</div>
+						<div class="pw-cover-iframe" data-pow-event onmousedown="windowsOrder()">
 						</div>
 						<div class="pw-body pw-body-iframe">
 							<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
