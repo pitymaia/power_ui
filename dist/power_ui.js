@@ -5944,7 +5944,7 @@ class PowerWindow extends PowerDialogBase {
 		document.onmousemove = null;
 	}
 
-	windowsOrder(activateWindow) {
+	windowsOrder(preventActivateWindow) {
 		const self = this;
 		// The timeout avoid call the windowOrder multiple times (one for each opened window)
 		if (this.$powerUi._windowsOrderTimeout) {
@@ -5978,7 +5978,7 @@ class PowerWindow extends PowerDialogBase {
 			}
 			currentWindow.style.zIndex = zindex + 1;
 			// Prevent set the active if dragging or resizing
-			if (!activateWindow) {
+			if (!preventActivateWindow) {
 				currentWindow.classList.add('pw-active');
 			} else {
 				currentWindow.classList.remove('pw-active');
@@ -6017,7 +6017,7 @@ class PowerWindowIframe extends PowerWindow {
 							<span class="pw-title-bar-label">${this.$title}</span>
 							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close fa fa-times"></div>
 						</div>
-						<div class="pw-cover-iframe" data-pow-event onmousedown="windowsOrder()">
+						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 						</div>
 						<div class="pw-body pw-body-iframe">
 							<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
