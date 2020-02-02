@@ -160,6 +160,13 @@ class PowerOnlyPage extends PowerController {
 		console.log('changeModel', this.cats.length);
 	}
 
+	jsonViews() {
+		this.openRoute({
+			routeId: 'json-views',
+			target: '_blank',
+		});
+	}
+
 	changeModel(kind) {
 		if (this.oldName === this.myName) {
 			this.myName = 'My name is Bond, James Bond!';
@@ -447,25 +454,53 @@ class MyWindow extends PowerWindowIframe {
 
 	ctrl({$powerUi}) {
 		this.$powerUi.controllers['main-view'].instance.next = this.$powerUi.controllers['main-view'].instance.next +1;
-		console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
-		console.log('Window is here!');
+		window.console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
+		window.console.log('Window is here!');
 	}
 
 	onCancel(resolve, reject) {
-		console.log('Really cancel?');
+		window.console.log('Really cancel?');
 		resolve();
 	}
 
 	onCommit(resolve, reject) {
-		console.log('It is confirmed!');
+		window.console.log('It is confirmed!');
 		resolve();
+	}
+}
+
+class JSONViewsTemplateComponent extends PowerTemplate {
+	template(resolve, reject) {
+		const self = this;
+		this.$powerUi.request({
+				url: '/jsonviews.html',
+				method: 'GET',
+				status: "Loading page",
+		}).then(function (response, xhr) {
+			let tmpEl = document.createElement("div");
+			let toAppend = document.createElement("div");
+			tmpEl.innerHTML = response;
+			toAppend.innerHTML = '<h1>Pity o bom</h1>';
+			tmpEl.appendChild(toAppend);
+			self.pity = "Pity o bom";
+			resolve(tmpEl.innerHTML);
+		}).catch(function (response, xhr) {
+			console.log('JSONViewsTemplateComponent', response, xhr);
+			reject();
+		});
+	}
+}
+
+class JSONViews extends PowerWindow {
+	ctrl() {
+		window.console.log('JSONViews CTRL', this.$tscope);
 	}
 }
 
 class FakeModal extends PowerModal {
 	constructor({$powerUi, lock, viewId, routeId}) {
 		super({$powerUi});
-		console.log('instanciate');
+		window.console.log('instanciate');
 	}
 
 	init() {
@@ -615,6 +650,15 @@ const routes = [
 			ctrl: {
 				component: PowerOnlyPage,
 				params: {lock: true},
+			},
+		},
+		{
+			id: 'json-views',
+			title: 'Create from JSON | PowerUi',
+			route: 'jsonviews',
+			templateComponent: JSONViewsTemplateComponent,
+			ctrl: {
+				component: JSONViews,
 			},
 		},
 		{
