@@ -1,6 +1,6 @@
-class PowerTemplate {
+class PowerTemplate extends PowerScope {
 	constructor({$powerUi}) {
-		this.$powerUi = $powerUi;
+		super({$powerUi: $powerUi});
 		return {template: this._template(), component: this};
 	}
 

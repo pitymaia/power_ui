@@ -1,8 +1,7 @@
-class PowerController {
+class PowerController extends PowerScope {
 	constructor({$powerUi}) {
 		// Add $powerUi to controller
-		this.$powerUi = $powerUi;
-		this._servicesInstances = {};
+		super({$powerUi: $powerUi});
 		this.volatileRouteIds = [];
 	}
 
@@ -37,19 +36,6 @@ class PowerController {
 			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,
 		});
-	}
-
-	$service(name) {
-		if (this._servicesInstances[name]) {
-			return this._servicesInstances[name];
-		} else {
-			this._servicesInstances[name] = new this.$powerUi._services[name].component({
-				$powerUi: this.$powerUi,
-				$ctrl: this,
-				params: this.$powerUi._services[name].params,
-			});
-			return this._servicesInstances[name];
-		}
 	}
 
 	closeCurrentRoute() {

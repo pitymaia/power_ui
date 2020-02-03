@@ -171,8 +171,8 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services || {};
-		this._addServices();
+		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
+		this._addPowerServices();
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
@@ -232,11 +232,13 @@ class PowerUi extends _PowerUiBase {
 	_addService(key, service) {
 		this._services[key] = service;
 	}
-	_addServices() {
+	// Add all native services
+	_addPowerServices() {
 		this._addService('widget', {
 			component: WidgetService,
 			// params: {},
 		});
+		this._addService('JSONSchema', {component: JSONSchemaService});
 	}
 
 	_$dispatchPowerEvent(event, self, viewId, name) {
