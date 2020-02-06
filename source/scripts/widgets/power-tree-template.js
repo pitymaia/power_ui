@@ -12,16 +12,16 @@ class PowerTreeTemplate {
 			if (item.kind === 'file') {
 				if (this.boilerplate) {
 					template = `${template}
-					<a class="power-item" data-pow-event onclick="_commit({path:'${item.path}'})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+					<a class="power-item" data-pow-event onclick="_commit({path:'${item.path}'})"><span class="pw-icon document-blank"></span> ${item.fullName}</a>`;
 				} else {
 					template = `${template}
-					<a class="power-item"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+					<a class="power-item"><span class="pw-icon document-blank"></span> ${item.fullName}</a>`;
 				}
 			} else if (item.kind === 'folder') {
 				const id = `list-${this.$powerUi._Unique.next()}`;
 				template = `${template}
 				<a class="power-list" data-power-target="${id}">
-					<span class="power-status fa" data-power-active="fa-folder-open" data-power-inactive="fa-folder"></span> ${item.fullName}
+					<span class="power-status pw-icon" data-power-active="folder-open" data-power-inactive="folder-close"></span> ${item.fullName}
 				</a>
 				${this.buildTemplate(item.content, id)}`;
 			}

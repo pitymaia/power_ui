@@ -140,4 +140,14 @@
 .pwdesign-white-smoke .pw-body.pw-body-iframe iframe {
     background-color: #fff;
 }
+
+.pwdesign-white-smoke .pw-bt-close {
+    color: #FFF;
+    font-size: 1.6rem;
+    margin-top: .3em;
+    margin-right: .8rem;
+}
 /* Dialog-Modal-Window end */
+.pwdesign-white-smoke .pw-icon {
+    font-size: 1.6rem;
+}

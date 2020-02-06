@@ -69,6 +69,7 @@ gulp.task('develop', function (done) {
 	gulp.src(devCssFiles).pipe(concat('power_ui.css')).pipe(gulp.dest('app/css/'));
 	gulp.src(tmpJsFiles).pipe(concat('temp_develop.js')).pipe(gulp.dest('app/scripts/'));
 	gulp.src(tmpCssFiles).pipe(concat('temp_develop.css')).pipe(gulp.dest('app/css/'));
+	gulp.src('source/fonts/*.*').pipe(gulp.dest('app/fonts/'));
 	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
 
 	reloadTask(done);

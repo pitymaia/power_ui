@@ -218,12 +218,7 @@ body.modal-open {
     cursor: pointer;
     /*border-radius: 0.3em;*/
 }
-.pw-bt-close.fa.fa-times {
-    color: #FFF;
-    font-weight: bold;
-    font-size: 1.5rem;
-    margin-top: .5em;
-    margin-right: .8rem;
+.pw-bt-close {
     float: right;
     cursor: pointer;
 }

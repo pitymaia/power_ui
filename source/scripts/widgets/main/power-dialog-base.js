@@ -111,7 +111,7 @@ class PowerDialogBase extends PowerWidget {
 		this.$title = this.$title || $title;
 		return `<div class="pw-title-bar">
 					<span class="pw-title-bar-label">${this.$title}</span>
-					<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+					<div data-pow-event onclick="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
 				</div>
 				<div class="pw-body">
 					<div class="pw-container" data-pw-content>
