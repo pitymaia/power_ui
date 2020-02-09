@@ -471,90 +471,73 @@ class MyWindow extends PowerWindowIframe {
 
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
-		const self = this;
-		this.$powerUi.request({
-				url: '/jsonviews.html',
-				method: 'GET',
-				status: "Loading page",
-		}).then(function (response, xhr) {
-			let tmpEl = document.createElement("div");
-			let toAppend = document.createElement("div");
-			tmpEl.innerHTML = response;
-			toAppend.innerHTML = '<h1>Pity o bom</h1>';
-
-			const accordion = {
-				"classList": ['my-custom-accordion'],
-				"id": 'my-custom-accordion',
-				"config": {
-					"multipleSectionsOpen": false,
-				},
-				"panels": [
-					{
-						"header": {
-							"id": "female-action",
-							"title": "My female cats"
-						},
-						"section": {
-							"id": "female-section",
-							"content": `<ul>
-								<li>Princesa</li>
-								<li>Lady</li>
-								<li>Lindinha</li>
-								<li>Florzinha</li>
-								<li>Docinho</li>
-								<li>Laylita</li>
-								<li>Meg</li>
-								<li>Lily</li>
-								<li>Penny</li>
-								<li>Morgana</li>
-								<li>Sol</li>
-							</ul>`
-						}
+		const accordion = {
+			"classList": ['my-custom-accordion'],
+			"id": 'my-custom-accordion',
+			"config": {
+				"multipleSectionsOpen": false,
+			},
+			"panels": [
+				{
+					"header": {
+						"id": "female-action",
+						"title": "My female cats"
 					},
-					{
-						"header": {
-							"id": "male-action",
-							"title": "My male cats"
-						},
-						"section": {
-							"id": "male-section",
-							"content": `<ul>
-								<li>Riquinho</li>
-								<li>Tico</li>
-								<li>Pingo</li>
-								<li>Drew</li>
-								<li>Kid</li>
-								<li>Neo</li>
-							</ul>`
-						}
-					},
-					{
-						"header": {
-							"id": "favorite-action",
-							"title": "My favorite cats"
-						},
-						"section": {
-							"id": "favorite-section",
-							"content": `<ul>
-								<li>Riquinho</li>
-								<li>Princesa</li>
-								<li>Pingo</li>
-								<li>Drew</li>
-								<li>Penny</li>
-							</ul>`
-						}
+					"section": {
+						"id": "female-section",
+						"content": `<ul>
+							<li>Princesa</li>
+							<li>Lady</li>
+							<li>Lindinha</li>
+							<li>Florzinha</li>
+							<li>Docinho</li>
+							<li>Laylita</li>
+							<li>Meg</li>
+							<li>Lily</li>
+							<li>Penny</li>
+							<li>Morgana</li>
+							<li>Sol</li>
+						</ul>`
 					}
-				],
-			};
+				},
+				{
+					"header": {
+						"id": "male-action",
+						"title": "My male cats"
+					},
+					"section": {
+						"id": "male-section",
+						"content": `<ul>
+							<li>Riquinho</li>
+							<li>Tico</li>
+							<li>Pingo</li>
+							<li>Drew</li>
+							<li>Kid</li>
+							<li>Neo</li>
+						</ul>`
+					}
+				},
+				{
+					"header": {
+						"id": "favorite-action",
+						"title": "My favorite cats"
+					},
+					"section": {
+						"id": "favorite-section",
+						"content": `<ul>
+							<li>Riquinho</li>
+							<li>Princesa</li>
+							<li>Pingo</li>
+							<li>Drew</li>
+							<li>Penny</li>
+							<li>Sol</li>
+						</ul>`
+					}
+				}
+			],
+		};
 
-			tmpEl.appendChild(toAppend);
-			self.pity = "Pity o bom";
-			// resolve(tmpEl.innerHTML);
-			resolve(self.$service('JSONSchema').accordion(accordion));
-		}).catch(function (response, xhr) {
-			console.log('JSONViewsTemplateComponent', response, xhr);
-			reject();
-		});
+		resolve(this.$service('JSONSchema').accordion(accordion));
 	}
 }
 
