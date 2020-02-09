@@ -1,4 +1,45 @@
 class JSONSchemaService extends PowerServices {
+	constructor({$powerUi, $ctrl}) {
+		super({$powerUi, $ctrl});
+		this.accordionDef = {
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"config": {
+					"type": "object",
+					"properties": {
+						"multipleSectionsOpen": {"type": "boolean"}
+					}
+				},
+				"panels": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"header": {
+								"type": "object",
+								"properties": {
+									"id": {"type": "string"},
+									"title": {"type": "string"}
+								},
+								"required": ["title"]
+							},
+							"section": {
+								"type": "object",
+								"properties": {
+									"id": {"type": "string"},
+									"content": {"type": "string"}
+								},
+								"required": ["content"]
+							}
+						},
+						"required": ["header", "section"]
+					}
+				}
+			},
+			"required": ["panels"]
+		};
+	}
 
 	accordion(accordion) {
 		const tmpEl = document.createElement('div');
