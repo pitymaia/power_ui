@@ -1,6 +1,8 @@
 class PowerTemplate extends PowerScope {
-	constructor({$powerUi}) {
+	constructor({$powerUi, viewId, routeId}) {
 		super({$powerUi: $powerUi});
+		this._viewId = viewId;
+		this._routeId = routeId;
 		return {template: this._template(), component: this};
 	}
 

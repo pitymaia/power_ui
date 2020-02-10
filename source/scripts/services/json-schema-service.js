@@ -1,44 +1,6 @@
 class JSONSchemaService extends PowerServices {
 	constructor({$powerUi, $ctrl}) {
 		super({$powerUi, $ctrl});
-		this.accordionDef = {
-			"type": "object",
-			"properties": {
-				"classList": {"type": "array"},
-				"config": {
-					"type": "object",
-					"properties": {
-						"multipleSectionsOpen": {"type": "boolean"}
-					}
-				},
-				"panels": {
-					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"header": {
-								"type": "object",
-								"properties": {
-									"id": {"type": "string"},
-									"title": {"type": "string"}
-								},
-								"required": ["title", "id"]
-							},
-							"section": {
-								"type": "object",
-								"properties": {
-									"id": {"type": "string"},
-									"content": {"type": "string"}
-								},
-								"required": ["content", "id"]
-							}
-						},
-						"required": ["header", "section"]
-					}
-				}
-			},
-			"required": ["panels"]
-		};
 	}
 
 	validateType(type, json) {
@@ -53,7 +15,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	validate(schema, json) {
-		// Check current object type agains schema type
+		// Check current object type against schema type
 		if (this.validateType(schema.type, json) === false) {
 			return false;
 		}
@@ -119,6 +81,47 @@ class JSONSchemaService extends PowerServices {
 				</div>`;
 		}
 		return tmpEl.innerHTML;
+	}
+
+	get accordionDef() {
+		return {
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"config": {
+					"type": "object",
+					"properties": {
+						"multipleSectionsOpen": {"type": "boolean"}
+					}
+				},
+				"panels": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"header": {
+								"type": "object",
+								"properties": {
+									"id": {"type": "string"},
+									"title": {"type": "string"}
+								},
+								"required": ["title", "id"]
+							},
+							"section": {
+								"type": "object",
+								"properties": {
+									"id": {"type": "string"},
+									"content": {"type": "string"}
+								},
+								"required": ["content", "id"]
+							}
+						},
+						"required": ["header", "section"]
+					}
+				}
+			},
+			"required": ["panels"]
+		};
 	}
 }
 
