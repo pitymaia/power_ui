@@ -22,7 +22,7 @@ class JSONSchemaService extends PowerServices {
 									"id": {"type": "string"},
 									"title": {"type": "string"}
 								},
-								"required": ["title"]
+								"required": ["title", "id"]
 							},
 							"section": {
 								"type": "object",
@@ -30,7 +30,7 @@ class JSONSchemaService extends PowerServices {
 									"id": {"type": "string"},
 									"content": {"type": "string"}
 								},
-								"required": ["content"]
+								"required": ["content", "id"]
 							}
 						},
 						"required": ["header", "section"]
@@ -41,11 +41,68 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
+	validateType(type, json) {
+		if (typeof json === type) {
+			return true;
+		} else if (type === 'array' && json.length !== undefined) {
+				return true;
+		} else {
+			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
+			return false;
+		}
+	}
+
+	validate(schema, json) {
+		// Check current object type agains schema type
+		if (this.validateType(schema.type, json) === false) {
+			return false;
+		}
+		// Validade required fields
+		if (schema.required) {
+			for (const property of schema.required) {
+				if (!json[property]) {
+					window.console.log(`JSON missing required property: "${property}"`, json);
+					return false;
+				}
+			}
+		}
+		// Validate item properties and inner nodes
+		for (const key of Object.keys(schema.properties || {})) {
+			// Validate inner schema nodes
+			// Validade array type property
+			if (schema.properties[key].type === 'array' && schema.properties[key].items) {
+				for (const item of json[key]) {
+					if (this.validate(schema.properties[key].items, item) === false) {
+						return false;
+					}
+				}
+			// Validade other types property
+			} else if (schema.properties[key].properties && json[key] !== undefined) {
+				if (this.validate(schema.properties[key], json[key]) === false) {
+					return false;
+				}
+			}
+
+			// Validate current property type
+			if (json[key] !== undefined) {
+				if (this.validateType(schema.properties[key].type, json[key]) === false) {
+					window.console.log('Failed JSON key is:', key);
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	accordion(accordion) {
+		if (this.validate(this.accordionDef, accordion) === false) {
+			window.console.log('Failed JSON accordion:', accordion);
+			return 'Failed JSON accordion!';
+		}
 		const tmpEl = document.createElement('div');
 		tmpEl.innerHTML = `<div class="power-accordion" id="${accordion.id}" data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
 		const accordionEl = tmpEl.children[0];
-		console.log('accordionEl', accordionEl);
 		if (accordion.classList) {
 			for (const css of accordion.classList) {
 				accordionEl.classList.add(css);
