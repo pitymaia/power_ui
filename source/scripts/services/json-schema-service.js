@@ -97,10 +97,7 @@ class JSONSchemaService extends PowerServices {
 				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
 			}
 		}
-		tmpEl.innerHTML = `<button class="${button.kind || 'pw-btn-default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}>${button.icon ? '<span class="pw-icon ' + button.icon + '"></span>' : ''}${button.label}</button>`;
-
-		const btElement = tmpEl.children[0];
-		window.console.log('btElement', btElement);
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}>${button.icon ? '<span class="pw-icon ' + button.icon + '"></span>' : ''}${button.label}</button>`;
 
 		return tmpEl.innerHTML;
 		// const button = {

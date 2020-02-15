@@ -544,6 +544,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"id": 'my-bt',
 			"label": "Open Modal",
 			"icon": "save-front",
+			"kind": "default",
 			"events": [
 				{
 					"event": "onclick",
@@ -554,24 +555,110 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button);
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-highlight" id="my-bt2" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+		const button2 = {
+			"id": 'my-bt2',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "highlight",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-secundary" id="my-bt6" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button2);
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-primary" id="my-bt4" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button><br />`;
+		const button3 = {
+			"id": 'my-bt3',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "secundary",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
 
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button3);
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-danger" id="my-bt3" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+		const button4 = {
+			"id": 'my-bt4',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "primary",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-warning" id="my-bt5" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button4);
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-success" id="my-bt7" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+		const button5 = {
+			"id": 'my-bt5',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "danger",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
 
-		htmlTemplate = htmlTemplate + `<button class="pw-btn-basic" id="my-bt8" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+		htmlTemplate = htmlTemplate + '<br />' + this.$service('JSONSchema').button(button5);
 
+		const button6 = {
+			"id": 'my-bt6',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "warning",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
 
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button6);
 
-		// <button data-pow-event onclick="openModal({name: 'Albert Camus', title: 'The Fall'})">Open Modal</button>
+		const button7 = {
+			"id": 'my-bt7',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "success",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button7);
+
+		const button8 = {
+			"id": 'my-bt8',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"kind": "basic",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button8);
 
 		resolve(htmlTemplate);
 	}
