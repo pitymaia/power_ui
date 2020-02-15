@@ -154,3 +154,37 @@
 .pwdesign-white-smoke .pw-icon.caret-left, .pwdesign-white-smoke .pw-icon.caret-up, .pwdesign-white-smoke .pw-icon.caret-right, .pwdesign-white-smoke .pw-icon.caret-down {
     font-size: 1.3rem;
 }
+
+/* buttons start*/
+.pw-btn-default {
+    color: #FFFFFF;
+    background-color: #000000;
+}
+.pw-btn-highlight {
+    color: #FFFF00;
+    background-color: #000000;
+}
+.pw-btn-danger {
+    color: #FFFFFF;
+    background-color: #8B0000;
+}
+.pw-btn-primary {
+    color: #FFFFFF;
+    background-color: #4B0082;
+}
+.pw-btn-secundary {
+    color: #000000;
+    padding: 0.65em;
+    border: 1px solid #000000;
+    background-color: #FFFFFF;
+}
+.pw-btn-warning {
+    color: #000000;
+    background-color: #CCCC00;
+}
+
+.pw-btn-success {
+    color: #FFFFFF;
+    background-color: #556B2F;
+}
+/* buttons end*/

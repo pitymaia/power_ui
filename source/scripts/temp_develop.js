@@ -537,13 +537,53 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			],
 		};
 
-		resolve(this.$service('JSONSchema').accordion(accordion));
+		let htmlTemplate = this.$service('JSONSchema').accordion(accordion);
+
+		const button = {
+			"classList": ['my-custom-button'],
+			"id": 'my-bt',
+			"label": "Open Modal",
+			"icon": "save-front",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button);
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-highlight" id="my-bt2" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-secundary" id="my-bt6" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-primary" id="my-bt4" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button><br />`;
+
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-danger" id="my-bt3" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-warning" id="my-bt5" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-success" id="my-bt7" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+
+		htmlTemplate = htmlTemplate + `<button class="pw-btn-basic" id="my-bt8" data-pow-event onclick="openModal({'name': 'Albert Camus', 'title': 'The Fall'})"><span class="pw-icon save-front"></span>Open Modal</button>`;
+
+
+
+		// <button data-pow-event onclick="openModal({name: 'Albert Camus', title: 'The Fall'})">Open Modal</button>
+
+		resolve(htmlTemplate);
 	}
 }
 
 class JSONViews extends PowerWindow {
 	ctrl() {
 		window.console.log('JSONViews CTRL', this.$tscope);
+	}
+
+	openModal() {
+		console.log('open the modal please');
 	}
 }
 

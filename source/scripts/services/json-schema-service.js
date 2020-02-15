@@ -83,6 +83,46 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
+	button(button) {
+		// if (this.validate(this.buttonDef, button) === false) {
+		// 	window.console.log('Failed JSON button:', button);
+		// 	return 'Failed JSON button!';
+		// }
+
+		const tmpEl = document.createElement('div');
+		// Add events if have
+		let eventsTmpl = '';
+		if (button.events) {
+			for (const event of button.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+		tmpEl.innerHTML = `<button class="${button.kind || 'pw-btn-default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}>${button.icon ? '<span class="pw-icon ' + button.icon + '"></span>' : ''}${button.label}</button>`;
+
+		const btElement = tmpEl.children[0];
+		window.console.log('btElement', btElement);
+
+		return tmpEl.innerHTML;
+		// const button = {
+		// 	"classList": ['my-custom-button'],
+		// 	"id": 'my-bt',
+		// 	"label": "Open Modal",
+		// 	"icon": "save-front",
+		// 	"events": [
+		// 		{
+		// 			"event": "onclick",
+		// 			"fn": "openModal",
+		// 			"params": [
+		// 				{"name": "Albert Camus"},
+		// 				{"title": "The Fall"},
+		// 			]
+		// 		}
+		// 	]
+		// };
+
+		// <button data-pow-event onclick="openModal({name: 'Albert Camus', title: 'The Fall'})">Open Modal</button>
+	}
+
 	get accordionDef() {
 		return {
 			"type": "object",
@@ -123,5 +163,9 @@ class JSONSchemaService extends PowerServices {
 			"required": ["panels"]
 		};
 	}
+
+	// get buttonDef() {
+	// 	return true;
+	// }
 }
 

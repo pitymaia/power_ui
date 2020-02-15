@@ -208,15 +208,18 @@ body.modal-open {
 /* End All dialogs */
 
 /* buttons start*/
-.pw-btn-default {
+.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secundary, .pw-btn-success, .pw-btn-basic {
     margin-top: 1em;
-    background-color: black;
-    color: #FFF;
     border: none;
     font-weight: bold;
     padding: 0.7em;
     cursor: pointer;
     /*border-radius: 0.3em;*/
+}
+.pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.3em;
 }
 .pw-bt-close {
     float: right;
