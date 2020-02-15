@@ -22,7 +22,7 @@ class JSONSchemaService extends PowerServices {
 		// Validade required fields
 		if (schema.required) {
 			for (const property of schema.required) {
-				if (!json[property]) {
+				if (!json[property] && (!json[0] || (json[0] && !json[0][property]))) {
 					window.console.log(`JSON missing required property: "${property}"`, json);
 					return false;
 				}
@@ -84,10 +84,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	button(button) {
-		// if (this.validate(this.buttonDef, button) === false) {
-		// 	window.console.log('Failed JSON button:', button);
-		// 	return 'Failed JSON button!';
-		// }
+		if (this.validate(this.buttonDef, button) === false) {
+			window.console.log('Failed JSON button:', button);
+			return 'Failed JSON button!';
+		}
 
 		const tmpEl = document.createElement('div');
 		// Add events if have
@@ -99,29 +99,20 @@ class JSONSchemaService extends PowerServices {
 		}
 		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}>${button.icon ? '<span class="pw-icon ' + button.icon + '"></span>' : ''}${button.label}</button>`;
 
-		return tmpEl.innerHTML;
-		// const button = {
-		// 	"classList": ['my-custom-button'],
-		// 	"id": 'my-bt',
-		// 	"label": "Open Modal",
-		// 	"icon": "save-front",
-		// 	"events": [
-		// 		{
-		// 			"event": "onclick",
-		// 			"fn": "openModal",
-		// 			"params": [
-		// 				{"name": "Albert Camus"},
-		// 				{"title": "The Fall"},
-		// 			]
-		// 		}
-		// 	]
-		// };
+		const buttonEl = tmpEl.children[0];
+		if (button.classList) {
+			for (const css of button.classList) {
+				buttonEl.classList.add(css);
+			}
+		}
 
-		// <button data-pow-event onclick="openModal({name: 'Albert Camus', title: 'The Fall'})">Open Modal</button>
+		return tmpEl.innerHTML;
 	}
 
 	get accordionDef() {
 		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#draft-07/accordion",
 			"type": "object",
 			"properties": {
 				"classList": {"type": "array"},
@@ -161,8 +152,28 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	// get buttonDef() {
-	// 	return true;
-	// }
+	get buttonDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#draft-07/button",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"label": {"type": "string"},
+				"id": {"type": "string"},
+				"icon": {"type": "string"},
+				"kind": {"type": "string"},
+				"events": {
+					"type": "array",
+					"properties": {
+						"event": {"type": "string"},
+						"fn": {"type": "string"},
+					},
+					"required": ["event", "fn"]
+				},
+			},
+			"required": ["label"]
+		};
+	}
 }
 

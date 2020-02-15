@@ -542,7 +542,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button = {
 			"classList": ['my-custom-button'],
 			"id": 'my-bt',
-			"label": "Open Modal",
+			"label": "Default",
 			"icon": "save-front",
 			"kind": "default",
 			"events": [
@@ -557,7 +557,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button2 = {
 			"id": 'my-bt2',
-			"label": "Open Modal",
+			"label": "Highlight",
 			"icon": "save-front",
 			"kind": "highlight",
 			"events": [
@@ -572,7 +572,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button3 = {
 			"id": 'my-bt3',
-			"label": "Open Modal",
+			"label": "Secundary",
 			"icon": "save-front",
 			"kind": "secundary",
 			"events": [
@@ -587,7 +587,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button4 = {
 			"id": 'my-bt4',
-			"label": "Open Modal",
+			"label": "Primary",
 			"icon": "save-front",
 			"kind": "primary",
 			"events": [
@@ -602,7 +602,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button5 = {
 			"id": 'my-bt5',
-			"label": "Open Modal",
+			"label": "Danger",
 			"icon": "save-front",
 			"kind": "danger",
 			"events": [
@@ -617,7 +617,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button6 = {
 			"id": 'my-bt6',
-			"label": "Open Modal",
+			"label": "Warning",
 			"icon": "save-front",
 			"kind": "warning",
 			"events": [
@@ -632,7 +632,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button7 = {
 			"id": 'my-bt7',
-			"label": "Open Modal",
+			"label": "Success",
 			"icon": "save-front",
 			"kind": "success",
 			"events": [
@@ -646,8 +646,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button7);
 
 		const button8 = {
+			"classList": ["ping", "pong"],
 			"id": 'my-bt8',
-			"label": "Open Modal",
+			"label": "Basic",
 			"icon": "save-front",
 			"kind": "basic",
 			"events": [
