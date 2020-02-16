@@ -124,7 +124,10 @@
     left: 0;
 }
 .pw-dialog {
-    z-index: 2000;
+    z-index: 1003;
+}
+.pw-order {
+    z-index: 3000 !important;
 }
 
 .pw-window  {

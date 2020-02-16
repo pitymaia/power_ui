@@ -1,7 +1,9 @@
 class PowerMenu extends PowerTarget {
 	constructor(menu, $powerUi) {
 		super(menu);
+		this.isMenu = true;
 		this.$powerUi = $powerUi;
+		this.order = 0;
 		this._$pwActive = false;
 		// this.element = menu;
 		this.id = this.element.getAttribute('id');
