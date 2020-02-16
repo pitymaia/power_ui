@@ -49,11 +49,6 @@
 }
 .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-item > *, .pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-action > *, .pwdesign-white-smoke .power-brand > * {
     vertical-align: middle;
-    font-size: 12pt;
-}
-
-.pwdesign-white-smoke .power-dropmenu > .power-dropmenu.power-active {
-    /*margin-left: 2em;*/
 }
 
 .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-list {
@@ -103,7 +98,7 @@
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom: 0;
-    margin-bottom: 0em;
+    margin-bottom: 0;
 }
 /* Accordion */
 /* keyboard mode on*/
@@ -158,35 +153,44 @@
 }
 
 /* buttons start*/
-.pw-btn-default {
+.pwdesign-white-smoke .pw-btn-default {
     color: #FFFFFF;
     background-color: #000000;
 }
-.pw-btn-highlight {
+.pwdesign-white-smoke .pw-btn-highlight {
     color: #FFFF00;
     background-color: #000000;
 }
-.pw-btn-danger {
+.pwdesign-white-smoke .pw-btn-danger {
     color: #FFFFFF;
     background-color: #8B0000;
 }
-.pw-btn-primary {
+.pwdesign-white-smoke .pw-btn-primary {
     color: #FFFFFF;
     background-color: #4B0082;
 }
-.pw-btn-secundary {
+.pwdesign-white-smoke .pw-btn-secundary {
     color: #000000;
     padding: 0.65em;
     border: 1px solid #000000;
     background-color: #FFFFFF;
 }
-.pw-btn-warning {
+.pwdesign-white-smoke .pw-btn-warning {
     color: #000000;
     background-color: #CCCC00;
 }
 
-.pw-btn-success {
+.pwdesign-white-smoke .pw-btn-success {
     color: #FFFFFF;
     background-color: #556B2F;
+}
+
+/* button dropmenu*/
+.pwdesign-white-smoke button.power-action {
+    display: inline-block;
+    margin: 0;
+    margin-top: 1em;
+    padding: 0.7em;
+    vertical-align: top;
 }
 /* buttons end*/

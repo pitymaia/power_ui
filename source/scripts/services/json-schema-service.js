@@ -80,6 +80,48 @@ class JSONSchemaService extends PowerServices {
 					${panel.section.content}
 				</div>`;
 		}
+
+		return tmpEl.innerHTML;
+	}
+
+	dropMenuButton(button) {
+		console.log('CHAMOU!!');
+		// if (this.validate(this.buttonDef, button) === false) {
+		// 	window.console.log('Failed JSON button:', button);
+		// 	return 'Failed JSON button!';
+		// }
+
+		const tmpEl = document.createElement('div');
+		// Add events if have
+		let eventsTmpl = '';
+		if (button.events) {
+			for (const event of button.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+		tmpEl.innerHTML = `<button class="power-action pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''} data-power-target="my-drop-menu">${button.icon ? '<span class="pw-icon ' + button.icon + '"></span>' : ''}${button.label} <span class="power-status pw-icon" data-power-active="caret-down" data-power-inactive="caret-right"></span></button>`;
+
+		const buttonEl = tmpEl.children[0];
+		if (button.classList) {
+			for (const css of button.classList) {
+				buttonEl.classList.add(css);
+			}
+		}
+
+		// tmpEl.innerHTML = tmpEl.innerHTML + `<button class="power-action" data-power-target="my-drop-menu">Show <span class="power-status pw-icon" data-power-active="caret-down" data-power-inactive="caret-right"></span></button>
+		tmpEl.innerHTML = tmpEl.innerHTML + `<nav id="my-drop-menu"
+					class="power-dropmenu"
+					data-power-position="bottom"
+					data-pow-main-css-hover="pw-orange"
+					data-pow-css-hover="pw-green"
+				>
+				<a class="power-item" data-pow-event onclick="openModal({name: 'Ditabranda', title: '1964'})">Ditadura a brasileira</a>
+				<a class="power-item"data-pow-event onclick="openModal({name: 'Mundo Novo', title: 'Amor Livre'})">Admiravel Mundo</a>
+				<a class="power-item" data-pow-event onclick="openModal({name: 'Granja do Solé', title: 'Revolução dos bichos'})">Revolução dos Bichos</a>
+				<a class="power-item">Other Blog</a>
+				<a class="power-item">News</a>
+			</nav>`;
+
 		return tmpEl.innerHTML;
 	}
 

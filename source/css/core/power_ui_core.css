@@ -20,7 +20,7 @@
 }
 
 .power-active > .power-item, .power-active > .power-action, .power-active > .power-brand {
-    display: block !important;
+    display: block;
 }
 
 .power-menu.power-horizontal .power-toggle {
@@ -224,6 +224,7 @@ body.modal-open {
     vertical-align: middle;
     margin-right: 0.3em;
 }
+
 .pw-bt-close {
     float: right;
     cursor: pointer;

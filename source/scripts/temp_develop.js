@@ -661,6 +661,21 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button8);
 
+		const button9 = {
+			"id": 'my-bt9',
+			"label": "DropMenu",
+			"icon": "save-front",
+			"kind": "warning",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button9);
+
 		resolve(htmlTemplate);
 	}
 }
