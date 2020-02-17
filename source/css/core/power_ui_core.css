@@ -222,7 +222,6 @@ body.modal-open {
 .pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span {
     display: inline-block;
     vertical-align: middle;
-    margin-right: 0.3em;
 }
 
 .pw-bt-close {

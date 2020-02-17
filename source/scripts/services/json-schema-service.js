@@ -144,7 +144,7 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
-			itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}>${item.label}</a>`;
+			itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 			const anchorEl = itemHolderEl.children[0];
 			// TODO: Move into a function?
@@ -206,7 +206,7 @@ class JSONSchemaService extends PowerServices {
 				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
 			}
 		}
-		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span>${button.label}</span></button>`;
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
 
 		const buttonEl = tmpEl.children[0];
 

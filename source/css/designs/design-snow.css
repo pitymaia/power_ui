@@ -194,3 +194,9 @@
     vertical-align: top;
 }
 /* buttons end*/
+
+/* labels */
+.pwdesign-white-smoke .pw-label {
+    margin-left: 0.4em;
+    margin-right: 0.4em;
+}

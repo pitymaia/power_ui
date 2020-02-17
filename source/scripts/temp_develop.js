@@ -709,6 +709,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"id": "my-item3",
 						"label": "The Fall",
 						"icon": "power-logo",
+						"icon-position": "left",
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
