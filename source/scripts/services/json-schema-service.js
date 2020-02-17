@@ -142,8 +142,8 @@ class JSONSchemaService extends PowerServices {
 
 			// Add item events if have
 			let itemEventsTmpl = '';
-			if (dropmenu.events) {
-				for (const event of dropmenu.events) {
+			if (item.events) {
+				for (const event of item.events) {
 					itemEventsTmpl = `${itemEventsTmpl} ${event.event}="${event.fn}" `;
 				}
 			}
