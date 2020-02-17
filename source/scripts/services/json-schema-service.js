@@ -72,13 +72,26 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		for (const panel of accordion.panels) {
-			accordionEl.innerHTML = accordionEl.innerHTML + `<div class="power-action" data-power-target="${panel.section.id}" id="${panel.header.id}">
-					<span>${panel.header.title}</span>
-					<span class="power-status pw-icon" data-power-active="${panel.header.activeIcon || 'chevron-down'}" data-power-inactive="${panel.header.inactiveIcon || 'chevron-right'}"></span>
-				</div>
-				<div class="power-accordion-section" id="${panel.section.id}">
-					${panel.section.content}
+			// Headers
+			const headerHolderEl = document.createElement('div');
+			headerHolderEl.innerHTML = `<div class="power-action" data-power-target="${panel.section.id}" id="${panel.header.id}">
+					<span class="pw-label">${panel.header.title}</span>
 				</div>`;
+			const headerEl = headerHolderEl.children[0];
+
+			if (panel.header.status) {
+				this.appendStatus({element: headerEl, json: panel.header.status});
+			}
+
+			accordionEl.appendChild(headerHolderEl.children[0]);
+
+			// Sections
+			const sectionHolderEl = document.createElement('div');
+			sectionHolderEl.innerHTML = `<div class="power-accordion-section" id="${panel.section.id}">
+				${panel.section.content}
+			</div>`;
+
+			accordionEl.appendChild(sectionHolderEl.children[0]);
 		}
 
 		return tmpEl.innerHTML;
@@ -99,16 +112,7 @@ class JSONSchemaService extends PowerServices {
 		buttonEl.classList.add('power-action');
 
 		if (dropMenuButton.status) {
-			const status = document.createElement('span');
-			status.classList.add('power-status');
-			status.classList.add('pw-icon');
-			status.dataset.powerActive = dropMenuButton.status.active;
-			status.dataset.powerInactive = dropMenuButton.status.inactive;
-			if (dropMenuButton.status.position === 'left') {
-				buttonEl.insertBefore(status, buttonEl.childNodes[0]);
-			} else {
-				buttonEl.appendChild(status);
-			}
+			this.appendStatus({element: buttonEl, json: dropMenuButton.status});
 		}
 
 		// Create dropmenu
@@ -158,18 +162,9 @@ class JSONSchemaService extends PowerServices {
 					anchorEl.appendChild(icon);
 				}
 			}
-			// TODO: Move into a function?
+
 			if (item.status) {
-				const status = document.createElement('span');
-				status.classList.add('power-status');
-				status.classList.add('pw-icon');
-				status.dataset.powerActive = item.status.active;
-				status.dataset.powerInactive = item.status.inactive;
-				if (item.status.position === 'left') {
-					anchorEl.insertBefore(status, anchorEl.childNodes[0]);
-				} else {
-					anchorEl.appendChild(status);
-				}
+				this.appendStatus({element: anchorEl, json: item.status});
 			}
 
 			// TODO: Move into a function?
@@ -228,6 +223,19 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		return tmpEl.innerHTML;
+	}
+
+	appendStatus({element, json}) {
+		const status = document.createElement('span');
+		status.classList.add('power-status');
+		status.classList.add('pw-icon');
+		status.dataset.powerActive = json.active;
+		status.dataset.powerInactive = json.inactive;
+		if (json.position === 'left') {
+			element.insertBefore(status, element.childNodes[0]);
+		} else {
+			element.appendChild(status);
+		}
 	}
 
 	get accordionDef() {
