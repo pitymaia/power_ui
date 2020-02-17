@@ -665,13 +665,97 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"id": 'my-bt9',
 			"label": "DropMenu",
 			"icon": "save-front",
+			"icon-position": "left",
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
 			"kind": "warning",
 			"events": [
 				{
 					"event": "onclick",
 					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
 				}
-			]
+			],
+			"dropmenu": {
+				"id": "my-drop-menu",
+				"icon": "save-front",
+				"items": [
+					{
+						"id": "my-item1",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item2",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					},
+					{
+						"id": "my-item3",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					}
+				]
+			}
 		};
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button9);

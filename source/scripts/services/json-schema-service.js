@@ -84,50 +84,116 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	dropMenuButton(button) {
+	dropMenuButton(dropMenuButton) {
 		// if (this.validate(this.buttonDef, button) === false) {
 		// 	window.console.log('Failed JSON button:', button);
 		// 	return 'Failed JSON button!';
 		// }
 
 		const tmpEl = document.createElement('div');
-
-		tmpEl.innerHTML = this.button(button);
+		// Create button
+		tmpEl.innerHTML = this.button(dropMenuButton, true);
 
 		const buttonEl = tmpEl.children[0];
-		// TODO: power-target needs use dropmenu id
-		buttonEl.dataset.powerTarget = "my-drop-menu";
-		buttonEl.classList.add("power-action");
+		buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
+		buttonEl.classList.add('power-action');
 
-		const caret = document.createElement('span');
-		caret.classList.add("power-status");
-		caret.classList.add("pw-icon");
-		caret.dataset.powerActive = "caret-down";
-		caret.dataset.powerInactive = "caret-right";
-		buttonEl.appendChild(caret);
-		console.log('buttonEl', buttonEl.children);
+		if (dropMenuButton.status) {
+			const status = document.createElement('span');
+			status.classList.add('power-status');
+			status.classList.add('pw-icon');
+			status.dataset.powerActive = dropMenuButton.status.active;
+			status.dataset.powerInactive = dropMenuButton.status.inactive;
+			if (dropMenuButton.status.position === 'left') {
+				buttonEl.insertBefore(status, buttonEl.childNodes[0]);
+			} else {
+				buttonEl.appendChild(status);
+			}
+		}
 
-		//<span class="power-status pw-icon" data-power-active="caret-down" data-power-inactive="caret-right"></span>
-
-		// tmpEl.innerHTML = tmpEl.innerHTML + `<button class="power-action" data-power-target="my-drop-menu">Show <span class="power-status pw-icon" data-power-active="caret-down" data-power-inactive="caret-right"></span></button>
-		tmpEl.innerHTML = tmpEl.innerHTML + `<nav id="my-drop-menu"
-					class="power-dropmenu"
-					data-power-position="bottom"
-					data-pow-main-css-hover="pw-orange"
-					data-pow-css-hover="pw-green"
-				>
-				<a class="power-item" data-pow-event onclick="openModal({name: 'Ditabranda', title: '1964'})">Ditadura a brasileira</a>
-				<a class="power-item"data-pow-event onclick="openModal({name: 'Mundo Novo', title: 'Amor Livre'})">Admiravel Mundo</a>
-				<a class="power-item" data-pow-event onclick="openModal({name: 'Granja do Solé', title: 'Revolução dos bichos'})">Revolução dos Bichos</a>
-				<a class="power-item">Other Blog</a>
-				<a class="power-item">News</a>
-			</nav>`;
+		// Create dropmenu
+		tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu);
 
 		return tmpEl.innerHTML;
 	}
 
-	button(button) {
-		if (this.validate(this.buttonDef, button) === false) {
+	dropmenu(dropmenu) {
+		// if (!avoidValidation && this.validate(this.dropmenuDef, dropmenu) === false) {
+		// 	window.console.log('Failed JSON dropmenu:', button);
+		// 	return 'Failed JSON dropmenu!';
+		// }
+
+		const tmpEl = document.createElement('div');
+		// Add events if have
+		let eventsTmpl = '';
+		if (dropmenu.events) {
+			for (const event of dropmenu.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+		tmpEl.innerHTML = `<nav class="power-dropmenu" id="${dropmenu.id}" ${dropmenu.events ? 'data-pow-event' + eventsTmpl : ''}></nav>`;
+
+		for (const item of dropmenu.items) {
+			const itemHolderEl = document.createElement('div');
+
+			// Add item events if have
+			let itemEventsTmpl = '';
+			if (dropmenu.events) {
+				for (const event of dropmenu.events) {
+					itemEventsTmpl = `${itemEventsTmpl} ${event.event}="${event.fn}" `;
+				}
+			}
+
+			itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}>${item.label}</a>`;
+
+			const anchorEl = itemHolderEl.children[0];
+			// TODO: Move into a function?
+			if (item.icon) {
+				const icon = document.createElement('span');
+				icon.classList.add('pw-icon');
+				icon.classList.add(item.icon);
+				if (!item['icon-position'] || item['icon-position'] === 'left') {
+					anchorEl.insertBefore(icon, anchorEl.childNodes[0]);
+				} else {
+					anchorEl.appendChild(icon);
+				}
+			}
+			// TODO: Move into a function?
+			if (item.status) {
+				const status = document.createElement('span');
+				status.classList.add('power-status');
+				status.classList.add('pw-icon');
+				status.dataset.powerActive = item.status.active;
+				status.dataset.powerInactive = item.status.inactive;
+				if (item.status.position === 'left') {
+					anchorEl.insertBefore(status, anchorEl.childNodes[0]);
+				} else {
+					anchorEl.appendChild(status);
+				}
+			}
+
+			// TODO: Move into a function?
+			if (item.classList) {
+				for (const css of item.classList) {
+					anchorEl.classList.add(css);
+				}
+			}
+
+			tmpEl.children[0].appendChild(anchorEl);
+
+			// Add submenu if have one
+			if (item.dropmenu) {
+				const submenuHolderEl = document.createElement('div');
+				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu);
+				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
+			}
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	button(button, avoidValidation) {
+		if (!avoidValidation && this.validate(this.buttonDef, button) === false) {
 			window.console.log('Failed JSON button:', button);
 			return 'Failed JSON button!';
 		}
@@ -140,9 +206,21 @@ class JSONSchemaService extends PowerServices {
 				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
 			}
 		}
-		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}>${button.icon ? '<span class="pw-icon ' + button.icon + '"></span>' : ''}<span>${button.label}</span></button>`;
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span>${button.label}</span></button>`;
 
 		const buttonEl = tmpEl.children[0];
+
+		if (button.icon) {
+			const icon = document.createElement('span');
+			icon.classList.add('pw-icon');
+			icon.classList.add(button.icon);
+			if (!button['icon-position'] || button['icon-position'] === 'left') {
+				buttonEl.insertBefore(icon, buttonEl.childNodes[0]);
+			} else {
+				buttonEl.appendChild(icon);
+			}
+		}
+
 		if (button.classList) {
 			for (const css of button.classList) {
 				buttonEl.classList.add(css);
