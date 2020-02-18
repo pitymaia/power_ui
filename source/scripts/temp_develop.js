@@ -481,7 +481,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				{
 					"header": {
 						"id": "female-action",
-						"title": "My female cats",
+						"label": "My female cats",
+						"icon": "icon-atom",
 						"status": {"active": "chevron-down", "inactive": "chevron-right", "position": "right"}
 					},
 					"section": {
@@ -504,7 +505,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				{
 					"header": {
 						"id": "male-action",
-						"title": "My male cats",
+						"label": "My male cats",
+						"icon": "icon-user",
 						"status": {"active": "chevron-down", "inactive": "chevron-right"}
 					},
 					"section": {
@@ -522,7 +524,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				{
 					"header": {
 						"id": "favorite-action",
-						"title": "My favorite cats",
+						"icon": "save-front",
+						"label": "My favorite cats",
 						"status": {"active": "chevron-down", "inactive": "chevron-right"}
 					},
 					"section": {

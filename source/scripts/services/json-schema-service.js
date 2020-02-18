@@ -66,18 +66,20 @@ class JSONSchemaService extends PowerServices {
 		tmpEl.innerHTML = `<div class="power-accordion" id="${accordion.id}" data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
 		const accordionEl = tmpEl.children[0];
 		if (accordion.classList) {
-			for (const css of accordion.classList) {
-				accordionEl.classList.add(css);
-			}
+			this.appendClassList({element: accordionEl, json: accordion});
 		}
 
 		for (const panel of accordion.panels) {
 			// Headers
 			const headerHolderEl = document.createElement('div');
 			headerHolderEl.innerHTML = `<div class="power-action" data-power-target="${panel.section.id}" id="${panel.header.id}">
-					<span class="pw-label">${panel.header.title}</span>
+					<div><span class="pw-label">${panel.header.label}</span></div>
 				</div>`;
 			const headerEl = headerHolderEl.children[0];
+
+			if (panel.header) {
+				this.appendIcon({element: headerEl.children[0], json: panel.header});
+			}
 
 			if (panel.header.status) {
 				this.appendStatus({element: headerEl, json: panel.header.status});
@@ -151,27 +153,17 @@ class JSONSchemaService extends PowerServices {
 			itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 			const anchorEl = itemHolderEl.children[0];
-			// TODO: Move into a function?
+
 			if (item.icon) {
-				const icon = document.createElement('span');
-				icon.classList.add('pw-icon');
-				icon.classList.add(item.icon);
-				if (!item['icon-position'] || item['icon-position'] === 'left') {
-					anchorEl.insertBefore(icon, anchorEl.childNodes[0]);
-				} else {
-					anchorEl.appendChild(icon);
-				}
+				this.appendIcon({element: anchorEl, json: item});
 			}
 
 			if (item.status) {
 				this.appendStatus({element: anchorEl, json: item.status});
 			}
 
-			// TODO: Move into a function?
 			if (item.classList) {
-				for (const css of item.classList) {
-					anchorEl.classList.add(css);
-				}
+				this.appendClassList({element: anchorEl, json: item});
 			}
 
 			tmpEl.children[0].appendChild(anchorEl);
@@ -206,23 +198,31 @@ class JSONSchemaService extends PowerServices {
 		const buttonEl = tmpEl.children[0];
 
 		if (button.icon) {
-			const icon = document.createElement('span');
-			icon.classList.add('pw-icon');
-			icon.classList.add(button.icon);
-			if (!button['icon-position'] || button['icon-position'] === 'left') {
-				buttonEl.insertBefore(icon, buttonEl.childNodes[0]);
-			} else {
-				buttonEl.appendChild(icon);
-			}
+			this.appendIcon({element: buttonEl, json: button});
 		}
 
 		if (button.classList) {
-			for (const css of button.classList) {
-				buttonEl.classList.add(css);
-			}
+			this.appendClassList({element: buttonEl, json: button});
 		}
 
 		return tmpEl.innerHTML;
+	}
+
+	appendClassList({element, json}) {
+		for (const css of json.classList) {
+			element.classList.add(css);
+		}
+	}
+
+	appendIcon({element, json}) {
+		const icon = document.createElement('span');
+		icon.classList.add('pw-icon');
+		icon.classList.add(json.icon);
+		if (!json['icon-position'] || json['icon-position'] === 'left') {
+			element.insertBefore(icon, element.childNodes[0]);
+		} else {
+			element.appendChild(icon);
+		}
 	}
 
 	appendStatus({element, json}) {
@@ -260,9 +260,10 @@ class JSONSchemaService extends PowerServices {
 								"type": "object",
 								"properties": {
 									"id": {"type": "string"},
-									"title": {"type": "string"}
+									"label": {"type": "string"},
+									"icon": {"type": "string"}
 								},
-								"required": ["title", "id"]
+								"required": ["label", "id"]
 							},
 							"section": {
 								"type": "object",

@@ -219,7 +219,7 @@ body.modal-open {
     cursor: pointer;
     /*border-radius: 0.3em;*/
 }
-.pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span {
+.pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span, .power-accordion .power-action span {
     display: inline-block;
     vertical-align: middle;
 }
