@@ -874,6 +874,620 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button10);
 
+		const button11 = {
+			"button": {
+				"id": 'my-bt11',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "basic",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
+			"dropmenu": {
+				"id": "my-drop-menu-3",
+				"position": "bottom-left",
+				"items": [
+					{
+						"id": "my-item1-3",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item2-3",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					},
+					{
+						"id": "my-item3-3",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2-3",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1-3",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2-3",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3-3",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					}
+				]
+			}
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button11);
+
+		const button12 = {
+			"button": {
+				"id": 'my-bt12',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "danger",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
+			"dropmenu": {
+				"id": "my-drop-menu-4",
+				"position": "left-bottom",
+				"items": [
+					{
+						"id": "my-item1-4",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item2-4",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					},
+					{
+						"id": "my-item3-4",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2-4",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1-4",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2-4",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3-4",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					}
+				]
+			}
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button12);
+
+		htmlTemplate = htmlTemplate + '<br />';
+
+		const button13 = {
+			"button": {
+				"id": 'my-bt13',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "default",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
+			"dropmenu": {
+				"id": "my-drop-menu-13",
+				"position": "top-right",
+				"items": [
+					{
+						"id": "my-item3-13",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2-13",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1-13",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2-13",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3-13",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"id": "my-item1-13",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item2-13",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					}
+				]
+			}
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button13);
+
+		const button14 = {
+			"button": {
+				"id": 'my-bt14',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "secundary",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
+			"dropmenu": {
+				"id": "my-drop-menu-2-14",
+				"position": "right-top",
+				"items": [
+					{
+						"id": "my-item3-14",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2-14",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1-14",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2-14",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3-14",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"id": "my-item1-14",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item2-14",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					}
+				]
+			}
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button14);
+
+		const button15 = {
+			"button": {
+				"id": 'my-bt15',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "success",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
+			"dropmenu": {
+				"id": "my-drop-menu-15",
+				"position": "top-left",
+				"items": [
+					{
+						"id": "my-item1-15",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item3-15",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2-15",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1-15",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2-15",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3-15",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"id": "my-item2-15",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					}
+				]
+			}
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button15);
+
+		const button16 = {
+			"button": {
+				"id": 'my-bt116',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "highlight",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
+			"status": {
+				"active": "caret-down",
+				"inactive": "caret-right",
+				"position": "right"
+			},
+			"dropmenu": {
+				"id": "my-drop-menu-16",
+				"position": "left-top",
+				"items": [
+					{
+						"id": "my-item3-16",
+						"label": "The Fall",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"status": {
+							"active": "caret-down",
+							"inactive": "caret-right",
+							"position": "right"
+						},
+						"dropmenu": {
+							"id": "my-drop-menu2-16",
+							"icon": "save-front",
+							"items": [
+								{
+									"id": "subitem1-16",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+										}
+									]
+								},
+								{
+									"id": "subitem2-16",
+									"label": "Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+										}
+									]
+								},
+								{
+									"id": "subitem3-16",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"id": "my-item1-16",
+						"label": "Brave new world",
+						"icon": "power-logo",
+						"icon-position": "left",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+							}
+						]
+					},
+					{
+						"id": "my-item2-16",
+						"label": "Animal Farm",
+						"icon": "power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+							}
+						]
+					}
+				]
+			}
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button16);
+
 		resolve(htmlTemplate);
 	}
 }
