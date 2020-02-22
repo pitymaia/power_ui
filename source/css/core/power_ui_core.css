@@ -26,7 +26,9 @@
 .power-menu.power-horizontal .power-toggle {
     display: none;
 }
-
+.power-dropmenu.pw-mirrored {
+    text-align: right;
+}
 .power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
     display: block !important;
     white-space:nowrap;

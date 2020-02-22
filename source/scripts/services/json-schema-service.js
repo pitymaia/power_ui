@@ -113,23 +113,23 @@ class JSONSchemaService extends PowerServices {
 
 		const tmpEl = document.createElement('div');
 		// Create button
-		tmpEl.innerHTML = this.button(dropMenuButton.button, true);
+		tmpEl.innerHTML = this.button(dropMenuButton.button, true, dropMenuButton.button.mirrored);
 
 		const buttonEl = tmpEl.children[0];
 		buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
 		buttonEl.classList.add('power-action');
 
 		if (dropMenuButton.status) {
-			this.appendStatus({element: buttonEl, json: dropMenuButton.status});
+			this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored});
 		}
 
 		// Create dropmenu
-		tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu);
+		tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored);
 
 		return tmpEl.innerHTML;
 	}
 
-	dropmenu(dropmenu) {
+	dropmenu(dropmenu, mirrored) {
 		if (this.validate(this.dropmenuDef(), dropmenu) === false) {
 			window.console.log('Failed JSON dropmenu:', dropmenu);
 			return 'Failed JSON dropmenu!';
@@ -143,7 +143,7 @@ class JSONSchemaService extends PowerServices {
 				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
 			}
 		}
-		tmpEl.innerHTML = `<nav class="power-dropmenu" id="${dropmenu.id}" ${dropmenu.events ? 'data-pow-event' + eventsTmpl : ''}></nav>`;
+		tmpEl.innerHTML = `<nav class="power-dropmenu${mirrored === true ? ' pw-mirrored' : ''}" id="${dropmenu.id}" ${dropmenu.events ? 'data-pow-event' + eventsTmpl : ''}></nav>`;
 
 		// Set menu position
 		if (dropmenu.position) {
@@ -166,13 +166,12 @@ class JSONSchemaService extends PowerServices {
 
 			const anchorEl = itemHolderEl.children[0];
 
-
 			if (item.icon) {
-				this.appendIcon({element: anchorEl, json: item});
+				this.appendIcon({element: anchorEl, json: item, mirrored: mirrored});
 			}
 
 			if (item.status) {
-				this.appendStatus({element: anchorEl, json: item.status});
+				this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
 			}
 
 			if (item.classList) {
@@ -184,7 +183,7 @@ class JSONSchemaService extends PowerServices {
 			// Add submenu if have one
 			if (item.dropmenu) {
 				const submenuHolderEl = document.createElement('div');
-				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu);
+				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored);
 				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 			}
 		}
@@ -192,7 +191,7 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	button(button, avoidValidation) {
+	button(button, avoidValidation, mirrored) {
 		if (!avoidValidation && this.validate(this.buttonDef(), button) === false) {
 			window.console.log('Failed JSON button:', button);
 			return 'Failed JSON button!';
@@ -211,7 +210,7 @@ class JSONSchemaService extends PowerServices {
 		const buttonEl = tmpEl.children[0];
 
 		if (button.icon) {
-			this.appendIcon({element: buttonEl, json: button});
+			this.appendIcon({element: buttonEl, json: button, mirrored: mirrored});
 		}
 
 		if (button.classList) {
@@ -227,24 +226,24 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	appendIcon({element, json}) {
+	appendIcon({element, json, mirrored}) {
 		const icon = document.createElement('span');
 		icon.classList.add('pw-icon');
 		icon.classList.add(json.icon);
-		if (!json['icon-position'] || json['icon-position'] === 'left') {
+		if ((!json['icon-position'] && mirrored !== true) || json['icon-position'] === 'left') {
 			element.insertBefore(icon, element.childNodes[0]);
 		} else {
 			element.appendChild(icon);
 		}
 	}
 
-	appendStatus({element, json}) {
+	appendStatus({element, json, mirrored}) {
 		const status = document.createElement('span');
 		status.classList.add('power-status');
 		status.classList.add('pw-icon');
 		status.dataset.powerActive = json.active;
 		status.dataset.powerInactive = json.inactive;
-		if (json.position === 'left') {
+		if (json.position === 'left' || mirrored === true) {
 			element.insertBefore(status, element.childNodes[0]);
 		} else {
 			element.appendChild(status);
@@ -341,6 +340,7 @@ class JSONSchemaService extends PowerServices {
 				"icon": {"type": "string"},
 				"icon-position": {"type": "string"},
 				"kind": {"type": "string"},
+				"mirrored": {"type": "boolean"},
 				"events": {
 					"type": "array",
 					"properties": {
