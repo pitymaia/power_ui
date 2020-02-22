@@ -1506,7 +1506,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			},
 			"status": {
 				"active": "caret-down",
-				"inactive": "caret-left",
+				"inactive": "caret-right",
 			},
 			"dropmenu": {
 				"id": "my-drop-menu-17",
@@ -1529,7 +1529,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"icon": "power-logo",
 						"status": {
 							"active": "caret-down",
-							"inactive": "caret-left",
+							"inactive": "caret-right",
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-17",
@@ -1604,7 +1604,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			},
 			"status": {
 				"active": "caret-down",
-				"inactive": "caret-left",
+				"inactive": "caret-right",
 			},
 			"dropmenu": {
 				"id": "my-drop-menu-18",
@@ -1616,7 +1616,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"icon": "power-logo",
 						"status": {
 							"active": "caret-down",
-							"inactive": "caret-left",
+							"inactive": "caret-right",
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-18",

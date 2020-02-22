@@ -241,8 +241,12 @@ class JSONSchemaService extends PowerServices {
 		const status = document.createElement('span');
 		status.classList.add('power-status');
 		status.classList.add('pw-icon');
+		if (mirrored === true) {
+			status.dataset.powerInactive = json.inactive.replace('right', 'left');
+		} else {
+			status.dataset.powerInactive = json.inactive;
+		}
 		status.dataset.powerActive = json.active;
-		status.dataset.powerInactive = json.inactive;
 		if (json.position === 'left' || mirrored === true) {
 			element.insertBefore(status, element.childNodes[0]);
 		} else {
@@ -393,4 +397,3 @@ class JSONSchemaService extends PowerServices {
 		return references[$ref]();
 	}
 }
-
