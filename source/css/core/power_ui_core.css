@@ -183,7 +183,7 @@
 .pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window-resizable {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
-.pw-modal button, .pw-dialog button, .pw-window button, .pw-ico {
+.pw-ico {
     margin-right: 0.5em;
 }
 

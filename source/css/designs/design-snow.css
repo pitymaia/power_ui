@@ -149,6 +149,13 @@
 }
 
 /* buttons start*/
+.pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action {
+    margin-right: 0.5em;
+    display: inline-block;
+    margin-top: 1em;
+    padding: 0.7em;
+    vertical-align: top;
+}
 .pwdesign-white-smoke .pw-btn-default {
     color: #FFFFFF;
     background-color: #000000;
@@ -180,16 +187,6 @@
     color: #FFFFFF;
     background-color: #556B2F;
 }
-
-/* button dropmenu*/
-.pwdesign-white-smoke button.power-action {
-    display: inline-block;
-    margin: 0;
-    margin-top: 1em;
-    padding: 0.7em;
-    vertical-align: top;
-}
-/* buttons end*/
 
 /* labels */
 .pwdesign-white-smoke .pw-label {

@@ -145,6 +145,12 @@ class JSONSchemaService extends PowerServices {
 		}
 		tmpEl.innerHTML = `<nav class="power-dropmenu" id="${dropmenu.id}" ${dropmenu.events ? 'data-pow-event' + eventsTmpl : ''}></nav>`;
 
+		// Set menu position
+		if (dropmenu.position) {
+				const menu = tmpEl.children[0];
+				menu.dataset.powerPosition = dropmenu.position;
+		}
+
 		for (const item of dropmenu.items) {
 			const itemHolderEl = document.createElement('div');
 
@@ -159,6 +165,7 @@ class JSONSchemaService extends PowerServices {
 			itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 			const anchorEl = itemHolderEl.children[0];
+
 
 			if (item.icon) {
 				this.appendIcon({element: anchorEl, json: item});
