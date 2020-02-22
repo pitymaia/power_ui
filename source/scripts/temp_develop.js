@@ -668,25 +668,26 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').button(button8);
 
 		const button9 = {
-			"id": 'my-bt9',
-			"label": "DropMenu",
-			"icon": "save-front",
-			"icon-position": "left",
+			"button": {
+				"id": 'my-bt9',
+				"label": "DropMenu",
+				"icon": "save-front",
+				"icon-position": "left",
+				"kind": "warning",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+					}
+				]
+			},
 			"status": {
 				"active": "caret-down",
 				"inactive": "caret-right",
 				"position": "right"
 			},
-			"kind": "warning",
-			"events": [
-				{
-					"event": "onclick",
-					"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
-				}
-			],
 			"dropmenu": {
 				"id": "my-drop-menu",
-				"icon": "save-front",
 				"items": [
 					{
 						"id": "my-item1",
@@ -819,14 +820,14 @@ class FakeModal extends PowerModal {
 			Violet: 'Blue',
 			Daisy: 'Yellow',
 
-		}
+		};
 		this.languages = {
 			good: {name: 'Python', kind: 'Not typed'},
 			hard: {name: 'Java', kind: 'Typed'},
 			bad: {name: 'EcmaScript', kind: 'Not typed'},
 			old: {name: 'COBOL', kind: 'Not typed'},
 			cool: {name: 'C++', kind: 'typed'},
-		}
+		};
 
 		this.myName = 'Eu sou o Pity o bom!';
 		this.oldName = this.myName;

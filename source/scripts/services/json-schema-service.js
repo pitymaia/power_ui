@@ -31,8 +31,14 @@ class JSONSchemaService extends PowerServices {
 		// Validate item properties and inner nodes
 		for (const key of Object.keys(schema.properties || {})) {
 			// Validate inner schema nodes
+			// If is some reference to another schema get it
+			if (schema.properties[key].$ref) {
+				if (json[key] && this.validate(this.$ref(schema.properties[key].$ref), json[key]) === false) {
+					return false;
+				}
+			}
 			// Validade array type property
-			if (schema.properties[key].type === 'array' && schema.properties[key].items) {
+			else if (schema.properties[key].type === 'array' && schema.properties[key].items) {
 				for (const item of json[key]) {
 					if (this.validate(schema.properties[key].items, item) === false) {
 						return false;
@@ -46,7 +52,7 @@ class JSONSchemaService extends PowerServices {
 			}
 
 			// Validate current property type
-			if (json[key] !== undefined) {
+			if (json[key] !== undefined && !schema.properties[key].$ref) {
 				if (this.validateType(schema.properties[key].type, json[key]) === false) {
 					window.console.log('Failed JSON key is:', key);
 					return false;
@@ -58,7 +64,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	accordion(accordion) {
-		if (this.validate(this.accordionDef, accordion) === false) {
+		if (this.validate(this.accordionDef(), accordion) === false) {
 			window.console.log('Failed JSON accordion:', accordion);
 			return 'Failed JSON accordion!';
 		}
@@ -100,14 +106,14 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	dropMenuButton(dropMenuButton) {
-		// if (this.validate(this.buttonDef, button) === false) {
-		// 	window.console.log('Failed JSON button:', button);
-		// 	return 'Failed JSON button!';
-		// }
+		if (this.validate(this.buttonDropmenuDef(), dropMenuButton) === false) {
+			window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
+			return 'Failed JSON button!';
+		}
 
 		const tmpEl = document.createElement('div');
 		// Create button
-		tmpEl.innerHTML = this.button(dropMenuButton, true);
+		tmpEl.innerHTML = this.button(dropMenuButton.button, true);
 
 		const buttonEl = tmpEl.children[0];
 		buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
@@ -124,10 +130,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	dropmenu(dropmenu) {
-		// if (!avoidValidation && this.validate(this.dropmenuDef, dropmenu) === false) {
-		// 	window.console.log('Failed JSON dropmenu:', button);
-		// 	return 'Failed JSON dropmenu!';
-		// }
+		if (this.validate(this.dropmenuDef(), dropmenu) === false) {
+			window.console.log('Failed JSON dropmenu:', dropmenu);
+			return 'Failed JSON dropmenu!';
+		}
 
 		const tmpEl = document.createElement('div');
 		// Add events if have
@@ -180,7 +186,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	button(button, avoidValidation) {
-		if (!avoidValidation && this.validate(this.buttonDef, button) === false) {
+		if (!avoidValidation && this.validate(this.buttonDef(), button) === false) {
 			window.console.log('Failed JSON button:', button);
 			return 'Failed JSON button!';
 		}
@@ -238,10 +244,42 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	get accordionDef() {
+	dropmenuDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#draft-07/accordion",
+			"$id": "#/schema/draft-07/dropmenu",
+			"type": "object",
+			"properties": {
+				"id": {"type": "string"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"classList": {"type": "array"},
+						"label": {"type": "string"},
+						"icon": {"type": "string"},
+						"icon-position": {"type": "string"},
+						"events": {
+							"type": "array",
+							"properties": {
+								"event": {"type": "string"},
+								"fn": {"type": "string"},
+							},
+							"required": ["event", "fn"]
+						},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					},
+					"required": ["label"]
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
+	accordionDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/accordion",
 			"type": "object",
 			"properties": {
 				"classList": {"type": "array"},
@@ -261,7 +299,9 @@ class JSONSchemaService extends PowerServices {
 								"properties": {
 									"id": {"type": "string"},
 									"label": {"type": "string"},
-									"icon": {"type": "string"}
+									"icon": {"type": "string"},
+									"icon-position": {"type": "string"},
+									"status": {"$ref": "#/schema/draft-07/status"}
 								},
 								"required": ["label", "id"]
 							},
@@ -282,16 +322,17 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	get buttonDef() {
+	buttonDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#draft-07/button",
+			"$id": "#/schema/draft-07/button",
 			"type": "object",
 			"properties": {
 				"classList": {"type": "array"},
 				"label": {"type": "string"},
 				"id": {"type": "string"},
 				"icon": {"type": "string"},
+				"icon-position": {"type": "string"},
 				"kind": {"type": "string"},
 				"events": {
 					"type": "array",
@@ -300,10 +341,49 @@ class JSONSchemaService extends PowerServices {
 						"fn": {"type": "string"},
 					},
 					"required": ["event", "fn"]
-				},
+				}
 			},
 			"required": ["label"]
 		};
+	}
+
+	buttonDropmenuDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "schema/draft-07/button-dropmenu",
+			"type": "object",
+			"properties": {
+				"button": {"$ref": "#/schema/draft-07/button"},
+				"status": {"$ref": "#/schema/draft-07/status"},
+				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+			},
+			"required": ["button"]
+		};
+	}
+
+	statusDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "schema/draft-07/status",
+			"type": "object",
+			"properties": {
+				"active": {"type": "string"},
+				"inactive": {"type": "string"},
+				"position": {"type": "string"}
+			},
+			"required": ["active", "inactive"]
+		};
+	}
+
+	$ref($ref) {
+		const path = '#/schema/draft-07/';
+
+		const references = {};
+		references[`${path}button`] = this.buttonDef;
+		references[`${path}status`] = this.statusDef;
+		references[`${path}dropmenu`] = this.dropmenuDef;
+
+		return references[$ref]();
 	}
 }
 
