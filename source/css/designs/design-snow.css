@@ -172,7 +172,7 @@
     color: #FFFFFF;
     background-color: #4B0082;
 }
-.pwdesign-white-smoke .pw-btn-secundary {
+.pwdesign-white-smoke .pw-btn-secundary, .pwdesign-white-smoke .pw-btn-secundary.power-action {
     color: #000000;
     padding: 0.65em;
     border: 1px solid #000000;
