@@ -471,6 +471,205 @@ class MyWindow extends PowerWindowIframe {
 
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
+		const menu1 = {
+			"classList": ['my-custom-menu'],
+			"id": 'my-menu-1',
+			"mirrored": false,
+			"position": "bottom-right",
+			"items": [
+				{
+					"id": "my-books-1",
+					"label": "Books",
+					"icon": "power-logo",
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "my-books-menu-1",
+						"items": [
+							{
+								"id": "the-fall-1",
+								"label": "The Fall",
+								"icon": "power-logo",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+									}
+								]
+							},
+							{
+								"id": "brave-1",
+								"label": "Brave new world",
+								"icon": "power-logo",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+									}
+								]
+							},
+							{
+								"id": "animal-farm-1",
+								"label": "Animal Farm",
+								"icon": "power-logo",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Animal Farm', 'title': 'George Orwell'})"
+									}
+								]
+							},
+							{
+								"id": "books-plus-1",
+								"label": "More Books",
+								"icon": "power-logo",
+								"status": {
+									"active": "caret-down",
+									"inactive": "caret-right",
+								},
+								"dropmenu": {
+									"id": "my-books-menu-2",
+									"items": [
+										{
+											"id": "a1984-1",
+											"label": "1984",
+											"icon": "power-logo",
+											"events": [
+												{
+													"event": "onclick",
+													"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+												}
+											]
+										},
+										{
+											"id": "never-1",
+											"label": "Neverending Story",
+											"icon": "power-logo",
+											"events": [
+												{
+													"event": "onclick",
+													"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+												}
+											]
+										},
+										{
+											"id": "stranger-1",
+											"label": "The Stranger",
+											"icon": "power-logo",
+											"events": [
+												{
+													"event": "onclick",
+													"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+												}
+											]
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"id": "games-1",
+					"label": "Games",
+					"icon": "power-logo",
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "the-books-menu-1",
+						"items": [
+							{
+								"id": "mario-1",
+								"label": "New Super Mario",
+								"icon": "power-logo",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+									}
+								]
+							},
+							{
+								"id": "starcraft-1",
+								"label": "StarCraft",
+								"icon": "power-logo",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
+									}
+								]
+							},
+							{
+								"id": "zelda-1",
+								"label": "Zelda",
+								"icon": "power-logo",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
+									}
+								]
+							},
+							{
+								"id": "more-games-1",
+								"label": "More Games",
+								"icon": "power-logo",
+								"status": {
+									"active": "caret-down",
+									"inactive": "caret-right",
+								},
+								"dropmenu": {
+									"id": "my-games-menu-2",
+									"items": [
+										{
+											"id": "doom-1",
+											"label": "Doom",
+											"icon": "power-logo",
+											"events": [
+												{
+													"event": "onclick",
+													"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+												}
+											]
+										},
+										{
+											"id": "quake-1",
+											"label": "Quake",
+											"icon": "power-logo",
+											"events": [
+												{
+													"event": "onclick",
+													"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+												}
+											]
+										},
+										{
+											"id": "simcity-1",
+											"label": "Sim City 2000",
+											"icon": "power-logo",
+											"events": [
+												{
+													"event": "onclick",
+													"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+												}
+											]
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		};
+
+		let htmlTemplate = this.$service('JSONSchema').powerMenu(menu1);
+
 		const accordion = {
 			"classList": ['my-custom-accordion'],
 			"id": 'my-custom-accordion',
@@ -543,7 +742,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			],
 		};
 
-		let htmlTemplate = this.$service('JSONSchema').accordion(accordion);
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').accordion(accordion);
 
 		const button = {
 			"classList": ['my-custom-button'],
@@ -1421,7 +1620,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-16",
-							"icon": "save-front",
 							"items": [
 								{
 									"id": "subitem1-16",
@@ -1620,7 +1818,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-18",
-							"icon": "save-front",
 							"items": [
 								{
 									"id": "subitem1-18",

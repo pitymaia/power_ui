@@ -129,21 +129,19 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	dropmenu(dropmenu, mirrored) {
+	powerMenu(menu) {
+		return this.dropmenu(menu, menu.mirrored, true);
+	}
+
+	dropmenu(dropmenu, mirrored, isMenu) {
 		if (this.validate(this.dropmenuDef(), dropmenu) === false) {
 			window.console.log('Failed JSON dropmenu:', dropmenu);
 			return 'Failed JSON dropmenu!';
 		}
 
 		const tmpEl = document.createElement('div');
-		// Add events if have
-		let eventsTmpl = '';
-		if (dropmenu.events) {
-			for (const event of dropmenu.events) {
-				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
-			}
-		}
-		tmpEl.innerHTML = `<nav class="power-dropmenu${mirrored === true ? ' pw-mirrored' : ''}" id="${dropmenu.id}" ${dropmenu.events ? 'data-pow-event' + eventsTmpl : ''}></nav>`;
+
+		tmpEl.innerHTML = `<nav class="${isMenu ? 'power-menu' : 'power-dropmenu'}${mirrored === true ? ' pw-mirrored' : ''}" id="${dropmenu.id}"></nav>`;
 
 		// Set menu position
 		if (dropmenu.position) {
