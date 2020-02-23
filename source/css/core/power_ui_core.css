@@ -54,6 +54,10 @@
 /* end power tree view*/
 
 @media screen and (max-width: 800px) {
+    .power-menu.power-horizontal.power-active .power-action, .power-menu.power-horizontal.power-active .power-item {
+        display: block;
+    }
+
     .power-menu.power-horizontal .power-action, .power-menu.power-horizontal .power-item {
         display: none;
     }
@@ -75,7 +79,7 @@
     }
 
     .power-menu.power-horizontal.power-active .power-toggle {
-        display: none !important;
+        display: none;
     }
 }
 .power-menu-fixed {
