@@ -106,10 +106,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	dropMenuButton(dropMenuButton) {
-		if (this.validate(this.buttonDropmenuDef(), dropMenuButton) === false) {
-			window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
-			return 'Failed JSON button!';
-		}
+		// if (this.validate(this.buttonDropmenuDef(), dropMenuButton) === false) {
+		// 	window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
+		// 	return 'Failed JSON button!';
+		// }
 
 		const tmpEl = document.createElement('div');
 		// Create button
@@ -129,15 +129,100 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	powerMenu(menu) {
-		return this.dropmenu(menu, menu.mirrored, true);
+	menu(menu) {
+		// Menus extends dropmenu
+		const tmpEl = document.createElement('div');
+
+		// Set dropmenu position
+		if (!menu.position) {
+			if (!menu.orientation || menu.orientation === 'horizontal') {
+				if (menu.mirrored === true) {
+					if (menu.kind === undefined || menu.kind === 'fixed-top') {
+						menu.position = 'bottom-left';
+					} else if (menu.kind === 'fixed-bottom') {
+						menu.position = 'top-left';
+					}
+				} else {
+					if (menu.kind === undefined || menu.kind === 'fixed-top') {
+						menu.position = 'bottom-right';
+					} else if (menu.kind === 'fixed-bottom') {
+						menu.position = 'top-right';
+					}
+				}
+			} else if (menu.orientation === 'vertical') {
+				if (menu.mirrored === true || (menu.mirrored === undefined && (menu.kind === 'fixed-right' || menu.kind === 'float-right'))) {
+					menu.position = 'left-bottom';
+				} else {
+					menu.position = 'right-bottom';
+				}
+			}
+		}
+		tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true);
+
+		const menuEl = tmpEl.children[0];
+
+		// Set menu css styles
+		if (menu.kind === 'fixed-top') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-top');
+		} else if (menu.kind === 'fixed-bottom') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-bottom');
+		} else if (menu.kind === 'fixed-left') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-left');
+		} else if (menu.kind === 'fixed-right') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-right');
+		} else if (menu.kind === 'float-left') {
+			menuEl.classList.add('pw-menu-float');
+			menuEl.classList.add('pw-left');
+		} else if (menu.kind === 'float-right') {
+			menuEl.classList.add('pw-menu-float');
+			menuEl.classList.add('pw-right');
+		}
+
+		// Brand
+		if (menu.brand) {
+			// Add horizontal style
+			menuEl.classList.add('pw-horizontal');
+
+			// Add hamburger menu toggle
+			const brandHolderEl = document.createElement('div');
+			brandHolderEl.innerHTML = `<div class="power-brand">${menu.brand}</div>`;
+			const brandEl = brandHolderEl.children[0];
+			menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
+		}
+
+		if (!menu.orientation || menu.orientation === 'horizontal') {
+			// Add horizontal style
+			menuEl.classList.add('pw-horizontal');
+
+			// Add hamburger menu toggle
+			const hamburgerHolderEl = document.createElement('div');
+			hamburgerHolderEl.innerHTML = `<a id="${menu.id}-action" class="power-toggle" data-power-target="${menu.id}">
+				<i class="pw-icon icon-maximize"></i>
+			</a>`;
+			const hamburgerEl = hamburgerHolderEl.children[0];
+			menuEl.appendChild(hamburgerEl);
+		} else if (menu.orientation === 'vertical') {
+			menuEl.classList.add('pw-vertical');
+		}
+
+		if (menu.classList) {
+			this.appendClassList({element: menuEl, json: menu});
+		}
+
+		console.log('menuEl', menuEl);
+
+		return tmpEl.innerHTML;
 	}
 
 	dropmenu(dropmenu, mirrored, isMenu) {
-		if (this.validate(this.dropmenuDef(), dropmenu) === false) {
-			window.console.log('Failed JSON dropmenu:', dropmenu);
-			return 'Failed JSON dropmenu!';
-		}
+		// if (this.validate(this.dropmenuDef(), dropmenu) === false) {
+		// 	window.console.log('Failed JSON dropmenu:', dropmenu);
+		// 	return 'Failed JSON dropmenu!';
+		// }
 
 		const tmpEl = document.createElement('div');
 
@@ -150,26 +235,33 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		for (const item of dropmenu.items) {
+			const action = item.item || item.button;
 			const itemHolderEl = document.createElement('div');
-
 			// Add item events if have
 			let itemEventsTmpl = '';
-			if (item.events) {
-				for (const event of item.events) {
-					itemEventsTmpl = `${itemEventsTmpl} ${event.event}="${event.fn}" `;
+			if (item.item) {
+				if (item.events) {
+					for (const event of item.events) {
+						itemEventsTmpl = `${itemEventsTmpl} ${event.event}="${event.fn}" `;
+					}
 				}
-			}
 
-			itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
+				itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${action.id}" ${action.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}><span class="pw-label">${action.label}</span></a>`;
+			} else {
+				itemHolderEl.innerHTML = this.dropMenuButton(item);
+			}
 
 			const anchorEl = itemHolderEl.children[0];
 
-			if (item.icon) {
-				this.appendIcon({element: anchorEl, json: item, mirrored: mirrored});
-			}
+			if (item.item) {
 
-			if (item.status) {
-				this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
+				if (action.icon) {
+					this.appendIcon({element: anchorEl, json: action, mirrored: mirrored});
+				}
+
+				if (item.status) {
+					this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
+				}
 			}
 
 			if (item.classList) {

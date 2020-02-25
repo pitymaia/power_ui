@@ -26,13 +26,11 @@
     padding: 0.3em 0.5em;
 }
 
-.pwdesign-white-smoke .power-menu-fixed .power-toggle {
+.pwdesign-white-smoke .pw-menu-fixed .power-toggle {
     margin-right: 1em;
 }
 
-.pwdesign-white-smoke  .power-menu-fixed {
-    top: 0;
-    left: 0;
+.pwdesign-white-smoke  .pw-menu-fixed {
     width: 100%;
     z-index: 1000;
 }

@@ -472,15 +472,20 @@ class MyWindow extends PowerWindowIframe {
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
 		const menu1 = {
-			"classList": ['my-custom-menu'],
+			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
-			"mirrored": false,
-			"position": "bottom-right",
+			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='60px' />",
+			// "mirrored": false,
+			// "position": "right-top",
+			// "orientation": "vertical",
+			// "kind": "float-left",
 			"items": [
 				{
-					"id": "my-books-1",
-					"label": "Books",
-					"icon": "power-logo",
+					"item": {
+						"id": "my-books-1",
+						"label": "Books",
+						"icon": "power-logo"
+					},
 					"status": {
 						"active": "caret-down",
 						"inactive": "caret-right",
@@ -489,42 +494,50 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"id": "my-books-menu-1",
 						"items": [
 							{
-								"id": "the-fall-1",
-								"label": "The Fall",
-								"icon": "power-logo",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
-									}
-								]
+								"item": {
+									"id": "the-fall-1",
+									"label": "The Fall",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+										}
+									]
+								}
 							},
 							{
-								"id": "brave-1",
-								"label": "Brave new world",
-								"icon": "power-logo",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-									}
-								]
+								"item": {
+									"id": "brave-1",
+									"label": "Brave new world",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+										}
+									]
+								}
 							},
 							{
-								"id": "animal-farm-1",
-								"label": "Animal Farm",
-								"icon": "power-logo",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Animal Farm', 'title': 'George Orwell'})"
-									}
-								]
+								"item": {
+									"id": "animal-farm-1",
+									"label": "Animal Farm",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Animal Farm', 'title': 'George Orwell'})"
+										}
+									]
+								}
 							},
 							{
-								"id": "books-plus-1",
-								"label": "More Books",
-								"icon": "power-logo",
+								"item": {
+									"id": "books-plus-1",
+									"label": "More Books",
+									"icon": "power-logo"
+								},
 								"status": {
 									"active": "caret-down",
 									"inactive": "caret-right",
@@ -533,37 +546,43 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"id": "my-books-menu-2",
 									"items": [
 										{
-											"id": "a1984-1",
-											"label": "1984",
-											"icon": "power-logo",
-											"events": [
-												{
-													"event": "onclick",
-													"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
-												}
-											]
+											"item": {
+												"id": "a1984-1",
+												"label": "1984",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+													}
+												]
+											}
 										},
 										{
-											"id": "never-1",
-											"label": "Neverending Story",
-											"icon": "power-logo",
-											"events": [
-												{
-													"event": "onclick",
-													"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
-												}
-											]
+											"item": {
+												"id": "never-1",
+												"label": "Neverending Story",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+													}
+												]
+											}
 										},
 										{
-											"id": "stranger-1",
-											"label": "The Stranger",
-											"icon": "power-logo",
-											"events": [
-												{
-													"event": "onclick",
-													"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
-												}
-											]
+											"item": {
+												"id": "stranger-1",
+												"label": "The Stranger",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+													}
+												]
+											}
 										}
 									]
 								}
@@ -572,9 +591,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					}
 				},
 				{
-					"id": "games-1",
-					"label": "Games",
-					"icon": "power-logo",
+					"item": {
+						"id": "games-1",
+						"label": "Games",
+						"icon": "power-logo"
+					},
 					"status": {
 						"active": "caret-down",
 						"inactive": "caret-right",
@@ -583,42 +604,50 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"id": "the-books-menu-1",
 						"items": [
 							{
-								"id": "mario-1",
-								"label": "New Super Mario",
-								"icon": "power-logo",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
-									}
-								]
+								"item": {
+									"id": "mario-1",
+									"label": "New Super Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+										}
+									]
+								}
 							},
 							{
-								"id": "starcraft-1",
-								"label": "StarCraft",
-								"icon": "power-logo",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
-									}
-								]
+								"item": {
+									"id": "starcraft-1",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
+										}
+									]
+								}
 							},
 							{
-								"id": "zelda-1",
-								"label": "Zelda",
-								"icon": "power-logo",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
-									}
-								]
+								"item": {
+									"id": "zelda-1",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
+										}
+									]
+								}
 							},
 							{
-								"id": "more-games-1",
-								"label": "More Games",
-								"icon": "power-logo",
+								"item": {
+									"id": "more-games-1",
+									"label": "More Games",
+									"icon": "power-logo"
+								},
 								"status": {
 									"active": "caret-down",
 									"inactive": "caret-right",
@@ -627,37 +656,99 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"id": "my-games-menu-2",
 									"items": [
 										{
-											"id": "doom-1",
-											"label": "Doom",
-											"icon": "power-logo",
-											"events": [
-												{
-													"event": "onclick",
-													"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
-												}
-											]
+											"item": {
+												"id": "doom-1",
+												"label": "Doom",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+													}
+												]
+											}
 										},
 										{
-											"id": "quake-1",
-											"label": "Quake",
-											"icon": "power-logo",
-											"events": [
-												{
-													"event": "onclick",
-													"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
-												}
-											]
+											"item": {
+												"id": "quake-1",
+												"label": "Quake",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+													}
+												]
+											}
 										},
 										{
-											"id": "simcity-1",
-											"label": "Sim City 2000",
-											"icon": "power-logo",
-											"events": [
-												{
-													"event": "onclick",
-													"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
-												}
-											]
+											"item": {
+												"id": "simcity-1",
+												"label": "Sim City 2000",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"button": {
+						"id": "books-plus-1b",
+						"label": "More Books",
+						"icon": "power-logo",
+						"kind": "warning",
+					},
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "my-books-menu-2b",
+						"items": [
+							{
+								"item": {
+									"id": "a1984-b1",
+									"label": "1984",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "never-1b",
+									"label": "Neverending Story",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "stranger-1b",
+									"label": "The Stranger",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
 										}
 									]
 								}
@@ -668,7 +759,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		let htmlTemplate = this.$service('JSONSchema').powerMenu(menu1);
+		let htmlTemplate = this.$service('JSONSchema').menu(menu1);
 
 		const accordion = {
 			"classList": ['my-custom-accordion'],
@@ -892,33 +983,39 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "bottom-right",
 				"items": [
 					{
-						"id": "my-item1",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item3",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -929,37 +1026,43 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
@@ -995,33 +1098,39 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "right-bottom",
 				"items": [
 					{
-						"id": "my-item1-2",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-2",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-2",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-2",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item3-2",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-2",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1032,37 +1141,43 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-2",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-2",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-2",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-2",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-2",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-2",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
@@ -1097,33 +1212,39 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "bottom-left",
 				"items": [
 					{
-						"id": "my-item1-3",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-3",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-3",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-3",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item3-3",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-3",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1134,37 +1255,43 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-3",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-3",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-3",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-3",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-3",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-3",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
@@ -1199,33 +1326,39 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "left-bottom",
 				"items": [
 					{
-						"id": "my-item1-4",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-4",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-4",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-4",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item3-4",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-4",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1236,37 +1369,43 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-4",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-4",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-4",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-4",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-4",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-4",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
@@ -1303,10 +1442,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "top-right",
 				"items": [
 					{
-						"id": "my-item3-13",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-13",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1317,63 +1458,73 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-13",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-13",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-13",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-13",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-13",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-13",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
 					},
 					{
-						"id": "my-item1-13",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-13",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-13",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-13",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					}
 				]
 			}
@@ -1405,10 +1556,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "right-top",
 				"items": [
 					{
-						"id": "my-item3-14",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-14",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1419,63 +1572,73 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-14",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-14",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-14",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-14",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-14",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-14",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
 					},
 					{
-						"id": "my-item1-14",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-14",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-14",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-14",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					}
 				]
 			}
@@ -1507,22 +1670,26 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "top-left",
 				"items": [
 					{
-						"id": "my-item1-15",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-15",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item3-15",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-15",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1533,51 +1700,59 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-15",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-15",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-15",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-15",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-15",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-15",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
 					},
 					{
-						"id": "my-item2-15",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-15",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					}
 				]
 			}
@@ -1609,10 +1784,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "left-top",
 				"items": [
 					{
-						"id": "my-item3-16",
-						"label": "The Fall",
-						"icon": "power-logo",
-						"icon-position": "left",
+						"item": {
+							"id": "my-item3-16",
+							"label": "The Fall",
+							"icon": "power-logo",
+							"icon-position": "left"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1622,63 +1799,73 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"id": "my-drop-menu2-16",
 							"items": [
 								{
-									"id": "subitem1-16",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-16",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-16",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-16",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-16",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-16",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
 					},
 					{
-						"id": "my-item1-16",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"icon-position": "left",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-16",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"icon-position": "left",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-16",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-16",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					}
 				]
 			}
@@ -1711,20 +1898,24 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "bottom-left",
 				"items": [
 					{
-						"id": "my-item1-17",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-17",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item3-17",
-						"label": "The Fall",
-						"icon": "power-logo",
+						"item": {
+							"id": "my-item3-17",
+							"label": "The Fall",
+							"icon": "power-logo"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1734,51 +1925,59 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"icon": "save-front",
 							"items": [
 								{
-									"id": "subitem1-17",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-17",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-17",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-17",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-17",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-17",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
 					},
 					{
-						"id": "my-item2-17",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-17",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					}
 				]
 			}
@@ -1809,9 +2008,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"position": "top-left",
 				"items": [
 					{
-						"id": "my-item3-18",
-						"label": "The Fall",
-						"icon": "power-logo",
+						"item": {
+							"id": "my-item3-18",
+							"label": "The Fall",
+							"icon": "power-logo"
+						},
 						"status": {
 							"active": "caret-down",
 							"inactive": "caret-right",
@@ -1820,68 +2021,314 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"id": "my-drop-menu2-18",
 							"items": [
 								{
-									"id": "subitem1-18",
-									"label": "Zelda",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
-										}
-									]
+									"item": {
+										"id": "subitem1-18",
+										"label": "Zelda",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Zelda', 'title': 'Twilight Princess'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem2-18",
-									"label": "Mario",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
-										}
-									]
+									"item": {
+										"id": "subitem2-18",
+										"label": "Mario",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'Mario', 'title': 'New Super Mario Bros'})"
+											}
+										]
+									}
 								},
 								{
-									"id": "subitem3-18",
-									"label": "StarCraft",
-									"icon": "power-logo",
-									"events": [
-										{
-											"event": "onclick",
-											"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
-										}
-									]
+									"item": {
+										"id": "subitem3-18",
+										"label": "StarCraft",
+										"icon": "power-logo",
+										"events": [
+											{
+												"event": "onclick",
+												"fn": "openModal({'name': 'StarCraft', 'title': 'StarCraft Brood War'})"
+											}
+										]
+									}
 								}
 							]
 						}
 					},
 					{
-						"id": "my-item1-18",
-						"label": "Brave new world",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
-							}
-						]
+						"item": {
+							"id": "my-item1-18",
+							"label": "Brave new world",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+								}
+							]
+						}
 					},
 					{
-						"id": "my-item2-18",
-						"label": "Animal Farm",
-						"icon": "power-logo",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
-							}
-						]
+						"item": {
+							"id": "my-item2-18",
+							"label": "Animal Farm",
+							"icon": "power-logo",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'George Orwell', 'title': 'Animal Farm'})"
+								}
+							]
+						}
 					}
 				]
 			}
 		};
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').dropMenuButton(button18);
+
+		htmlTemplate = htmlTemplate + '<p></p>';
+
+		const menu2 = {
+			"classList": ["custom-menu"],
+			"id": 'my-menu-2',
+			"brand": "PowerUi",
+			// "mirrored": true,
+			"position": "top-right",
+			// "orientation": "vertical",
+			// "kind": "float-right",
+			"items": [
+				{
+					"item": {
+						"id": "my-books-1-2",
+						"label": "Books",
+						"icon": "power-logo"
+					},
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "the-books-menu-2-2",
+						"items": [
+							{
+								"item": {
+									"id": "the-fall-2",
+									"label": "The Fall",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "brave-2",
+									"label": "Brave new world",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "animal-farm-2",
+									"label": "Animal Farm",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Animal Farm', 'title': 'George Orwell'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "books-plus-2",
+									"label": "More Books",
+									"icon": "power-logo"
+								},
+								"status": {
+									"active": "caret-down",
+									"inactive": "caret-right",
+								},
+								"dropmenu": {
+									"id": "my-books-menu-2-2",
+									"items": [
+										{
+											"item": {
+												"id": "a1984-1-2",
+												"label": "1984",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "never-1-2",
+												"label": "Neverending Story",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "stranger-1-2",
+												"label": "The Stranger",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "games-1-2",
+						"label": "Games",
+						"icon": "power-logo"
+					},
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "the-books-menu-1-2",
+						"items": [
+							{
+								"item": {
+									"id": "mario-1-2",
+									"label": "New Super Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "starcraft-1-2",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "zelda-1-2",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "more-games-1-2",
+									"label": "More Games",
+									"icon": "power-logo"
+								},
+								"status": {
+									"active": "caret-down",
+									"inactive": "caret-right",
+								},
+								"dropmenu": {
+									"id": "my-games-menu-2-2",
+									"items": [
+										{
+											"item": {
+												"id": "doom-1-2",
+												"label": "Doom",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "quake-1-2",
+												"label": "Quake",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "simcity-1-2",
+												"label": "Sim City 2000",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').menu(menu2);
 
 		resolve(htmlTemplate);
 	}

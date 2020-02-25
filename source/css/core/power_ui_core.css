@@ -15,15 +15,20 @@
 }
 /* Dropdown end */
 /* Menu */
-.power-menu.power-horizontal > * {
+.power-menu.pw-horizontal > * {
     display: inline-block;
 }
-
+.power-menu.pw-vertical > .power-action, .power-menu.pw-vertical > .power-item, .power-menu.pw-vertical > .power-brand {
+    display: block;
+}
+.power-menu.pw-vertical {
+    display: inline-block;
+}
 .power-active > .power-item, .power-active > .power-action, .power-active > .power-brand {
     display: block;
 }
 
-.power-menu.power-horizontal .power-toggle {
+.power-menu.pw-horizontal .power-toggle {
     display: none;
 }
 .power-dropmenu.pw-mirrored {
@@ -51,39 +56,73 @@
 .power-tree-view .power-tree-view.power-active {
     display: block;;
 }
-/* end power tree view*/
 
+/* end power tree view*/
 @media screen and (max-width: 800px) {
-    .power-menu.power-horizontal.power-active .power-action, .power-menu.power-horizontal.power-active .power-item {
+    .power-menu.pw-horizontal.power-active .power-action, .power-menu.pw-horizontal.power-active .power-item {
         display: block;
     }
 
-    .power-menu.power-horizontal .power-action, .power-menu.power-horizontal .power-item {
+    .power-menu.pw-horizontal .power-action, .power-menu.pw-horizontal .power-item {
         display: none;
     }
 
-    .power-menu.power-horizontal {
+    .power-menu.pw-horizontal {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .power-menu.power-horizontal.power-active {
+
+    .power-menu.pw-horizontal.power-active {
         display: block;
         justify-content: initial;
     }
 
-    .power-menu.power-horizontal .power-toggle {
+    .power-menu.pw-horizontal .power-toggle {
         display: inline-block;
         text-align: right;
     }
 
-    .power-menu.power-horizontal.power-active .power-toggle {
+    .power-menu.pw-horizontal.power-active .power-toggle {
         display: none;
     }
 }
-.power-menu-fixed {
+.pw-menu-fixed {
     position: fixed;
+}
+
+.power-menu.pw-menu-fixed.pw-top {
+    top: 0;
+    left: 0;
+}
+.power-menu.pw-menu-fixed.pw-bottom {
+    bottom: 0;
+    left: 0;
+    margin: 0;
+}
+.power-menu.pw-menu-fixed.pw-left {
+    top: 0;
+    left: 0;
+    margin: 0;
+    width: auto;
+    height: 100vh;
+}
+.power-menu.pw-menu-fixed.pw-right {
+    top: 0;
+    right: 0;
+    margin: 0;
+    width: auto;
+    height: 100vh;
+}
+.power-menu.pw-menu-float {
+    width: auto;
+}
+.power-menu.pw-menu-float.pw-left {
+    float: left;
+}
+.power-menu.pw-menu-float.pw-right {
+    float: right;
 }
 /* Menu end*/
 
@@ -224,6 +263,14 @@ body.modal-open {
     padding: 0.7em;
     cursor: pointer;
     /*border-radius: 0.3em;*/
+}
+.power-menu button.pw-btn-default, .power-menu button.pw-btn-highlight, .power-menu button.pw-btn-danger, .power-menu button.pw-btn-primary, .power-menu button.pw-btn-warning, .power-menu button.pw-btn-secundary, .power-menu button.pw-btn-success, .power-menu button.pw-btn-basic {
+    margin-top: 0;
+    vertical-align: middle;
+}
+.power-menu .power-action.pw-btn-default, .power-menu .power-action.pw-btn-highlight, .power-menu .power-action.pw-btn-danger, .power-menu .power-action.pw-btn-primary, .power-menu .power-action.pw-btn-warning, .power-menu .power-action.pw-btn-secundary, .power-menu .power-action.pw-btn-success, .power-menu .power-action.pw-btn-basic {
+    margin-top: 0;
+    vertical-align: middle;
 }
 .pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span, .power-accordion .power-action span {
     display: inline-block;
