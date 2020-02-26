@@ -105,30 +105,6 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	dropMenuButton(dropMenuButton) {
-		// if (this.validate(this.buttonDropmenuDef(), dropMenuButton) === false) {
-		// 	window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
-		// 	return 'Failed JSON button!';
-		// }
-
-		const tmpEl = document.createElement('div');
-		// Create button
-		tmpEl.innerHTML = this.button(dropMenuButton.button, true, dropMenuButton.button.mirrored);
-
-		const buttonEl = tmpEl.children[0];
-		buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
-		buttonEl.classList.add('power-action');
-
-		if (dropMenuButton.status) {
-			this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored});
-		}
-
-		// Create dropmenu
-		tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored);
-
-		return tmpEl.innerHTML;
-	}
-
 	menu(menu) {
 		// Menus extends dropmenu
 		const tmpEl = document.createElement('div');
@@ -213,16 +189,14 @@ class JSONSchemaService extends PowerServices {
 			this.appendClassList({element: menuEl, json: menu});
 		}
 
-		console.log('menuEl', menuEl);
-
 		return tmpEl.innerHTML;
 	}
 
 	dropmenu(dropmenu, mirrored, isMenu) {
-		// if (this.validate(this.dropmenuDef(), dropmenu) === false) {
-		// 	window.console.log('Failed JSON dropmenu:', dropmenu);
-		// 	return 'Failed JSON dropmenu!';
-		// }
+		if (this.validate(this.dropmenuDef(), dropmenu) === false) {
+			window.console.log('Failed JSON dropmenu:', dropmenu);
+			return 'Failed JSON dropmenu!';
+		}
 
 		const tmpEl = document.createElement('div');
 
@@ -237,41 +211,35 @@ class JSONSchemaService extends PowerServices {
 		for (const item of dropmenu.items) {
 			const action = item.item || item.button;
 			const itemHolderEl = document.createElement('div');
-			// Add item events if have
-			let itemEventsTmpl = '';
-			if (item.item) {
-				if (item.events) {
-					for (const event of item.events) {
-						itemEventsTmpl = `${itemEventsTmpl} ${event.event}="${event.fn}" `;
-					}
-				}
 
-				itemHolderEl.innerHTML = `<a class="${item.dropmenu ? 'power-action' : 'power-item'}" id="${action.id}" ${action.events ? 'data-pow-event' + itemEventsTmpl : ''} ${item.dropmenu ? 'data-power-target="' + item.dropmenu.id + '"' : ''}><span class="pw-label">${action.label}</span></a>`;
-			} else {
+			if (item.item) {
+				itemHolderEl.innerHTML = this.item({
+					item: item.item,
+					avoidValidation: false,
+					mirrored: item.mirrored,
+					dropmenuId: item.dropmenu ? item.dropmenu.id : false
+				});
+			} else if (item.button && item.dropmenu) {
 				itemHolderEl.innerHTML = this.dropMenuButton(item);
+			} else if (item.button && !item.dropmenu) {
+				itemHolderEl.innerHTML = this.button(item.button);
 			}
 
 			const anchorEl = itemHolderEl.children[0];
 
-			if (item.item) {
-
-				if (action.icon) {
-					this.appendIcon({element: anchorEl, json: action, mirrored: mirrored});
-				}
-
+			if (item.item && !item.button) {
 				if (item.status) {
 					this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
 				}
 			}
 
-			if (item.classList) {
-				this.appendClassList({element: anchorEl, json: item});
-			}
-
 			tmpEl.children[0].appendChild(anchorEl);
 
-			// Add submenu if have one
-			if (item.dropmenu) {
+			// Buttons already have the menu created by dropMenuButton inside itemHolderEl
+			if (item.button && item.dropmenu) {
+				tmpEl.children[0].appendChild(itemHolderEl.children[0]);
+			} else if (item.dropmenu && !item.button) {
+				// Add submenu if have one and is not a button
 				const submenuHolderEl = document.createElement('div');
 				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored);
 				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
@@ -281,8 +249,61 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
+	item({item, avoidValidation, mirrored, dropmenuId}) {
+		if (!avoidValidation && this.validate(this.itemDef(), item) === false) {
+			window.console.log('Failed JSON item:', item);
+			return 'Failed JSON item!';
+		}
+
+		const tmpEl = document.createElement('div');
+		// Add events if have
+		let eventsTmpl = '';
+		if (item.events) {
+			for (const event of item.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+		tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + eventsTmpl : ''} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
+
+		const itemEl = tmpEl.children[0];
+
+		if (item.icon) {
+			this.appendIcon({element: itemEl, json: item, mirrored: mirrored});
+		}
+
+		if (item.classList) {
+			this.appendClassList({element: itemEl, json: item});
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	dropMenuButton(dropMenuButton) {
+		if (this.validate(this.dropmenuButtonDef(), dropMenuButton) === false) {
+			window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
+			return 'Failed JSON button!';
+		}
+
+		const tmpEl = document.createElement('div');
+		// Create button
+		tmpEl.innerHTML = this.button(dropMenuButton.button, true, dropMenuButton.button.mirrored);
+
+		const buttonEl = tmpEl.children[0];
+		buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
+		buttonEl.classList.add('power-action');
+
+		if (dropMenuButton.status) {
+			this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored});
+		}
+
+		// Create dropmenu
+		tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored);
+
+		return tmpEl.innerHTML;
+	}
+
 	button(button, avoidValidation, mirrored) {
-		if (!avoidValidation && this.validate(this.buttonDef(), button) === false) {
+		if (!avoidValidation && this.validate(this.itemDef(), button) === false) {
 			window.console.log('Failed JSON button:', button);
 			return 'Failed JSON button!';
 		}
@@ -344,38 +365,6 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	dropmenuDef() {
-		return {
-			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#/schema/draft-07/dropmenu",
-			"type": "object",
-			"properties": {
-				"id": {"type": "string"},
-				"items": {
-					"type": "array",
-					"properties": {
-						"classList": {"type": "array"},
-						"label": {"type": "string"},
-						"icon": {"type": "string"},
-						"icon-position": {"type": "string"},
-						"events": {
-							"type": "array",
-							"properties": {
-								"event": {"type": "string"},
-								"fn": {"type": "string"},
-							},
-							"required": ["event", "fn"]
-						},
-						"status": {"$ref": "#/schema/draft-07/status"},
-						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
-					},
-					"required": ["label"]
-				}
-			},
-			"required": ["id"]
-		};
-	}
-
 	accordionDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
@@ -422,10 +411,32 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	buttonDef() {
+	dropmenuDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#/schema/draft-07/button",
+			"$id": "#/schema/draft-07/dropmenu",
+			"type": "object",
+			"properties": {
+				"id": {"type": "string"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					}
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
+	// Item can be a power-button, power-action or power-item
+	itemDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/item",
 			"type": "object",
 			"properties": {
 				"classList": {"type": "array"},
@@ -448,13 +459,13 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	buttonDropmenuDef() {
+	dropmenuButtonDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
 			"$id": "schema/draft-07/button-dropmenu",
 			"type": "object",
 			"properties": {
-				"button": {"$ref": "#/schema/draft-07/button"},
+				"button": {"$ref": "#/schema/draft-07/item"},
 				"status": {"$ref": "#/schema/draft-07/status"},
 				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
 			},
@@ -480,7 +491,7 @@ class JSONSchemaService extends PowerServices {
 		const path = '#/schema/draft-07/';
 
 		const references = {};
-		references[`${path}button`] = this.buttonDef;
+		references[`${path}item`] = this.itemDef;
 		references[`${path}status`] = this.statusDef;
 		references[`${path}dropmenu`] = this.dropmenuDef;
 

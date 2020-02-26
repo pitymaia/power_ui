@@ -475,7 +475,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
 			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='60px' />",
-			// "mirrored": false,
+			"mirrored": false,
 			// "position": "right-top",
 			// "orientation": "vertical",
 			// "kind": "float-left",
@@ -752,6 +752,20 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 										}
 									]
 								}
+							}
+						]
+					}
+				},
+				{
+					"button": {
+						"id": "learn-1b",
+						"label": "Learn More",
+						"icon": "power-logo",
+						"kind": "highlight",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
 							}
 						]
 					}
