@@ -106,6 +106,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	menu(menu) {
+		if (this.validate(this.menuDef(), menu) === false) {
+			window.console.log('Failed JSON menu:', menu);
+			return 'Failed JSON menu!';
+		}
 		// Menus extends dropmenu
 		const tmpEl = document.createElement('div');
 
@@ -426,6 +430,33 @@ class JSONSchemaService extends PowerServices {
 			"type": "object",
 			"properties": {
 				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					}
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
+	menuDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/menu",
+			"type": "object",
+			"properties": {
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"mirrored": {"type": "boolean"},
+				"position": {"type": "string"},
+				"orientation": {"type": "string"},
+				"kind": {"type": "string"},
 				"items": {
 					"type": "array",
 					"properties": {
