@@ -229,6 +229,8 @@ class JSONSchemaService extends PowerServices {
 				} else {
 					itemHolderEl.innerHTML = this.button(item.button);
 				}
+				// Buttons inside menu needs the 'power-item' class
+				itemHolderEl.children[0].classList.add('power-item');
 			}
 
 			const anchorEl = itemHolderEl.children[0];
@@ -344,9 +346,6 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	appendIcon({element, json, mirrored}) {
-		if (mirrored) {
-			console.log('mirrored', mirrored, element);
-		}
 		const icon = document.createElement('span');
 		icon.classList.add('pw-icon');
 		icon.classList.add(json.icon);
