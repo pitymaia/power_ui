@@ -475,10 +475,10 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
 			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='60px' />",
-			"mirrored": false,
-			// "position": "right-top",
+			// "mirrored": true,
+			// "position": "bottom-left",
 			// "orientation": "vertical",
-			// "kind": "float-left",
+			// "kind": "float-right",
 			"items": [
 				{
 					"item": {
@@ -2114,7 +2114,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-2',
 			"brand": "PowerUi",
-			// "mirrored": true,
+			"mirrored": false,
 			"position": "top-right",
 			// "orientation": "vertical",
 			// "kind": "float-right",

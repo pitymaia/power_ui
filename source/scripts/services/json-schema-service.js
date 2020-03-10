@@ -209,20 +209,26 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		for (const item of dropmenu.items) {
-			const action = item.item || item.button;
 			const itemHolderEl = document.createElement('div');
 
 			if (item.item) {
 				itemHolderEl.innerHTML = this.item({
 					item: item.item,
 					avoidValidation: false,
-					mirrored: item.mirrored,
+					mirrored: item.mirrored === undefined ? mirrored : item.mirrored,
 					dropmenuId: item.dropmenu ? item.dropmenu.id : false
 				});
 			} else if (item.button && item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					item.button.mirrored = mirrored;
+				}
 				itemHolderEl.innerHTML = this.dropMenuButton(item);
 			} else if (item.button && !item.dropmenu) {
-				itemHolderEl.innerHTML = this.button(item.button);
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					itemHolderEl.innerHTML = this.button(item.button, false, mirrored);
+				} else {
+					itemHolderEl.innerHTML = this.button(item.button);
+				}
 			}
 
 			const anchorEl = itemHolderEl.children[0];
@@ -338,6 +344,9 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	appendIcon({element, json, mirrored}) {
+		if (mirrored) {
+			console.log('mirrored', mirrored, element);
+		}
 		const icon = document.createElement('span');
 		icon.classList.add('pw-icon');
 		icon.classList.add(json.icon);
