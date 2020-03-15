@@ -52,6 +52,9 @@
 .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-list {
     padding: 0.5em;
 }
+.pwdesign-white-smoke button.power-item {
+    padding: 0.7em;
+}
 .pwdesign-white-smoke .power-dropmenu.power-active, .pwdesign-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
     background-color: #F5F5F5;
 }
