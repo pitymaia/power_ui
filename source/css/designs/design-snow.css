@@ -161,6 +161,10 @@
     color: #FFFFFF;
     background-color: #000000;
 }
+.pwdesign-white-smoke .pw-btn-basic {
+    color: #FFFFFF;
+    background-color: #B0B0B0;
+}
 .pwdesign-white-smoke .pw-btn-highlight {
     color: #FFFF00;
     background-color: #000000;
@@ -180,8 +184,8 @@
     background-color: #FFFFFF;
 }
 .pwdesign-white-smoke .pw-btn-warning {
-    color: #000000;
-    background-color: #CCCC00;
+    color: #FFFFFF;
+    background-color: #f2ae09;
 }
 
 .pwdesign-white-smoke .pw-btn-success {
