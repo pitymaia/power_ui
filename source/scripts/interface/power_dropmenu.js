@@ -311,6 +311,38 @@ class PowerDropmenu extends PowerTarget {
 					self.element.style.left = window.getComputedStyle(self.powerAction.element).left;
 				}
 
+				// If drop-menus are inside some fixed element wee need to remove any scroll from position
+				let scrollTop = 0;
+				let scrollLeft = 0;
+				let isInnerDropMenu = false;
+
+				const searchFixedEl = PowerTree._searchUpDOM(self.element, function(element) {
+					// If is inside another dropmenu cancel the search
+					if (element.classList.contains('power-dropmenu')) {
+						isInnerDropMenu = true;
+						return true;
+					}
+					// Find and return the fixed element
+					// Also add anny scrollTop and scrollLeft
+					scrollTop = scrollTop + element.scrollTop;
+					scrollLeft = scrollLeft + element.scrollLeft;
+					if (window.getComputedStyle(element).getPropertyValue('position') === 'fixed') {
+						return true;
+					}
+				});
+
+				// Only if is a fixed element and not some other dropdown
+				if (searchFixedEl.conditionResult && !isInnerDropMenu) {
+					if (scrollTop > 0) {
+						const top = parseInt(window.getComputedStyle(self.element).top.replace('px', '') || 0);
+						self.element.style.top = (top - scrollTop) + 'px';
+					}
+					if (scrollLeft > 0) {
+						const left = parseInt(window.getComputedStyle(self.element).left.replace('px', '') || 0);
+						self.element.style.left = (left - scrollLeft) + 'px';
+					}
+				}
+
 				// Find if the position is out of screen and reposition if needed
 				self.ifPositionOutOfScreenChangeDirection();
 				// After choose the position show the dropmenu
