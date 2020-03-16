@@ -2344,6 +2344,77 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').menu(menu2);
 
+		const tree = {
+			"classList": ["custom-tree"],
+			"id": 'my-tree',
+			"content": [
+				{
+					"name": "test",
+					"fullName": "test",
+					"extension": "",
+					"path": "/home/andre/test",
+					"kind": "folder",
+					"content": [
+						{
+							"name": "media",
+							"fullName": "media",
+							"extension": "",
+							"path": "/home/andre/test/media",
+							"kind": "folder",
+							"content": [
+								{
+									"name": "brand",
+									"fullName": "brand.png",
+									"extension": ".png",
+									"path": "/home/andre/test/media/brand.png",
+									"kind": "file",
+								},
+							]
+						},
+					]
+				},
+				{
+					"name": "frontpage",
+					"fullName": "frontpage.js",
+					"extension": ".js",
+					"path": "/home/andre/frontpage.js",
+					"kind": "file",
+				},
+				{
+					"name": "scripts",
+					"fullName": "scripts",
+					"extension": "",
+					"path": "/home/andre/scripts",
+					"kind": "folder",
+					"content": [
+						{
+							"name": "index",
+							"fullName": "index.js",
+							"extension": ".js",
+							"path": "/home/andre/scripts/index.js",
+							"kind": "file",
+						},
+						{
+							"name": "zendex",
+							"fullName": "zendex.html",
+							"extension": ".html",
+							"path": "/home/andre/scripts/zendex.html",
+							"kind": "file",
+						},
+					]
+				},
+				{
+					"name": "default-template",
+					"fullName": "default-template.html",
+					"extension": ".html",
+					"path": "/home/andre/default-template.html",
+					"kind": "file",
+				},
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').tree(tree);
+
 		resolve(htmlTemplate);
 	}
 }

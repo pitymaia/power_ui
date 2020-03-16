@@ -343,6 +343,10 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
+	tree(tree) {
+		return this.$powerUi.treeTemplate(tree.content);
+	}
+
 	appendClassList({element, json}) {
 		for (const css of json.classList) {
 			element.classList.add(css);
