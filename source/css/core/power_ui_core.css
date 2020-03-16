@@ -36,7 +36,7 @@
 }
 .power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
     display: block !important;
-    white-space:nowrap;
+    white-space: nowrap;
     border-style: solid;
     border-width: 1px;
     position: absolute;
@@ -61,6 +61,7 @@
 @media screen and (max-width: 800px) {
     .power-menu.pw-horizontal.power-active .power-action, .power-menu.pw-horizontal.power-active .power-item {
         display: block;
+        width: max-content;
     }
 
     .power-menu.pw-horizontal .power-action, .power-menu.pw-horizontal .power-item {

@@ -474,8 +474,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
-			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='60px' />",
-			// "mirrored": true,
+			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			"mirrored": true,
 			// "position": "bottom-left",
 			// "orientation": "vertical",
 			// "kind": "float-right",

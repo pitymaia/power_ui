@@ -209,6 +209,7 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 	ifPositionOutOfScreenChangeDirection() {
+		let hasChanged = false;
 		const elementRect = this.element.getBoundingClientRect();
 
 		// This offset the top when scroll to bottom
@@ -223,20 +224,24 @@ class PowerDropmenu extends PowerTarget {
 		if (elementRect.right > document.defaultView.innerWidth) {
 			pos.leftRight = 'left';
 			changes.leftRight++;
+			hasChanged = true;
 		} else if (elementRect.left < 0) {
 		// Correct position if left is not allowed anymore
 		// Change position if left element is bigger than left document
 			pos.leftRight = 'right';
 			changes.leftRight++;
+			hasChanged = true;
 		}
 		// Bottom may also not allowed anymore
 		// Change position if bottom element is bigger than bottom document
 		if (elementRect.bottom > document.defaultView.innerHeight) {
 			pos.topDown = 'top';
 			changes.topDown++;
+			hasChanged = true;
 		} else if (elementRect.top < 0) {
 			pos.topDown = 'bottom';
 			changes.topDown++;
+			hasChanged = true;
 		}
 
 		if (changes.topDown > 0 || changes.leftRight > 0) {
@@ -257,6 +262,11 @@ class PowerDropmenu extends PowerTarget {
 			// Top and left can't have negative values
 			// Fix it if needed
 			this.setPositionLimits();
+		}
+
+		// Also need to correct the new position if is inside fixed element with scroll
+		if (hasChanged) {
+			this.fixPositionIfInsideFixedElement();
 		}
 	}
 
@@ -310,10 +320,10 @@ class PowerDropmenu extends PowerTarget {
 					self.element.style.position = 'fixed';
 					self.element.style.left = window.getComputedStyle(self.powerAction.element).left;
 				}
-				// Find if the position is out of screen and reposition if needed
-				self.ifPositionOutOfScreenChangeDirection();
 				// If drop-menus are inside some fixed element wee need to remove any scroll from position
 				self.fixPositionIfInsideFixedElement();
+				// Find if the position is out of screen and reposition if needed
+				self.ifPositionOutOfScreenChangeDirection();
 				// After choose the position show the dropmenu
 				self.element.classList.remove('power-hide');
 			}, 50);
