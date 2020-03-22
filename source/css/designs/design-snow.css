@@ -138,7 +138,7 @@
 .pwdesign-white-smoke .pw-bt-close {
     color: #FFF;
     font-size: 1.6rem;
-    margin-top: .3em;
+    margin-top: .5em;
     margin-right: .8rem;
 }
 /* Dialog-Modal-Window end */
@@ -150,9 +150,6 @@
 }
 
 /* buttons start*/
-.pwdesign-white-smoke button .pw-icon {
-    margin-right: 0.3em;
-}
 .pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action {
     margin-right: 0.5em;
     display: inline-block;

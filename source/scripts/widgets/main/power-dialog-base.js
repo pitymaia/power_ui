@@ -75,7 +75,9 @@ class PowerDialogBase extends PowerWidget {
 								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(true)">
 								${(this.commitBt.icon !== false ? commitIco : '')}
-								${(this.commitBt.label ? this.commitBt.label : defaultLabel)}
+								<span class="pw-label">
+									${(this.commitBt.label ? this.commitBt.label : defaultLabel)}
+								</span>
 								</button>`;
 				buttons = buttons + commitBt;
 			}
@@ -85,7 +87,9 @@ class PowerDialogBase extends PowerWidget {
 								class="${(this.noBt.css ? this.noBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(false)">
 								${(this.noBt.icon !== false ? noIco : '')}
-								${(this.noBt.label ? this.noBt.label : 'No')}
+								<span class="pw-label">
+									${(this.noBt.label ? this.noBt.label : 'No')}
+								</span>
 								</button>`;
 				buttons = buttons + noBt;
 			}
@@ -96,7 +100,9 @@ class PowerDialogBase extends PowerWidget {
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_cancel()">
 								${(this.cancelBt.icon !== false ? cancelIco : '')}
-								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+								<span class="pw-label">
+									${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+								</span>
 								</button>`;
 				buttons = buttons + cancelBt;
 			}
