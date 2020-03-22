@@ -150,6 +150,9 @@
 }
 
 /* buttons start*/
+.pwdesign-white-smoke button .pw-icon {
+    margin-right: 0.3em;
+}
 .pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action {
     margin-right: 0.5em;
     display: inline-block;

@@ -216,18 +216,18 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	openSimpleDialog() {
-		// this.openRoute({
-		// 	routeId: 'simple-dialog',
-		// 	target: '_blank',
-		// });
-
-		this.$service('widget').windowIframe({
-			title: 'Template dialog',
-			url: 'http://localhost:3002',
-			controller: function() {
-				console.log('CONTROLLER IFRAME');
-			}
+		this.openRoute({
+			routeId: 'simple-dialog',
+			target: '_blank',
 		});
+
+		// this.$service('widget').windowIframe({
+		// 	title: 'Template dialog',
+		// 	url: 'http://localhost:3002',
+		// 	controller: function() {
+		// 		console.log('CONTROLLER IFRAME');
+		// 	}
+		// });
 
 		// this.$service('widget').yesno({
 		// 	title: 'Template dialog',
@@ -242,7 +242,7 @@ class PowerOnlyPage extends PowerController {
 		// 	kind: 'yesno',
 		// 	title: 'YesNo dialog',
 		// 	template: '<p>This is a Yes or No dialog</p>',
-		// 	// params: {commitBt: {label: 'Save', ico: 'check'},  cancelBt: true},
+		// 	// params: {commitBt: {label: 'Save', icon: 'check'},  cancelBt: true},
 		// 	// controller: function () {
 		// 	// 	this.cats = [
 		// 	// 		{name: 'Riquinho', gender: 'male'},
@@ -396,17 +396,19 @@ class SimpleTemplate extends PowerTemplate {
 
 class SimpleDialog extends PowerWindow {
 
-	// init() {
-	// 	this.commitBt = {
-	// 		label: 'Yes',
-	// 		// ico: 'check',
-	// 	};
-	// 	this.noBt = {};
-	// 	this.cancelBt = {
-	// 		label: 'Cancel',
-	// 		// ico: 'close',
-	// 	};
-	// }
+	init() {
+		this.commitBt = {
+			label: 'Yes',
+			// icon: 'save-front',
+		};
+		this.noBt = {
+			// icon: 'save-back'
+		};
+		this.cancelBt = {
+			label: 'Cancel',
+			// icon: 'save-back',
+		};
+	}
 
 	ctrl({lock, $powerUi}) {
 		console.log('ctrl', this.$tscope.pity);

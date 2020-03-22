@@ -70,32 +70,32 @@ class PowerDialogBase extends PowerWidget {
 			let buttons = '';
 			if (this.commitBt) {
 				const defaultLabel = this.noBt ? 'Yes' : 'Ok';
-				const commitIco = `<span class="pw-ico fa fa-${(this.commitBt.ico ? this.commitBt.ico : 'check-circle')}"></span>`;
+				const commitIco = `<span class="pw-icon ${(this.commitBt.icon ? this.commitBt.icon : 'ok-black')}"></span>`;
 				const commitBt = `<button
 								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(true)">
-								${(this.commitBt.ico !== false ? commitIco : '')}
+								${(this.commitBt.icon !== false ? commitIco : '')}
 								${(this.commitBt.label ? this.commitBt.label : defaultLabel)}
 								</button>`;
 				buttons = buttons + commitBt;
 			}
 			if (this.noBt) {
-				const noIco = `<span class="pw-ico fa fa-${(this.noBt.ico ? this.noBt.ico : 'times-circle')}"></span>`;
+				const noIco = `<span class="pw-icon ${(this.noBt.icon ? this.noBt.icon : 'cancel-black')}"></span>`;
 				const noBt = `<button
 								class="${(this.noBt.css ? this.noBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(false)">
-								${(this.noBt.ico !== false ? noIco : '')}
+								${(this.noBt.icon !== false ? noIco : '')}
 								${(this.noBt.label ? this.noBt.label : 'No')}
 								</button>`;
 				buttons = buttons + noBt;
 			}
 			if (this.cancelBt) {
-				const defaultIco = this.noBt ? 'times' : 'times-circle';
-				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : defaultIco)}"></span>`;
+				const defaultIco = this.noBt ? 'cancel-simple' : 'cancel-black';
+				const cancelIco = `<span class="pw-icon ${(this.cancelBt.icon ? this.cancelBt.icon : defaultIco)}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_cancel()">
-								${(this.cancelBt.ico !== false ? cancelIco : '')}
+								${(this.cancelBt.icon !== false ? cancelIco : '')}
 								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
 								</button>`;
 				buttons = buttons + cancelBt;
