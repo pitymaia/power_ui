@@ -2347,6 +2347,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const tree = {
 			"classList": ["custom-tree"],
 			"id": 'my-tree',
+			"events": [
+				{
+					"name": "onclick",
+					"fn": "clickTree"
+				}
+			],
 			"content": [
 				{
 					"name": "test",
@@ -2365,9 +2371,10 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								{
 									"name": "brand",
 									"fullName": "brand.png",
+									"icon": "save-front",
 									"extension": ".png",
 									"path": "/home/andre/test/media/brand.png",
-									"kind": "file",
+									"kind": "file"
 								},
 							]
 						},
@@ -2426,6 +2433,10 @@ class JSONViews extends PowerWindow {
 
 	openModal() {
 		console.log('open the modal please');
+	}
+
+	clickTree({path, event, element}) {
+		console.log('path', path, 'event', event, 'element', element);
 	}
 }
 

@@ -196,10 +196,14 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
+	// This is the old tree
+	// Remove after implement JSONSchema
 	treeTemplate(tree) {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree}).template;
 	}
 
+	// This is the old tree
+	// Remove after implement JSONSchema
 	treeTemplatePlus(tree) {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree, boilerplate: true}).template;
 	}

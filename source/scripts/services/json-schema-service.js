@@ -344,7 +344,36 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	tree(tree) {
-		return this.$powerUi.treeTemplate(tree.content);
+		let template = `<nav ${tree.id ? 'id="' + tree.id + '"' : ''} class="power-tree-view">`;
+		for (const item of tree.content) {
+			if (item.kind === 'file') {
+				if (tree.events) {
+					template = `${template}
+					<a class="power-item" data-pow-event `;
+
+					for (const event of tree.events) {
+						template = `${template}
+						${event.name}="${event.fn}({path: '${item.path}', event: event, element: event.target})" `;
+					}
+					template = `${template}
+					><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
+				} else {
+					template = `${template}
+					<a class="power-item"><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
+				}
+			} else if (item.kind === 'folder') {
+				const id = `list-${this.$powerUi._Unique.next()}`;
+				template = `${template}
+				<a class="power-list" data-power-target="${id}">
+					<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
+				</a>
+				${this.tree({content: item.content, id: id, events: tree.events})}`;
+			}
+		}
+		template = `${template}
+		</nav>`;
+
+		return template;
 	}
 
 	appendClassList({element, json}) {

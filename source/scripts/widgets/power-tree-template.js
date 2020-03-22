@@ -1,3 +1,5 @@
+// This is the old tree
+// Remove after implement JSONSchema
 class PowerTreeTemplate {
 	constructor({$powerUi, tree, boilerplate}) {
 		this.boilerplate = boilerplate || false;
