@@ -1494,8 +1494,8 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services || {};
-		this._addServices();
+		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
+		this._addPowerServices();
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
@@ -1519,10 +1519,14 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
+	// This is the old tree
+	// Remove after implement JSONSchema
 	treeTemplate(tree) {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree}).template;
 	}
 
+	// This is the old tree
+	// Remove after implement JSONSchema
 	treeTemplatePlus(tree) {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree, boilerplate: true}).template;
 	}
@@ -1555,11 +1559,13 @@ class PowerUi extends _PowerUiBase {
 	_addService(key, service) {
 		this._services[key] = service;
 	}
-	_addServices() {
+	// Add all native services
+	_addPowerServices() {
 		this._addService('widget', {
 			component: WidgetService,
 			// params: {},
 		});
+		this._addService('JSONSchema', {component: JSONSchemaService});
 	}
 
 	_$dispatchPowerEvent(event, self, viewId, name) {
@@ -1748,7 +1754,8 @@ class PowerUi extends _PowerUiBase {
 	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		const component = new template({$powerUi: this});
+		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId});
+
 		// Add $tscope to controller and save it with the route
 		this.controllers[viewId].instance.$tscope = component.component;
 		routes[routeId].$tscope = component.component;
@@ -1914,10 +1921,606 @@ class PowerUi extends _PowerUiBase {
 
 export { PowerUi };
 
+class PowerScope {
+	constructor({$powerUi}) {
+		// Add $powerUi to controller
+		this.$powerUi = $powerUi;
+		this._servicesInstances = {};
+	}
+
+	$service(name) {
+		if (this._servicesInstances[name]) {
+			return this._servicesInstances[name];
+		} else {
+			this._servicesInstances[name] = new this.$powerUi._services[name].component({
+				$powerUi: this.$powerUi,
+				$ctrl: this,
+				params: this.$powerUi._services[name].params,
+			});
+			return this._servicesInstances[name];
+		}
+	}
+}
+
+export { PowerScope };
+
 class PowerServices {
 	constructor({$powerUi, $ctrl}) {
 		this.$powerUi = $powerUi;
 		this.$ctrl = $ctrl;
+	}
+}
+
+class JSONSchemaService extends PowerServices {
+	constructor({$powerUi, $ctrl}) {
+		super({$powerUi, $ctrl});
+	}
+
+	validateType(type, json) {
+		if (typeof json === type) {
+			return true;
+		} else if (type === 'array' && json.length !== undefined) {
+				return true;
+		} else {
+			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
+			return false;
+		}
+	}
+
+	validate(schema, json) {
+		// Check current object type against schema type
+		if (this.validateType(schema.type, json) === false) {
+			return false;
+		}
+		// Validade required fields
+		if (schema.required) {
+			for (const property of schema.required) {
+				if (!json[property] && (!json[0] || (json[0] && !json[0][property]))) {
+					window.console.log(`JSON missing required property: "${property}"`, json);
+					return false;
+				}
+			}
+		}
+		// Validate item properties and inner nodes
+		for (const key of Object.keys(schema.properties || {})) {
+			// Validate inner schema nodes
+			// If is some reference to another schema get it
+			if (schema.properties[key].$ref) {
+				if (json[key] && this.validate(this.$ref(schema.properties[key].$ref), json[key]) === false) {
+					return false;
+				}
+			}
+			// Validade array type property
+			else if (schema.properties[key].type === 'array' && schema.properties[key].items) {
+				for (const item of json[key]) {
+					if (this.validate(schema.properties[key].items, item) === false) {
+						return false;
+					}
+				}
+			// Validade other types property
+			} else if (schema.properties[key].properties && json[key] !== undefined) {
+				if (this.validate(schema.properties[key], json[key]) === false) {
+					return false;
+				}
+			}
+
+			// Validate current property type
+			if (json[key] !== undefined && !schema.properties[key].$ref) {
+				if (this.validateType(schema.properties[key].type, json[key]) === false) {
+					window.console.log('Failed JSON key is:', key);
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	accordion(accordion) {
+		if (this.validate(this.accordionDef(), accordion) === false) {
+			window.console.log('Failed JSON accordion:', accordion);
+			return 'Failed JSON accordion!';
+		}
+		const tmpEl = document.createElement('div');
+		tmpEl.innerHTML = `<div class="power-accordion" id="${accordion.id}" data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
+		const accordionEl = tmpEl.children[0];
+		if (accordion.classList) {
+			this.appendClassList({element: accordionEl, json: accordion});
+		}
+
+		for (const panel of accordion.panels) {
+			// Headers
+			const headerHolderEl = document.createElement('div');
+			headerHolderEl.innerHTML = `<div class="power-action" data-power-target="${panel.section.id}" id="${panel.header.id}">
+					<div><span class="pw-label">${panel.header.label}</span></div>
+				</div>`;
+			const headerEl = headerHolderEl.children[0];
+
+			if (panel.header) {
+				this.appendIcon({element: headerEl.children[0], json: panel.header});
+			}
+
+			if (panel.header.status) {
+				this.appendStatus({element: headerEl, json: panel.header.status});
+			}
+
+			accordionEl.appendChild(headerHolderEl.children[0]);
+
+			// Sections
+			const sectionHolderEl = document.createElement('div');
+			sectionHolderEl.innerHTML = `<div class="power-accordion-section" id="${panel.section.id}">
+				${panel.section.content}
+			</div>`;
+
+			accordionEl.appendChild(sectionHolderEl.children[0]);
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	menu(menu) {
+		if (this.validate(this.menuDef(), menu) === false) {
+			window.console.log('Failed JSON menu:', menu);
+			return 'Failed JSON menu!';
+		}
+		// Menus extends dropmenu
+		const tmpEl = document.createElement('div');
+
+		// Set dropmenu position
+		if (!menu.position) {
+			if (!menu.orientation || menu.orientation === 'horizontal') {
+				if (menu.mirrored === true) {
+					if (menu.kind === undefined || menu.kind === 'fixed-top') {
+						menu.position = 'bottom-left';
+					} else if (menu.kind === 'fixed-bottom') {
+						menu.position = 'top-left';
+					}
+				} else {
+					if (menu.kind === undefined || menu.kind === 'fixed-top') {
+						menu.position = 'bottom-right';
+					} else if (menu.kind === 'fixed-bottom') {
+						menu.position = 'top-right';
+					}
+				}
+			} else if (menu.orientation === 'vertical') {
+				if (menu.mirrored === true || (menu.mirrored === undefined && (menu.kind === 'fixed-right' || menu.kind === 'float-right'))) {
+					menu.position = 'left-bottom';
+				} else {
+					menu.position = 'right-bottom';
+				}
+			}
+		}
+		tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true);
+
+		const menuEl = tmpEl.children[0];
+
+		// Set menu css styles
+		if (menu.kind === 'fixed-top') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-top');
+		} else if (menu.kind === 'fixed-bottom') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-bottom');
+		} else if (menu.kind === 'fixed-left') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-left');
+		} else if (menu.kind === 'fixed-right') {
+			menuEl.classList.add('pw-menu-fixed');
+			menuEl.classList.add('pw-right');
+		} else if (menu.kind === 'float-left') {
+			menuEl.classList.add('pw-menu-float');
+			menuEl.classList.add('pw-left');
+		} else if (menu.kind === 'float-right') {
+			menuEl.classList.add('pw-menu-float');
+			menuEl.classList.add('pw-right');
+		}
+
+		// Brand
+		if (menu.brand) {
+			// Add horizontal style
+			menuEl.classList.add('pw-horizontal');
+
+			// Add hamburger menu toggle
+			const brandHolderEl = document.createElement('div');
+			brandHolderEl.innerHTML = `<div class="power-brand">${menu.brand}</div>`;
+			const brandEl = brandHolderEl.children[0];
+			menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
+		}
+
+		if (!menu.orientation || menu.orientation === 'horizontal') {
+			// Add horizontal style
+			menuEl.classList.add('pw-horizontal');
+
+			// Add hamburger menu toggle
+			const hamburgerHolderEl = document.createElement('div');
+			hamburgerHolderEl.innerHTML = `<a id="${menu.id}-action" class="power-toggle" data-power-target="${menu.id}">
+				<i class="pw-icon icon-maximize"></i>
+			</a>`;
+			const hamburgerEl = hamburgerHolderEl.children[0];
+			menuEl.appendChild(hamburgerEl);
+		} else if (menu.orientation === 'vertical') {
+			menuEl.classList.add('pw-vertical');
+		}
+
+		if (menu.classList) {
+			this.appendClassList({element: menuEl, json: menu});
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	dropmenu(dropmenu, mirrored, isMenu) {
+		if (this.validate(this.dropmenuDef(), dropmenu) === false) {
+			window.console.log('Failed JSON dropmenu:', dropmenu);
+			return 'Failed JSON dropmenu!';
+		}
+
+		const tmpEl = document.createElement('div');
+
+		tmpEl.innerHTML = `<nav class="${isMenu ? 'power-menu' : 'power-dropmenu'}${mirrored === true ? ' pw-mirrored' : ''}" id="${dropmenu.id}"></nav>`;
+
+		// Set menu position
+		if (dropmenu.position) {
+				const menu = tmpEl.children[0];
+				menu.dataset.powerPosition = dropmenu.position;
+		}
+
+		for (const item of dropmenu.items) {
+			const itemHolderEl = document.createElement('div');
+
+			if (item.item) {
+				itemHolderEl.innerHTML = this.item({
+					item: item.item,
+					avoidValidation: false,
+					mirrored: item.mirrored === undefined ? mirrored : item.mirrored,
+					dropmenuId: item.dropmenu ? item.dropmenu.id : false
+				});
+			} else if (item.button && item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					item.button.mirrored = mirrored;
+				}
+				itemHolderEl.innerHTML = this.dropMenuButton(item);
+			} else if (item.button && !item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					itemHolderEl.innerHTML = this.button(item.button, false, mirrored);
+				} else {
+					itemHolderEl.innerHTML = this.button(item.button);
+				}
+				// Buttons inside menu needs the 'power-item' class
+				itemHolderEl.children[0].classList.add('power-item');
+			}
+
+			const anchorEl = itemHolderEl.children[0];
+
+			if (item.item && !item.button) {
+				if (item.status) {
+					this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
+				}
+			}
+
+			tmpEl.children[0].appendChild(anchorEl);
+
+			// Buttons already have the menu created by dropMenuButton inside itemHolderEl
+			if (item.button && item.dropmenu) {
+				tmpEl.children[0].appendChild(itemHolderEl.children[0]);
+			} else if (item.dropmenu && !item.button) {
+				// Add submenu if have one and is not a button
+				const submenuHolderEl = document.createElement('div');
+				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored);
+				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
+			}
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	item({item, avoidValidation, mirrored, dropmenuId}) {
+		if (!avoidValidation && this.validate(this.itemDef(), item) === false) {
+			window.console.log('Failed JSON item:', item);
+			return 'Failed JSON item!';
+		}
+
+		const tmpEl = document.createElement('div');
+		// Add events if have
+		let eventsTmpl = '';
+		if (item.events) {
+			for (const event of item.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+		tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + eventsTmpl : ''} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
+
+		const itemEl = tmpEl.children[0];
+
+		if (item.icon) {
+			this.appendIcon({element: itemEl, json: item, mirrored: mirrored});
+		}
+
+		if (item.classList) {
+			this.appendClassList({element: itemEl, json: item});
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	dropMenuButton(dropMenuButton) {
+		if (this.validate(this.dropmenuButtonDef(), dropMenuButton) === false) {
+			window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
+			return 'Failed JSON button!';
+		}
+
+		const tmpEl = document.createElement('div');
+		// Create button
+		tmpEl.innerHTML = this.button(dropMenuButton.button, true, dropMenuButton.button.mirrored);
+
+		const buttonEl = tmpEl.children[0];
+		buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
+		buttonEl.classList.add('power-action');
+
+		if (dropMenuButton.status) {
+			this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored});
+		}
+
+		// Create dropmenu
+		tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored);
+
+		return tmpEl.innerHTML;
+	}
+
+	button(button, avoidValidation, mirrored) {
+		if (!avoidValidation && this.validate(this.itemDef(), button) === false) {
+			window.console.log('Failed JSON button:', button);
+			return 'Failed JSON button!';
+		}
+
+		const tmpEl = document.createElement('div');
+		// Add events if have
+		let eventsTmpl = '';
+		if (button.events) {
+			for (const event of button.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
+
+		const buttonEl = tmpEl.children[0];
+
+		if (button.icon) {
+			this.appendIcon({element: buttonEl, json: button, mirrored: mirrored});
+		}
+
+		if (button.classList) {
+			this.appendClassList({element: buttonEl, json: button});
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	tree(tree) {
+		let template = `<nav ${tree.id ? 'id="' + tree.id + '"' : ''} class="power-tree-view">`;
+		for (const item of tree.content) {
+			if (item.kind === 'file') {
+				if (tree.events) {
+					template = `${template}
+					<a class="power-item" data-pow-event `;
+
+					for (const event of tree.events) {
+						template = `${template}
+						${event.name}="${event.fn}({path: '${item.path}', event: event, element: event.target})" `;
+					}
+					template = `${template}
+					><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
+				} else {
+					template = `${template}
+					<a class="power-item"><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
+				}
+			} else if (item.kind === 'folder') {
+				const id = `list-${this.$powerUi._Unique.next()}`;
+				template = `${template}
+				<a class="power-list" data-power-target="${id}">
+					<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
+				</a>
+				${this.tree({content: item.content, id: id, events: tree.events})}`;
+			}
+		}
+		template = `${template}
+		</nav>`;
+
+		return template;
+	}
+
+	appendClassList({element, json}) {
+		for (const css of json.classList) {
+			element.classList.add(css);
+		}
+	}
+
+	appendIcon({element, json, mirrored}) {
+		const icon = document.createElement('span');
+		icon.classList.add('pw-icon');
+		icon.classList.add(json.icon);
+		if ((!json['icon-position'] && mirrored !== true) || json['icon-position'] === 'left') {
+			element.insertBefore(icon, element.childNodes[0]);
+		} else {
+			element.appendChild(icon);
+		}
+	}
+
+	appendStatus({element, json, mirrored}) {
+		const status = document.createElement('span');
+		status.classList.add('power-status');
+		status.classList.add('pw-icon');
+		if (mirrored === true) {
+			status.dataset.powerInactive = json.inactive.replace('right', 'left');
+		} else {
+			status.dataset.powerInactive = json.inactive;
+		}
+		status.dataset.powerActive = json.active;
+		if (json.position === 'left' || mirrored === true) {
+			element.insertBefore(status, element.childNodes[0]);
+		} else {
+			element.appendChild(status);
+		}
+	}
+
+	accordionDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/accordion",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"config": {
+					"type": "object",
+					"properties": {
+						"multipleSectionsOpen": {"type": "boolean"}
+					}
+				},
+				"panels": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"header": {
+								"type": "object",
+								"properties": {
+									"id": {"type": "string"},
+									"label": {"type": "string"},
+									"icon": {"type": "string"},
+									"icon-position": {"type": "string"},
+									"status": {"$ref": "#/schema/draft-07/status"}
+								},
+								"required": ["label", "id"]
+							},
+							"section": {
+								"type": "object",
+								"properties": {
+									"id": {"type": "string"},
+									"content": {"type": "string"}
+								},
+								"required": ["content", "id"]
+							}
+						},
+						"required": ["header", "section"]
+					}
+				}
+			},
+			"required": ["panels"]
+		};
+	}
+
+	dropmenuDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/dropmenu",
+			"type": "object",
+			"properties": {
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					}
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
+	menuDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/menu",
+			"type": "object",
+			"properties": {
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"mirrored": {"type": "boolean"},
+				"position": {"type": "string"},
+				"orientation": {"type": "string"},
+				"kind": {"type": "string"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					}
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
+	// Item can be a power-button, power-action or power-item
+	itemDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/item",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"label": {"type": "string"},
+				"id": {"type": "string"},
+				"icon": {"type": "string"},
+				"icon-position": {"type": "string"},
+				"kind": {"type": "string"},
+				"mirrored": {"type": "boolean"},
+				"events": {
+					"type": "array",
+					"properties": {
+						"event": {"type": "string"},
+						"fn": {"type": "string"},
+					},
+					"required": ["event", "fn"]
+				}
+			},
+			"required": ["label"]
+		};
+	}
+
+	dropmenuButtonDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "schema/draft-07/button-dropmenu",
+			"type": "object",
+			"properties": {
+				"button": {"$ref": "#/schema/draft-07/item"},
+				"status": {"$ref": "#/schema/draft-07/status"},
+				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+			},
+			"required": ["button"]
+		};
+	}
+
+	statusDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "schema/draft-07/status",
+			"type": "object",
+			"properties": {
+				"active": {"type": "string"},
+				"inactive": {"type": "string"},
+				"position": {"type": "string"}
+			},
+			"required": ["active", "inactive"]
+		};
+	}
+
+	$ref($ref) {
+		const path = '#/schema/draft-07/';
+
+		const references = {};
+		references[`${path}item`] = this.itemDef;
+		references[`${path}status`] = this.statusDef;
+		references[`${path}dropmenu`] = this.dropmenuDef;
+
+		return references[$ref]();
 	}
 }
 
@@ -2037,11 +2640,10 @@ class WidgetService extends PowerServices {
 	}
 }
 
-class PowerController {
+class PowerController extends PowerScope {
 	constructor({$powerUi}) {
 		// Add $powerUi to controller
-		this.$powerUi = $powerUi;
-		this._servicesInstances = {};
+		super({$powerUi: $powerUi});
 		this.volatileRouteIds = [];
 	}
 
@@ -2076,19 +2678,6 @@ class PowerController {
 			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,
 		});
-	}
-
-	$service(name) {
-		if (this._servicesInstances[name]) {
-			return this._servicesInstances[name];
-		} else {
-			this._servicesInstances[name] = new this.$powerUi._services[name].component({
-				$powerUi: this.$powerUi,
-				$ctrl: this,
-				params: this.$powerUi._services[name].params,
-			});
-			return this._servicesInstances[name];
-		}
 	}
 
 	closeCurrentRoute() {
@@ -2984,9 +3573,11 @@ class Router {
 	}
 }
 
-class PowerTemplate {
-	constructor({$powerUi}) {
-		this.$powerUi = $powerUi;
+class PowerTemplate extends PowerScope {
+	constructor({$powerUi, viewId, routeId}) {
+		super({$powerUi: $powerUi});
+		this._viewId = viewId;
+		this._routeId = routeId;
 		return {template: this._template(), component: this};
 	}
 
@@ -5546,33 +6137,39 @@ class PowerDialogBase extends PowerWidget {
 			let buttons = '';
 			if (this.commitBt) {
 				const defaultLabel = this.noBt ? 'Yes' : 'Ok';
-				const commitIco = `<span class="pw-ico fa fa-${(this.commitBt.ico ? this.commitBt.ico : 'check-circle')}"></span>`;
+				const commitIco = `<span class="pw-icon ${(this.commitBt.icon ? this.commitBt.icon : 'ok-black')}"></span>`;
 				const commitBt = `<button
 								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(true)">
-								${(this.commitBt.ico !== false ? commitIco : '')}
-								${(this.commitBt.label ? this.commitBt.label : defaultLabel)}
+								${(this.commitBt.icon !== false ? commitIco : '')}
+								<span class="pw-label">
+									${(this.commitBt.label ? this.commitBt.label : defaultLabel)}
+								</span>
 								</button>`;
 				buttons = buttons + commitBt;
 			}
 			if (this.noBt) {
-				const noIco = `<span class="pw-ico fa fa-${(this.noBt.ico ? this.noBt.ico : 'times-circle')}"></span>`;
+				const noIco = `<span class="pw-icon ${(this.noBt.icon ? this.noBt.icon : 'cancel-black')}"></span>`;
 				const noBt = `<button
 								class="${(this.noBt.css ? this.noBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(false)">
-								${(this.noBt.ico !== false ? noIco : '')}
-								${(this.noBt.label ? this.noBt.label : 'No')}
+								${(this.noBt.icon !== false ? noIco : '')}
+								<span class="pw-label">
+									${(this.noBt.label ? this.noBt.label : 'No')}
+								</span>
 								</button>`;
 				buttons = buttons + noBt;
 			}
 			if (this.cancelBt) {
-				const defaultIco = this.noBt ? 'times' : 'times-circle';
-				const cancelIco = `<span class="pw-ico fa fa-${(this.cancelBt.ico ? this.cancelBt.ico : defaultIco)}"></span>`;
+				const defaultIco = this.noBt ? 'cancel-simple' : 'cancel-black';
+				const cancelIco = `<span class="pw-icon ${(this.cancelBt.icon ? this.cancelBt.icon : defaultIco)}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_cancel()">
-								${(this.cancelBt.ico !== false ? cancelIco : '')}
-								${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+								${(this.cancelBt.icon !== false ? cancelIco : '')}
+								<span class="pw-label">
+									${(this.cancelBt.label ? this.cancelBt.label : 'Cancel')}
+								</span>
 								</button>`;
 				buttons = buttons + cancelBt;
 			}
@@ -5587,7 +6184,7 @@ class PowerDialogBase extends PowerWidget {
 		this.$title = this.$title || $title;
 		return `<div class="pw-title-bar">
 					<span class="pw-title-bar-label">${this.$title}</span>
-					<div data-pow-event onclick="_cancel()" class="pw-bt-close fa fa-times"></div>
+					<div data-pow-event onclick="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
 				</div>
 				<div class="pw-body">
 					<div class="pw-container" data-pw-content>
@@ -5754,6 +6351,8 @@ class PowerModal extends PowerDialogBase {
 
 export { PowerModal };
 
+// This is the old tree
+// Remove after implement JSONSchema
 class PowerTreeTemplate {
 	constructor({$powerUi, tree, boilerplate}) {
 		this.boilerplate = boilerplate || false;
@@ -5768,16 +6367,16 @@ class PowerTreeTemplate {
 			if (item.kind === 'file') {
 				if (this.boilerplate) {
 					template = `${template}
-					<a class="power-item" data-pow-event onclick="_commit({path:'${item.path}'})"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+					<a class="power-item" data-pow-event onclick="_commit({path:'${item.path}'})"><span class="pw-icon document-blank"></span> ${item.fullName}</a>`;
 				} else {
 					template = `${template}
-					<a class="power-item"><span class="power-icon fa fa-file"></span> ${item.fullName}</a>`;
+					<a class="power-item"><span class="pw-icon document-blank"></span> ${item.fullName}</a>`;
 				}
 			} else if (item.kind === 'folder') {
 				const id = `list-${this.$powerUi._Unique.next()}`;
 				template = `${template}
 				<a class="power-list" data-power-target="${id}">
-					<span class="power-status fa" data-power-active="fa-folder-open" data-power-inactive="fa-folder"></span> ${item.fullName}
+					<span class="power-status pw-icon" data-power-active="folder-open" data-power-inactive="folder-close"></span> ${item.fullName}
 				</a>
 				${this.buildTemplate(item.content, id)}`;
 			}
@@ -6015,7 +6614,7 @@ class PowerWindowIframe extends PowerWindow {
 					<div class="pw-window-resizable">
 						<div class="pw-title-bar">
 							<span class="pw-title-bar-label">${this.$title}</span>
-							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close fa fa-times"></div>
+							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
 						</div>
 						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 						</div>
@@ -6146,11 +6745,27 @@ class PowerList extends PowerTarget {
 			this.targetObj._$pwActive = false;
 			this.targetObj.element.classList.remove('power-active');
 			this.element.classList.remove('power-active');
+			// Give menu a z-index to put it on top of any windows
+			if (this.$pwMain.isMenu) {
+				if (this.$pwMain.order > 0) {
+					this.$pwMain.order = this.$pwMain.order - 1;
+					if (this.$pwMain.order === 0) {
+						this.$pwMain.element.classList.remove('pw-order');
+					}
+				}
+			}
 		} else {
 			this._$pwActive = true; // powerAction
 			this.targetObj._$pwActive = true;
 			this.targetObj.element.classList.add('power-active');
 			this.element.classList.add('power-active');
+			// Give menu its normal z-index
+			if (this.$pwMain.isMenu) {
+				if (this.$pwMain.order === 0) {
+					this.$pwMain.element.classList.add('pw-order');
+				}
+				this.$pwMain.order = this.$pwMain.order + 1;
+			}
 		}
 		// Broadcast toggle custom event
 		this.broadcast('toggle', true);
@@ -6197,8 +6812,8 @@ class PowerAction extends PowerList {
 		const powerActionElement = document.getElementById(this.id);
 		let elementToCheck = event.target; // clicked element
 
-		// Close if click some power-item
-		if (elementToCheck.classList.contains('power-item') || elementToCheck.classList.contains('power-brand')) {
+		// Do not close if click some power-action
+		if ((!elementToCheck.classList.contains('power-action') && !elementToCheck.classList.contains('power-toggle')) && (elementToCheck.parentNode && (!elementToCheck.parentNode.classList.contains('power-action') && !elementToCheck.parentNode.classList.contains('power-toggle')))) {
 			this.toggle();
 			return;
 		}
@@ -6449,6 +7064,7 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 	ifPositionOutOfScreenChangeDirection() {
+		let hasChanged = false;
 		const elementRect = this.element.getBoundingClientRect();
 
 		// This offset the top when scroll to bottom
@@ -6463,20 +7079,24 @@ class PowerDropmenu extends PowerTarget {
 		if (elementRect.right > document.defaultView.innerWidth) {
 			pos.leftRight = 'left';
 			changes.leftRight++;
+			hasChanged = true;
 		} else if (elementRect.left < 0) {
 		// Correct position if left is not allowed anymore
 		// Change position if left element is bigger than left document
 			pos.leftRight = 'right';
 			changes.leftRight++;
+			hasChanged = true;
 		}
 		// Bottom may also not allowed anymore
 		// Change position if bottom element is bigger than bottom document
 		if (elementRect.bottom > document.defaultView.innerHeight) {
 			pos.topDown = 'top';
 			changes.topDown++;
+			hasChanged = true;
 		} else if (elementRect.top < 0) {
 			pos.topDown = 'bottom';
 			changes.topDown++;
+			hasChanged = true;
 		}
 
 		if (changes.topDown > 0 || changes.leftRight > 0) {
@@ -6497,6 +7117,11 @@ class PowerDropmenu extends PowerTarget {
 			// Top and left can't have negative values
 			// Fix it if needed
 			this.setPositionLimits();
+		}
+
+		// Also need to correct the new position if is inside fixed element with scroll
+		if (hasChanged) {
+			this.fixPositionIfInsideFixedElement();
 		}
 	}
 
@@ -6550,7 +7175,8 @@ class PowerDropmenu extends PowerTarget {
 					self.element.style.position = 'fixed';
 					self.element.style.left = window.getComputedStyle(self.powerAction.element).left;
 				}
-
+				// If drop-menus are inside some fixed element wee need to remove any scroll from position
+				self.fixPositionIfInsideFixedElement();
 				// Find if the position is out of screen and reposition if needed
 				self.ifPositionOutOfScreenChangeDirection();
 				// After choose the position show the dropmenu
@@ -6576,6 +7202,40 @@ class PowerDropmenu extends PowerTarget {
 	action() {
 		this.toggle();
 	}
+
+	fixPositionIfInsideFixedElement() {
+		const self = this;
+		let scrollTop = 0;
+		let scrollLeft = 0;
+		let isInnerDropMenu = false;
+
+		const searchFixedEl = PowerTree._searchUpDOM(self.element, function(element) {
+			// If is inside another dropmenu cancel the search
+			if (element.classList.contains('power-dropmenu')) {
+				isInnerDropMenu = true;
+				return true;
+			}
+			// Find and return the fixed element
+			// Also add anny scrollTop and scrollLeft
+			scrollTop = scrollTop + element.scrollTop;
+			scrollLeft = scrollLeft + element.scrollLeft;
+			if (window.getComputedStyle(element).getPropertyValue('position') === 'fixed') {
+				return true;
+			}
+		});
+
+		// Only if is a fixed element and not some other dropdown
+		if (searchFixedEl.conditionResult && !isInnerDropMenu) {
+			if (scrollTop > 0) {
+				const top = parseInt(window.getComputedStyle(self.element).top.replace('px', '') || 0);
+				self.element.style.top = (top - scrollTop) + 'px';
+			}
+			if (scrollLeft > 0) {
+				const left = parseInt(window.getComputedStyle(self.element).left.replace('px', '') || 0);
+				self.element.style.left = (left - scrollLeft) + 'px';
+			}
+		}
+	}
 }
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-dropmenu'});
@@ -6599,7 +7259,9 @@ PowerUi.injectPowerCss({name: 'power-main', isMain: true});
 class PowerMenu extends PowerTarget {
 	constructor(menu, $powerUi) {
 		super(menu);
+		this.isMenu = true;
 		this.$powerUi = $powerUi;
+		this.order = 0;
 		this._$pwActive = false;
 		// this.element = menu;
 		this.id = this.element.getAttribute('id');

@@ -1,3 +1,190 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('../fonts/icomoon.eot?gejsbp');
+  src:  url('../fonts/icomoon.eot?gejsbp#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon.ttf?gejsbp') format('truetype'),
+    url('../fonts/icomoon.woff?gejsbp') format('woff'),
+    url('../fonts/icomoon.svg?gejsbp#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="pw-icon"], [class*="pw-icon"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.chevron-down:before {
+  content: "\e922";
+}
+.chevron-left:before {
+  content: "\e923";
+}
+.chevron-right:before {
+  content: "\e924";
+}
+.chevron-up:before {
+  content: "\e925";
+}
+.caret-down:before {
+  content: "\e931";
+}
+.caret-left:before {
+  content: "\e932";
+}
+.caret-right:before {
+  content: "\e933";
+}
+.caret-up:before {
+  content: "\e934";
+}
+.arrow-right:before {
+  content: "\e926";
+}
+.donwload:before {
+  content: "\e927";
+}
+.upload:before {
+  content: "\e928";
+}
+.arrow-down:before {
+  content: "\e929";
+}
+.arrow-left:before {
+  content: "\e92a";
+}
+.arrow-up:before {
+  content: "\e92b";
+}
+.edit-black:before {
+  content: "\e92c";
+}
+.edit-white:before {
+  content: "\e92d";
+}
+.icon-user:before {
+  content: "\e92e";
+}
+.save-front:before {
+  content: "\e92f";
+}
+.save-back:before {
+  content: "\e930";
+}
+.icon-atom:before {
+  content: "\e900";
+}
+.cancel-black:before {
+  content: "\e901";
+}
+.cancel-simple:before {
+  content: "\e902";
+}
+.cancel-white:before {
+  content: "\e903";
+}
+.document-blank:before {
+  content: "\e904";
+}
+.icon-eletric:before {
+  content: "\e905";
+}
+.exclamation-black:before {
+  content: "\e906";
+}
+.exclamation-circle-black:before {
+  content: "\e907";
+}
+.exclamation-circle-white:before {
+  content: "\e908";
+}
+.exclamation-simple:before {
+  content: "\e909";
+}
+.exclamation-white:before {
+  content: "\e90a";
+}
+.folder-close:before {
+  content: "\e90b";
+}
+.folder-open:before {
+  content: "\e90c";
+}
+.interrogation-black:before {
+  content: "\e90d";
+}
+.interrogation-circle-black:before {
+  content: "\e90e";
+}
+.interrogation-circle-white:before {
+  content: "\e90f";
+}
+.interrogation-simple:before {
+  content: "\e910";
+}
+.interrogation-white:before {
+  content: "\e911";
+}
+.icon-lamp:before {
+  content: "\e912";
+}
+.icon-maximize:before {
+  content: "\e913";
+}
+.icon-minimize:before {
+  content: "\e914";
+}
+.minus-black:before {
+  content: "\e915";
+}
+.minus-white:before {
+  content: "\e916";
+}
+.ok-black:before {
+  content: "\e917";
+}
+.ok-simple:before {
+  content: "\e918";
+}
+.ok-white:before {
+  content: "\e919";
+}
+.plus-black:before {
+  content: "\e91a";
+}
+.plus-white:before {
+  content: "\e91b";
+}
+.power-logo:before {
+  content: "\e91c";
+}
+.settings-horizontal-black:before {
+  content: "\e91d";
+}
+.settings-horizontal-white:before {
+  content: "\e91e";
+}
+.settings-square-black:before {
+  content: "\e91f";
+}
+.settings-square-white:before {
+  content: "\e920";
+}
+.icon-windows:before {
+  content: "\e921";
+}
+
 /* Dropdown */
 
 .power-dropmenu, .power-dropmenu.power-active > .power-dropmenu {
@@ -15,21 +202,28 @@
 }
 /* Dropdown end */
 /* Menu */
-.power-menu.power-horizontal > * {
+.power-menu.pw-horizontal > * {
     display: inline-block;
 }
-
+.power-menu.pw-vertical > .power-action, .power-menu.pw-vertical > .power-item, .power-menu.pw-vertical > .power-brand {
+    display: block;
+}
+.power-menu.pw-vertical {
+    display: inline-block;
+}
 .power-active > .power-item, .power-active > .power-action, .power-active > .power-brand {
-    display: block !important;
+    display: block;
 }
 
-.power-menu.power-horizontal .power-toggle {
+.power-menu.pw-horizontal .power-toggle {
     display: none;
 }
-
+.power-dropmenu.pw-mirrored {
+    text-align: right;
+}
 .power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
     display: block !important;
-    white-space:nowrap;
+    white-space: nowrap;
     border-style: solid;
     border-width: 1px;
     position: absolute;
@@ -49,35 +243,74 @@
 .power-tree-view .power-tree-view.power-active {
     display: block;;
 }
-/* end power tree view*/
 
+/* end power tree view*/
 @media screen and (max-width: 800px) {
-    .power-menu.power-horizontal .power-action, .power-menu.power-horizontal .power-item {
+    .power-menu.pw-horizontal.power-active .power-action, .power-menu.pw-horizontal.power-active .power-item {
+        display: block;
+        width: max-content;
+    }
+
+    .power-menu.pw-horizontal .power-action, .power-menu.pw-horizontal .power-item {
         display: none;
     }
 
-    .power-menu.power-horizontal {
+    .power-menu.pw-horizontal {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .power-menu.power-horizontal.power-active {
+
+    .power-menu.pw-horizontal.power-active {
         display: block;
         justify-content: initial;
     }
 
-    .power-menu.power-horizontal .power-toggle {
+    .power-menu.pw-horizontal .power-toggle {
         display: inline-block;
         text-align: right;
     }
 
-    .power-menu.power-horizontal.power-active .power-toggle {
-        display: none !important;
+    .power-menu.pw-horizontal.power-active .power-toggle {
+        display: none;
     }
 }
-.power-menu-fixed {
+.pw-menu-fixed {
     position: fixed;
+}
+
+.power-menu.pw-menu-fixed.pw-top {
+    top: 0;
+    left: 0;
+}
+.power-menu.pw-menu-fixed.pw-bottom {
+    bottom: 0;
+    left: 0;
+    margin: 0;
+}
+.power-menu.pw-menu-fixed.pw-left {
+    top: 0;
+    left: 0;
+    margin: 0;
+    width: auto;
+    height: 100vh;
+}
+.power-menu.pw-menu-fixed.pw-right {
+    top: 0;
+    right: 0;
+    margin: 0;
+    width: auto;
+    height: 100vh;
+}
+.power-menu.pw-menu-float {
+    width: auto;
+}
+.power-menu.pw-menu-float.pw-left {
+    float: left;
+}
+.power-menu.pw-menu-float.pw-right {
+    float: right;
 }
 /* Menu end*/
 
@@ -124,7 +357,10 @@
     left: 0;
 }
 .pw-dialog {
-    z-index: 2000;
+    z-index: 1003;
+}
+.pw-order {
+    z-index: 3000 !important;
 }
 
 .pw-window  {
@@ -180,9 +416,6 @@
 .pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window-resizable {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
-.pw-modal button, .pw-dialog button, .pw-window button, .pw-ico {
-    margin-right: 0.5em;
-}
 
 body.modal-open {
     overflow: hidden;
@@ -195,7 +428,7 @@ body.modal-open {
     background-color: rgb(0, 0, 0, 1);
 }
 .pw-title-bar-label {
-    margin-top: .7em;
+    margin-top: 1em;
     display: inline-block;
     color: #FFF;
     font-weight: bold;
@@ -208,22 +441,28 @@ body.modal-open {
 /* End All dialogs */
 
 /* buttons start*/
-.pw-btn-default {
+.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secundary, .pw-btn-success, .pw-btn-basic {
     margin-top: 1em;
-    background-color: black;
-    color: #FFF;
     border: none;
     font-weight: bold;
     padding: 0.7em;
     cursor: pointer;
     /*border-radius: 0.3em;*/
 }
-.pw-bt-close.fa.fa-times {
-    color: #FFF;
-    font-weight: bold;
-    font-size: 1.5rem;
-    margin-top: .5em;
-    margin-right: .8rem;
+.power-menu button.pw-btn-default, .power-menu button.pw-btn-highlight, .power-menu button.pw-btn-danger, .power-menu button.pw-btn-primary, .power-menu button.pw-btn-warning, .power-menu button.pw-btn-secundary, .power-menu button.pw-btn-success, .power-menu button.pw-btn-basic {
+    margin-top: 0;
+    vertical-align: middle;
+}
+.power-menu .power-action.pw-btn-default, .power-menu .power-action.pw-btn-highlight, .power-menu .power-action.pw-btn-danger, .power-menu .power-action.pw-btn-primary, .power-menu .power-action.pw-btn-warning, .power-menu .power-action.pw-btn-secundary, .power-menu .power-action.pw-btn-success, .power-menu .power-action.pw-btn-basic {
+    margin-top: 0;
+    vertical-align: middle;
+}
+.pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span, .power-accordion .power-action span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.pw-bt-close {
     float: right;
     cursor: pointer;
 }
@@ -318,22 +557,22 @@ p.pw-spinner-label {
     vertical-align: middle;
     z-index: 1000;
 }
+
 .pwdesign-white-smoke .power-dropmenu {
-    z-index: 1002;
+    z-index: 1004;
 }
+
 .pwdesign-white-smoke .power-toggle {
     border-style: solid;
     border-width: 1px;
     padding: 0.3em 0.5em;
 }
 
-.pwdesign-white-smoke .power-menu-fixed .power-toggle {
+.pwdesign-white-smoke .pw-menu-fixed .power-toggle {
     margin-right: 1em;
 }
 
-.pwdesign-white-smoke  .power-menu-fixed {
-    top: 0;
-    left: 0;
+.pwdesign-white-smoke  .pw-menu-fixed {
     width: 100%;
     z-index: 1000;
 }
@@ -350,15 +589,13 @@ p.pw-spinner-label {
 }
 .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-item > *, .pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-action > *, .pwdesign-white-smoke .power-brand > * {
     vertical-align: middle;
-    font-size: 12pt;
-}
-
-.pwdesign-white-smoke .power-dropmenu > .power-dropmenu.power-active {
-    /*margin-left: 2em;*/
 }
 
 .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-list {
     padding: 0.5em;
+}
+.pwdesign-white-smoke button.power-item {
+    padding: 0.7em;
 }
 .pwdesign-white-smoke .power-dropmenu.power-active, .pwdesign-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
     background-color: #F5F5F5;
@@ -385,8 +622,6 @@ p.pw-spinner-label {
 .pwdesign-white-smoke .power-accordion > .power-accordion-section.power-active {
     visibility: visible;
     padding: 0.5em;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
     margin-bottom: 0.2em;
     max-height: 100vh;
     transition: max-height 0.4s ease-in-out;
@@ -395,8 +630,6 @@ p.pw-spinner-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 5px;
-    border-radius: 5px;
     margin-bottom: 0.2em;
 }
 
@@ -404,7 +637,7 @@ p.pw-spinner-label {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom: 0;
-    margin-bottom: 0em;
+    margin-bottom: 0;
 }
 /* Accordion */
 /* keyboard mode on*/
@@ -443,4 +676,67 @@ p.pw-spinner-label {
 .pwdesign-white-smoke .pw-body.pw-body-iframe iframe {
     background-color: #fff;
 }
+
+.pwdesign-white-smoke .pw-bt-close {
+    color: #FFF;
+    font-size: 1.6rem;
+    margin-top: .5em;
+    margin-right: .8rem;
+}
 /* Dialog-Modal-Window end */
+.pwdesign-white-smoke .pw-icon {
+    font-size: 1.6rem;
+}
+.pwdesign-white-smoke .pw-icon.caret-left, .pwdesign-white-smoke .pw-icon.caret-up, .pwdesign-white-smoke .pw-icon.caret-right, .pwdesign-white-smoke .pw-icon.caret-down {
+    font-size: 1.3rem;
+}
+
+/* buttons start*/
+.pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action {
+    margin-right: 0.5em;
+    display: inline-block;
+    margin-top: 1em;
+    padding: 0.7em;
+    vertical-align: top;
+}
+.pwdesign-white-smoke .pw-btn-default {
+    color: #FFFFFF;
+    background-color: #000000;
+}
+.pwdesign-white-smoke .pw-btn-basic {
+    color: #FFFFFF;
+    background-color: #B0B0B0;
+}
+.pwdesign-white-smoke .pw-btn-highlight {
+    color: #FFFF00;
+    background-color: #000000;
+}
+.pwdesign-white-smoke .pw-btn-danger {
+    color: #FFFFFF;
+    background-color: #8B0000;
+}
+.pwdesign-white-smoke .pw-btn-primary {
+    color: #FFFFFF;
+    background-color: #4B0082;
+}
+.pwdesign-white-smoke .pw-btn-secundary, .pwdesign-white-smoke .pw-btn-secundary.power-action {
+    color: #000000;
+    padding: 0.65em;
+    border: 1px solid #000000;
+    background-color: #FFFFFF;
+}
+.pwdesign-white-smoke .pw-btn-warning {
+    color: #FFFFFF;
+    background-color: #f2ae09;
+}
+
+.pwdesign-white-smoke .pw-btn-success {
+    color: #FFFFFF;
+    background-color: #556B2F;
+}
+
+/* labels */
+.pwdesign-white-smoke .pw-label {
+    margin-left: 0.4em;
+    margin-right: 0.4em;
+}
