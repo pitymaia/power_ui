@@ -1,16 +1,16 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon.eot?78zz2h');
-  src:  url('../fonts/icomoon.eot?78zz2h#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon.ttf?78zz2h') format('truetype'),
-    url('../fonts/icomoon.woff?78zz2h') format('woff'),
-    url('../fonts/icomoon.svg?78zz2h#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?78zz2h');
+  src:  url('fonts/icomoon.eot?78zz2h#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?78zz2h') format('truetype'),
+    url('fonts/icomoon.woff?78zz2h') format('woff'),
+    url('fonts/icomoon.svg?78zz2h#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-[class^="pw-icon"], [class*=" pw-icon"] {
+[class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
   speak: none;
@@ -25,106 +25,106 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.arrow-down:before {
+.icon-arrow-down:before {
   content: "\e900";
 }
-.arrow-left:before {
+.icon-arrow-left:before {
   content: "\e901";
 }
-.arrow-right:before {
+.icon-arrow-right:before {
   content: "\e902";
 }
-.arrow-up:before {
+.icon-arrow-up:before {
   content: "\e903";
 }
 .icon-atom:before {
   content: "\e904";
 }
-.cancel-black:before {
+.icon-cancel-black:before {
   content: "\e905";
 }
-.cancel-simple:before {
+.icon-cancel-simple:before {
   content: "\e906";
 }
-.cancel-white:before {
+.icon-cancel-white:before {
   content: "\e907";
 }
-.caret-down:before {
+.icon-caret-down:before {
   content: "\e908";
 }
-.caret-left:before {
+.icon-caret-left:before {
   content: "\e909";
 }
-.caret-right:before {
+.icon-caret-right:before {
   content: "\e90a";
 }
-.caret-up:before {
+.icon-caret-up:before {
   content: "\e90b";
 }
-.chevron-down:before {
+.icon-chevron-down:before {
   content: "\e90c";
 }
-.chevron-left:before {
+.icon-chevron-left:before {
   content: "\e90d";
 }
-.chevron-right:before {
+.icon-chevron-right:before {
   content: "\e90e";
 }
-.chevron-up:before {
+.icon-chevron-up:before {
   content: "\e90f";
 }
-.document-blank:before {
+.icon-document-blank:before {
   content: "\e910";
 }
-.donwload:before {
+.icon-donwload:before {
   content: "\e911";
 }
-.edit-black:before {
+.icon-edit-black:before {
   content: "\e912";
 }
-.edit-white:before {
+.icon-edit-white:before {
   content: "\e913";
 }
 .icon-eletric:before {
   content: "\e914";
 }
-.exclamation-black:before {
+.icon-exclamation-black:before {
   content: "\e915";
 }
-.exclamation-circle-black:before {
+.icon-exclamation-circle-black:before {
   content: "\e916";
 }
-.exclamation-circle-white:before {
+.icon-exclamation-circle-white:before {
   content: "\e917";
 }
-.exclamation-simple:before {
+.icon-exclamation-simple:before {
   content: "\e918";
 }
-.exclamation-white:before {
+.icon-exclamation-white:before {
   content: "\e919";
 }
-.folder-close:before {
+.icon-folder-close:before {
   content: "\e91a";
 }
-.folder-open:before {
+.icon-folder-open:before {
   content: "\e91b";
 }
 .icon-hamburguer:before {
   content: "\e91c";
 }
-.interrogation-black:before {
+.icon-interrogation-black:before {
   content: "\e91d";
 }
-.interrogation-circle-black:before {
+.icon-interrogation-circle-black:before {
   content: "\e91e";
 }
-.interrogation-circle-white:before {
+.icon-interrogation-circle-white:before {
   content: "\e91f";
 }
-.interrogation-simple:before {
+.icon-interrogation-simple:before {
   content: "\e920";
 }
-.interrogation-white:before {
+.icon-interrogation-white:before {
   content: "\e921";
 }
 .icon-lamp:before {
@@ -136,46 +136,46 @@
 .icon-minimize:before {
   content: "\e924";
 }
-.minus-black:before {
+.icon-minus-black:before {
   content: "\e925";
 }
-.minus-white:before {
+.icon-minus-white:before {
   content: "\e926";
 }
-.ok-black:before {
+.icon-ok-black:before {
   content: "\e927";
 }
-.ok-simple:before {
+.icon-ok-simple:before {
   content: "\e928";
 }
-.ok-white:before {
+.icon-ok-white:before {
   content: "\e929";
 }
-.plus-black:before {
+.icon-plus-black:before {
   content: "\e92a";
 }
-.plus-white:before {
+.icon-plus-white:before {
   content: "\e92b";
 }
-.power-logo:before {
+.icon-power-ico:before {
   content: "\e92c";
 }
-.save-back:before {
+.icon-save-back:before {
   content: "\e92d";
 }
-.save-front:before {
+.icon-save-front:before {
   content: "\e92e";
 }
-.settings-horizontal-black:before {
+.icon-settings-horizontal-black:before {
   content: "\e92f";
 }
-.settings-horizontal-white:before {
+.icon-settings-horizontal-white:before {
   content: "\e930";
 }
-.settings-square-black:before {
+.icon-settings-square-black:before {
   content: "\e931";
 }
-.settings-square-white:before {
+.icon-settings-square-white:before {
   content: "\e932";
 }
 .icon-upload:before {

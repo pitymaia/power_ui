@@ -181,7 +181,7 @@ class JSONSchemaService extends PowerServices {
 			// Add hamburger menu toggle
 			const hamburgerHolderEl = document.createElement('div');
 			hamburgerHolderEl.innerHTML = `<a id="${menu.id}-action" class="power-toggle" data-power-target="${menu.id}">
-				<i class="pw-icon icon-maximize"></i>
+				<i class="pw-icon icon-hamburguer"></i>
 			</a>`;
 			const hamburgerEl = hamburgerHolderEl.children[0];
 			menuEl.appendChild(hamburgerEl);
