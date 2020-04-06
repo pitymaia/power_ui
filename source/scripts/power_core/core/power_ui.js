@@ -308,7 +308,7 @@ class PowerUi extends _PowerUiBase {
 			}
 		}
 		const t1 = performance.now();
-		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
+		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	pwReload() {
@@ -338,7 +338,7 @@ class PowerUi extends _PowerUiBase {
 
 		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
-		console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
+		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
 	}
 
@@ -349,8 +349,19 @@ class PowerUi extends _PowerUiBase {
 		return view;
 	}
 
-	addSpinner(view) {
+	// To use as loading service
+	addSpinner(viewId) {
+		const view = document.getElementById(viewId);
 		this.addSpinnerAndHideView(view, true);
+	}
+
+	removeSpinner(viewId) {
+		const spinner = document.getElementById('_power-spinner');
+		spinner.parentNode.removeChild(spinner);
+		if (viewId) {
+			const view = document.getElementById(viewId);
+			view.style.visibility = null;
+		}
 	}
 
 	addSpinnerAndHideView(view, doNotWait) {
@@ -514,14 +525,6 @@ class PowerUi extends _PowerUiBase {
 				self._events['ready'].broadcast('ready');
 			}
 		}, 10);
-	}
-
-	removeSpinner(view) {
-		const spinner = document.getElementById('_power-spinner');
-		spinner.parentNode.removeChild(spinner);
-		if (view) {
-			view.style.visibility = null;
-		}
 	}
 
 	sanitizeHTML(str) {
