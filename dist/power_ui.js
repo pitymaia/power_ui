@@ -2338,10 +2338,17 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
+	// Icon is a css font or an img
 	appendIcon({element, json, mirrored}) {
 		const icon = document.createElement('span');
 		icon.classList.add('pw-icon');
-		icon.classList.add(json.icon);
+		if (json.icon === 'img' && json["icon-src"]) {
+			const img = document.createElement('img')
+			img.src = json["icon-src"];
+			icon.appendChild(img);
+		} else {
+			icon.classList.add(json.icon);
+		}
 		if ((!json['icon-position'] && mirrored !== true) || json['icon-position'] === 'left') {
 			element.insertBefore(icon, element.childNodes[0]);
 		} else {
