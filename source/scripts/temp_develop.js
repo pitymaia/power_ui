@@ -855,7 +855,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ['my-custom-button'],
 			"id": 'my-bt',
 			"label": "Default",
-			"icon": "save-front",
+			"icon": "img",
+			"icon-src": "vendors/imgs/rv_bt.png",
 			"kind": "default",
 			"events": [
 				{
