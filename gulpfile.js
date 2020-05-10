@@ -12,7 +12,7 @@ function reloadTask(done) {
 	done();
 }
 
-gulp.task('insert-styles-bundle', function (done) {
+gulp.task('insert-styles-bundle', gulp.series(function (done) {
 	gulp.src('source/templates/*.html')
 	.pipe(insertLines({
 		'before': /<\/head>$/,
@@ -27,7 +27,8 @@ gulp.task('insert-styles-bundle', function (done) {
 		'lineBefore': doNotEditThisFile
 	}))
 	.pipe(gulp.dest('app/'));
-});
+	done();
+}));
 
 const distJsFiles = [
 	'source/scripts/power_core/core/power_core.js', // Order who goes first
@@ -59,7 +60,7 @@ const tmpCssFiles = [
 	'source/css/temp_for_dev.css',
 ];
 
-gulp.task('develop', function (done) {
+gulp.task('develop', gulp.series(function (done) {
 	gulp.src('source/templates/index.html')
 	.pipe(insertLines({
 		'before': '<!-- Porwer UI demo -->$',
@@ -73,24 +74,25 @@ gulp.task('develop', function (done) {
 	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
 
 	reloadTask(done);
-});
+}));
 
 // Create the distribution files
-gulp.task('dist', function (done) {
+gulp.task('dist', gulp.series(function (done) {
 	gulp.src(distJsFiles).pipe(concat('power_ui.js')).pipe(gulp.dest('dist/'));
 	gulp.src(distCssFiles).pipe(concat('power_ui.css')).pipe(gulp.dest('dist/'));
 	done();
-});
+}));
 
-gulp.task('minify', function () {
+gulp.task('minify', gulp.series(function (done) {
 	return gulp.src('dist/power_ui.js')
 		.pipe(rename('power_ui.min.js'))
 		.pipe(uglify())
 		.pipe(gulp.dest('dist/'));
-});
+		done();
+}));
 
 // Static server
-gulp.task('browser-sync', function() {
+gulp.task('browser-sync', gulp.series(function(done) {
 	browserSync.init({
 		server: {
 			baseDir: "./app",
@@ -107,10 +109,11 @@ gulp.task('browser-sync', function() {
 	// gulp.watch("source/css/*.css").on('change', browserSync.reload);
 	// gulp.watch("source/templates/*.*").on('change', browserSync.reload);
 	// Reload 'develop' on files change
-	gulp.watch("source/scripts/**/*.js", ['develop']);
-	gulp.watch("source/css/**/*.css", ['develop']);
-	gulp.watch("source/templates/**/*.*", ['develop']);
-});
+	gulp.watch("source/scripts/**/*.js", gulp.series(['develop']));
+	gulp.watch("source/css/**/*.css", gulp.series(['develop']));
+	gulp.watch("source/templates/**/*.*", gulp.series(['develop']));
+	done();
+}));
 
-gulp.task('default', ['develop', 'browser-sync']);
-gulp.task('debug', ['insert-styles-bundle', 'browser-sync']);
+gulp.task('default', gulp.series(['develop', 'browser-sync']));
+gulp.task('debug', gulp.series(['insert-styles-bundle', 'browser-sync']));
