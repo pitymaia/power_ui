@@ -1990,6 +1990,12 @@ class JSONSchemaService extends PowerServices {
 					return false;
 				}
 			}
+			// Validate image icons
+			if (key === 'icon' && json[key] === 'img' && json['icon-src'] === undefined) {
+				window.console.log('Failed JSON: "icon-src" is required! Some item with "icon" attribute is set to "img" but is missing the "icon-src" attribute');
+				window.console.log('Failed JSON ID is:', json.id, ' and key is: ', key);
+				return false;
+			}
 			// Validade array type property
 			else if (schema.properties[key].type === 'array' && schema.properties[key].items) {
 				for (const item of json[key]) {
@@ -2003,7 +2009,6 @@ class JSONSchemaService extends PowerServices {
 					return false;
 				}
 			}
-
 			// Validate current property type
 			if (json[key] !== undefined && !schema.properties[key].$ref) {
 				if (this.validateType(schema.properties[key].type, json[key]) === false) {
@@ -2297,6 +2302,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	tree(tree) {
+		if (this.validate(this.treeDef(), tree) === false) {
+			window.console.log('Failed JSON tree:', tree);
+			return 'Failed JSON tree!';
+		}
 		let template = `<nav ${tree.id ? 'id="' + tree.id + '"' : ''} class="power-tree-view">`;
 		for (const item of tree.content) {
 			if (item.kind === 'file') {
@@ -2475,6 +2484,7 @@ class JSONSchemaService extends PowerServices {
 				"label": {"type": "string"},
 				"id": {"type": "string"},
 				"icon": {"type": "string"},
+				"icon-src": {"type": "string"},
 				"icon-position": {"type": "string"},
 				"kind": {"type": "string"},
 				"mirrored": {"type": "boolean"},
@@ -2489,6 +2499,39 @@ class JSONSchemaService extends PowerServices {
 			},
 			"required": ["label"]
 		};
+	}
+
+	treeDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/menu",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"id": {"type": "string"},
+				"events": {
+					"type": "array",
+					"properties": {
+						"name": {"type": "string"},
+						"fn": {"type": "string"},
+					},
+					"required": ["name", "fn"]
+				},
+				"content": {
+					"type": "array",
+					"properties": {
+						"name": {"type": "string"},
+						"fullName": {"type": "string"},
+						"extension": {"type": "string"},
+						"path": {"type": "string"},
+						"kind": {"type": "string"},
+						"content": {"type": "array"}
+					},
+					"required": ["name", "fullName", "path", "kind"]
+				}
+			},
+			"required": ["content"]
+		}
 	}
 
 	dropmenuButtonDef() {
