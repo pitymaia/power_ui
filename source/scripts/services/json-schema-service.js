@@ -37,6 +37,12 @@ class JSONSchemaService extends PowerServices {
 					return false;
 				}
 			}
+			// Validate image icons
+			if (key === 'icon' && json[key] === 'img' && json['icon-src'] === undefined) {
+				window.console.log('Failed JSON: "icon-src" is required! Some item with "icon" attribute is set to "img" but is missing the "icon-src" attribute');
+				window.console.log('Failed JSON ID is:', json.id, ' and key is: ', key);
+				return false;
+			}
 			// Validade array type property
 			else if (schema.properties[key].type === 'array' && schema.properties[key].items) {
 				for (const item of json[key]) {
@@ -50,7 +56,6 @@ class JSONSchemaService extends PowerServices {
 					return false;
 				}
 			}
-
 			// Validate current property type
 			if (json[key] !== undefined && !schema.properties[key].$ref) {
 				if (this.validateType(schema.properties[key].type, json[key]) === false) {
@@ -522,6 +527,7 @@ class JSONSchemaService extends PowerServices {
 				"label": {"type": "string"},
 				"id": {"type": "string"},
 				"icon": {"type": "string"},
+				"icon-src": {"type": "string"},
 				"icon-position": {"type": "string"},
 				"kind": {"type": "string"},
 				"mirrored": {"type": "boolean"},
