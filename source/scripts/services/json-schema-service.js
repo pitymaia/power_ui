@@ -349,6 +349,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	tree(tree) {
+		if (this.validate(this.treeDef(), tree) === false) {
+			window.console.log('Failed JSON tree:', tree);
+			return 'Failed JSON tree!';
+		}
 		let template = `<nav ${tree.id ? 'id="' + tree.id + '"' : ''} class="power-tree-view">`;
 		for (const item of tree.content) {
 			if (item.kind === 'file') {
@@ -542,6 +546,39 @@ class JSONSchemaService extends PowerServices {
 			},
 			"required": ["label"]
 		};
+	}
+
+	treeDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/menu",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"id": {"type": "string"},
+				"events": {
+					"type": "array",
+					"properties": {
+						"name": {"type": "string"},
+						"fn": {"type": "string"},
+					},
+					"required": ["name", "fn"]
+				},
+				"content": {
+					"type": "array",
+					"properties": {
+						"name": {"type": "string"},
+						"fullName": {"type": "string"},
+						"extension": {"type": "string"},
+						"path": {"type": "string"},
+						"kind": {"type": "string"},
+						"content": {"type": "array"}
+					},
+					"required": ["name", "fullName", "path", "kind"]
+				}
+			},
+			"required": ["content"]
+		}
 	}
 
 	dropmenuButtonDef() {
