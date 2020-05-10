@@ -2435,6 +2435,11 @@ class JSONViews extends PowerWindow {
 	}
 
 	openModal() {
+		this.$powerUi.addSpinner('main-view');
+		const self = this;
+		setTimeout(function () {
+			self.$powerUi.removeSpinner('main-view');
+		},2000);
 		console.log('open the modal please');
 	}
 
