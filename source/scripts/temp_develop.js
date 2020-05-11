@@ -777,6 +777,63 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		let htmlTemplate = this.$service('JSONSchema').menu(menu1);
 
+		htmlTemplate = htmlTemplate + `
+			<form>
+				<fieldset>
+					User Name:
+					<br />
+					<input type="text" name="user_name" />
+					<br />
+					<label for="pwd">Password:</label>
+					<br />
+					<input type="password" id="pwd" name="pwd">
+					<br />
+					<br />
+					<input id="maths" type="radio" name="sciences" value="maths"> <label for="maths">Maths {{ 2+2 }}</label>
+					<input id="physics" checked="checked" type="radio" name="sciences" value="physics"> <label for="physics">Physics {{ 3*3 }}</label>
+					<br />
+					<input id="cat" checked="checked" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
+					<input id="dog" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
+					<br />
+					<input type="date" />
+					<br />
+					<input type="color" />
+					<br />
+					<input type="email" />
+					<br />
+					<input type="number" />
+					<br />
+					<input type="range" />
+					<br />
+					<label for="phone">Enter your phone number:</label>
+					<input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
+					<br />
+					<input type="url" name="url" required>
+					<br />
+					<input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+					<label for="vehicle1"> I have a bike</label><br>
+					<input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+					<label for="vehicle2"> I have a car</label><br>
+					<input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+					<label for="vehicle3"> I have a boat</label><br>
+					<label for="myfile">Select a file:</label>
+					<input type="file" id="myfile" name="myfile">
+					<br />
+					Hidden: <input type="hidden" id="custId" name="custId" value="3487">
+					<br />
+					<label for="powerMission">PowerUI mission:</label>
+					<br />
+					<textarea id="powerMission" rows="4" cols="50">
+					Easy Fullstack development. We offer web development technologies that makes your life easer.
+					</textarea>
+					<br />
+					<input type="image" src="vendors/imgs/rv_bt.png" alt="Submit">
+					<br />
+					<input type="reset"><input type="submit">
+				</fieldset>
+			</form>
+		`;
+
 		const accordion = {
 			"classList": ['my-custom-accordion'],
 			"id": 'my-custom-accordion',
