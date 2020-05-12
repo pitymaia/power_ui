@@ -799,16 +799,16 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					<br />
 					<input type="color" />
 					<br />
-					<input type="email" />
+					<label for="phone">Enter an email:</label><input type="email" data-pow-bind="form.complex.email" />
 					<br />
-					<input type="number" />
+					<label for="phone">Enter a number:</label><input type="number" data-pow-bind="form.complex.number" />
 					<br />
 					<input type="range" />
 					<br />
 					<label for="phone">Enter your phone number:</label>
 					<input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
 					<br />
-					<input type="url" name="url" required>
+					<label for="phone">Enter an URL:</label><input type="url" name="url" required>
 					<br />
 					<input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
 					<label for="vehicle1"> I have a bike</label><br>
@@ -819,6 +819,15 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					<label for="myfile">Select a file:</label>
 					<input type="file" id="myfile" name="myfile">
 					<br />
+					<label for="cars">Choose a car:</label>
+					<br />
+					<select id="cars">
+					  <option value="volvo">Volvo</option>
+					  <option value="saab">Saab</option>
+					  <option value="mercedes">Mercedes</option>
+					  <option value="audi">Audi</option>
+					</select>
+					<br />
 					Hidden: <input type="hidden" id="custId" name="custId" value="3487">
 					<br />
 					<label for="powerMission">PowerUI mission:</label>
@@ -827,7 +836,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					Easy Fullstack development. We offer web development technologies that makes your life easer.
 					</textarea>
 					<br />
-					<input type="image" src="vendors/imgs/rv_bt.png" alt="Submit">
+					<input type="image" src="vendors/imgs/rv_bt.png" data-pow-event onclick="openModal()">
 					<br />
 					<input type="reset"><input type="submit">
 				</fieldset>
@@ -2489,15 +2498,21 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 class JSONViews extends PowerWindow {
 	ctrl() {
 		window.console.log('JSONViews CTRL', this.$tscope);
+		this.form = {};
+		this.complex = {email: 'pitymaia@gmail.com', number: 327};
+		this.form.complex = this.complex;
+		// this.email = "pitymaia@gmail.com";
+		// this.number = 327;
 	}
 
+
 	openModal() {
-		this.$powerUi.addSpinner('main-view');
-		const self = this;
-		setTimeout(function () {
-			self.$powerUi.removeSpinner('main-view');
-		},2000);
-		console.log('open the modal please');
+		console.log('ctrl', this.$powerUi.controllers[this.$powerUi.powerTree.allPowerObjsById['male-section'].$shared.view.id].instance);
+		// this.$powerUi.addSpinner('main-view');
+		// const self = this;
+		// setTimeout(function () {
+		// 	self.$powerUi.removeSpinner('main-view');
+		// },2000);
 	}
 
 	clickTree({path, event, element}) {

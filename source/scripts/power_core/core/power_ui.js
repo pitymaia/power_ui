@@ -280,6 +280,10 @@ class PowerUi extends _PowerUiBase {
 	safeEval({text, scope}) {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
+	// Return object on $scope or $powerUi ($rootScope)
+	setValueOnScope({text, scope, valueToSet}) {
+		new ParserEval({text: text, scope: scope, $powerUi: this, valueToSet: valueToSet});
+	}
 
 	initAll({template, routeId, viewId}) {
 		const t0 = performance.now();

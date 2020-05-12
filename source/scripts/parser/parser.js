@@ -562,7 +562,7 @@ class TokensListener {
 }
 
 class ParserEval {
-	constructor({text, nodes, scope, $powerUi}) {
+	constructor({text, nodes, scope, $powerUi, valueToSet}) {
 		this.$powerUi = $powerUi;
 		this.$scope = scope || {};
 		this.nodes = nodes || new PowerTemplateParser({text: text}).syntaxTree.tree;
@@ -576,10 +576,10 @@ class ParserEval {
 		this.leftExpressionValueToCompare = '$_not_Setted_$';
 		this.rightExpressionValueToCompare = '$_not_Setted_$'; // TODO implement this one
 
-		this.evalNodes();
+		this.evalNodes(valueToSet);
 	}
 
-	evalNodes() {
+	evalNodes(valueToSet) {
 		let count = 0;
 		for (let node of this.nodes) {
 			if (node.expression_nodes) {
@@ -596,7 +596,7 @@ class ParserEval {
 						if (item.syntax === 'variable' && ['true', 'false', 'null', 'undefined'].includes(item.label)) {
 							this.evalSpecialValues(item.label);
 						} else {
-							this.eval(item);
+							this.eval(item, valueToSet);
 						}
 					}
 
@@ -719,7 +719,7 @@ class ParserEval {
 		this.leftExpressionValueToCompare = '$_not_Setted_$';
 	}
 
-	eval(item) {
+	eval(item, valueToSet) {
 		// console.log('last', this.lastNode, 'current', this.currentNode, 'next', this.nextNode);
 		let value = '';
 		if (item.syntax === 'float') {
@@ -768,7 +768,7 @@ class ParserEval {
 			value = this.recursiveEval(newNodes);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else if (item.syntax === 'variable') {
-			value = this.getOnScope(item.label);
+			value = this.getOrSetObjectOnScope(item.label, valueToSet);
 			if (this.currentValue === '') {
 				this.currentValue = this.adjustForNegative(value);
 			} else {
@@ -784,7 +784,7 @@ class ParserEval {
 		} else if (item.syntax === 'arrayDefinition') {
 			this.evalArrayDefinition(item);
 		} else if (item.syntax === 'object') {
-			value = this.evalObject(item);
+			value = this.evalOrSetObjectOnScope(item, valueToSet);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else {
 			console.log('NOT NUMBER OR OPERATOR OR PRIORITY OR SHORT-HAND', item);
@@ -803,10 +803,14 @@ class ParserEval {
 		return newString;
 	}
 
-	evalObject(item) {
+	// This can evaluate the model on scope (return its value) or give to it a new value
+	evalOrSetObjectOnScope(item, newValue) {
 		let $currentScope = '';
 		let objOnScope = '';
 		let value = '';
+		// The following is to allow set the model itself
+		let lastLabel = '';
+		let lastObject = '';
 
 		let count = 0;
 		for (const obj of item.parameters) {
@@ -823,6 +827,7 @@ class ParserEval {
 
 			if (count === 0) {
 				$currentScope = this.getObjScope(label);
+				lastObject = $currentScope;
 				count = 1;
 			} else if ($currentScope === '') {
 				return undefined;
@@ -852,10 +857,18 @@ class ParserEval {
 				value = objOnScope.apply($currentScope || null, args);
 				objOnScope = value;
 			}
+			lastLabel = label;
+			if (typeof objOnScope === 'object') {
+				lastObject = objOnScope;
+			}
 		}
 		if (objOnScope !== '') {
 			value = objOnScope;
 			objOnScope = '';
+		}
+		// Change/set the model on scope
+		if (newValue !== undefined) {
+			lastObject[lastLabel] = newValue;
 		}
 		return value;
 	}
@@ -901,10 +914,16 @@ class ParserEval {
 	}
 
 	// Return item on $scope or $powerUi ($rootScope)
-	getOnScope(item) {
+	getOrSetObjectOnScope(item, valueToSet) {
 		if (this.$scope[item] !== undefined) {
+			if (valueToSet !== undefined) {
+				this.$scope[item] = valueToSet;
+			}
 			return this.$scope[item];
 		} else if (this.$powerUi[item] !== undefined) {
+			if (valueToSet !== undefined) {
+				this.$powerUi[item] = valueToSet;
+			}
 			return this.$powerUi[item];
 		} else {
 			return undefined;
