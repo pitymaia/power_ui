@@ -198,3 +198,20 @@
     margin-left: 0.4em;
     margin-right: 0.4em;
 }
+
+/* forms controls */
+@supports (-webkit-appearance: none) or (-moz-appearance: none) {
+  .pwdesign-white-smoke input.pw-input[type='checkbox'],
+  .pwdesign-white-smoke input.pw-input[type='radio'] {
+    --active: #000000;
+    --active-inner: #fff;
+    --focus: 2px #8c8c8c;
+    --border: #c5c5c5;
+    --border-hover: #8e8e8e;
+    --background: #fff;
+    --disabled: #F6F8FF;
+    --disabled-inner: #E1E6F9;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+}
