@@ -782,57 +782,68 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				<fieldset>
 					User Name:
 					<br />
-					<input type="text" name="user_name" />
+					<input type="text" data-pow-bind="form.user_name" name="user_name" />
 					<br />
 					<label for="pwd">Password:</label>
 					<br />
-					<input type="password" id="pwd" name="pwd">
+					<input type="password" data-pow-bind="form.password" id="pwd" name="pwd">
 					<br />
 					<br />
-					<input id="maths" type="radio" name="sciences" value="maths"> <label for="maths">Maths {{ 2+2 }}</label>
-					<input id="physics" checked="checked" type="radio" name="sciences" value="physics"> <label for="physics">Physics {{ 3*3 }}</label>
+					<input id="maths" data-pow-bind="form.sciences" type="radio" name="sciences" value="maths"> <label for="maths">Maths {{ 2+2 }}</label>
+					<input id="physics" data-pow-bind="form.sciences" type="radio" name="sciences" value="physics"> <label for="physics">Physics {{ 3*3 }}</label>
 					<br />
-					<input id="cat" checked="checked" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
-					<input id="dog" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
+					<input id="cat" data-pow-bind="form.animals" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
+					<input id="dog" data-pow-bind="form.animals" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
 					<br />
-					<input type="date" />
+					<input type="date" data-pow-bind="form.date" />
 					<br />
-					<input type="color" />
+					<input type="color" data-pow-bind="form.color" />
 					<br />
-					<label for="phone">Enter an email:</label><input type="email" data-pow-bind="form.complex.email" />
+					<label for="phone">Enter an email:</label><input type="email" data-pow-bind="form['email']" />
 					<br />
-					<label for="phone">Enter a number:</label><input type="number" data-pow-bind="form.complex.number" />
+					<label for="phone">Enter a number:</label><input type="number" data-pow-bind="form.number" />
 					<br />
-					<input type="range" />
+					<input type="range" data-pow-bind="form.range" />
 					<br />
 					<label for="phone">Enter your phone number:</label>
-					<input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
+					<input type="tel" data-pow-bind="form.phone" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
 					<br />
-					<label for="phone">Enter an URL:</label><input type="url" name="url" required>
+					<label for="phone">Enter an URL:</label><input type="url" data-pow-bind="form.url" name="url" required>
 					<br />
-					<input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+					<input type="checkbox" data-pow-bind="form.vehicle1" id="vehicle1" name="vehicle1" value="Bike">
 					<label for="vehicle1"> I have a bike</label><br>
-					<input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+					<input type="checkbox" data-pow-bind="form.vehicle2" id="vehicle2" name="vehicle2" value="Car">
 					<label for="vehicle2"> I have a car</label><br>
-					<input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+					<input type="checkbox" data-pow-bind="form.vehicle3" id="vehicle3" name="vehicle3" value="Boat">
 					<label for="vehicle3"> I have a boat</label><br>
 					<label for="myfile">Select a file:</label>
-					<input type="file" id="myfile" name="myfile">
+					<input type="file" data-pow-bind="form.file" id="myfile" name="myfile">
 					<br />
 					<label for="cars">Choose a car:</label>
 					<br />
-					<select id="cars">
-					  <option value="volvo">Volvo</option>
-					  <option value="saab">Saab</option>
-					  <option value="mercedes">Mercedes</option>
-					  <option value="audi">Audi</option>
+					<select data-pow-bind="form.cars" id="cars">
+						<option value="volvo">Volvo</option>
+						<option value="saab">Saab</option>
+						<option value="mercedes">Mercedes</option>
+						<option value="audi">Audi</option>
 					</select>
 					<br />
-					Hidden: <input type="hidden" id="custId" name="custId" value="3487">
+					<label for="cars2">Choose many cars:</label>
+					<br />
+					<select data-pow-bind="form.cars2" id="cars2" multiple>
+						<option value="volvo">Volvo</option>
+						<option value="saab">Saab</option>
+						<option value="opel">Opel</option>
+						<option value="fusca">Fusca</option>
+						<option value="audi">Audi</option>
+						<option value="escort">Escort</option>
+					</select>
+					<br />
+					Hidden: <input type="hidden" data-pow-bind="form.hidden" id="custId" name="custId" value="3487">
 					<br />
 					<label for="powerMission">PowerUI mission:</label>
 					<br />
-					<textarea id="powerMission" rows="4" cols="50">
+					<textarea id="powerMission" data-pow-bind="form.textarea" rows="4" cols="50">
 					Easy Fullstack development. We offer web development technologies that makes your life easer.
 					</textarea>
 					<br />
@@ -2498,16 +2509,33 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 class JSONViews extends PowerWindow {
 	ctrl() {
 		window.console.log('JSONViews CTRL', this.$tscope);
-		this.form = {};
-		this.complex = {email: 'pitymaia@gmail.com', number: 327};
-		this.form.complex = this.complex;
-		// this.email = "pitymaia@gmail.com";
-		// this.number = 327;
+
+		this.form = {
+			user_name: 'NadaSei',
+			password: 'pity123',
+			sciences: 'maths',
+			animals: 'cat',
+			date: '1979-11-19',
+			color: '#caff00',
+			email: 'pitymaia@gmail.com',
+			number: 40,
+			range: 99,
+			phone: '11-55895833',
+			url: 'http://libertyweb.net',
+			vehicle1: true,
+			vehicle2: true,
+			vehicle3: false,
+			file: '',
+			cars: 'mercedes',
+			cars2: ['volvo', 'opel', 'fusca'],
+			hidden: 'Hidden form field info',
+			textarea: 'This is my new textarea text and I love it!!!',
+		};
 	}
 
 
 	openModal() {
-		console.log('ctrl', this.$powerUi.controllers[this.$powerUi.powerTree.allPowerObjsById['male-section'].$shared.view.id].instance);
+		console.log('form', this.form);
 		// this.$powerUi.addSpinner('main-view');
 		// const self = this;
 		// setTimeout(function () {
