@@ -782,57 +782,56 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				<fieldset>
 					User Name:
 					<br />
-					<input class="pw-input" type="text" data-pow-bind="form.user_name" name="user_name" />
+					<input class="pw-field" type="text" data-pow-bind="form.user_name" name="user_name" />
 					<br />
 					<label for="pwd">Password:</label>
 					<br />
-					<input class="pw-input" type="password" data-pow-bind="form.password" id="pwd" name="pwd">
+					<input class="pw-field" type="password" data-pow-bind="form.password" id="pwd" name="pwd">
 					<br />
+					<input class="pw-field" id="maths" data-pow-bind="form.sciences" type="radio" name="sciences" value="maths"> <label for="maths">Maths {{ 2+2 }}</label>
+					<input class="pw-field" id="physics" data-pow-bind="form.sciences" type="radio" name="sciences" value="physics"> <label for="physics">Physics {{ 3*3 }}</label>
 					<br />
-					<input class="pw-input" id="maths" data-pow-bind="form.sciences" type="radio" name="sciences" value="maths"> <label for="maths">Maths {{ 2+2 }}</label>
-					<input class="pw-input" id="physics" data-pow-bind="form.sciences" type="radio" name="sciences" value="physics"> <label for="physics">Physics {{ 3*3 }}</label>
+					<input class="pw-field" id="cat" data-pow-bind="form.animals" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
+					<input class="pw-field" id="dog" data-pow-bind="form.animals" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
 					<br />
-					<input class="pw-input" id="cat" data-pow-bind="form.animals" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
-					<input class="pw-input" id="dog" data-pow-bind="form.animals" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
+					<input class="pw-field switch" id="apple" data-pow-bind="form.fruit" type="radio" name="fruits" value="apple"> <label for="apple">Apple</label>
+					<input class="pw-field switch" id="orange" data-pow-bind="form.fruit" type="radio" name="fruits" value="orange"> <label for="orange">Orange</label>
 					<br />
-					<input class="pw-input switch" id="apple" data-pow-bind="form.fruit" type="radio" name="fruits" value="apple"> <label for="apple">Apple</label>
-					<input class="pw-input switch" id="orange" data-pow-bind="form.fruit" type="radio" name="fruits" value="orange"> <label for="orange">Orange</label>
+					<input class="pw-field" type="date" data-pow-bind="form.date" />
 					<br />
-					<input class="pw-input" type="date" data-pow-bind="form.date" />
+					<input class="pw-field" type="color" data-pow-bind="form.color" />
 					<br />
-					<input class="pw-input" type="color" data-pow-bind="form.color" />
+					<label for="phone">Enter an email:</label><input class="pw-field" type="email" data-pow-bind="form['email']" />
 					<br />
-					<label for="phone">Enter an email:</label><input class="pw-input" type="email" data-pow-bind="form['email']" />
+					<label for="phone">Enter a number:</label><input class="pw-field" type="number" data-pow-bind="form.number" />
 					<br />
-					<label for="phone">Enter a number:</label><input class="pw-input" type="number" data-pow-bind="form.number" />
-					<br />
-					<input class="pw-input" type="range" data-pow-bind="form.range" />
+					<input class="pw-field" type="range" data-pow-bind="form.range" />
 					<br />
 					<label for="phone">Enter your phone number:</label>
-					<input class="pw-input" type="tel" data-pow-bind="form.phone" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
+					<input class="pw-field" type="tel" data-pow-bind="form.phone" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
 					<br />
-					<label for="phone">Enter an URL:</label><input class="pw-input" type="url" data-pow-bind="form.url" name="url" required>
+					<label for="phone">Enter an URL:</label><input class="pw-field" type="url" data-pow-bind="form.url" name="url" required>
 					<br />
-					<input class="pw-input" type="checkbox" data-pow-bind="form.vehicle1" id="vehicle1" name="vehicle1" value="Bike">
+					<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle1" id="vehicle1" name="vehicle1" value="Bike">
 					<label for="vehicle1"> I have a bike</label><br />
-					<input class="pw-input" type="checkbox" data-pow-bind="form.vehicle2" id="vehicle2" name="vehicle2" value="Car">
+					<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle2" id="vehicle2" name="vehicle2" value="Car">
 					<label for="vehicle2"> I have a car</label><br />
-					<input class="pw-input" type="checkbox" data-pow-bind="form.vehicle3" id="vehicle3" name="vehicle3" value="Boat">
+					<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle3" id="vehicle3" name="vehicle3" value="Boat">
 					<label for="vehicle3"> I have a boat</label><br />
 
-					<input class="pw-input switch" type="checkbox" data-pow-bind="form.wii" id="game1" name="game1" value="Nintendo Wii">
+					<input class="pw-field switch" type="checkbox" data-pow-bind="form.wii" id="game1" name="game1" value="Nintendo Wii">
 					<label for="game1"> I have a Wii</label><br />
-					<input class="pw-input switch" type="checkbox" data-pow-bind="form.wiiu" id="game2" name="game2" value="Wii U">
+					<input class="pw-field switch" type="checkbox" data-pow-bind="form.wiiu" id="game2" name="game2" value="Wii U">
 					<label for="game2"> I have a Wii U</label><br>
-					<input class="pw-input switch" type="checkbox" data-pow-bind="form.n3ds" id="game3" name="game3" value="Nintendo 3Ds">
+					<input class="pw-field switch" type="checkbox" data-pow-bind="form.n3ds" id="game3" name="game3" value="Nintendo 3Ds">
 					<label for="game3"> I have a 3Ds</label><br />
 
 					<label for="myfile">Select a file:</label>
-					<input class="pw-input" type="file" data-pow-bind="form.file" id="myfile" name="myfile">
+					<input class="pw-field" type="file" data-pow-bind="form.file" id="myfile" name="myfile">
 					<br />
 					<label for="cars">Choose a car:</label>
 					<br />
-					<select data-pow-bind="form.cars" id="cars">
+					<select class="pw-field" data-pow-bind="form.cars" id="cars">
 						<option value="volvo">Volvo</option>
 						<option value="saab">Saab</option>
 						<option value="mercedes">Mercedes</option>
@@ -841,7 +840,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					<br />
 					<label for="cars2">Choose many cars:</label>
 					<br />
-					<select data-pow-bind="form.cars2" id="cars2" multiple>
+					<select class="pw-field" data-pow-bind="form.cars2" id="cars2" multiple>
 						<option value="volvo">Volvo</option>
 						<option value="saab">Saab</option>
 						<option value="opel">Opel</option>
@@ -850,17 +849,17 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						<option value="escort">Escort</option>
 					</select>
 					<br />
-					Hidden: <input class="pw-input" type="hidden" data-pow-bind="form.hidden" id="custId" name="custId" value="3487">
+					Hidden: <input class="pw-field" type="hidden" data-pow-bind="form.hidden" id="custId" name="custId" value="3487">
 					<br />
 					<label for="powerMission">PowerUI mission:</label>
 					<br />
-					<textarea id="powerMission" data-pow-bind="form.textarea" rows="4" cols="50">
+					<textarea class="pw-field" id="powerMission" data-pow-bind="form.textarea" rows="4" cols="50">
 					Easy Fullstack development. We offer web development technologies that makes your life easer.
 					</textarea>
 					<br />
-					<input class="pw-input" type="image" src="vendors/imgs/rv_bt.png" data-pow-event onclick="openModal()">
+					<input class="pw-field" type="image" src="vendors/imgs/rv_bt.png" data-pow-event onclick="openModal()">
 					<br />
-					<input class="pw-input" type="reset"><input class="pw-input" type="submit">
+					<input class="pw-field" type="reset"><input class="pw-field" type="submit">
 				</fieldset>
 			</form>
 		`;

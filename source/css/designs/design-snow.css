@@ -201,8 +201,8 @@
 
 /* forms controls */
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
-  .pwdesign-white-smoke input.pw-input[type='checkbox'],
-  .pwdesign-white-smoke input.pw-input[type='radio'] {
+  .pwdesign-white-smoke input.pw-field[type='checkbox'],
+  .pwdesign-white-smoke input.pw-field[type='radio'] {
     --active: #000000;
     --active-inner: #fff;
     --focus: 2px #8c8c8c;
