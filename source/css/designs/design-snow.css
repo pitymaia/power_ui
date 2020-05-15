@@ -1,5 +1,6 @@
-.pwdesign-white-smoke {
+.pwdesign-white-smoke, .pwdesign-white-smoke label {
     font-family: Verdana, Arial, "Courier New";
+    font-size: 1em;
 }
 
 /* Menu */

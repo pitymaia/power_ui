@@ -333,7 +333,7 @@ class JSONSchemaService extends PowerServices {
 				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
 			}
 		}
-		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" type="${button.type || 'button'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
 
 		const buttonEl = tmpEl.children[0];
 
@@ -381,6 +381,213 @@ class JSONSchemaService extends PowerServices {
 		}
 		template = `${template}
 		</nav>`;
+
+		return template;
+	}
+
+	form(form) {
+		// if (this.validate(this.formDef(), form) === false) {
+		// 	window.console.log('Failed JSON form:', form);
+		// 	return 'Failed JSON form!';
+		// }
+
+		// "layout": "vertical",
+		//   "items": [
+		//     {
+		//       "layout": "horizontal",
+		//       "controls": [
+		//         {
+		//           "label": "Control",
+		//           "scope": "#/properties/firstName"
+		//         },
+		//         {
+		//           "type": "Control",
+		//           "scope": "#/properties/lastName"
+		//         }
+		//       ]
+		//     },
+		const formType = form.type === 'form' ? 'form' : 'div';
+
+		let template = `<${formType} id="${form.id || 'form_' + this.$powerUi._Unique.next()}" class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
+
+		for (const item of form.content) {
+			console.log('item', item);
+			template = `${template}
+			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
+				for (const control of item.controls) {
+					console.log('control', control);
+					const id = control.id || 'input_' + this.$powerUi._Unique.next();
+					const label = control.label ? `<label for="${id}">${control.label}</label>` : null;
+
+					let customCss = '';
+					if (control.classList) {
+						for (const css of control.classList) {
+							customCss = `${customCss} ${css}`;
+						}
+					}
+
+					template = `${template}
+						<div class="pw-col">`;
+
+					if (control.type === 'button') {
+
+					} else if (control.type === 'select') {
+
+					} else if (control.type === 'textarea') {
+						template = `${template}
+						${label ? label : ''}
+						<textarea class="pw-field ${customCss}" id="${id}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+							${control.value || ''}
+						</textarea>`;
+					} else if (control.type === 'submit' || control.type === 'reset') {
+
+					} else {
+						console.log('label', label);
+						template = `${template}
+						${label ? label : ''}
+						<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+					}
+
+					template = `${template}
+						</div>`;
+				}
+			template = template + '</div>';
+		}
+
+		template = `${template}
+		</${formType}>`;
+
+		const temp = `
+		<form class="pw-simple-form pw-vertical-form">
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<label for="user_name">User Name:</label>
+					<input id="user_name" class="pw-field" type="text" data-pow-bind="form.user_name" name="user_name" />
+				</div>
+				<div class="pw-col">
+					<label for="pwd">Password:</label>
+					<input class="pw-field" type="password" data-pow-bind="form.password" id="pwd" name="pwd">
+				</div>
+			</div>
+			<div class="pw-vertical-form pw-row">
+				<div class="pw-row">
+					<input class="pw-field" id="maths" data-pow-bind="form.sciences" type="radio" name="sciences" value="maths"> <label for="maths">Maths</label>
+					<input class="pw-field" id="physics" data-pow-bind="form.sciences" type="radio" name="sciences" value="physics"> <label for="physics">Physics</label>
+				</div>
+				<div class="pw-row">
+				<input class="pw-field" id="cat" data-pow-bind="form.animals" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
+				<input class="pw-field" id="dog" data-pow-bind="form.animals" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
+				</div>
+				<div class="pw-row">
+					<input class="pw-field switch" id="apple" data-pow-bind="form.fruit" type="radio" name="fruits" value="apple"> <label for="apple">Apple</label>
+					<input class="pw-field switch" id="orange" data-pow-bind="form.fruit" type="radio" name="fruits" value="orange"> <label for="orange">Orange</label>
+				</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<label for="date">Birthday:</label>
+					<input id="date" class="pw-field" type="date" data-pow-bind="form.date" />
+				</div>
+				<div class="pw-col">
+					<label for="color">Select your favorite color:</label>
+					<input id="color" class="pw-field" type="color" data-pow-bind="form.color" />
+				</div>
+			</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<label for="phone">Enter an email:</label>
+					<input class="pw-field" type="email" data-pow-bind="form['email']" />
+				</div>
+				<div class="pw-col">
+					<label for="phone">Enter a number:</label>
+					<input class="pw-field" type="number" data-pow-bind="form.number" />
+				</div>
+			</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<label for="sound">Sound range:</label>
+					<input id="sound" class="pw-field" type="range" data-pow-bind="form.range" />
+				</div>
+				<div class="pw-col">
+					<label for="phone">Enter your phone number:</label>
+					<input class="pw-field" type="tel" data-pow-bind="form.phone" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
+				</div>
+			</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<label for="phone">Enter an URL:</label>
+					<input class="pw-field" type="url" data-pow-bind="form.url" name="url" required>
+				</div>
+				<div class="pw-col">
+					<label for="myfile">Select a file:</label>
+					<input class="pw-field" type="file" data-pow-bind="form.file" id="myfile" name="myfile">
+				</div>
+			</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle1" id="vehicle1" name="vehicle1" value="Bike">
+					<label for="vehicle1"> I have a bike</label><br />
+					<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle2" id="vehicle2" name="vehicle2" value="Car">
+					<label for="vehicle2"> I have a car</label><br />
+					<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle3" id="vehicle3" name="vehicle3" value="Boat">
+					<label for="vehicle3"> I have a boat</label><br />
+				</div>
+				<div class="pw-col">
+					<input class="pw-field switch" type="checkbox" data-pow-bind="form.wii" id="game1" name="game1" value="Nintendo Wii">
+					<label for="game1"> I have a Wii</label><br />
+					<input class="pw-field switch" type="checkbox" data-pow-bind="form.wiiu" id="game2" name="game2" value="Wii U">
+					<label for="game2"> I have a Wii U</label><br>
+					<input class="pw-field switch" type="checkbox" data-pow-bind="form.n3ds" id="game3" name="game3" value="Nintendo 3Ds">
+					<label for="game3"> I have a 3Ds</label><br />
+				</div>
+			</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<label for="cars">Choose a car:</label>
+					<select class="pw-field" data-pow-bind="form.cars" id="cars">
+						<option value="" disabled>Select a car</option>
+						<option value="volvo">Volvo</option>
+						<option value="saab">Saab</option>
+						<option value="mercedes">Mercedes</option>
+						<option value="audi">Audi</option>
+					</select>
+				</div>
+				<div class="pw-col">
+					<label for="cars2">Choose many cars:</label>
+					<select class="pw-field" data-pow-bind="form.cars2" id="cars2" multiple>
+						<option value="volvo">Volvo</option>
+						<option value="saab">Saab</option>
+						<option value="opel">Opel</option>
+						<option value="fusca">Fusca</option>
+						<option value="audi">Audi</option>
+						<option value="escort">Escort</option>
+						<option value="mercedes">Mercedes</option>
+					</select>
+				</div>
+			</div>
+			<div class="pw-vertical">
+				<div class="pw-row">
+					<label>Hidden: </label>
+					<input class="pw-field" type="hidden" data-pow-bind="form.hidden" id="custId" name="custId" value="3487">
+				</div>
+				<div class="pw-row">
+					<label for="powerMission">PowerUI mission:</label>
+					<textarea class="pw-field" id="powerMission" data-pow-bind="form.textarea" rows="4" cols="50">
+						Easy Fullstack development. We offer web development technologies that makes your life easer.
+					</textarea>
+				</div>
+			</div>
+			<div class="pw-horizontal pw-row">
+				<div class="pw-col">
+					<input class="pw-field" type="image" src="vendors/imgs/rv_bt.png" data-pow-event onclick="openModal()">
+				</div>
+				<div class="pw-col">
+					<input class="pw-btn-highlight" type="reset">
+				</div>
+				<div class="pw-col">
+					<input class="pw-btn-primary" type="submit">
+				</div>
+			</div>
+		</form>`;
 
 		return template;
 	}

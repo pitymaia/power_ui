@@ -81,7 +81,7 @@
 
   textarea.pw-field, select.pw-field, input.pw-field, input.pw-field[type='checkbox'],
   input.pw-field[type='radio'] {
-    margin: 8px 4px;
+    margin: 8px 4px 8px 0;
   }
 
   textarea.pw-field, input.pw-field[type='date'] {
