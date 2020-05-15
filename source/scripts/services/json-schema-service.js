@@ -411,11 +411,9 @@ class JSONSchemaService extends PowerServices {
 		let template = `<${formType} id="${form.id || 'form_' + this.$powerUi._Unique.next()}" class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
 
 		for (const item of form.content) {
-			console.log('item', item);
 			template = `${template}
 			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
 				for (const control of item.controls) {
-					console.log('control', control);
 					const id = control.id || 'input_' + this.$powerUi._Unique.next();
 					const label = control.label ? `<label for="${id}">${control.label}</label>` : null;
 
@@ -430,19 +428,20 @@ class JSONSchemaService extends PowerServices {
 						<div class="pw-col">`;
 
 					if (control.type === 'button') {
+					} else if (control.type === 'submit' || control.type === 'reset') {
 
 					} else if (control.type === 'select') {
 
+					} else if (control.type === 'radio' || control.type === 'checkbox') {
+						template = `${template}
+						<input class="pw-field ${customCss}" id="${id}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
 					} else if (control.type === 'textarea') {
 						template = `${template}
 						${label ? label : ''}
 						<textarea class="pw-field ${customCss}" id="${id}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
 							${control.value || ''}
 						</textarea>`;
-					} else if (control.type === 'submit' || control.type === 'reset') {
-
 					} else {
-						console.log('label', label);
 						template = `${template}
 						${label ? label : ''}
 						<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;

@@ -6,12 +6,12 @@
     border-style: solid;
     border-width: 1px;*/
 }
-.pw-horizontal-form .pw-row .pw-col,
+/*.pw-horizontal-form .pw-row .pw-col,
 .pw-horizontal-form.pw-row .pw-col,
 .pw-vertical-form .pw-row .pw-col,
 .pw-vertical-form.pw-row .pw-col {
     padding: 6px;
-}
+}*/
 .pw-vertical-form .pw-row, .pw-vertical-form.pw-row {
     display: block;
 }

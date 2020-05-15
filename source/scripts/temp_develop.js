@@ -801,6 +801,49 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					]
 				},
 				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							// "classList": ["switch"],
+							"label": "Maths",
+							"type": "radio",
+							"value": "maths",
+							"name": "sciences",
+							"model": "form.sciences",
+						},
+						{
+							"label": "Physics",
+							"type": "radio",
+							"value": "physics",
+							"name": "sciences",
+							"model": "form.sciences",
+						},
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							// "classList": ["switch"],
+							"label": "Cat",
+							"type": "checkbox",
+							"value": "Bike",
+							"name": "vehicle1",
+							"model": "form.vehicle1",
+							"id": "cat2",
+						},
+						{
+							// "classList": ["switch"],
+							"label": "I have a Car",
+							"type": "checkbox",
+							"value": "Car",
+							"name": "vehicle11",
+							"model": "form.vehicle2",
+							"id": "vehicle11",
+						}
+					]
+				},
+				{
 					"layout": "vertical",
 					"controls": [
 						{
