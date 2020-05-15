@@ -824,22 +824,184 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"layout": "horizontal",
 					"controls": [
 						{
-							// "classList": ["switch"],
+							"classList": ["switch"],
 							"label": "Cat",
-							"type": "checkbox",
-							"value": "Bike",
-							"name": "vehicle1",
-							"model": "form.vehicle1",
+							"type": "radio",
+							"value": "cat",
+							"name": "animals",
+							"model": "form.animals",
 							"id": "cat2",
 						},
 						{
-							// "classList": ["switch"],
-							"label": "I have a Car",
+							"classList": ["switch"],
+							"label": "Dog",
+							"type": "radio",
+							"value": "dog",
+							"name": "animals",
+							"model": "form.animals",
+							"id": "dog2",
+						}
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"classList": ["switch"],
+							"label": "Apple",
+							"type": "radio",
+							"value": "apple",
+							"name": "fruits",
+							"model": "form.fruit",
+							"id": "apple2",
+						},
+						{
+							"classList": ["switch"],
+							"label": "Orange",
+							"type": "radio",
+							"value": "orange",
+							"name": "fruits",
+							"model": "form.fruit",
+							"id": "orange1",
+						}
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "Birthday:",
+							"type": "date",
+							"name": "date",
+							"model": "form.date",
+							"id": "date2",
+						},
+						{
+							"label": "Select your favorite color:",
+							"type": "color",
+							"name": "color",
+							"model": "form.color",
+							"id": "color2"
+						}
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "Enter an e-mail:",
+							"type": "email",
+							"value": "pity@ig.com.br",
+							"name": "email",
+							"model": "form.email",
+							"id": "email2"
+						},
+						{
+							"label": "Enter a number:",
+							"type": "number",
+							"value": "33",
+							"name": "number",
+							"model": "form.number"
+						},
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "Sound range:",
+							"type": "range",
+							"value": "10",
+							"name": "range",
+							"model": "form.range",
+							"id": "range2"
+						},
+						{
+							"label": "Enter your phone number:",
+							"type": "phone",
+							"value": "55895833",
+							"name": "phone",
+							"model": "form.phone"
+						},
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "Enter an URL:",
+							"type": "url",
+							"value": "",
+							"name": "url",
+							"model": "form.url",
+							"id": "url2"
+						},
+						{
+							"label": "Choose a File:",
+							"type": "file",
+							"value": "",
+							"name": "file",
+							"model": "form.file"
+						},
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "I have a bike",
 							"type": "checkbox",
-							"value": "Car",
-							"name": "vehicle11",
+							"name": "bike",
+							"model": "form.vehicle1",
+							"id": "bike2"
+						},
+						{
+							"classList": ["switch"],
+							"label": "I have a Wii",
+							"type": "checkbox",
+							"name": "wii",
+							"model": "form.wii",
+							"id": "wii2"
+						}
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "I have a car",
+							"type": "checkbox",
+							"name": "car",
 							"model": "form.vehicle2",
-							"id": "vehicle11",
+							"id": "car2"
+						},
+						{
+							"classList": ["switch"],
+							"label": "I have a Wii U",
+							"type": "checkbox",
+							"name": "wiiu",
+							"model": "form.wiiu",
+							"id": "wiiu2"
+						}
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "I have a boat",
+							"type": "checkbox",
+							"name": "boat",
+							"model": "form.vehicle3",
+							"id": "boat2"
+						},
+						{
+							"classList": ["switch"],
+							"label": "I have a 3Ds",
+							"type": "checkbox",
+							"name": "n3ds",
+							"model": "form.n3ds",
+							"id": "n3ds2"
 						}
 					]
 				},
@@ -864,87 +1026,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + `
 			<form class="pw-simple-form pw-vertical-form">
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<label for="user_name">User Name:</label>
-						<input id="user_name" class="pw-field" type="text" data-pow-bind="form.user_name" name="user_name" />
-					</div>
-					<div class="pw-col">
-						<label for="pwd">Password:</label>
-						<input class="pw-field" type="password" data-pow-bind="form.password" id="pwd" name="pwd">
-					</div>
-				</div>
-				<div class="pw-vertical-form pw-row">
-					<div class="pw-row">
-						<input class="pw-field" id="maths" data-pow-bind="form.sciences" type="radio" name="sciences" value="maths"> <label for="maths">Maths</label>
-						<input class="pw-field" id="physics" data-pow-bind="form.sciences" type="radio" name="sciences" value="physics"> <label for="physics">Physics</label>
-					</div>
-					<div class="pw-row">
-					<input class="pw-field" id="cat" data-pow-bind="form.animals" type="radio" name="animals" value="cat"> <label for="cat">Cat</label>
-					<input class="pw-field" id="dog" data-pow-bind="form.animals" type="radio" name="animals" value="dog"> <label for="dog">Dog</label>
-					</div>
-					<div class="pw-row">
-						<input class="pw-field switch" id="apple" data-pow-bind="form.fruit" type="radio" name="fruits" value="apple"> <label for="apple">Apple</label>
-						<input class="pw-field switch" id="orange" data-pow-bind="form.fruit" type="radio" name="fruits" value="orange"> <label for="orange">Orange</label>
-					</div>
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<label for="date">Birthday:</label>
-						<input id="date" class="pw-field" type="date" data-pow-bind="form.date" />
-					</div>
-					<div class="pw-col">
-						<label for="color">Select your favorite color:</label>
-						<input id="color" class="pw-field" type="color" data-pow-bind="form.color" />
-					</div>
-				</div>
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<label for="phone">Enter an email:</label>
-						<input class="pw-field" type="email" data-pow-bind="form['email']" />
-					</div>
-					<div class="pw-col">
-						<label for="phone">Enter a number:</label>
-						<input class="pw-field" type="number" data-pow-bind="form.number" />
-					</div>
-				</div>
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<label for="sound">Sound range:</label>
-						<input id="sound" class="pw-field" type="range" data-pow-bind="form.range" />
-					</div>
-					<div class="pw-col">
-						<label for="phone">Enter your phone number:</label>
-						<input class="pw-field" type="tel" data-pow-bind="form.phone" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">
-					</div>
-				</div>
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<label for="phone">Enter an URL:</label>
-						<input class="pw-field" type="url" data-pow-bind="form.url" name="url" required>
-					</div>
-					<div class="pw-col">
-						<label for="myfile">Select a file:</label>
-						<input class="pw-field" type="file" data-pow-bind="form.file" id="myfile" name="myfile">
-					</div>
-				</div>
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle1" id="vehicle1" name="vehicle1" value="Bike">
-						<label for="vehicle1"> I have a bike</label><br />
-						<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle2" id="vehicle2" name="vehicle2" value="Car">
-						<label for="vehicle2"> I have a car</label><br />
-						<input class="pw-field" type="checkbox" data-pow-bind="form.vehicle3" id="vehicle3" name="vehicle3" value="Boat">
-						<label for="vehicle3"> I have a boat</label><br />
-					</div>
-					<div class="pw-col">
-						<input class="pw-field switch" type="checkbox" data-pow-bind="form.wii" id="game1" name="game1" value="Nintendo Wii">
-						<label for="game1"> I have a Wii</label><br />
-						<input class="pw-field switch" type="checkbox" data-pow-bind="form.wiiu" id="game2" name="game2" value="Wii U">
-						<label for="game2"> I have a Wii U</label><br>
-						<input class="pw-field switch" type="checkbox" data-pow-bind="form.n3ds" id="game3" name="game3" value="Nintendo 3Ds">
-						<label for="game3"> I have a 3Ds</label><br />
-					</div>
-				</div>
 				<div class="pw-horizontal-form pw-row">
 					<div class="pw-col">
 						<label for="cars">Choose a car:</label>
@@ -973,12 +1054,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					<div class="pw-row">
 						<label>Hidden: </label>
 						<input class="pw-field" type="hidden" data-pow-bind="form.hidden" id="custId" name="custId" value="3487">
-					</div>
-					<div class="pw-row">
-						<label for="powerMission">PowerUI mission:</label>
-						<textarea class="pw-field" id="powerMission" data-pow-bind="form.textarea" rows="4" cols="50">
-							Easy Fullstack development. We offer web development technologies that makes your life easer.
-						</textarea>
 					</div>
 				</div>
 				<div class="pw-horizontal-form pw-row">
@@ -2672,7 +2747,17 @@ class JSONViews extends PowerWindow {
 			n3ds: true,
 			file: '',
 			cars: '',
-			cars2: ['volvo', 'opel', 'fusca'],
+			cars2: ['escort', 'opel', 'fusca'],
+			carsList: [
+				{label: 'Select a car', value: '', disabled: true},
+				{label: 'Escort', value: 'escort', disabled: false},
+				{label: 'Volvo', value: 'volvo', disabled: false},
+				{label: 'Saab', value: 'saab', disabled: false},
+				{label: 'Opel', value: 'opel', disabled: false},
+				{label: 'Fusca', value: 'fusca', disabled: false},
+				{label: 'Mercedes', value: 'mercedes', disabled: false},
+				{label: 'audi', value: 'audi', disabled: false},
+			],
 			hidden: 'Hidden form field info',
 			textarea: 'This is my new textarea text and I love it!!!',
 		};
