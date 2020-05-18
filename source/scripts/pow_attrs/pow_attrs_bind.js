@@ -43,9 +43,9 @@ function selectMultipleInit(self) {
     const el = self.element;
     for (const child of el.children) {
         if (self.currentValue.includes(child.value)) {
-            child.selected = 'selected';
+            child.selected = true;
         } else {
-            delete child.selected;
+            child.selected = false;
         }
     }
     self.subscribe({event: 'change', fn: self.onchange });

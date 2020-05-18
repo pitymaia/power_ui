@@ -789,14 +789,14 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "text",
 							"value": "Pity o bom",
 							"name": "user_name",
-							"model": "form.user_name",
+							"bind": "form.user_name",
 						},
 						{
 							"label": "User Password:",
 							"type": "password",
 							"value": "test123",
 							"name": "password",
-							"model": "form.password",
+							"bind": "form.password",
 						},
 					]
 				},
@@ -809,14 +809,14 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "radio",
 							"value": "maths",
 							"name": "sciences",
-							"model": "form.sciences",
+							"bind": "form.sciences",
 						},
 						{
 							"label": "Physics",
 							"type": "radio",
 							"value": "physics",
 							"name": "sciences",
-							"model": "form.sciences",
+							"bind": "form.sciences",
 						},
 					]
 				},
@@ -829,7 +829,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "radio",
 							"value": "cat",
 							"name": "animals",
-							"model": "form.animals",
+							"bind": "form.animals",
 							"id": "cat2",
 						},
 						{
@@ -838,7 +838,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "radio",
 							"value": "dog",
 							"name": "animals",
-							"model": "form.animals",
+							"bind": "form.animals",
 							"id": "dog2",
 						}
 					]
@@ -852,7 +852,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "radio",
 							"value": "apple",
 							"name": "fruits",
-							"model": "form.fruit",
+							"bind": "form.fruit",
 							"id": "apple2",
 						},
 						{
@@ -861,7 +861,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "radio",
 							"value": "orange",
 							"name": "fruits",
-							"model": "form.fruit",
+							"bind": "form.fruit",
 							"id": "orange1",
 						}
 					]
@@ -873,14 +873,14 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "Birthday:",
 							"type": "date",
 							"name": "date",
-							"model": "form.date",
+							"bind": "form.date",
 							"id": "date2",
 						},
 						{
 							"label": "Select your favorite color:",
 							"type": "color",
 							"name": "color",
-							"model": "form.color",
+							"bind": "form.color",
 							"id": "color2"
 						}
 					]
@@ -893,7 +893,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "email",
 							"value": "pity@ig.com.br",
 							"name": "email",
-							"model": "form.email",
+							"bind": "form.email",
 							"id": "email2"
 						},
 						{
@@ -901,7 +901,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "number",
 							"value": "33",
 							"name": "number",
-							"model": "form.number"
+							"bind": "form.number"
 						},
 					]
 				},
@@ -913,7 +913,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "range",
 							"value": "10",
 							"name": "range",
-							"model": "form.range",
+							"bind": "form.range",
 							"id": "range2"
 						},
 						{
@@ -921,7 +921,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "phone",
 							"value": "55895833",
 							"name": "phone",
-							"model": "form.phone"
+							"bind": "form.phone"
 						},
 					]
 				},
@@ -933,7 +933,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "url",
 							"value": "",
 							"name": "url",
-							"model": "form.url",
+							"bind": "form.url",
 							"id": "url2"
 						},
 						{
@@ -941,7 +941,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"type": "file",
 							"value": "",
 							"name": "file",
-							"model": "form.file"
+							"bind": "form.file"
 						},
 					]
 				},
@@ -952,7 +952,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "I have a bike",
 							"type": "checkbox",
 							"name": "bike",
-							"model": "form.vehicle1",
+							"bind": "form.vehicle1",
 							"id": "bike2"
 						},
 						{
@@ -960,7 +960,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "I have a Wii",
 							"type": "checkbox",
 							"name": "wii",
-							"model": "form.wii",
+							"bind": "form.wii",
 							"id": "wii2"
 						}
 					]
@@ -972,7 +972,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "I have a car",
 							"type": "checkbox",
 							"name": "car",
-							"model": "form.vehicle2",
+							"bind": "form.vehicle2",
 							"id": "car2"
 						},
 						{
@@ -980,7 +980,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "I have a Wii U",
 							"type": "checkbox",
 							"name": "wiiu",
-							"model": "form.wiiu",
+							"bind": "form.wiiu",
 							"id": "wiiu2"
 						}
 					]
@@ -992,7 +992,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "I have a boat",
 							"type": "checkbox",
 							"name": "boat",
-							"model": "form.vehicle3",
+							"bind": "form.vehicle3",
 							"id": "boat2"
 						},
 						{
@@ -1000,8 +1000,48 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"label": "I have a 3Ds",
 							"type": "checkbox",
 							"name": "n3ds",
-							"model": "form.n3ds",
+							"bind": "form.n3ds",
 							"id": "n3ds2"
+						}
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"label": "Choose one:",
+							"type": "select",
+							"name": "cars_list",
+							"bind": "form.cars",
+							"id": "cars-list",
+							"list": [
+								{"label": "Select a car", "value": "", "disabled": true},
+								{"label": "Escort", "value": "escort", "disabled": false, "selected": true},
+								{"label": "Volvo", "value": "volvo", "disabled": false},
+								{"label": "Saab", "value": "saab", "disabled": false},
+								{"label": "Opel", "value": "opel", "disabled": false},
+								{"label": "Fusca", "value": "fusca", "disabled": false},
+								{"label": "Mercedes", "value": "mercedes", "disabled": false},
+								{"label": "audi", "value": "audi", "disabled": false},
+							]
+						},
+						{
+							"label": "Choose many:",
+							"type": "select",
+							"multiple": true,
+							"name": "cars_list2",
+							"bind": "form.cars2",
+							"id": "cars-list2",
+							"list": [
+								{"label": "Select a car", "value": "", "disabled": true},
+								{"label": "Escort", "value": "escort", "disabled": false, "selected": true},
+								{"label": "Volvo", "value": "volvo", "disabled": false, "selected": true},
+								{"label": "Saab", "value": "saab", "disabled": false, "selected": true},
+								{"label": "Opel", "value": "opel", "disabled": false},
+								{"label": "Fusca", "value": "fusca", "disabled": false},
+								{"label": "Mercedes", "value": "mercedes", "disabled": false},
+								{"label": "audi", "value": "audi", "disabled": false},
+							]
 						}
 					]
 				},
@@ -1015,8 +1055,21 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"name": "mission",
 							"rows": 4,
 							"cols": 50,
-							"model": "form.textarea",
+							"bind": "form.textarea",
 						},
+					]
+				},
+				{
+					"layout": "horizontal",
+					"controls": [
+						{
+							"classList": ["pw-btn-primary"],
+							"type": "submit",
+						},
+						{
+							"classList": ["pw-btn-highlight"],
+							"type": "reset",
+						}
 					]
 				}
 			]
@@ -1026,30 +1079,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + `
 			<form class="pw-simple-form pw-vertical-form">
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<label for="cars">Choose a car:</label>
-						<select class="pw-field" data-pow-bind="form.cars" id="cars">
-							<option value="" disabled>Select a car</option>
-							<option value="volvo">Volvo</option>
-							<option value="saab">Saab</option>
-							<option value="mercedes">Mercedes</option>
-							<option value="audi">Audi</option>
-						</select>
-					</div>
-					<div class="pw-col">
-						<label for="cars2">Choose many cars:</label>
-						<select class="pw-field" data-pow-bind="form.cars2" id="cars2" multiple>
-							<option value="volvo">Volvo</option>
-							<option value="saab">Saab</option>
-							<option value="opel">Opel</option>
-							<option value="fusca">Fusca</option>
-							<option value="audi">Audi</option>
-							<option value="escort">Escort</option>
-							<option value="mercedes">Mercedes</option>
-						</select>
-					</div>
-				</div>
 				<div class="pw-vertical-form">
 					<div class="pw-row">
 						<label>Hidden: </label>
@@ -2746,18 +2775,8 @@ class JSONViews extends PowerWindow {
 			wiiu: true,
 			n3ds: true,
 			file: '',
-			cars: '',
-			cars2: ['escort', 'opel', 'fusca'],
-			carsList: [
-				{label: 'Select a car', value: '', disabled: true},
-				{label: 'Escort', value: 'escort', disabled: false},
-				{label: 'Volvo', value: 'volvo', disabled: false},
-				{label: 'Saab', value: 'saab', disabled: false},
-				{label: 'Opel', value: 'opel', disabled: false},
-				{label: 'Fusca', value: 'fusca', disabled: false},
-				{label: 'Mercedes', value: 'mercedes', disabled: false},
-				{label: 'audi', value: 'audi', disabled: false},
-			],
+			cars: 'escort',
+			cars2: ['fusca', 'escort'],
 			hidden: 'Hidden form field info',
 			textarea: 'This is my new textarea text and I love it!!!',
 		};

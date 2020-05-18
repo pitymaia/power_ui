@@ -430,26 +430,30 @@ class JSONSchemaService extends PowerServices {
 					if (control.type === 'button') {
 					} else if (control.type === 'submit' || control.type === 'reset') {
 
+						template = `${template}
+						<input id="${id}" class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
+
 					} else if (control.type === 'select') {
-						// `<select class="pw-field" data-pow-bind="form.cars2" id="cars2" multiple>
-						// 	<option value="volvo">Volvo</option>
-						// 	<option value="saab">Saab</option>
-						// 	<option value="opel">Opel</option>
-						// 	<option value="fusca">Fusca</option>
-						// 	<option value="audi">Audi</option>
-						// 	<option value="escort">Escort</option>
-						// 	<option value="mercedes">Mercedes</option>
-						// </select>`
+
+						template = `${template}
+						${label ? label : ''}
+						<select id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
+							for (const item of control.list) {
+								template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
+							}
+						template = `${template}
+						</select>`;
+
 					} else if (control.type === 'radio' || control.type === 'checkbox') {
 
 						template = `${template}
-						<input class="pw-field ${customCss}" id="${id}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
+						<input class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
 
 					} else if (control.type === 'textarea') {
 
 						template = `${template}
 						${label ? label : ''}
-						<textarea class="pw-field ${customCss}" id="${id}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+						<textarea class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
 							${control.value || ''}
 						</textarea>`;
 
@@ -457,7 +461,7 @@ class JSONSchemaService extends PowerServices {
 
 						template = `${template}
 						${label ? label : ''}
-						<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.model ? 'data-pow-bind="' + control.model + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+						<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
 					}
 
 					template = `${template}
