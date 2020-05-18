@@ -389,6 +389,98 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
+	_simpleFromGroups({controls, template}) {
+		for (const control of controls) {
+			const id = control.id || 'input_' + this.$powerUi._Unique.next();
+			const label = control.label ? `<label for="${id}">${control.label}</label>` : null;
+
+			let customCss = '';
+			if (control.classList) {
+				for (const css of control.classList) {
+					customCss = `${customCss} ${css}`;
+				}
+			}
+
+			template = `${template}
+				<div class="pw-col">`;
+
+			if (control.button) {
+
+				template = `${template}
+					${this.button(control.button)}`;
+
+			} else if (control.type === 'image') {
+
+				// Add events if have
+				let eventsTmpl = this._getEventTmpl(control);
+				template = `${template}
+				<input id="${id}" class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${control.events ? 'data-pow-event' + eventsTmpl : ''} />`;
+
+			} else if (control.type === 'submit' || control.type === 'reset') {
+
+				template = `${template}
+				<input id="${id}" class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
+
+			} else if (control.type === 'select') {
+
+				template = `${template}
+				${label ? label : ''}
+				<select id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
+					for (const item of control.list) {
+						template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
+					}
+				template = `${template}
+				</select>`;
+
+			} else if (control.type === 'radio' || control.type === 'checkbox') {
+
+				template = `${template}
+				<input class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
+
+			} else if (control.type === 'textarea') {
+
+				template = `${template}
+				${label ? label : ''}
+				<textarea class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+					${control.value || ''}
+				</textarea>`;
+
+			} else {
+
+				template = `${template}
+				${label ? label : ''}
+				<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+			}
+
+			template = `${template}
+				</div>`;
+		}
+
+		return template;
+	}
+	_simpleFormContent({content, template}) {
+		console.log('content1', content);
+		for (const item of content) {
+			template = `${template}
+			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
+			if (item.controls) {
+				template = this._simpleFromGroups({controls: item.controls, template: template});
+			}
+			// Recursively get another content layer
+			if (item.content) {
+				console.log('content2', item.content);
+				template = `${template}
+				<div class="pw-col">`;
+					template = `${this._simpleFormContent({content: item.content, template: template})}
+				</div>`;
+			}
+
+			template = template + '</div>';
+		}
+
+		return template;
+	}
+
 	simpleForm(form) {
 		// if (this.validate(this.formDef(), form) === false) {
 		// 	window.console.log('Failed JSON form:', form);
@@ -399,76 +491,7 @@ class JSONSchemaService extends PowerServices {
 
 		let template = `<${formType} id="${form.id || 'form_' + this.$powerUi._Unique.next()}" class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
 
-		for (const item of form.content) {
-			template = `${template}
-			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
-				for (const control of item.controls) {
-					const id = control.id || 'input_' + this.$powerUi._Unique.next();
-					const label = control.label ? `<label for="${id}">${control.label}</label>` : null;
-
-					let customCss = '';
-					if (control.classList) {
-						for (const css of control.classList) {
-							customCss = `${customCss} ${css}`;
-						}
-					}
-
-					template = `${template}
-						<div class="pw-col">`;
-
-					if (control.button) {
-
-						template = `${template}
-							${this.button(control.button)}`;
-
-					} else if (control.type === 'image') {
-
-						// Add events if have
-						let eventsTmpl = this._getEventTmpl(control);
-						template = `${template}
-						<input id="${id}" class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${control.events ? 'data-pow-event' + eventsTmpl : ''} />`;
-
-					} else if (control.type === 'submit' || control.type === 'reset') {
-
-						template = `${template}
-						<input id="${id}" class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
-
-					} else if (control.type === 'select') {
-
-						template = `${template}
-						${label ? label : ''}
-						<select id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
-							for (const item of control.list) {
-								template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
-							}
-						template = `${template}
-						</select>`;
-
-					} else if (control.type === 'radio' || control.type === 'checkbox') {
-
-						template = `${template}
-						<input class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
-
-					} else if (control.type === 'textarea') {
-
-						template = `${template}
-						${label ? label : ''}
-						<textarea class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
-							${control.value || ''}
-						</textarea>`;
-
-					} else {
-
-						template = `${template}
-						${label ? label : ''}
-						<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
-					}
-
-					template = `${template}
-						</div>`;
-				}
-			template = template + '</div>';
-		}
+		template = this._simpleFormContent({template: template, content: form.content});
 
 		template = `${template}
 		</${formType}>`;

@@ -947,61 +947,61 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				},
 				{
 					"layout": "horizontal",
-					"controls": [
+					"content": [
 						{
-							"label": "I have a bike",
-							"type": "checkbox",
-							"name": "bike",
-							"bind": "form.vehicle1",
-							"id": "bike2"
+							"layout": "vertical",
+							"controls": [
+								{
+									"label": "I have a bike",
+									"type": "checkbox",
+									"name": "bike",
+									"bind": "form.vehicle1",
+									"id": "bike"
+								},
+								{
+									"label": "I have a car",
+									"type": "checkbox",
+									"name": "car",
+									"bind": "form.vehicle2",
+									"id": "car"
+								},
+								{
+									"label": "I have a boat",
+									"type": "checkbox",
+									"name": "boat",
+									"bind": "form.vehicle3",
+									"id": "boat"
+								}
+							]
 						},
 						{
-							"classList": ["switch"],
-							"label": "I have a Wii",
-							"type": "checkbox",
-							"name": "wii",
-							"bind": "form.wii",
-							"id": "wii2"
-						}
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "I have a car",
-							"type": "checkbox",
-							"name": "car",
-							"bind": "form.vehicle2",
-							"id": "car2"
-						},
-						{
-							"classList": ["switch"],
-							"label": "I have a Wii U",
-							"type": "checkbox",
-							"name": "wiiu",
-							"bind": "form.wiiu",
-							"id": "wiiu2"
-						}
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "I have a boat",
-							"type": "checkbox",
-							"name": "boat",
-							"bind": "form.vehicle3",
-							"id": "boat2"
-						},
-						{
-							"classList": ["switch"],
-							"label": "I have a 3Ds",
-							"type": "checkbox",
-							"name": "n3ds",
-							"bind": "form.n3ds",
-							"id": "n3ds2"
+							"layout": "vertical",
+							"controls": [
+								{
+									"classList": ["switch"],
+									"label": "I have a Wii",
+									"type": "checkbox",
+									"name": "wii",
+									"bind": "form.wii",
+									"id": "wii"
+								},
+								{
+									"classList": ["switch"],
+									"label": "I have a Wii U",
+									"type": "checkbox",
+									"name": "wiiu",
+									"bind": "form.wiiu",
+									"id": "wiiu"
+								},
+								{
+									"classList": ["switch"],
+									"label": "I have a 3Ds",
+									"type": "checkbox",
+									"name": "n3ds",
+									"bind": "form.n3ds",
+									"id": "n3ds"
+								}
+							]
 						}
 					]
 				},
