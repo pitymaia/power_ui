@@ -266,6 +266,18 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
+	_getEventTmpl(item) {
+		// Add events if have
+		let eventsTmpl = '';
+		if (item.events) {
+			for (const event of item.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+
+		return eventsTmpl;
+	}
+
 	item({item, avoidValidation, mirrored, dropmenuId}) {
 		if (!avoidValidation && this.validate(this.itemDef(), item) === false) {
 			window.console.log('Failed JSON item:', item);
@@ -274,12 +286,8 @@ class JSONSchemaService extends PowerServices {
 
 		const tmpEl = document.createElement('div');
 		// Add events if have
-		let eventsTmpl = '';
-		if (item.events) {
-			for (const event of item.events) {
-				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
-			}
-		}
+		let eventsTmpl = this._getEventTmpl(item);
+
 		tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + eventsTmpl : ''} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 		const itemEl = tmpEl.children[0];
@@ -327,12 +335,8 @@ class JSONSchemaService extends PowerServices {
 
 		const tmpEl = document.createElement('div');
 		// Add events if have
-		let eventsTmpl = '';
-		if (button.events) {
-			for (const event of button.events) {
-				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
-			}
-		}
+		let eventsTmpl = this._getEventTmpl(button);
+
 		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" type="${button.type || 'button'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
 
 		const buttonEl = tmpEl.children[0];
@@ -391,21 +395,6 @@ class JSONSchemaService extends PowerServices {
 		// 	return 'Failed JSON form!';
 		// }
 
-		// "layout": "vertical",
-		//   "items": [
-		//     {
-		//       "layout": "horizontal",
-		//       "controls": [
-		//         {
-		//           "label": "Control",
-		//           "scope": "#/properties/firstName"
-		//         },
-		//         {
-		//           "type": "Control",
-		//           "scope": "#/properties/lastName"
-		//         }
-		//       ]
-		//     },
 		const formType = form.type === 'form' ? 'form' : 'div';
 
 		let template = `<${formType} id="${form.id || 'form_' + this.$powerUi._Unique.next()}" class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
@@ -428,6 +417,14 @@ class JSONSchemaService extends PowerServices {
 						<div class="pw-col">`;
 
 					if (control.type === 'button') {
+
+					} else if (control.type === 'image') {
+
+						// Add events if have
+						let eventsTmpl = this._getEventTmpl(control);
+						template = `${template}
+						<input id="${id}" class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${control.events ? 'data-pow-event' + eventsTmpl : ''} />`;
+
 					} else if (control.type === 'submit' || control.type === 'reset') {
 
 						template = `${template}

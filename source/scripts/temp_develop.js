@@ -779,7 +779,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const form1 = {
 			"layout": "vertical",
-			"type": "form",
+			// "type": "form",
 			"content": [
 				{
 					"layout": "horizontal",
@@ -1063,6 +1063,16 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"layout": "horizontal",
 					"controls": [
 						{
+							"type": "image",
+							"src": "vendors/imgs/rv_bt.png",
+							"events": [
+								{
+									"event": "onclick",
+									"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+								}
+							]
+						},
+						{
 							"classList": ["pw-btn-primary"],
 							"type": "submit",
 						},
@@ -1076,27 +1086,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		};
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').form(form1);
-
-		htmlTemplate = htmlTemplate + `
-			<form class="pw-simple-form pw-vertical-form">
-				<div class="pw-vertical-form">
-					<div class="pw-row">
-						<label>Hidden: </label>
-						<input class="pw-field" type="hidden" data-pow-bind="form.hidden" id="custId" name="custId" value="3487">
-					</div>
-				</div>
-				<div class="pw-horizontal-form pw-row">
-					<div class="pw-col">
-						<input class="pw-field" type="image" src="vendors/imgs/rv_bt.png" data-pow-event onclick="openModal()">
-					</div>
-					<div class="pw-col">
-						<input class="pw-btn-highlight" type="reset">
-					</div>
-					<div class="pw-col">
-						<input class="pw-btn-primary" type="submit">
-					</div>
-				</div>
-			</form>`;
 
 		const accordion = {
 			"classList": ['my-custom-accordion'],
