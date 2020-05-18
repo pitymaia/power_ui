@@ -1079,13 +1079,41 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						{
 							"classList": ["pw-btn-highlight"],
 							"type": "reset",
+						},
+						{
+							"button": {
+								"id": "bt-form1",
+								"label": "Learn More",
+								"icon": "power-logo",
+								"kind": "highlight",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+									}
+								]
+							}
+						},
+						{
+							"button": {
+								"id": 'bt2-form1',
+								"label": "Warning",
+								"icon": "save-front",
+								"kind": "warning",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+									}
+								]
+							}
 						}
 					]
 				}
 			]
 		};
 
-		htmlTemplate = htmlTemplate + this.$service('JSONSchema').form(form1);
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').simpleForm(form1);
 
 		const accordion = {
 			"classList": ['my-custom-accordion'],

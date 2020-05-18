@@ -389,7 +389,7 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
-	form(form) {
+	simpleForm(form) {
 		// if (this.validate(this.formDef(), form) === false) {
 		// 	window.console.log('Failed JSON form:', form);
 		// 	return 'Failed JSON form!';
@@ -416,7 +416,10 @@ class JSONSchemaService extends PowerServices {
 					template = `${template}
 						<div class="pw-col">`;
 
-					if (control.type === 'button') {
+					if (control.button) {
+
+						template = `${template}
+							${this.button(control.button)}`;
 
 					} else if (control.type === 'image') {
 
