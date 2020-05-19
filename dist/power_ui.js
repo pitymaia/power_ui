@@ -1154,6 +1154,130 @@ _PowerUiBase.injectPow({name: 'data-pow-main-css-hover-remove', isMain: true,
 	callback: function(element) {return new PowMainCssHoverRemove(element);}
 });
 
+// All ohter inputs type (select-one, text, range, tel, password, textarea, color, date, etc)
+function othersInit(self) {
+    const el = self.element;
+    el.value = self.currentValue;
+    self.subscribe({event: 'change', fn: self.onchange });
+}
+
+function othersChange(self) {
+    self.currentValue = self.element.value;
+}
+
+function checkboxInit(self) {
+    const el = self.element;
+    if (self.currentValue === true) {
+        el.checked = 'checked';
+    } else {
+        delete el.checked;
+    }
+    self.subscribe({event: 'change', fn: self.onchange });
+}
+
+function checkboxChange(self) {
+    self.currentValue = !self.currentValue; // Invert the value
+}
+
+function radioInit(self) {
+    const el = self.element;
+    if (self.currentValue === el.value) {
+        el.checked = true;
+    } else {
+        el.checked = false;
+    }
+    self.subscribe({event: 'change', fn: self.onchange });
+}
+
+function radioChange(self) {
+    if (self.element.checked === true){
+        self.currentValue = self.element.value;
+    }
+}
+
+function selectMultipleInit(self) {
+    const el = self.element;
+    for (const child of el.children) {
+        if (self.currentValue.includes(child.value)) {
+            child.selected = true;
+        } else {
+            child.selected = false;
+        }
+    }
+    self.subscribe({event: 'change', fn: self.onchange });
+}
+
+function selectMultipleChange(self) {
+    const el = self.element;
+    for (const child of el.children) {
+        if (child.selected) {
+            // Only add if not already have it
+            if (!self.currentValue.includes(child.value)) {
+                self.currentValue.push(child.value);
+            }
+        } else {
+            const index = self.currentValue.indexOf(child.value);
+            if (index > -1) {
+              self.currentValue.splice(index, 1);
+            }
+        }
+    }
+}
+
+class PowBind extends _PowerBasicElementWithEvents {
+    constructor(element) {
+        super(element);
+        this._$pwActive = false;
+        this.originalHTML = element.innerHTML;
+
+    }
+
+    init() {
+        const view = this.$pwView;
+        // The scope of the controller of the view of this element
+        this.ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
+
+        this.type = this.element.type;
+        // console.log('type', this.type);
+        if (this.type === 'checkbox') {
+            checkboxInit(this);
+        } else if (this.type === 'radio') {
+            radioInit(this);
+        } else if (this.type ==='select-multiple') {
+            selectMultipleInit(this);
+        } else {
+            othersInit(this);
+        }
+    }
+
+    onchange() {
+        if (this.type === 'checkbox') {
+            checkboxChange(this);
+        } else if (this.type === 'radio') {
+            radioChange(this);
+        } else if (this.type ==='select-multiple') {
+            selectMultipleChange(this);
+        } else {
+            othersChange(this);
+        }
+    }
+
+    // The current scope value of pow-bind model
+    get currentValue() {
+        return this.$powerUi.safeEval({text: this.$powerUi.interpolation.decodeHtml(
+            this.element.dataset.powBind), $powerUi: this.$powerUi, scope: this.ctrlScope});
+    }
+
+    set currentValue(valueToSet) {
+        this.$powerUi.setValueOnScope({text: this.$powerUi.interpolation.decodeHtml(this.element.dataset.powBind), $powerUi: this.$powerUi, scope: this.ctrlScope, valueToSet: valueToSet});
+    }
+}
+
+// Inject the attr on PowerUi
+_PowerUiBase.injectPow({name: 'data-pow-bind',
+    callback: function(element) {return new PowBind(element);}
+});
+
 // Replace a value form an attribute when is mouseover some element and undo on mouseout
 class PowEval extends _PowerBasicElementWithEvents {
     constructor(element) {
@@ -1603,6 +1727,10 @@ class PowerUi extends _PowerUiBase {
 	safeEval({text, scope}) {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
+	// Return object on $scope or $powerUi ($rootScope)
+	setValueOnScope({text, scope, valueToSet}) {
+		new ParserEval({text: text, scope: scope, $powerUi: this, valueToSet: valueToSet});
+	}
 
 	initAll({template, routeId, viewId}) {
 		const t0 = performance.now();
@@ -1964,6 +2092,8 @@ class JSONSchemaService extends PowerServices {
 			return true;
 		} else if (type === 'array' && json.length !== undefined) {
 				return true;
+		} else if (type.length !== undefined && json.length !== undefined) {
+			console.log('TYPE ARRAY', type);
 		} else {
 			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
 			return false;
@@ -1988,7 +2118,9 @@ class JSONSchemaService extends PowerServices {
 		for (const key of Object.keys(schema.properties || {})) {
 			// Validate inner schema nodes
 			// If is some reference to another schema get it
+			// TODO: This is not working...
 			if (schema.properties[key].$ref) {
+				// console.log('schema.properties[key].$ref', this.$ref(schema.properties[key].$ref), json[key], key, json);
 				if (json[key] && this.validate(this.$ref(schema.properties[key].$ref), json[key]) === false) {
 					return false;
 				}
@@ -2222,6 +2354,18 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
+	_getEventTmpl(item) {
+		// Add events if have
+		let eventsTmpl = '';
+		if (item.events) {
+			for (const event of item.events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+		}
+
+		return eventsTmpl;
+	}
+
 	item({item, avoidValidation, mirrored, dropmenuId}) {
 		if (!avoidValidation && this.validate(this.itemDef(), item) === false) {
 			window.console.log('Failed JSON item:', item);
@@ -2230,12 +2374,8 @@ class JSONSchemaService extends PowerServices {
 
 		const tmpEl = document.createElement('div');
 		// Add events if have
-		let eventsTmpl = '';
-		if (item.events) {
-			for (const event of item.events) {
-				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
-			}
-		}
+		let eventsTmpl = this._getEventTmpl(item);
+
 		tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + eventsTmpl : ''} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 		const itemEl = tmpEl.children[0];
@@ -2283,13 +2423,9 @@ class JSONSchemaService extends PowerServices {
 
 		const tmpEl = document.createElement('div');
 		// Add events if have
-		let eventsTmpl = '';
-		if (button.events) {
-			for (const event of button.events) {
-				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
-			}
-		}
-		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
+		let eventsTmpl = this._getEventTmpl(button);
+
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" type="${button.type || 'button'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
 
 		const buttonEl = tmpEl.children[0];
 
@@ -2337,6 +2473,114 @@ class JSONSchemaService extends PowerServices {
 		}
 		template = `${template}
 		</nav>`;
+
+		return template;
+	}
+
+	_simpleFromGroups({controls, template}) {
+		for (const control of controls) {
+			const id = control.id || 'input_' + this.$powerUi._Unique.next();
+			const label = control.label ? `<label for="${id}">${control.label}</label>` : null;
+
+			let customCss = '';
+			if (control.classList) {
+				for (const css of control.classList) {
+					customCss = `${customCss} ${css}`;
+				}
+			}
+
+			template = `${template}
+				<div class="pw-col">`;
+
+			if (control.button) {
+
+				template = `${template}
+					${this.button(control.button)}`;
+
+			} else if (control.type === 'image') {
+
+				// Add events if have
+				let eventsTmpl = this._getEventTmpl(control);
+				template = `${template}
+				<input id="${id}" class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${control.events ? 'data-pow-event' + eventsTmpl : ''} />`;
+
+			} else if (control.type === 'submit' || control.type === 'reset') {
+
+				template = `${template}
+				<input id="${id}" class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
+
+			} else if (control.type === 'select') {
+
+				template = `${template}
+				${label ? label : ''}
+				<select id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
+					for (const item of control.list) {
+						template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
+					}
+				template = `${template}
+				</select>`;
+
+			} else if (control.type === 'radio' || control.type === 'checkbox') {
+
+				template = `${template}
+				<input class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
+
+			} else if (control.type === 'textarea') {
+
+				template = `${template}
+				${label ? label : ''}
+				<textarea class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+					${control.value || ''}
+				</textarea>`;
+
+			} else {
+
+				template = `${template}
+				${label ? label : ''}
+				<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+			}
+
+			template = `${template}
+				</div>`;
+		}
+
+		return template;
+	}
+	_simpleFormContent({content, template}) {
+		for (const item of content) {
+			template = `${template}
+			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
+			if (item.controls) {
+				template = this._simpleFromGroups({controls: item.controls, template: template});
+			}
+			// Recursively get another content layer
+			if (item.content) {
+				template = `${template}
+				<div class="pw-col">`;
+					template = `${this._simpleFormContent({content: item.content, template: template})}
+				</div>`;
+			}
+
+			template = template + '</div>';
+		}
+
+		return template;
+	}
+
+	simpleForm(form) {
+		if (this.validate(this.simpleFormDef(), form) === false) {
+			window.console.log('Failed JSON form:', form);
+			return 'Failed JSON form!';
+		}
+
+		const formType = form.type === 'form' ? 'form' : 'div';
+
+		let template = `<${formType} id="${form.id || 'form_' + this.$powerUi._Unique.next()}" class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
+
+		template = this._simpleFormContent({template: template, content: form.content});
+
+		template = `${template}
+		</${formType}>`;
 
 		return template;
 	}
@@ -2425,6 +2669,46 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["panels"]
+		};
+	}
+
+	simpleFormContentDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/simpleformcontent",
+			"type": "object",
+			"properties": {
+				"layout": {"type": "string"},
+				"content": {"$ref": "#/schema/draft-07/simpleformcontent"},
+				"controls": {
+					"type": "array",
+					"properties": {
+						"classList": {"type": "array"},
+						"label": {"type": "string"},
+						"type": {"type": "string"},
+						"value": {"type": ["string", "boolean", "int", "float"]},
+						"name": {"type": "string"},
+						"bind": {"type": "string"},
+						"id": {"type": "string"}
+					}
+				}
+			},
+		};
+	}
+
+	simpleFormDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/simpleform",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"type": {"type": "string"},
+				"layout": {"type": "string"},
+				"content": {"$ref": "#/schema/draft-07/simpleformcontent"},
+
+			},
+			"required": ["content"]
 		};
 	}
 
@@ -2572,6 +2856,7 @@ class JSONSchemaService extends PowerServices {
 		references[`${path}item`] = this.itemDef;
 		references[`${path}status`] = this.statusDef;
 		references[`${path}dropmenu`] = this.dropmenuDef;
+		references[`${path}simpleformcontent`] = this.simpleFormContentDef;
 
 		return references[$ref]();
 	}
@@ -4353,7 +4638,7 @@ class TokensListener {
 }
 
 class ParserEval {
-	constructor({text, nodes, scope, $powerUi}) {
+	constructor({text, nodes, scope, $powerUi, valueToSet}) {
 		this.$powerUi = $powerUi;
 		this.$scope = scope || {};
 		this.nodes = nodes || new PowerTemplateParser({text: text}).syntaxTree.tree;
@@ -4367,10 +4652,10 @@ class ParserEval {
 		this.leftExpressionValueToCompare = '$_not_Setted_$';
 		this.rightExpressionValueToCompare = '$_not_Setted_$'; // TODO implement this one
 
-		this.evalNodes();
+		this.evalNodes(valueToSet);
 	}
 
-	evalNodes() {
+	evalNodes(valueToSet) {
 		let count = 0;
 		for (let node of this.nodes) {
 			if (node.expression_nodes) {
@@ -4387,7 +4672,7 @@ class ParserEval {
 						if (item.syntax === 'variable' && ['true', 'false', 'null', 'undefined'].includes(item.label)) {
 							this.evalSpecialValues(item.label);
 						} else {
-							this.eval(item);
+							this.eval(item, valueToSet);
 						}
 					}
 
@@ -4510,7 +4795,7 @@ class ParserEval {
 		this.leftExpressionValueToCompare = '$_not_Setted_$';
 	}
 
-	eval(item) {
+	eval(item, valueToSet) {
 		// console.log('last', this.lastNode, 'current', this.currentNode, 'next', this.nextNode);
 		let value = '';
 		if (item.syntax === 'float') {
@@ -4559,7 +4844,7 @@ class ParserEval {
 			value = this.recursiveEval(newNodes);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else if (item.syntax === 'variable') {
-			value = this.getOnScope(item.label);
+			value = this.getOrSetObjectOnScope(item.label, valueToSet);
 			if (this.currentValue === '') {
 				this.currentValue = this.adjustForNegative(value);
 			} else {
@@ -4575,7 +4860,7 @@ class ParserEval {
 		} else if (item.syntax === 'arrayDefinition') {
 			this.evalArrayDefinition(item);
 		} else if (item.syntax === 'object') {
-			value = this.evalObject(item);
+			value = this.evalOrSetObjectOnScope(item, valueToSet);
 			this.currentValue = this.mathOrConcatValues(value);
 		} else {
 			console.log('NOT NUMBER OR OPERATOR OR PRIORITY OR SHORT-HAND', item);
@@ -4594,10 +4879,14 @@ class ParserEval {
 		return newString;
 	}
 
-	evalObject(item) {
+	// This can evaluate the model on scope (return its value) or give to it a new value
+	evalOrSetObjectOnScope(item, newValue) {
 		let $currentScope = '';
 		let objOnScope = '';
 		let value = '';
+		// The following is to allow set the model itself
+		let lastLabel = '';
+		let lastObject = '';
 
 		let count = 0;
 		for (const obj of item.parameters) {
@@ -4614,6 +4903,7 @@ class ParserEval {
 
 			if (count === 0) {
 				$currentScope = this.getObjScope(label);
+				lastObject = $currentScope;
 				count = 1;
 			} else if ($currentScope === '') {
 				return undefined;
@@ -4643,10 +4933,18 @@ class ParserEval {
 				value = objOnScope.apply($currentScope || null, args);
 				objOnScope = value;
 			}
+			lastLabel = label;
+			if (typeof objOnScope === 'object') {
+				lastObject = objOnScope;
+			}
 		}
 		if (objOnScope !== '') {
 			value = objOnScope;
 			objOnScope = '';
+		}
+		// Change/set the model on scope
+		if (newValue !== undefined) {
+			lastObject[lastLabel] = newValue;
 		}
 		return value;
 	}
@@ -4692,10 +4990,16 @@ class ParserEval {
 	}
 
 	// Return item on $scope or $powerUi ($rootScope)
-	getOnScope(item) {
+	getOrSetObjectOnScope(item, valueToSet) {
 		if (this.$scope[item] !== undefined) {
+			if (valueToSet !== undefined) {
+				this.$scope[item] = valueToSet;
+			}
 			return this.$scope[item];
 		} else if (this.$powerUi[item] !== undefined) {
+			if (valueToSet !== undefined) {
+				this.$powerUi[item] = valueToSet;
+			}
 			return this.$powerUi[item];
 		} else {
 			return undefined;

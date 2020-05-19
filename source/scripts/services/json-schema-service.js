@@ -589,7 +589,6 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	simpleFormContentDef() {
-		console.log('simpleFormContentDef');
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
 			"$id": "#/schema/draft-07/simpleformcontent",
