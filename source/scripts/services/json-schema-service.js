@@ -8,6 +8,8 @@ class JSONSchemaService extends PowerServices {
 			return true;
 		} else if (type === 'array' && json.length !== undefined) {
 				return true;
+		} else if (type.length !== undefined && json.length !== undefined) {
+			console.log('TYPE ARRAY', type);
 		} else {
 			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
 			return false;
@@ -32,7 +34,9 @@ class JSONSchemaService extends PowerServices {
 		for (const key of Object.keys(schema.properties || {})) {
 			// Validate inner schema nodes
 			// If is some reference to another schema get it
+			// TODO: This is not working...
 			if (schema.properties[key].$ref) {
+				// console.log('schema.properties[key].$ref', this.$ref(schema.properties[key].$ref), json[key], key, json);
 				if (json[key] && this.validate(this.$ref(schema.properties[key].$ref), json[key]) === false) {
 					return false;
 				}
@@ -459,7 +463,6 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 	_simpleFormContent({content, template}) {
-		console.log('content1', content);
 		for (const item of content) {
 			template = `${template}
 			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
@@ -468,7 +471,6 @@ class JSONSchemaService extends PowerServices {
 			}
 			// Recursively get another content layer
 			if (item.content) {
-				console.log('content2', item.content);
 				template = `${template}
 				<div class="pw-col">`;
 					template = `${this._simpleFormContent({content: item.content, template: template})}
@@ -482,10 +484,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	simpleForm(form) {
-		// if (this.validate(this.formDef(), form) === false) {
-		// 	window.console.log('Failed JSON form:', form);
-		// 	return 'Failed JSON form!';
-		// }
+		if (this.validate(this.simpleFormDef(), form) === false) {
+			window.console.log('Failed JSON form:', form);
+			return 'Failed JSON form!';
+		}
 
 		const formType = form.type === 'form' ? 'form' : 'div';
 
@@ -583,6 +585,47 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["panels"]
+		};
+	}
+
+	simpleFormContentDef() {
+		console.log('simpleFormContentDef');
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/simpleformcontent",
+			"type": "object",
+			"properties": {
+				"layout": {"type": "string"},
+				"content": {"$ref": "#/schema/draft-07/simpleformcontent"},
+				"controls": {
+					"type": "array",
+					"properties": {
+						"classList": {"type": "array"},
+						"label": {"type": "string"},
+						"type": {"type": "string"},
+						"value": {"type": ["string", "boolean", "int", "float"]},
+						"name": {"type": "string"},
+						"bind": {"type": "string"},
+						"id": {"type": "string"}
+					}
+				}
+			},
+		};
+	}
+
+	simpleFormDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/simpleform",
+			"type": "object",
+			"properties": {
+				"classList": {"type": "array"},
+				"type": {"type": "string"},
+				"layout": {"type": "string"},
+				"content": {"$ref": "#/schema/draft-07/simpleformcontent"},
+
+			},
+			"required": ["content"]
 		};
 	}
 
@@ -730,6 +773,7 @@ class JSONSchemaService extends PowerServices {
 		references[`${path}item`] = this.itemDef;
 		references[`${path}status`] = this.statusDef;
 		references[`${path}dropmenu`] = this.dropmenuDef;
+		references[`${path}simpleformcontent`] = this.simpleFormContentDef;
 
 		return references[$ref]();
 	}
