@@ -8,7 +8,7 @@ class PowerInterpolation {
 
 	compile({template, scope, view}) {
 		if (!scope && view) {
-			// The scope of the controller of the view of this element
+			// The scope controller of the view of this element
 			scope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
 		}
 		return this.replaceInterpolation(template, scope);

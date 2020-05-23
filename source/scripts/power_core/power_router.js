@@ -16,8 +16,8 @@ class Router {
 		this.routes = {};
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
-		if (!this.config.rootRoute) {
-			this.config.rootRoute = '#!/';
+		if (!this.config.rootPath) {
+			this.config.rootPath = '#!/';
 		}
 		if (config.routes) {
 			for (const route of config.routes) {
@@ -63,7 +63,7 @@ class Router {
 			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
 		}
 		// Ensure that the parameters have the correct types
-		if (typeof route !== "string") {
+		if (typeof route !== "string" && id !== '$root') {
 			throw new TypeError('typeof route must be a string');
 		}
 		if (callback && (typeof callback !== "function")) {
@@ -77,7 +77,7 @@ class Router {
 
 		const entry = {
 			title: title,
-			route: this.config.rootRoute + route,
+			route: this.config.rootPath + route,
 			callback: callback || null,
 			template: template || null,
 			templateUrl: templateUrl || null,
@@ -235,10 +235,10 @@ class Router {
 		return hash;
 	}
 	// Match the current window.location to a route and call the necessary template and callback
-	// If location doesn't have a hash, redirect to rootRoute
+	// If location doesn't have a hash, redirect to rootPath
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, hiddenRoute, reloading, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootRoute);
+		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
@@ -252,7 +252,7 @@ class Router {
 					}
 					if (!secundaryRoute && !hiddenRoute) {
 						// Load main route only if it is a new route
-						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootRoute, '')) {
+						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootPath, '')) {
 							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId, reloading: reloading});
 							this.loadRoute({
 								routeId: routeId,
@@ -283,7 +283,7 @@ class Router {
 					} else if (secundaryRoute) {
 						// Load secundary route if not already open
 						// Check if the route already open as old route or as new route
-						const thisRoute = secundaryRoute.replace(this.config.rootRoute, '');
+						const thisRoute = secundaryRoute.replace(this.config.rootPath, '');
 						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
 						if (!oldSecundaryRoute && !newSecundaryRoute) {
@@ -310,7 +310,7 @@ class Router {
 					} else if (hiddenRoute) {
 						// Load hidden route if not already open
 						// Check if the route already open as old route or as new route
-						const thisRoute = hiddenRoute.replace(this.config.rootRoute, '');
+						const thisRoute = hiddenRoute.replace(this.config.rootPath, '');
 						const oldHiddenRoute = this.oldRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
 						const newHiddenRoute = this.currentRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
 						if (!oldHiddenRoute && !newHiddenRoute) {
@@ -341,7 +341,7 @@ class Router {
 		// otherwise
 		// (doesn't run otherwise for secundary routes)
 		if (!secundaryRoute && !hiddenRoute) {
-			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootRoute;
+			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootPath;
 			window.location.replace(encodeURI(newRoute));
 		}
 	}
@@ -554,10 +554,10 @@ class Router {
 	// Get the hash definition of current secundary and hidden routes
 	getOpenedSecundaryOrHiddenRoutesHash({filter=[]}) {
 		const routeParts = this.extractRouteParts(this.locationHashWithHiddenRoutes());
-		let oldHash = routeParts.path.replace(this.config.rootRoute, '');
+		let oldHash = routeParts.path.replace(this.config.rootPath, '');
 		for (let route of routeParts.secundaryRoutes.concat(routeParts.hiddenRoutes)) {
 			const routeKind = routeParts.hiddenRoutes.includes(route) ? 'hr' : 'sr';
-			route = route.replace(this.config.rootRoute, '');
+			route = route.replace(this.config.rootPath, '');
 			if (filter.lenght === 0 || !filter.includes(route)) {
 				oldHash = oldHash + `?${routeKind}=${route}`;
 			}
@@ -570,17 +570,17 @@ class Router {
 		let newHash = newHashParts.path || '';
 		let newHiddenHash = '';
 		for (const part of newHashParts.secundaryRoutes) {
-			newHash = `${newHash}?sr=${part.replace(this.config.rootRoute, '')}`;
+			newHash = `${newHash}?sr=${part.replace(this.config.rootPath, '')}`;
 		}
 		for (const part of newHashParts.hiddenRoutes) {
-			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootRoute, '')}`;
+			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootPath, '')}`;
 		}
 
 		this.hiddenLocationHash = encodeURI(newHiddenHash);
 		// If there is some new secundary or main route
-		if (window.location.hash !== encodeURI(this.config.rootRoute + newHash)) {
+		if (window.location.hash !== encodeURI(this.config.rootPath + newHash)) {
 			window.history.pushState(null, title, window.location.href);
-			window.location.replace(encodeURI(this.config.rootRoute) + encodeURI(newHash));
+			window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
 		} else {
 			// If there is only a new hidden rote
 			// Only the hiddenLocationHash change, manually call hasChange
@@ -646,7 +646,7 @@ class Router {
 	setMainRouteState({routeId, paramKeys, route, viewId, title}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
-		this.currentRoutes.route = route.replace(this.config.rootRoute, ''); // remove #!/
+		this.currentRoutes.route = route.replace(this.config.rootPath, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
 		this.currentRoutes.title = title;
@@ -663,7 +663,7 @@ class Router {
 			isMainView: false,
 			params: [],
 			id: '',
-			route: route.replace(this.config.rootRoute, ''), // remove #!/
+			route: route.replace(this.config.rootPath, ''), // remove #!/
 			viewId: this.routes[routeId].viewId || viewId,
 		}
 		// Register current route id
@@ -688,13 +688,13 @@ class Router {
 				if (part.includes('sr=')) {
 					for (const fragment of part.split('sr=')) {
 						if (fragment) {
-							routeParts.secundaryRoutes.push(this.config.rootRoute + fragment);
+							routeParts.secundaryRoutes.push(this.config.rootPath + fragment);
 						}
 					}
 				} else	if (part.includes('hr=')) {
 					for (const fragment of part.split('hr=')) {
 						if (fragment) {
-							routeParts.hiddenRoutes.push(this.config.rootRoute + fragment);
+							routeParts.hiddenRoutes.push(this.config.rootPath + fragment);
 						}
 					}
 				}
@@ -756,7 +756,7 @@ class Router {
 
 	getRouteParamValues({routeId, paramKeys, route}) {
 		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (route || this.locationHashWithHiddenRoutes() || this.config.rootRoute).split('/');
+		const hashParts = (route || this.locationHashWithHiddenRoutes() || this.config.rootPath).split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value

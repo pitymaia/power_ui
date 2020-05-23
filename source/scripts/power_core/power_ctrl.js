@@ -49,7 +49,7 @@ class PowerController extends PowerScope {
 				if (counter !== 0) {
 					part = '?' + part;
 				} else {
-					part = part.replace(this.router.config.rootRoute, '');
+					part = part.replace(this.router.config.rootPath, '');
 				}
 				newHash = newHash + part;
 				counter = counter + 1;

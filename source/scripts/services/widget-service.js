@@ -91,7 +91,7 @@ class WidgetService extends PowerServices {
 		const newRoute = {
 			id: routeId,
 			title: title,
-			route: this.$powerUi.router.config.rootRoute + routeId, // Use the routeId as unique route
+			route: this.$powerUi.router.config.rootPath + routeId, // Use the routeId as unique route
 			template: templateUrl || templateComponent || template || url,
 			templateUrl: templateUrl,
 			templateComponent: templateComponent,

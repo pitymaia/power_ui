@@ -471,6 +471,30 @@ class MyWindow extends PowerWindowIframe {
 	}
 }
 
+class RootTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		const newTmpl = `<head>
+			<title>Power UI</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<link rel="stylesheet" type="text/css" href="css/power_ui.css" />
+			<link rel="stylesheet" type="text/css" href="css/temp_develop.css" />
+		</head>
+		<body class="power-main pwdesign-white-smoke">
+			<div class="power-view" id="main-view"></div>
+			<div class="power-view" id="secundary-view"></div>
+			<script type="module" src="scripts/temp_develop.js"></script>
+		</body>`;
+
+		resolve(tmpEl.innerHTML);
+	}
+}
+
+class RootCtrl extends PowerController {
+	ctrl({$powerUi}) {
+		console.log('$root', this);
+	}
+}
+
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
 		const menu1 = {
@@ -2948,6 +2972,13 @@ class FakeModal extends PowerModal {
 }
 
 const routes = [
+		{
+			id: '$root',
+			templateComponent: RootTemplate,
+			ctrl: {
+				component: RootCtrl,
+			},
+		},
 		{
 			id: 'front-page',
 			title: 'PowerUi - Rich UI made easy',

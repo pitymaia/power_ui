@@ -174,6 +174,7 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 		this.interpolation = new PowerInterpolation(config, this);
+		console.log('interpolation', this.interpolation);
 		this._events = {};
 		this._events['ready'] = new UEvent();
 		this._events['Escape'] = new UEvent();
@@ -411,7 +412,7 @@ class PowerUi extends _PowerUiBase {
 		}
 		this.ctrlWaitingToRun = [];
 	}
-
+	// Templates for views with controllers
 	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
@@ -442,7 +443,7 @@ class PowerUi extends _PowerUiBase {
 			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
 		});
 	}
-
+	// PowerTemplate (before run any controller)
 	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
