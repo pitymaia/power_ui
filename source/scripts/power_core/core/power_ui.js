@@ -56,7 +56,6 @@ class KeyboardManager {
 			this.createBackDrop();
 			for (const obj of this.getRootElements()) {
 				const styles = getComputedStyle(obj.element);
-				console.log('styles', styles.position);
 				if (styles.position === 'static') {
 					obj.element.classList.add('power-keyboard-position');
 				}

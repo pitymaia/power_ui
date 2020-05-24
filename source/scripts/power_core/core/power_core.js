@@ -475,7 +475,7 @@ class PowerTree {
 				// root-view goes after all other views
 				if (view.id === 'root-view') {
 					rootView = view;
-				} else {
+				} else if (view.id !== 'secundary-view') {
 					const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
 					view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
 				}
@@ -653,7 +653,6 @@ class PowerTree {
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
-		console.log('NODE', node);
 		// Interpolate using root controller scope
 		const scope = this.$powerUi.controllers[node.id] ? this.$powerUi.controllers[node.id].instance : this.$powerUi;
 		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, scope);

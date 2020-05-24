@@ -1142,7 +1142,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}}{{2 + 2}}' + this.$service('JSONSchema').menu(menu1);
+		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1);
 
 		const form1 = {
 			"layout": "vertical",
