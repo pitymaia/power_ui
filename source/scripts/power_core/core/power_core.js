@@ -469,7 +469,7 @@ class PowerTree {
 		// Evaluate and replace any {{}} from template
 		if (!refresh) {
 			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this);
+			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
 		}
 	}
 
@@ -635,7 +635,7 @@ class PowerTree {
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
-		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
+		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this.$powerUi);
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
 	}

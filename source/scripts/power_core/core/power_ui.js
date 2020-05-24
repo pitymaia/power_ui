@@ -176,19 +176,49 @@ class PowerUi extends _PowerUiBase {
 		this._addPowerServices();
 
 		// Render the rootScope if exist
-		const template = new config.$root({$powerUi: this, viewId: 'root-view', routeId: '$root'}).template();
-		const rootView = document.getElementById('root-view');
-		rootView.innerHTML = template;
+		if (config.$root) {
+			this.loadRootScope({
+				viewId: 'root-view',
+				routeId: '$root',
+				$root: config.$root,
+			});
+		}
 
 		this.interpolation = new PowerInterpolation(config, this);
-		console.log('interpolation', this.interpolation);
 		this._events = {};
 		this._events['ready'] = new UEvent();
 		this._events['Escape'] = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 		this.router = new Router(config, this); // Router calls this.init();
 
+
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	loadRootScope({viewId, routeId, $root}) {
+		const crtlInstance = new $root.component({$powerUi: this, viewId: 'root-view', routeId: '$root'});
+		const template = crtlInstance.template();
+		// const rootView = document.getElementById('root-view');
+		// rootView.innerHTML = template;
+		// Register the controller with $powerUi
+		this.controllers[viewId] = {
+			component: $root.component,
+			params: $root.params,
+		};
+		// Instanciate the controller
+		this.controllers[viewId].instance = crtlInstance;
+		this.controllers[viewId].instance._viewId = viewId;
+		this.controllers[viewId].instance._routeId = routeId;
+
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		this.buildViewTemplateAndMayCallInit({
+			self: this,
+			view: view,
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			title: null,
+		});
 	}
 
 	// Return the "view" controller of any element inside the current view
@@ -288,7 +318,7 @@ class PowerUi extends _PowerUiBase {
 	safeEval({text, scope}) {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
-	// Return object on $scope or $powerUi ($rootScope)
+	// Return object on $scope or $powerUi
 	setValueOnScope({text, scope, valueToSet}) {
 		new ParserEval({text: text, scope: scope, $powerUi: this, valueToSet: valueToSet});
 	}

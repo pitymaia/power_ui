@@ -100,6 +100,10 @@ class PowerInterpolation {
 	getInterpolationValue(entry, scope) {
 		let newEntry = this.stripWhiteChars(entry);
 		newEntry = this.stripInterpolation(newEntry);
+		if (newEntry == ' myName ') {
+			console.log('scope', scope);
+			console.log('entry', entry, newEntry, scope);
+		}
 		return this.encodeHtml(this.safeEvaluate(newEntry, scope));
 	}
 

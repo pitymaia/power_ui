@@ -177,6 +177,7 @@ class Router {
 			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
 		}
 		for (const route of openedRoutes) {
+			console.log('_refresh', viewId, route);
 			this.raplaceViewContent(route);
 		}
 	}

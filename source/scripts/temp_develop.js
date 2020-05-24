@@ -141,6 +141,12 @@ class FrontPage extends PowerController {
 }
 
 class PowerOnlyPage extends PowerController {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi});
+		this.myName = 'My name is Pity the best!';
+		this.oldName = this.myName;
+		console.log('PowerOnlyPage constructor', this.myName);
+	}
 	ctrl({lock, $powerUi}) {
 		this.next = 0;
 		this.cats = [
@@ -157,7 +163,7 @@ class PowerOnlyPage extends PowerController {
 			{name: 'Florzinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
-		console.log('changeModel', this.cats.length);
+		console.log('PowerOnlyPage ctrl', this.myName);
 	}
 
 	jsonViews() {
@@ -191,6 +197,7 @@ class PowerOnlyPage extends PowerController {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
 			this.refresh();
+			console.log('refresh', this.cats.length);
 		}
 		console.log('changeModel', this.cats.length);
 	}
@@ -776,7 +783,7 @@ class RootScope extends PowerRoot {
 						"events": [
 							{
 								"event": "onclick",
-								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+								"fn": "changeAndRefresh()"
 							}
 						]
 					}
@@ -785,11 +792,47 @@ class RootScope extends PowerRoot {
 		};
 
 		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu1);
-		console.log('$root template', this);
+
+		newTmpl = newTmpl + `<h1>Cats list</h1>
+			<div data-pow-for="cat of cats">
+				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_ft">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+				</div>
+				<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_mt">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+				</div>
+				<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_ut">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
+				</div>
+			</div>`;
+		window.console.log('$root template');
 		return newTmpl;
 	}
 	ctrl() {
-		console.log('$root ctrl', this);
+		window.console.log('$root ctrl', this);
+		this.cats = [
+			{name: 'Penny', gender: 'female'},
+			{name: 'Riquinho', gender: 'male'},
+		];
+	}
+
+	onViewLoad(view) {
+		window.console.log('$root onViewLoad');
+	}
+
+	changeAndRefresh() {
+		if (this.cats[0].name !== 'Penny') {
+			this.cats = [
+				{name: 'Penny', gender: 'female'},
+				{name: 'Riquinho', gender: 'male'},
+			];
+		} else {
+			this.cats = [
+				{name: 'Pincesa', gender: 'female'},
+				{name: 'Penny', gender: 'female'},
+				{name: 'Riquinho', gender: 'male'},
+				{name: 'Tico', gender: 'male'},
+			];
+		}
+		window.console.log('changeAndRefresh', this.cats);
+		this.refresh();
 	}
 }
 
@@ -3363,7 +3406,10 @@ const routes = [
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
-	$root: RootScope,
+	$root: {
+		component: RootScope,
+		params: {lock: false},
+	},
 	// services: services,
 	// spinnerLabel: 'carregando',
 	devMode: {iframe: 'http://localhost:3002', main: 'http://localhost:3000'},
