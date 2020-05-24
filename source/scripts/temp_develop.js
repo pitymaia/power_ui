@@ -145,7 +145,6 @@ class PowerOnlyPage extends PowerController {
 		super({$powerUi: $powerUi});
 		this.myName = 'My name is Pity the best!';
 		this.oldName = this.myName;
-		console.log('PowerOnlyPage constructor', this.myName);
 	}
 	ctrl({lock, $powerUi}) {
 		this.next = 0;
@@ -163,7 +162,7 @@ class PowerOnlyPage extends PowerController {
 			{name: 'Florzinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
-		console.log('PowerOnlyPage ctrl', this.myName);
+		console.log('PowerOnlyPage ctrl', this);
 	}
 
 	jsonViews() {
@@ -196,6 +195,7 @@ class PowerOnlyPage extends PowerController {
 		} else if (kind === 'hardRefresh') {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
+			this.$root.changeCats();
 			this.refresh();
 			console.log('refresh', this.cats.length);
 		}
@@ -803,11 +803,9 @@ class RootScope extends PowerRoot {
 				</div>
 			</div>
 			<p>{{ name }}</p>`;
-		window.console.log('$root template');
 		return newTmpl;
 	}
 	ctrl() {
-		window.console.log('$root ctrl', this);
 		this.cats = [
 			{name: 'Penny', gender: 'female'},
 			{name: 'Riquinho', gender: 'male'},
@@ -816,10 +814,10 @@ class RootScope extends PowerRoot {
 	}
 
 	onViewLoad(view) {
-		window.console.log('$root onViewLoad');
+
 	}
 
-	changeAndRefresh() {
+	changeCats() {
 		if (this.cats[0].name !== 'Penny') {
 			this.cats = [
 				{name: 'Penny', gender: 'female'},
@@ -833,8 +831,12 @@ class RootScope extends PowerRoot {
 				{name: 'Tico', gender: 'male'},
 			];
 		}
-		window.console.log('changeAndRefresh', this.cats);
-		this.refresh();
+		window.console.log('changed cats', this.cats);
+	}
+
+	changeAndRefresh() {
+		this.changeCats()
+		this.refresh(this._viewId);
 	}
 }
 

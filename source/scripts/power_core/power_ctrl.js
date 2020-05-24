@@ -9,7 +9,7 @@ class PowerController extends PowerScope {
 		return this.$powerUi.router;
 	}
 
-	refresh() {
+	refresh(viewId) {
 		const view = document.getElementById(this._viewId);
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
@@ -23,7 +23,7 @@ class PowerController extends PowerScope {
 			this._bodyScrollLeft = body.scrollLeft || 0;
 		}
 
-		this.router._refresh(this._viewId);
+		this.router._refresh(viewId);
 	}
 
 	openRoute({routeId, params, target}) {

@@ -172,12 +172,12 @@ class Router {
 	}
 	_refresh(viewId) {
 		let openedRoutes = this.getOpenedRoutesRefreshData();
-
+		console.log('openedRoutes', openedRoutes);
 		if (viewId) {
 			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
 		}
 		for (const route of openedRoutes) {
-			console.log('_refresh', viewId, route);
+			console.log('_refresh view', viewId, route);
 			this.raplaceViewContent(route);
 		}
 	}
@@ -442,6 +442,7 @@ class Router {
 			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
 			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
 			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
+			this.$powerUi.controllers[_viewId].instance.$root = this.$powerUi.controllers['root-view'].instance || null;
 		}
 
 		// If have a template to load let's do it
