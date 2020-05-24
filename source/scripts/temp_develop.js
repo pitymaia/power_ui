@@ -1,6 +1,6 @@
 "use strict";
 
-import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, PowerWindowIframe, PowerTemplate } from './power_ui.js';
+import { PowerUi, PowerController, PowerModal, PowerRoot, PowerConfirm, PowerWindow, PowerWindowIframe, PowerTemplate } from './power_ui.js';
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -471,27 +471,325 @@ class MyWindow extends PowerWindowIframe {
 	}
 }
 
-class RootTemplate extends PowerTemplate {
-	template(resolve, reject) {
-		const newTmpl = `<head>
-			<title>Power UI</title>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<link rel="stylesheet" type="text/css" href="css/power_ui.css" />
-			<link rel="stylesheet" type="text/css" href="css/temp_develop.css" />
-		</head>
-		<body class="power-main pwdesign-white-smoke">
-			<div class="power-view" id="main-view"></div>
+class RootScope extends PowerRoot {
+	template() {
+		let newTmpl = `<div class="power-view" id="main-view"></div>
 			<div class="power-view" id="secundary-view"></div>
-			<script type="module" src="scripts/temp_develop.js"></script>
-		</body>`;
+			<div>{{ 2+2 }}</div>`;
 
-		resolve(tmpEl.innerHTML);
+		const menu1 = {
+			"classList": ["custom-menu"],
+			"id": 'my-menu-12',
+			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			"mirrored": false,
+			"position": "top-right",
+			// "orientation": "vertical",
+			// "kind": "float-right",
+			"items": [
+				{
+					"item": {
+						"id": "my-books-12",
+						"label": "Books",
+						"icon": "power-logo"
+					},
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "my-books-menu-12",
+						"position": "top-right",
+						"items": [
+							{
+								"item": {
+									"id": "the-fall-12",
+									"label": "The Fall",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "brave-12",
+									"label": "Brave new world",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "animal-farm-12",
+									"label": "Animal Farm",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Animal Farm', 'title': 'George Orwell'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "books-plus-12",
+									"label": "More Books",
+									"icon": "power-logo"
+								},
+								"status": {
+									"active": "caret-down",
+									"inactive": "caret-right",
+								},
+								"dropmenu": {
+									"id": "my-books-menu-22",
+									"position": "top-right",
+									"items": [
+										{
+											"item": {
+												"id": "a1984-12",
+												"label": "1984",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "never-12",
+												"label": "Neverending Story",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "stranger-12",
+												"label": "The Stranger",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "games-12",
+						"label": "Games",
+						"icon": "power-logo"
+					},
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "the-books-menu-12",
+						"position": "top-right",
+						"items": [
+							{
+								"item": {
+									"id": "mario-12",
+									"label": "New Super Mario",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "starcraft-12",
+									"label": "StarCraft",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "zelda-12",
+									"label": "Zelda",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "more-games-12",
+									"label": "More Games",
+									"icon": "power-logo"
+								},
+								"status": {
+									"active": "caret-down",
+									"inactive": "caret-right",
+								},
+								"dropmenu": {
+									"id": "my-games-menu-22",
+									"position": "top-right",
+									"items": [
+										{
+											"item": {
+												"id": "doom-12",
+												"label": "Doom",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "quake-12",
+												"label": "Quake",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "simcity-12",
+												"label": "Sim City 2000",
+												"icon": "power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"button": {
+						"id": "books-plus-1b2",
+						"label": "More Books",
+						"icon": "power-logo",
+						"kind": "warning",
+					},
+					"status": {
+						"active": "caret-down",
+						"inactive": "caret-right",
+					},
+					"dropmenu": {
+						"id": "my-books-menu-2b2",
+						"position": "top-right",
+						"items": [
+							{
+								"item": {
+									"id": "a1984-b12",
+									"label": "1984",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "never-1b2",
+									"label": "Neverending Story",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "stranger-1b2",
+									"label": "The Stranger",
+									"icon": "power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"button": {
+						"id": "learn-1b2",
+						"label": "Learn More",
+						"icon": "power-logo",
+						"kind": "highlight",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+							}
+						]
+					}
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu1);
+		console.log('$root template', this);
+		return newTmpl;
 	}
-}
-
-class RootCtrl extends PowerController {
-	ctrl({$powerUi}) {
-		console.log('$root', this);
+	ctrl() {
+		console.log('$root ctrl', this);
 	}
 }
 
@@ -2973,13 +3271,6 @@ class FakeModal extends PowerModal {
 
 const routes = [
 		{
-			id: '$root',
-			templateComponent: RootTemplate,
-			ctrl: {
-				component: RootCtrl,
-			},
-		},
-		{
 			id: 'front-page',
 			title: 'PowerUi - Rich UI made easy',
 			route: '/',
@@ -3072,6 +3363,7 @@ const routes = [
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
+	$root: RootScope,
 	// services: services,
 	// spinnerLabel: 'carregando',
 	devMode: {iframe: 'http://localhost:3002', main: 'http://localhost:3000'},

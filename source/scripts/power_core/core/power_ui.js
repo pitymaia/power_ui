@@ -157,6 +157,7 @@ class PowerUi extends _PowerUiBase {
 			});
 		}
 
+
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
@@ -173,6 +174,12 @@ class PowerUi extends _PowerUiBase {
 		this.initAlreadyRun = false;
 		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
+
+		// Render the rootScope if exist
+		const template = new config.$root({$powerUi: this, viewId: 'root-view', routeId: '$root'}).template();
+		const rootView = document.getElementById('root-view');
+		rootView.innerHTML = template;
+
 		this.interpolation = new PowerInterpolation(config, this);
 		console.log('interpolation', this.interpolation);
 		this._events = {};
