@@ -653,7 +653,10 @@ class PowerTree {
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
-		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this.$powerUi);
+		console.log('NODE', node);
+		// Interpolate using root controller scope
+		const scope = this.$powerUi.controllers[node.id] ? this.$powerUi.controllers[node.id].instance : this.$powerUi;
+		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, scope);
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
 	}
