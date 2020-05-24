@@ -1109,9 +1109,9 @@
         <br />
         1: {{ myName }}
         <br />
-        <!-- 2: <span data-pow-eval="myName"></span> -->
+        2: <span data-pow-eval="myName"></span>
     </aside>
-    <article>
+    <article style="height: 16em;">
         <div data-pow-for="cat of cats">
             <div data-pow-if="cat.gender === 'female'" id="acat_{{$pwIndex}}_f">{{$pwIndex + 1}} - Minha linda {{ cat.name }} <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span></div>
             <div data-pow-if="cat.gender === 'male'" id="acat_{{$pwIndex}}_m">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span></div>

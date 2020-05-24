@@ -468,6 +468,24 @@ class PowerTree {
 
 		// Evaluate and replace any {{}} from template
 		if (!refresh) {
+			const powerViews = document.getElementsByClassName('power-view');
+			let rootView = false;
+			// Interpolate using view controller scope
+			for (const view of powerViews) {
+				// root-view goes after all other views
+				if (view.id === 'root-view') {
+					rootView = view;
+				} else {
+					const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
+					view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
+				}
+			}
+			// Interpolate using root controller scope
+			if (rootView) {
+				const scope = this.$powerUi.controllers[rootView.id] ? this.$powerUi.controllers[rootView.id].instance : this.$powerUi;
+				rootView.innerHTML = this.$powerUi.interpolation.replaceInterpolation(rootView.innerHTML, scope);
+			}
+
 			const body = document.getElementsByTagName('BODY')[0];
 			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
 		}

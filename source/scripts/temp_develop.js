@@ -801,7 +801,8 @@ class RootScope extends PowerRoot {
 				</div>
 				<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_ut">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
 				</div>
-			</div>`;
+			</div>
+			<p>{{ name }}</p>`;
 		window.console.log('$root template');
 		return newTmpl;
 	}
@@ -811,6 +812,7 @@ class RootScope extends PowerRoot {
 			{name: 'Penny', gender: 'female'},
 			{name: 'Riquinho', gender: 'male'},
 		];
+		this.name = 'Pity o bom!';
 	}
 
 	onViewLoad(view) {
