@@ -3440,6 +3440,7 @@ app.variable = 'obj';
 app.obj = {obj: {obj: 'obj'}};
 app.piii = {pity: {pity: 'pity'}};
 app.teste = {pity: {obj: true}, lu: {obj: false}};
+app.name = 'Riquinho';
 
 app.num = function (num) {
 	return num;

@@ -5155,13 +5155,18 @@ class ParserEval {
 		return value;
 	}
 
-	// Return item on $scope or $powerUi ($rootScope)
+	// Return item on $scope, or $root or $powerUi
 	getOrSetObjectOnScope(item, valueToSet) {
 		if (this.$scope[item] !== undefined) {
 			if (valueToSet !== undefined) {
 				this.$scope[item] = valueToSet;
 			}
 			return this.$scope[item];
+		} else if (this.$scope.$root && this.$scope.$root[item] !== undefined) {
+			if (valueToSet !== undefined) {
+				this.$scope.$root[item] = valueToSet;
+			}
+			return this.$scope.$root[item];
 		} else if (this.$powerUi[item] !== undefined) {
 			if (valueToSet !== undefined) {
 				this.$powerUi[item] = valueToSet;
@@ -5176,6 +5181,8 @@ class ParserEval {
 	getObjScope(item) {
 		if (this.$scope[item] !== undefined) {
 			return this.$scope;
+		} else if (this.$scope.$root && this.$scope.$root[item] !== undefined) {
+			return this.$scope.$root;
 		} else if (this.$powerUi[item] !== undefined) {
 			return this.$powerUi;
 		} else {
