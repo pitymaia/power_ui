@@ -468,8 +468,11 @@ class PowerTree {
 
 		// Evaluate and replace any {{}} from template
 		if (!refresh) {
+			// Interpolete views and root scope in the right order
+			this.interpolateInOrder();
+
 			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this);
+			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
 		}
 	}
 
@@ -628,14 +631,39 @@ class PowerTree {
 			view: viewElement,
 			isInnerCompiler: isInnerCompiler,
 			rootCompiler: currentRootCompilerElement,
+		};
+	}
+
+	// Interpolete views and root scope in the right order
+	interpolateInOrder() {
+		const powerViews = document.getElementsByClassName('power-view');
+
+		let rootView = false;
+		// Interpolate using view controller scope
+		for (const view of powerViews) {
+			// root-view goes after all other views
+			if (view.id === 'root-view') {
+				rootView = view;
+			} else if (view.id !== 'secundary-view') {
+				const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
+				view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
+			}
+		}
+		// Interpolate using root controller scope
+		if (rootView) {
+			const scope = this.$powerUi.controllers[rootView.id] ? this.$powerUi.controllers[rootView.id].instance : this.$powerUi;
+			rootView.innerHTML = this.$powerUi.interpolation.replaceInterpolation(rootView.innerHTML, scope);
 		}
 	}
+
 	createAndInitObjectsFromCurrentNode({id}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
-		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, this);
+		// Interpolate using controller scope
+		const scope = this.$powerUi.controllers[node.id] ? this.$powerUi.controllers[node.id].instance : this.$powerUi;
+		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, scope);
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
 	}
@@ -1306,7 +1334,6 @@ class PowEvent extends _PowerBasicElementWithEvents {
     compile({view}) {
         // The controller scope of this view
         const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
-
         for (const attr of this.element.attributes) {
             if (attr.name.includes('on')) {
                 const name = attr.name.slice(2, attr.name.length);
@@ -1503,7 +1530,6 @@ class KeyboardManager {
 			this.createBackDrop();
 			for (const obj of this.getRootElements()) {
 				const styles = getComputedStyle(obj.element);
-				console.log('styles', styles.position);
 				if (styles.position === 'static') {
 					obj.element.classList.add('power-keyboard-position');
 				}
@@ -1534,7 +1560,6 @@ class KeyboardManager {
 			for (const obj of this.getRootElements()) {
 				obj.element.classList.remove('power-keyboard-mode');
 				obj.element.classList.remove('power-keyboard-position');
-				console.log('element', obj);
 			}
 		}
 	}
@@ -1604,6 +1629,7 @@ class PowerUi extends _PowerUiBase {
 			});
 		}
 
+
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {
 			$routeSharedScope: {
@@ -1620,8 +1646,17 @@ class PowerUi extends _PowerUiBase {
 		this.initAlreadyRun = false;
 		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
+
+		// Render the rootScope if exist
+		if (config.$root) {
+			this.loadRootScope({
+				viewId: 'root-view',
+				routeId: '$root',
+				$root: config.$root,
+			});
+		}
+
 		this.interpolation = new PowerInterpolation(config, this);
-		console.log('interpolation', this.interpolation);
 		this._events = {};
 		this._events['ready'] = new UEvent();
 		this._events['Escape'] = new UEvent();
@@ -1629,6 +1664,52 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	loadRootScope({viewId, routeId, $root}) {
+		const crtlInstance = new $root.component({$powerUi: this, viewId: viewId, routeId: routeId});
+		const template = crtlInstance.template();
+
+		// Register the controller with $powerUi
+		this.controllers[viewId] = {
+			component: $root.component,
+			params: $root.params,
+		};
+		// Instanciate the controller
+		this.controllers[viewId].instance = crtlInstance;
+		this.controllers[viewId].instance._viewId = viewId;
+		this.controllers[viewId].instance._routeId = routeId;
+
+
+		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
+		this.buildViewTemplateAndMayCallInit({
+			self: this,
+			view: view,
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			title: null,
+		});
+
+		// Save the raw template to allow refresh the rootSope view
+		this.registerRootTemplate({
+			template: template,
+			ctrl: crtlInstance,
+			viewId: viewId,
+			view: document.getElementById(viewId),
+		});
+	}
+
+	// Save the raw template to allow refresh the rootSope view
+	registerRootTemplate({template, ctrl, viewId, view}) {
+		this._rootScope = {
+			routeId: '#root',
+			template: template,
+			ctrl: ctrl,
+			viewId: viewId,
+			view: view,
+			title: null,
+		};
 	}
 
 	// Return the "view" controller of any element inside the current view
@@ -1728,7 +1809,7 @@ class PowerUi extends _PowerUiBase {
 	safeEval({text, scope}) {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
-	// Return object on $scope or $powerUi ($rootScope)
+	// Return object on $scope or $powerUi
 	setValueOnScope({text, scope, valueToSet}) {
 		new ParserEval({text: text, scope: scope, $powerUi: this, valueToSet: valueToSet});
 	}
@@ -1763,10 +1844,10 @@ class PowerUi extends _PowerUiBase {
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	pwReload() {
-		this.initAlreadyRun = false;
-		this.router._reload();
-	}
+	// pwReload() {
+	// 	this.initAlreadyRun = false;
+	// 	this.router._reload();
+	// }
 
 	callOnViewLoad(self, viewId) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance) {
@@ -1781,14 +1862,16 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	initNodes({template, routeId, viewId}) {
+	initNodes({template, routeId, viewId, refreshing}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
+			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
+			this.callOnViewLoad(this, item.node.id);
 		}
+		// this.callOnViewLoad(this, viewId);
 
-		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
@@ -1940,31 +2023,42 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl, initAll}) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
 			if (!refreshing && self.controllers[viewId].instance.init) {
 				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
+
 		view.innerHTML = template;
-		self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId, refreshing: refreshing});
+		self.ifNotWaitingServerCallInit({
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			refreshing: refreshing,
+			reloadCtrl: reloadCtrl,
+			initAll: initAll,
+		});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing}) {
+	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing, reloadCtrl, initAll}) {
 		const self = this;
-		if (!refreshing) {
+		if (!refreshing || (refreshing && reloadCtrl)) {
 			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		}
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				self.runRouteController();
-				if (self.initAlreadyRun) {
+				if (!refreshing || (refreshing && reloadCtrl)) {
+					self.runRouteController();
+				}
+				if (self.initAlreadyRun && !initAll) {
 					self.initNodes({
 						template: template,
 						routeId: routeId,
 						viewId: viewId,
+						refreshing: refreshing,
 					});
 				} else {
 					self.initAll({
@@ -2990,7 +3084,7 @@ class PowerController extends PowerScope {
 		return this.$powerUi.router;
 	}
 
-	refresh() {
+	refresh(viewId, reloadCtrl) {
 		const view = document.getElementById(this._viewId);
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
@@ -3004,7 +3098,11 @@ class PowerController extends PowerScope {
 			this._bodyScrollLeft = body.scrollLeft || 0;
 		}
 
-		this.router._refresh(this._viewId);
+		this.router._refresh(viewId, reloadCtrl);
+	}
+
+	reload(viewId) {
+		this.refresh(viewId, true);
 	}
 
 	openRoute({routeId, params, target}) {
@@ -3136,6 +3234,20 @@ class Request {
 		return xhr;
 	}
 }
+
+class PowerRoot extends PowerController {
+    constructor({$powerUi, viewId, routeId}) {
+        super({$powerUi: $powerUi});
+        this._viewId = viewId;
+        this._routeId = routeId;
+    }
+
+    _template() {
+        return this.template.bind(this);
+    }
+}
+
+export { PowerRoot };
 
 function getEmptyRouteObjetc() {
 	return {
@@ -3297,30 +3409,81 @@ class Router {
 		return dest;
 	}
 
-	_reload() {
-		const viewId = this.currentRoutes.viewId;
-		this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
-		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
-		this.currentRoutes = getEmptyRouteObjetc();
-		this.removeMainView({viewId: viewId, reloading: true});
-		this.closeOldSecundaryAndHiddenViews({reloading: true});
-		this.hashChange(null, true); // true for the reloading flag and null for the event
-		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
-		delete this.savedOldRoutes;
+	// _reload() {
+	// 	const viewId = this.currentRoutes.viewId;
+	// 	this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
+	// 	this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
+	// 	this.currentRoutes = getEmptyRouteObjetc();
+	// 	this.removeMainView({viewId: viewId, reloading: true});
+	// 	this.closeOldSecundaryAndHiddenViews({reloading: true});
+	// 	this.hashChange(null, true); // true for the reloading flag and null for the event
+	// 	this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
+	// 	delete this.savedOldRoutes;
+	// }
 
-	}
-	_refresh(viewId) {
+	_refresh(viewId, reloadCtrl) {
+		// If have a rootScope and need refresh it or refresh all views user _refreshAll()
+		if (viewId === 'root-view' || (!viewId && this.$powerUi._rootScope)) {
+			this._refreshAll(reloadCtrl);
+			return;
+		}
+
+		// This refresh a single view or multiple views if do not have a rootScope
 		let openedRoutes = this.getOpenedRoutesRefreshData();
 
 		if (viewId) {
 			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
 		}
+
 		for (const route of openedRoutes) {
-			this.raplaceViewContent(route);
+			this.replaceViewContent({
+				view: route.view,
+				viewId: route.viewId,
+				routeId: route.routeId,
+				title: route.title,
+				template: route.template,
+				reloadCtrl: reloadCtrl,
+			});
 		}
 	}
 
-	raplaceViewContent({view, viewId, routeId, title, template}) {
+	// Refresh with root-view
+	_refreshAll(reloadCtrl) {
+		let openedRoutes = this.getOpenedRoutesRefreshData();
+
+		openedRoutes.unshift(this.$powerUi._rootScope);
+
+		// First remove elements and events
+		for (const route of openedRoutes) {
+			// delete all inner elements and events from this.allPowerObjsById[id]
+			if (this.$powerUi.powerTree.allPowerObjsById[route.viewId]) {
+				this.$powerUi.powerTree.allPowerObjsById[route.viewId]['$shared'].removeInnerElementsFromPower();
+			}
+		}
+		// Second prepare and load
+		for (const route of openedRoutes) {
+			if (!document.getElementById(route.view.id)) {
+				const secundary = document.getElementById('secundary-view');
+				secundary.appendChild(route.view);
+			}
+			let view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
+
+			this.$powerUi.buildViewTemplateAndMayCallInit({
+				self: this.$powerUi,
+				view: view,
+				template: route.template,
+				routeId: route.routeId,
+				viewId: route.viewId,
+				title: route.title,
+				refreshing: true,
+				reloadCtrl: reloadCtrl,
+				initAll: true,
+			});
+		}
+
+	}
+
+	replaceViewContent({view, viewId, routeId, title, template, reloadCtrl}) {
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
 			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
@@ -3336,6 +3499,7 @@ class Router {
 			viewId: viewId,
 			title: title,
 			refreshing: true,
+			reloadCtrl: reloadCtrl,
 		});
 	}
 
@@ -3580,6 +3744,7 @@ class Router {
 			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
 			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
 			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
+			this.$powerUi.controllers[_viewId].instance.$root = this.$powerUi.controllers['root-view'].instance || null;
 		}
 
 		// If have a template to load let's do it
