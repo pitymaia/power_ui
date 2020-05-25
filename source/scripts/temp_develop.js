@@ -486,6 +486,29 @@ class MyWindow extends PowerWindowIframe {
 	}
 }
 
+class SmallDialog extends PowerTemplate {
+	template(resolve, reject) {
+		let newTmpl = '<div>{{name}} this is a simple dialog window!</div>';
+
+		const button = {
+			"id": "dialog-refresh",
+			"label": "Refresh",
+			"icon": "power-logo",
+			"kind": "danger",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "magic()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button);
+
+		resolve(newTmpl);
+	}
+}
+
 class RootScope extends PowerRoot {
 	template() {
 		let newTmpl = `<div class="power-view" id="main-view"></div>
@@ -811,6 +834,22 @@ class RootScope extends PowerRoot {
 				</div>
 			</div>
 			<p>{{ name }}</p>`;
+
+		const button = {
+			"id": "modal-root",
+			"label": "Learn More",
+			"icon": "power-logo",
+			"kind": "warning",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button);
+
 		return newTmpl;
 	}
 	ctrl() {
@@ -820,6 +859,25 @@ class RootScope extends PowerRoot {
 			{name: 'Riquinho', gender: 'male'},
 		];
 		this.name = 'Pity o bom!';
+	}
+
+	openModal() {
+		const widget = this.$service('widget').alert({
+			title: 'Template dialog',
+			templateComponent: SmallDialog,
+			controller: function() {
+				const self = this;
+				this.name = 'Pitinho';
+				this.magic = function () {
+					if (this.name === 'Pitinho') {
+						this.name = 'Andrezito';
+					} else {
+						this.name = 'Pitinho';
+					}
+					self.refresh(self._viewId);
+				}
+			}
+		});
 	}
 
 	onViewLoad(view) {
