@@ -194,15 +194,21 @@ class Router {
 		let openedRoutes = this.getOpenedRoutesRefreshData();
 
 		openedRoutes.unshift(this.$powerUi._rootScope);
-		console.log('refreshing', openedRoutes);
 
+		// First remove elements and events
 		for (const route of openedRoutes) {
 			// delete all inner elements and events from this.allPowerObjsById[id]
 			if (this.$powerUi.powerTree.allPowerObjsById[route.viewId]) {
 				this.$powerUi.powerTree.allPowerObjsById[route.viewId]['$shared'].removeInnerElementsFromPower();
 			}
-
-			const view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
+		}
+		// Second prepare and load
+		for (const route of openedRoutes) {
+			if (!document.getElementById(route.view.id)) {
+				const secundary = document.getElementById('secundary-view');
+				secundary.appendChild(route.view);
+			}
+			let view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
 
 			this.$powerUi.buildViewTemplateAndMayCallInit({
 				self: this.$powerUi,

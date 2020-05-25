@@ -393,6 +393,7 @@ class PowerUi extends _PowerUiBase {
 	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
+			console.log('init node', item);
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
 		}
@@ -568,7 +569,9 @@ class PowerUi extends _PowerUiBase {
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				self.runRouteController();
+				if (!refreshing) {
+					self.runRouteController();
+				}
 				if (self.initAlreadyRun) {
 					self.initNodes({
 						template: template,
