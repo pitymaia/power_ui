@@ -86,7 +86,6 @@ class KeyboardManager {
 			for (const obj of this.getRootElements()) {
 				obj.element.classList.remove('power-keyboard-mode');
 				obj.element.classList.remove('power-keyboard-position');
-				console.log('element', obj);
 			}
 		}
 	}
@@ -393,12 +392,11 @@ class PowerUi extends _PowerUiBase {
 	initNodes({template, routeId, viewId}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
-			console.log('init node', item);
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
+			this.callOnViewLoad(this, item.node.id);
 		}
 
-		this.callOnViewLoad(this, viewId);
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
