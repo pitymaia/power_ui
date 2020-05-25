@@ -195,8 +195,7 @@ class PowerUi extends _PowerUiBase {
 	loadRootScope({viewId, routeId, $root}) {
 		const crtlInstance = new $root.component({$powerUi: this, viewId: viewId, routeId: routeId});
 		const template = crtlInstance.template();
-		// const rootView = document.getElementById('root-view');
-		// rootView.innerHTML = template;
+
 		// Register the controller with $powerUi
 		this.controllers[viewId] = {
 			component: $root.component,

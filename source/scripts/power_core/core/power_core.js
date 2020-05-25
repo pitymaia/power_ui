@@ -468,23 +468,8 @@ class PowerTree {
 
 		// Evaluate and replace any {{}} from template
 		if (!refresh) {
-			const powerViews = document.getElementsByClassName('power-view');
-			let rootView = false;
-			// Interpolate using view controller scope
-			for (const view of powerViews) {
-				// root-view goes after all other views
-				if (view.id === 'root-view') {
-					rootView = view;
-				} else if (view.id !== 'secundary-view') {
-					const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
-					view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
-				}
-			}
-			// Interpolate using root controller scope
-			if (rootView) {
-				const scope = this.$powerUi.controllers[rootView.id] ? this.$powerUi.controllers[rootView.id].instance : this.$powerUi;
-				rootView.innerHTML = this.$powerUi.interpolation.replaceInterpolation(rootView.innerHTML, scope);
-			}
+			// Interpolete views and root scope in the right order
+			this.interpolateInOrder();
 
 			const body = document.getElementsByTagName('BODY')[0];
 			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
@@ -646,16 +631,38 @@ class PowerTree {
 			view: viewElement,
 			isInnerCompiler: isInnerCompiler,
 			rootCompiler: currentRootCompilerElement,
+		};
+	}
+
+	// Interpolete views and root scope in the right order
+	interpolateInOrder() {
+		const powerViews = document.getElementsByClassName('power-view');
+
+		let rootView = false;
+		// Interpolate using view controller scope
+		for (const view of powerViews) {
+			// root-view goes after all other views
+			if (view.id === 'root-view') {
+				rootView = view;
+			} else if (view.id !== 'secundary-view') {
+				const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
+				view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
+			}
+		}
+		// Interpolate using root controller scope
+		if (rootView) {
+			const scope = this.$powerUi.controllers[rootView.id] ? this.$powerUi.controllers[rootView.id].instance : this.$powerUi;
+			rootView.innerHTML = this.$powerUi.interpolation.replaceInterpolation(rootView.innerHTML, scope);
 		}
 	}
+
 	createAndInitObjectsFromCurrentNode({id}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
 		// Interpolate using root controller scope
-		const scope = this.$powerUi.controllers[node.id] ? this.$powerUi.controllers[node.id].instance : this.$powerUi;
-		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, scope);
+		this.interpolateInOrder();
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
 	}
