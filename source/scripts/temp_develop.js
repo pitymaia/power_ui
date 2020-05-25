@@ -173,6 +173,15 @@ class PowerOnlyPage extends PowerController {
 	}
 
 	changeModel(kind) {
+		for (const viewId of Object.keys(this.$powerUi.controllers)) {
+			if (this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.name) {
+				if (this.$powerUi.controllers[viewId].instance.name === 'Pity') {
+					this.$powerUi.controllers[viewId].instance.name = 'André';
+				} else {
+					this.$powerUi.controllers[viewId].instance.name = 'Pity';
+				}
+			}
+		}
 		if (this.oldName === this.myName) {
 			this.myName = 'My name is Bond, James Bond!';
 		} else {
@@ -197,7 +206,6 @@ class PowerOnlyPage extends PowerController {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
 			this.$root.changeCats();
-			console.log('refresh', this.cats.length);
 			this.refresh();
 		}
 	}
