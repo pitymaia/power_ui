@@ -184,7 +184,7 @@ class PowerOnlyPage extends PowerController {
 			this.cats[10].name = 'Luke';
 			this.cats[10].gender = 'male';
 			this.cats.push({name: 'Floquinho', gender: 'male'});
-			this.cats.push({name: '4 gatinhos', gender: 'unknow'});
+			this.cats.push({name: '4 gatinhos', gender: 'female'});
 		} else {
 			this.cats[10].name = 'Florzinha';
 			this.cats[10].gender = 'female';
@@ -196,10 +196,9 @@ class PowerOnlyPage extends PowerController {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
 			this.$root.changeCats();
-			this.refresh();
 			console.log('refresh', this.cats.length);
+			this.refresh();
 		}
-		console.log('changeModel', this.cats.length);
 	}
 
 	onViewLoad(view) {
@@ -835,7 +834,7 @@ class RootScope extends PowerRoot {
 	}
 
 	changeAndRefresh() {
-		this.changeCats()
+		this.changeCats();
 		this.refresh(this._viewId);
 	}
 }

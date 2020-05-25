@@ -190,12 +190,11 @@ class PowerUi extends _PowerUiBase {
 		this.request = new Request({config, $powerUi: this});
 		this.router = new Router(config, this); // Router calls this.init();
 
-
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
 	loadRootScope({viewId, routeId, $root}) {
-		const crtlInstance = new $root.component({$powerUi: this, viewId: 'root-view', routeId: '$root'});
+		const crtlInstance = new $root.component({$powerUi: this, viewId: viewId, routeId: routeId});
 		const template = crtlInstance.template();
 		// const rootView = document.getElementById('root-view');
 		// rootView.innerHTML = template;
@@ -209,6 +208,7 @@ class PowerUi extends _PowerUiBase {
 		this.controllers[viewId].instance._viewId = viewId;
 		this.controllers[viewId].instance._routeId = routeId;
 
+
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.buildViewTemplateAndMayCallInit({
 			self: this,
@@ -218,6 +218,26 @@ class PowerUi extends _PowerUiBase {
 			viewId: viewId,
 			title: null,
 		});
+
+		// Save the raw template to allow refresh the rootSope view
+		this.registerRootTemplate({
+			template: template,
+			ctrl: crtlInstance,
+			viewId: viewId,
+			view: document.getElementById(viewId),
+		});
+	}
+
+	// Save the raw template to allow refresh the rootSope view
+	registerRootTemplate({template, ctrl, viewId, view}) {
+		this._rootScope = {
+			routeId: '#root',
+			template: template,
+			ctrl: ctrl,
+			viewId: viewId,
+			view: view,
+			title: null,
+		};
 	}
 
 	// Return the "view" controller of any element inside the current view

@@ -168,21 +168,56 @@ class Router {
 		this.hashChange(null, true); // true for the reloading flag and null for the event
 		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
 		delete this.savedOldRoutes;
-
 	}
+
 	_refresh(viewId) {
+		// If have a rootScope and need refresh it or refresh all views user _refreshAll()
+		if (viewId === 'root-view' || (!viewId && this.$powerUi._rootScope)) {
+			this._refreshAll();
+			return;
+		}
+
+		// This refresh a single view or multiple views if do not have a rootScope
 		let openedRoutes = this.getOpenedRoutesRefreshData();
-		console.log('openedRoutes', openedRoutes);
+
 		if (viewId) {
 			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
 		}
+
 		for (const route of openedRoutes) {
-			console.log('_refresh view', viewId, route);
-			this.raplaceViewContent(route);
+			this.replaceViewContent(route);
 		}
 	}
 
-	raplaceViewContent({view, viewId, routeId, title, template}) {
+	// Refresh with root-view
+	_refreshAll() {
+		let openedRoutes = this.getOpenedRoutesRefreshData();
+
+		openedRoutes.unshift(this.$powerUi._rootScope);
+		console.log('refreshing', openedRoutes);
+
+		for (const route of openedRoutes) {
+			// delete all inner elements and events from this.allPowerObjsById[id]
+			if (this.$powerUi.powerTree.allPowerObjsById[route.viewId]) {
+				this.$powerUi.powerTree.allPowerObjsById[route.viewId]['$shared'].removeInnerElementsFromPower();
+			}
+
+			const view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
+
+			this.$powerUi.buildViewTemplateAndMayCallInit({
+				self: this.$powerUi,
+				view: view,
+				template: route.template,
+				routeId: route.routeId,
+				viewId: route.viewId,
+				title: route.title,
+				refreshing: true,
+			});
+		}
+
+	}
+
+	replaceViewContent({view, viewId, routeId, title, template}) {
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
 			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
