@@ -370,10 +370,10 @@ class PowerUi extends _PowerUiBase {
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	pwReload() {
-		this.initAlreadyRun = false;
-		this.router._reload();
-	}
+	// pwReload() {
+	// 	this.initAlreadyRun = false;
+	// 	this.router._reload();
+	// }
 
 	callOnViewLoad(self, viewId) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance) {
@@ -388,13 +388,15 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	initNodes({template, routeId, viewId}) {
+	initNodes({template, routeId, viewId, refreshing}) {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
+			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
 			this.callOnViewLoad(this, item.node.id);
 		}
+		// this.callOnViewLoad(this, viewId);
 
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -547,33 +549,42 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl, initAll}) {
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
 			if (!refreshing && self.controllers[viewId].instance.init) {
 				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
+
 		view.innerHTML = template;
-		self.ifNotWaitingServerCallInit({template: template, routeId: routeId, viewId: viewId, refreshing: refreshing, reloadCtrl: reloadCtrl});
+		self.ifNotWaitingServerCallInit({
+			template: template,
+			routeId: routeId,
+			viewId: viewId,
+			refreshing: refreshing,
+			reloadCtrl: reloadCtrl,
+			initAll: initAll,
+		});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing, reloadCtrl}) {
+	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing, reloadCtrl, initAll}) {
 		const self = this;
-		if (!refreshing || reloadCtrl) {
+		if (!refreshing || (refreshing && reloadCtrl)) {
 			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		}
 		setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
-				if (!refreshing || reloadCtrl) {
+				if (!refreshing || (refreshing && reloadCtrl)) {
 					self.runRouteController();
 				}
-				if (self.initAlreadyRun) {
+				if (self.initAlreadyRun && !initAll) {
 					self.initNodes({
 						template: template,
 						routeId: routeId,
 						viewId: viewId,
+						refreshing: refreshing,
 					});
 				} else {
 					self.initAll({

@@ -226,6 +226,7 @@ class Router {
 				title: route.title,
 				refreshing: true,
 				reloadCtrl: reloadCtrl,
+				initAll: true,
 			});
 		}
 

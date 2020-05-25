@@ -7,7 +7,6 @@ class PowEvent extends _PowerBasicElementWithEvents {
     compile({view}) {
         // The controller scope of this view
         const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
-
         for (const attr of this.element.attributes) {
             if (attr.name.includes('on')) {
                 const name = attr.name.slice(2, attr.name.length);
