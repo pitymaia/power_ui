@@ -191,7 +191,8 @@ class PowerOnlyPage extends PowerController {
 			this.cats.pop();
 		}
 		if (kind === 'pwReload') {
-			this.$powerUi.pwReload();
+			this.$root.changeCats();
+			this.reload();
 		} else if (kind === 'hardRefresh') {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
@@ -805,6 +806,7 @@ class RootScope extends PowerRoot {
 		return newTmpl;
 	}
 	ctrl() {
+		console.log('$rootScope crtl is loaded');
 		this.cats = [
 			{name: 'Penny', gender: 'female'},
 			{name: 'Riquinho', gender: 'male'},

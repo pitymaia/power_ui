@@ -158,22 +158,22 @@ class Router {
 		return dest;
 	}
 
-	_reload() {
-		const viewId = this.currentRoutes.viewId;
-		this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
-		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
-		this.currentRoutes = getEmptyRouteObjetc();
-		this.removeMainView({viewId: viewId, reloading: true});
-		this.closeOldSecundaryAndHiddenViews({reloading: true});
-		this.hashChange(null, true); // true for the reloading flag and null for the event
-		this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
-		delete this.savedOldRoutes;
-	}
+	// _reload() {
+	// 	const viewId = this.currentRoutes.viewId;
+	// 	this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
+	// 	this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
+	// 	this.currentRoutes = getEmptyRouteObjetc();
+	// 	this.removeMainView({viewId: viewId, reloading: true});
+	// 	this.closeOldSecundaryAndHiddenViews({reloading: true});
+	// 	this.hashChange(null, true); // true for the reloading flag and null for the event
+	// 	this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
+	// 	delete this.savedOldRoutes;
+	// }
 
-	_refresh(viewId) {
+	_refresh(viewId, reloadCtrl) {
 		// If have a rootScope and need refresh it or refresh all views user _refreshAll()
 		if (viewId === 'root-view' || (!viewId && this.$powerUi._rootScope)) {
-			this._refreshAll();
+			this._refreshAll(reloadCtrl);
 			return;
 		}
 
@@ -185,12 +185,19 @@ class Router {
 		}
 
 		for (const route of openedRoutes) {
-			this.replaceViewContent(route);
+			this.replaceViewContent({
+				view: route.view,
+				viewId: route.viewId,
+				routeId: route.routeId,
+				title: route.title,
+				template: route.template,
+				reloadCtrl: reloadCtrl,
+			});
 		}
 	}
 
 	// Refresh with root-view
-	_refreshAll() {
+	_refreshAll(reloadCtrl) {
 		let openedRoutes = this.getOpenedRoutesRefreshData();
 
 		openedRoutes.unshift(this.$powerUi._rootScope);
@@ -218,12 +225,13 @@ class Router {
 				viewId: route.viewId,
 				title: route.title,
 				refreshing: true,
+				reloadCtrl: reloadCtrl,
 			});
 		}
 
 	}
 
-	replaceViewContent({view, viewId, routeId, title, template}) {
+	replaceViewContent({view, viewId, routeId, title, template, reloadCtrl}) {
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
 			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
@@ -239,6 +247,7 @@ class Router {
 			viewId: viewId,
 			title: title,
 			refreshing: true,
+			reloadCtrl: reloadCtrl,
 		});
 	}
 
