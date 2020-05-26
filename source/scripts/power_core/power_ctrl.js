@@ -31,11 +31,15 @@ class PowerController extends PowerScope {
 	}
 
 	openRoute({routeId, params, target}) {
-		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+		// If is open from $root pretend it is from current main-view
+		const currentViewId = this._viewId === 'root-view' ? 'main-view' : this._viewId;
+		const currentRouteId = this._routeId === '$root' ? this.$powerUi.controllers['main-view'].instance._routeId : this._routeId;
+		const route = this.$powerUi.router.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
+
 		this.router.openRoute({
-			routeId: routeId || this._routeId, // destRouteId
-			currentRouteId: this._routeId,
-			currentViewId: this._viewId,
+			routeId: routeId || currentRouteId, // destRouteId
+			currentRouteId: currentRouteId,
+			currentViewId: currentViewId,
 			params: params,
 			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,

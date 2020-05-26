@@ -503,8 +503,6 @@ class SmallDialog extends PowerTemplate {
 			]
 		};
 
-		newTmpl = newTmpl + this.$service('JSONSchema').button(button);
-
 		resolve(newTmpl);
 	}
 }
@@ -850,6 +848,21 @@ class RootScope extends PowerRoot {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button);
 
+		const button2 = {
+			"id": "grid-view",
+			"label": "Go to Grid",
+			"icon": "save-front",
+			"kind": "primary",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goGrid()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button2);
+
 		return newTmpl;
 	}
 	ctrl() {
@@ -859,6 +872,13 @@ class RootScope extends PowerRoot {
 			{name: 'Riquinho', gender: 'male'},
 		];
 		this.name = 'Pity o bom!';
+	}
+
+	goGrid() {
+		this.openRoute({
+			routeId: 'grid-page',
+			// target: '_self',
+		});
 	}
 
 	openModal() {
@@ -904,6 +924,21 @@ class RootScope extends PowerRoot {
 	changeAndRefresh() {
 		this.changeCats();
 		this.refresh(this._viewId);
+	}
+}
+
+class GridPageTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		let newTmpl = '<div>{{name}} this is a simple grid page!</div>';
+
+		resolve(newTmpl);
+	}
+}
+
+class GridPageCtrl extends PowerController {
+
+	ctrl() {
+		this.name = 'André Augusto';
 	}
 }
 
@@ -3384,6 +3419,15 @@ class FakeModal extends PowerModal {
 }
 
 const routes = [
+		{
+			id: 'grid-page',
+			title: 'Grid Page | PowerUI',
+			route: 'grid',
+			templateComponent: GridPageTemplate,
+			ctrl: {
+				component: GridPageCtrl
+			},
+		},
 		{
 			id: 'front-page',
 			title: 'PowerUi - Rich UI made easy',
