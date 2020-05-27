@@ -516,7 +516,7 @@ class RootScope extends PowerRoot {
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-12',
-			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			"brand": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
 			"mirrored": false,
 			"position": "top-right",
 			// "orientation": "vertical",
@@ -951,7 +951,7 @@ class GridPageTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		let newTmpl = `<div>{{name}} this is a simple grid page!</div>
 		<br />
-		<div class="pw-grid cols-12 gap-auto">
+		<div class="pw-grid flex-12 gap-auto">
 			<div class="pw-col s-1 m-4 l-1 xl-11 order-s-1 order-m-12 order-l-1 order-xl-12">Item 1</div>
 			<div class="pw-col s-1 m-4 l-1 xl-12 order-s-2 order-m-11 order-l-2 order-xl-10">Item 2</div>
 			<div class="pw-col s-2 m-4 l-2 xl-1 order-s-3 order-m-10 order-l-3 order-xl-11">Item 3</div>
@@ -984,7 +984,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
-			"brand": "<img src='http://localhost:3000/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			"brand": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
 			"mirrored": false,
 			// "position": "bottom-left",
 			// "orientation": "vertical",
