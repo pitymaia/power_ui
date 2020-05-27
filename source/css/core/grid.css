@@ -73,7 +73,7 @@
 .pw-grid .pw-col {
     padding: 10px;
 }
-.pw-grid.simple .pw-col {
+.pw-grid.border .pw-col {
     border-color: #000000;
     border-style: solid;
     border-width: 1px;
