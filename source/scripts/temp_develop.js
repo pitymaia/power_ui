@@ -951,21 +951,68 @@ class GridPageTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		let newTmpl = `<div>{{name}} this is a simple grid page!</div>
 		<br />
-		<div class="pw-grid flex-12 gap-auto">
+		<div class="pw-grid flex-12 gap-auto simple">
 			<div class="pw-col s-1 m-4 l-1 xl-11 order-s-1 order-m-12 order-l-1 order-xl-12">Item 1</div>
-			<div class="pw-col s-1 m-4 l-1 xl-12 order-s-2 order-m-11 order-l-2 order-xl-10">Item 2</div>
+			<div class="pw-col s-1 m-4 l-1 xl-1 order-s-2 order-m-11 order-l-2 order-xl-10">Item 2</div>
 			<div class="pw-col s-2 m-4 l-2 xl-1 order-s-3 order-m-10 order-l-3 order-xl-11">Item 3</div>
-			<div class="pw-col s-1 m-4 l-1 xl-12 order-s-6 order-m-9 order-l-4 order-xl-9">Item 4</div>
-			<div class="pw-col s-1 m-2 l-1 xl-12 order-s-5 order-m-8 order-l-5 order-xl-7">Item 5</div>
-			<div class="pw-col s-2 m-2 l-1 xl-12 order-s-4 order-m-7 order-l-6 order-xl-8">Item 6</div>
-			<div class="pw-col s-1 m-2 l-1 xl-12 order-s-7 order-m-6 order-l-7 order-xl-6">Item 7</div>
-			<div class="pw-col s-1 m-2 l-2 xl-12 order-s-8 order-m-5 order-l-8 order-xl-4">Item 8</div>
-			<div class="pw-col s-1 m-1 l-1 xl-12 order-s-9 order-m-4 order-l-9 order-xl-5">Item 9</div>
+			<div class="pw-col s-1 m-4 l-1 xl-11 order-s-6 order-m-9 order-l-4 order-xl-9">Item 4</div>
+			<div class="pw-col s-1 m-2 l-1 xl-5 order-s-5 order-m-8 order-l-5 order-xl-7">Item 5</div>
+			<div class="pw-col s-2 m-2 l-1 xl-5 order-s-4 order-m-7 order-l-6 order-xl-8">Item 6</div>
+			<div class="pw-col s-1 m-2 l-1 xl-2 order-s-7 order-m-6 order-l-7 order-xl-6">Item 7</div>
+			<div class="pw-col s-1 m-2 l-2 xl-6 order-s-8 order-m-5 order-l-8 order-xl-4">Item 8</div>
+			<div class="pw-col s-1 m-1 l-1 xl-6 order-s-9 order-m-4 order-l-9 order-xl-5">Item 9</div>
 			<div class="pw-col s-2 m-3 l-1 xl-12 order-s-12 order-m-3 order-l-10 order-xl-3">Item 10</div>
 			<div class="pw-col s-2 m-3 l-3 xl-12 order-s-11 order-m-2 order-l-11 order-xl-1">Item 11</div>
 			<div class="pw-col s-1 m-1 l-3 xl-12 order-s-10 order-m-1 order-l-12 order-xl-2">Item 12</div>
 		</div>
 		<br />
+		<br />
+		<div class="pw-grid flex-12 gap-auto simple">
+			<div class="pw-col">Item 1</div>
+			<div class="pw-col">Item 2</div>
+			<div class="pw-col">Item 3</div>
+			<div class="pw-col">Item 4</div>
+			<div class="pw-col">Item 5</div>
+			<div class="pw-col">Item 6</div>
+			<div class="pw-col">Item 7</div>
+			<div class="pw-col">Item 8</div>
+			<div class="pw-col">Item 9</div>
+			<div class="pw-col">Item 10</div>
+			<div class="pw-col">Item 11</div>
+			<div class="pw-col">Item 12</div>
+		</div>
+		<br />
+		<br />
+		<div class="pw-grid scroll-12 gap-10 simple">
+			<div class="pw-col s-12 m-12 l-12 xl-12">Item 1</div>
+			<div class="pw-col s-12 m-12 l-12 xl-12">Item 2</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 3</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 4</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 5</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 6</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 7</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 8</div>
+			<div class="pw-col s-6 m-6 l-6 xl-6">Item 9</div>
+			<div class="pw-col s-2 m-2 l-2 xl-2">Item 10</div>
+			<div class="pw-col s-1 m-1 l-1 xl-1">Item 11</div>
+			<div class="pw-col s-3 m-3 l-3 xl-3">Item 12</div>
+		</div>
+		<br />
+		<br />
+		<div class="pw-grid scroll-12 gap-10 simple">
+			<div class="pw-col">Item 1</div>
+			<div class="pw-col">Item 2</div>
+			<div class="pw-col">Item 3</div>
+			<div class="pw-col">Item 4</div>
+			<div class="pw-col">Item 5</div>
+			<div class="pw-col">Item 6</div>
+			<div class="pw-col">Item 7</div>
+			<div class="pw-col">Item 8</div>
+			<div class="pw-col">Item 9</div>
+			<div class="pw-col">Item 10</div>
+			<div class="pw-col">Item 11</div>
+			<div class="pw-col">Item 12</div>
+		</div>
 		`;
 
 		resolve(newTmpl);
