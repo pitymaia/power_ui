@@ -501,6 +501,38 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
+	html(html) {
+		// if (this.validate(this.htmlDef(), html) === false) {
+		// 	window.console.log('Failed JSON html:', html);
+		// 	return 'Failed JSON html!';
+		// }
+
+		const tag = html.tagName;
+
+		let template = `<${tag} ${html.id ? 'id="' + html.id + '"' : ''} ${html.classList ? 'class="' + this.getClassList(html.classList) + '"' : ''} ${html.attrs ? this.buildAttributes(html.attrs) : ''}>
+			${html.text || ''}`;
+
+		// template = this._simpleFormContent({template: template, content: form.content});
+
+		template = `${template}
+		</${tag}>`;
+
+		console.log('template', template);
+		return template;
+	}
+
+	getClassList(classList) {
+		let customCss = '';
+		for (const css of classList) {
+			customCss = `${customCss} ${css}`;
+		}
+		return customCss;
+	}
+
+	buildAttributes(attrs) {
+
+	}
+
 	appendClassList({element, json}) {
 		for (const css of json.classList) {
 			element.classList.add(css);

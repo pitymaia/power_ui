@@ -1013,7 +1013,24 @@ class GridPageTemplate extends PowerTemplate {
 			<div class="pw-col">Item 11</div>
 			<div class="pw-col">Item 12</div>
 		</div>
+		<br />
+		<br />
 		`;
+
+		const htmlTag = {
+			"id": "some-div",
+			"tagName": "div",
+			"text": "<div class='pw-col s-6 m-6 l-6 xl-6'>PowerUi is amazing!</div><div class='pw-col s-6 m-6 l-6 xl-6'>Power IDE is a billion dolar idea!</div>",
+			"classList": ["pw-grid", "scroll-12", "gap-auto border"],
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goPower()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').html(htmlTag);
 
 		resolve(newTmpl);
 	}
