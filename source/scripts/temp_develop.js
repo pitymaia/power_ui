@@ -983,7 +983,7 @@ class GridPageTemplate extends PowerTemplate {
 		</div>
 		<br />
 		<br />
-		<div class="pw-grid scroll-12 gap-10 simple">
+		<div class="pw-grid scroll-12 gap-auto simple">
 			<div class="pw-col s-12 m-12 l-12 xl-12">Item 1</div>
 			<div class="pw-col s-12 m-12 l-12 xl-12">Item 2</div>
 			<div class="pw-col s-6 m-6 l-6 xl-6">Item 3</div>
@@ -999,7 +999,7 @@ class GridPageTemplate extends PowerTemplate {
 		</div>
 		<br />
 		<br />
-		<div class="pw-grid scroll-12 gap-10 simple">
+		<div class="pw-grid scroll-12 gap-auto simple">
 			<div class="pw-col">Item 1</div>
 			<div class="pw-col">Item 2</div>
 			<div class="pw-col">Item 3</div>

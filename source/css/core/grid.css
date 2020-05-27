@@ -91,7 +91,7 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .pw-grid.flex-12.gap-auto {
+    .pw-grid.gap-auto {
         grid-gap: 4px;
     }
 
@@ -193,7 +193,7 @@
         grid-template-columns: repeat(4, 1fr);
     }
 
-    .pw-grid.flex-12.gap-auto {
+    .pw-grid.gap-auto {
         grid-gap: 6px;
     }
 
@@ -297,7 +297,7 @@
         grid-template-columns: repeat(6, 1fr);
     }
 
-    .pw-grid.flex-12.gap-auto {
+    .pw-grid.gap-auto {
         grid-gap: 8px;
     }
 
@@ -403,7 +403,7 @@
         grid-template-columns: repeat(12, 1fr);
     }
 
-    .pw-grid.flex-12.gap-auto {
+    .pw-grid.gap-auto {
         grid-gap: 10px;
     }
 
