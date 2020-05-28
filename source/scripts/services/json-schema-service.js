@@ -508,16 +508,23 @@ class JSONSchemaService extends PowerServices {
 		// }
 
 		const tag = html.tagName;
+		// Add events if have
+		let eventsTmpl = this._getEventTmpl(html);
 
-		let template = `<${tag} ${html.id ? 'id="' + html.id + '"' : ''} ${html.classList ? 'class="' + this.getClassList(html.classList) + '"' : ''} ${html.attrs ? this.buildAttributes(html.attrs) : ''}>
-			${html.text || ''}`;
+		let template = `<${tag} ${html.id ? 'id="' + html.id + '"' : ''} ${html.classList ? 'class="' + this.getClassList(html.classList) + '"' : ''} ${html.attrs ? this.buildAttributes(html.attrs) : ''}${html.events ? ' data-pow-event' + eventsTmpl : ''}>
+			${this.$powerUi.sanitizeHTML(html.text) || ''}`;
 
+		if (html.children) {
+			for (const child of html.children) {
+				template = `${template}
+					${this.html(child)}`;
+			}
+		}
 		// template = this._simpleFormContent({template: template, content: form.content});
 
 		template = `${template}
 		</${tag}>`;
 
-		console.log('template', template);
 		return template;
 	}
 
@@ -530,7 +537,11 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	buildAttributes(attrs) {
-
+		let attributes = '';
+		for (const attr of attrs) {
+			attributes = `${attributes} ${attr.name}=${attr.value}`;
+		}
+		return attributes;
 	}
 
 	appendClassList({element, json}) {

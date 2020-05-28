@@ -1018,14 +1018,108 @@ class GridPageTemplate extends PowerTemplate {
 		`;
 
 		const htmlTag = {
+			"kind": "html",
 			"id": "some-div",
 			"tagName": "div",
-			"text": "<div class='pw-col s-6 m-6 l-6 xl-6'>PowerUi is amazing!</div><div class='pw-col s-6 m-6 l-6 xl-6'>Power IDE is a billion dolar idea!</div>",
+			// "text": "Pity o bom",
 			"classList": ["pw-grid", "scroll-12", "gap-auto border"],
 			"events": [
 				{
 					"event": "onclick",
-					"fn": "goPower()"
+					"fn": "openModal()"
+				}
+			],
+			children: [
+				{
+					"kind": "html",
+					"id": "col-1",
+					"tagName": "div",
+					"text": "PowerUi is amazing!",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-orange"
+						}
+					],
+					"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
+				},
+				{
+					"kind": "html",
+					"id": "col-2",
+					"tagName": "div",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-blue"
+						}
+					],
+					"text": "Power IDE is a billion dolar idea!",
+					"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
+				},
+				{
+					"kind": "html",
+					"id": "col-3",
+					"tagName": "div",
+					"text": "PowerUi",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-orange"
+						}
+					],
+					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
+				},
+				{
+					"kind": "html",
+					"id": "col-4",
+					"tagName": "div",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-blue"
+						}
+					],
+					"text": "Power IDE is a billion dolar idea!",
+					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
+				},
+				{
+					"kind": "html",
+					"id": "col-5",
+					"tagName": "div",
+					"text": "PowerUi",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-orange"
+						}
+					],
+					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
+				},
+				{
+					"kind": "html",
+					"id": "col-6",
+					"tagName": "div",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-blue"
+						}
+					],
+					"text": "Power IDE is a billion dolar idea!",
+					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
+				},
+				{
+					"kind": "html",
+					"id": "col-7",
+					"tagName": "div",
+					"attrs": [
+						{
+							"name": "data-pow-css-hover",
+							"value": "pw-blue"
+						}
+					],
+					"text": "{{name}}",
+					"classList": ["pw-col", "s-12", "m-12", "l-12", "xl-12"]
 				}
 			]
 		};
