@@ -1093,7 +1093,7 @@ class GridPageTemplate extends PowerTemplate {
 							"value": "pw-orange"
 						}
 					],
-					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
+					"classList": ["pw-col", "s-6", "m-3", "l-3", "xl-3"]
 				},
 				{
 					"kind": "html",
@@ -1106,7 +1106,7 @@ class GridPageTemplate extends PowerTemplate {
 						}
 					],
 					"text": "Power IDE is a billion dolar idea!",
-					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
+					"classList": ["pw-col", "s-12", "m-3", "l-3", "xl-3"]
 				},
 				{
 					"kind": "html",
