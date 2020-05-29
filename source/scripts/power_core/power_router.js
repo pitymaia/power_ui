@@ -599,7 +599,7 @@ class Router {
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title});
+				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true});
 			}
 		}
 	}
@@ -618,7 +618,7 @@ class Router {
 		return oldHash;
 	}
 
-	navigate({hash, title}) {
+	navigate({hash, title, isMainView}) {
 		const newHashParts = this.extractRouteParts(hash);
 		let newHash = newHashParts.path || '';
 		let newHiddenHash = '';
@@ -634,6 +634,9 @@ class Router {
 		if (window.location.hash !== encodeURI(this.config.rootPath + newHash)) {
 			window.history.pushState(null, title, window.location.href);
 			window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
+			if (isMainView){
+				window.scrollTo(0, 0);
+			}
 		} else {
 			// If there is only a new hidden rote
 			// Only the hiddenLocationHash change, manually call hasChange
