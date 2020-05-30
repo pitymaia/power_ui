@@ -1022,7 +1022,7 @@ class GridPageTemplate extends PowerTemplate {
 			"id": "some-div",
 			"tagName": "div",
 			// "text": "Pity o bom",
-			"classList": ["pw-grid", "scroll-12", "gap-auto border"],
+			"classList": ["pw-grid", "scroll-12", "gap-2 border"],
 			"events": [
 				{
 					"event": "onclick",

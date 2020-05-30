@@ -78,7 +78,7 @@ class JSONSchemaService extends PowerServices {
 			return 'Failed JSON accordion!';
 		}
 		const tmpEl = document.createElement('div');
-		tmpEl.innerHTML = `<div class="power-accordion" id="${accordion.id}" data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
+		tmpEl.innerHTML = `<div class="power-accordion" ${this._getIdTmpl(accordion.id)} data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
 		const accordionEl = tmpEl.children[0];
 		if (accordion.classList) {
 			this.appendClassList({element: accordionEl, json: accordion});
@@ -87,7 +87,7 @@ class JSONSchemaService extends PowerServices {
 		for (const panel of accordion.panels) {
 			// Headers
 			const headerHolderEl = document.createElement('div');
-			headerHolderEl.innerHTML = `<div class="power-action" data-power-target="${panel.section.id}" id="${panel.header.id}">
+			headerHolderEl.innerHTML = `<div class="power-action" data-power-target="${panel.section.id}" ${this._getIdTmpl(panel.header.id)}>
 					<div><span class="pw-label">${panel.header.label}</span></div>
 				</div>`;
 			const headerEl = headerHolderEl.children[0];
@@ -104,7 +104,7 @@ class JSONSchemaService extends PowerServices {
 
 			// Sections
 			const sectionHolderEl = document.createElement('div');
-			sectionHolderEl.innerHTML = `<div class="power-accordion-section" id="${panel.section.id}">
+			sectionHolderEl.innerHTML = `<div class="power-accordion-section" ${this._getIdTmpl(panel.section.id)}>
 				${panel.section.content}
 			</div>`;
 
@@ -213,7 +213,7 @@ class JSONSchemaService extends PowerServices {
 
 		const tmpEl = document.createElement('div');
 
-		tmpEl.innerHTML = `<nav class="${isMenu ? 'power-menu' : 'power-dropmenu'}${mirrored === true ? ' pw-mirrored' : ''}" id="${dropmenu.id}"></nav>`;
+		tmpEl.innerHTML = `<nav class="${isMenu ? 'power-menu' : 'power-dropmenu'}${mirrored === true ? ' pw-mirrored' : ''}" ${this._getIdTmpl(dropmenu.id)}></nav>`;
 
 		// Set menu position
 		if (dropmenu.position) {
@@ -270,16 +270,29 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	_getEventTmpl(item) {
+	// Build pow-event attributes
+	_getEventTmpl(events) {
 		// Add events if have
-		let eventsTmpl = '';
-		if (item.events) {
-			for (const event of item.events) {
+		if (events) {
+			let eventsTmpl = '';
+			for (const event of events) {
 				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
 			}
+			eventsTmpl = `data-pow-event ${eventsTmpl}`;
+			return eventsTmpl;
+		} else {
+			return '';
 		}
+	}
 
-		return eventsTmpl;
+	_getIdTmpl(id, required) {
+		if (id) {
+			return `id="${id}"`;
+		} else if (required) {
+			return `id="${required}_${this.$powerUi._Unique.next()}"`;
+		} else {
+			return '';
+		}
 	}
 
 	item({item, avoidValidation, mirrored, dropmenuId}) {
@@ -289,10 +302,8 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		const tmpEl = document.createElement('div');
-		// Add events if have
-		let eventsTmpl = this._getEventTmpl(item);
 
-		tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" id="${item.id}" ${item.events ? 'data-pow-event' + eventsTmpl : ''} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
+		tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" ${this._getIdTmpl(item.id)} ${this._getEventTmpl(item.events)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 		const itemEl = tmpEl.children[0];
 
@@ -338,10 +349,8 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		const tmpEl = document.createElement('div');
-		// Add events if have
-		let eventsTmpl = this._getEventTmpl(button);
 
-		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" type="${button.type || 'button'}" id="${button.id}" ${button.events ? 'data-pow-event' + eventsTmpl : ''}><span class="pw-label">${button.label}</span></button>`;
+		tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" type="${button.type || 'button'}" ${this._getIdTmpl(button.id)} ${this._getEventTmpl(button.events)}><span class="pw-label">${button.label}</span></button>`;
 
 		const buttonEl = tmpEl.children[0];
 
@@ -361,7 +370,7 @@ class JSONSchemaService extends PowerServices {
 			window.console.log('Failed JSON tree:', tree);
 			return 'Failed JSON tree!';
 		}
-		let template = `<nav ${tree.id ? 'id="' + tree.id + '"' : ''} class="power-tree-view">`;
+		let template = `<nav ${this._getIdTmpl(tree.id)} class="power-tree-view">`;
 		for (const item of tree.content) {
 			if (item.kind === 'file') {
 				if (tree.events) {
@@ -415,21 +424,19 @@ class JSONSchemaService extends PowerServices {
 
 			} else if (control.type === 'image') {
 
-				// Add events if have
-				let eventsTmpl = this._getEventTmpl(control);
 				template = `${template}
-				<input id="${id}" class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${control.events ? 'data-pow-event' + eventsTmpl : ''} />`;
+				<input ${this._getIdTmpl(id)} class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${this._getEventTmpl(control.events)} />`;
 
 			} else if (control.type === 'submit' || control.type === 'reset') {
 
 				template = `${template}
-				<input id="${id}" class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
+				<input ${this._getIdTmpl(id)} class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
 
 			} else if (control.type === 'select') {
 
 				template = `${template}
 				${label ? label : ''}
-				<select id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
+				<select ${this._getIdTmpl(id)} class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
 					for (const item of control.list) {
 						template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
 					}
@@ -439,13 +446,13 @@ class JSONSchemaService extends PowerServices {
 			} else if (control.type === 'radio' || control.type === 'checkbox') {
 
 				template = `${template}
-				<input class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
+				<input class="pw-field ${customCss}" ${this._getIdTmpl(id)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
 
 			} else if (control.type === 'textarea') {
 
 				template = `${template}
 				${label ? label : ''}
-				<textarea class="pw-field ${customCss}" id="${id}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+				<textarea class="pw-field ${customCss}" ${this._getIdTmpl(id)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
 					${control.value || ''}
 				</textarea>`;
 
@@ -453,7 +460,7 @@ class JSONSchemaService extends PowerServices {
 
 				template = `${template}
 				${label ? label : ''}
-				<input id="${id}" class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+				<input ${this._getIdTmpl(id)}  class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
 			}
 
 			template = `${template}
@@ -491,7 +498,7 @@ class JSONSchemaService extends PowerServices {
 
 		const formType = form.type === 'form' ? 'form' : 'div';
 
-		let template = `<${formType} id="${form.id || 'form_' + this.$powerUi._Unique.next()}" class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
+		let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
 
 		template = this._simpleFormContent({template: template, content: form.content});
 
@@ -501,6 +508,10 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
+	_sanitize(value) {
+		return this.$powerUi.sanitizeHTML(value);
+	}
+
 	html(html) {
 		// if (this.validate(this.htmlDef(), html) === false) {
 		// 	window.console.log('Failed JSON html:', html);
@@ -508,11 +519,9 @@ class JSONSchemaService extends PowerServices {
 		// }
 
 		const tag = html.tagName;
-		// Add events if have
-		let eventsTmpl = this._getEventTmpl(html);
 
-		let template = `<${tag} ${html.id ? 'id="' + html.id + '"' : ''} ${html.classList ? 'class="' + this.getClassList(html.classList) + '"' : ''} ${html.attrs ? this.buildAttributes(html.attrs) : ''}${html.events ? ' data-pow-event' + eventsTmpl : ''}>
-			${this.$powerUi.sanitizeHTML(html.text) || ''}`;
+		let template = `<${tag} ${this._getIdTmpl(html.id)} ${html.classList ? 'class="' + this.getClassList(html.classList) + '"' : ''} ${html.attrs ? this.buildAttributes(html.attrs) : ''} ${this._getEventTmpl(html.events)}>
+			${this._sanitize(html.text) || ''}`;
 
 		if (html.children) {
 			for (const child of html.children) {
@@ -531,7 +540,7 @@ class JSONSchemaService extends PowerServices {
 	getClassList(classList) {
 		let customCss = '';
 		for (const css of classList) {
-			customCss = `${customCss} ${css}`;
+			customCss = `${customCss} ${this._sanitize(css)}`;
 		}
 		return customCss;
 	}
@@ -539,14 +548,14 @@ class JSONSchemaService extends PowerServices {
 	buildAttributes(attrs) {
 		let attributes = '';
 		for (const attr of attrs) {
-			attributes = `${attributes} ${attr.name}=${attr.value}`;
+			attributes = `${attributes} ${attr.name}=${this._sanitize(attr.value)}`;
 		}
-		return attributes;
+		return this._sanitize(attributes);
 	}
 
 	appendClassList({element, json}) {
 		for (const css of json.classList) {
-			element.classList.add(css);
+			element.classList.add(this._sanitize(css));
 		}
 	}
 
