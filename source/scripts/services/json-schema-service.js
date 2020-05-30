@@ -295,6 +295,27 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
+	_getAttrTmpl(attrs) {
+		let attributes = '';
+		if (attrs) {
+			for (const attr of attrs) {
+				attributes = `${attributes} ${attr.name}="${attr.value}"`;
+			}
+		}
+		return attributes;
+	}
+
+	_getClassTmpl(classList) {
+		let customCss = '';
+		if (classList) {
+			for (const css of classList) {
+				customCss = `${customCss} ${css}`;
+			}
+			return `class="${customCss}"`;
+		}
+		return customCss;
+	}
+
 	item({item, avoidValidation, mirrored, dropmenuId}) {
 		if (!avoidValidation && this.validate(this.itemDef(), item) === false) {
 			window.console.log('Failed JSON item:', item);
@@ -508,10 +529,6 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
-	_sanitize(value) {
-		return this.$powerUi.sanitizeHTML(value);
-	}
-
 	html(html) {
 		// if (this.validate(this.htmlDef(), html) === false) {
 		// 	window.console.log('Failed JSON html:', html);
@@ -520,8 +537,8 @@ class JSONSchemaService extends PowerServices {
 
 		const tag = html.tagName;
 
-		let template = `<${tag} ${this._getIdTmpl(html.id)} ${html.classList ? 'class="' + this.getClassList(html.classList) + '"' : ''} ${html.attrs ? this.buildAttributes(html.attrs) : ''} ${this._getEventTmpl(html.events)}>
-			${this._sanitize(html.text) || ''}`;
+		let template = `<${tag} ${this._getIdTmpl(html.id)} ${this._getClassTmpl(html.classList)} ${this._getAttrTmpl(html.attrs)} ${this._getEventTmpl(html.events)}>
+			${html.text || ''}`;
 
 		if (html.children) {
 			for (const child of html.children) {
@@ -529,7 +546,6 @@ class JSONSchemaService extends PowerServices {
 					${this.html(child)}`;
 			}
 		}
-		// template = this._simpleFormContent({template: template, content: form.content});
 
 		template = `${template}
 		</${tag}>`;
@@ -537,25 +553,9 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
-	getClassList(classList) {
-		let customCss = '';
-		for (const css of classList) {
-			customCss = `${customCss} ${this._sanitize(css)}`;
-		}
-		return customCss;
-	}
-
-	buildAttributes(attrs) {
-		let attributes = '';
-		for (const attr of attrs) {
-			attributes = `${attributes} ${attr.name}=${this._sanitize(attr.value)}`;
-		}
-		return this._sanitize(attributes);
-	}
-
 	appendClassList({element, json}) {
 		for (const css of json.classList) {
-			element.classList.add(this._sanitize(css));
+			element.classList.add(css);
 		}
 	}
 
@@ -564,7 +564,7 @@ class JSONSchemaService extends PowerServices {
 		const icon = document.createElement('span');
 		icon.classList.add('pw-icon');
 		if (json.icon === 'img' && json["icon-src"]) {
-			const img = document.createElement('img')
+			const img = document.createElement('img');
 			img.src = json["icon-src"];
 			icon.appendChild(img);
 		} else {
