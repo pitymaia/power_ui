@@ -1126,6 +1126,31 @@ class GridPageTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').html(htmlTag);
 
+		const tags = [
+			{
+				"kind": "html",
+				"tagName": "br"
+			},
+			{
+				"kind": "html",
+				"tagName": "br"
+			},
+			{
+				"kind": "html",
+				"tagName": "hr"
+			},
+			{
+				"kind": "html",
+				"tagName": "br"
+			},
+			{
+				"kind": "html",
+				"tagName": "br"
+			},
+		]
+
+		newTmpl = newTmpl + this.$service('JSONSchema').html(tags);
+
 		resolve(newTmpl);
 	}
 }

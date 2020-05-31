@@ -530,27 +530,43 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	html(html) {
-		// if (this.validate(this.htmlDef(), html) === false) {
-		// 	window.console.log('Failed JSON html:', html);
-		// 	return 'Failed JSON html!';
-		// }
-
-		const tag = html.tagName;
-
-		let template = `<${tag} ${this._getIdTmpl(html.id)} ${this._getClassTmpl(html.classList)} ${this._getAttrTmpl(html.attrs)} ${this._getEventTmpl(html.events)}>
-			${html.text || ''}`;
-
-		if (html.children) {
-			for (const child of html.children) {
+		// This allow pass an array of tags or a single "tree" of tags
+		if (html.length) {
+			let template = '';
+			for (const tag of html) {
 				template = `${template}
-					${this.html(child)}`;
+					${this.html(tag)}`;
+			}
+
+			return template;
+		} else {
+			// if (this.validate(this.htmlDef(), html) === false) {
+			// 	window.console.log('Failed JSON html:', html);
+			// 	return 'Failed JSON html!';
+			// }
+
+			const tag = html.tagName.toLowerCase();
+			const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"];
+
+			if (voidTags.includes(tag)) {
+				return `<${tag} ${this._getIdTmpl(html.id)} ${this._getClassTmpl(html.classList)} ${this._getAttrTmpl(html.attrs)} />`;
+			} else {
+				let template = `<${tag} ${this._getIdTmpl(html.id)} ${this._getClassTmpl(html.classList)} ${this._getAttrTmpl(html.attrs)} ${this._getEventTmpl(html.events)}>
+					${html.text || ''}`;
+
+				if (html.children) {
+					for (const child of html.children) {
+						template = `${template}
+							${this.html(child)}`;
+					}
+				}
+
+				template = `${template}
+				</${tag}>`;
+
+				return template;
 			}
 		}
-
-		template = `${template}
-		</${tag}>`;
-
-		return template;
 	}
 
 	appendClassList({element, json}) {
