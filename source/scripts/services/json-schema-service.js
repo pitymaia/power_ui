@@ -309,11 +309,19 @@ class JSONSchemaService extends PowerServices {
 		let customCss = '';
 		if (classList) {
 			for (const css of classList) {
-				customCss = `${customCss} ${css}`;
+				customCss = customCss ? `${customCss} ${css}` : css;
 			}
 			return `class="${customCss}"`;
 		}
 		return customCss;
+	}
+
+	_getHtmlBasicTmpl(item, required) {
+		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}`;
+	}
+
+	_getInputBasicTmpl(control, required) {
+		return `${this._getHtmlBasicTmpl(control, required)}`;
 	}
 
 	item({item, avoidValidation, mirrored, dropmenuId}) {
@@ -425,8 +433,10 @@ class JSONSchemaService extends PowerServices {
 
 	_simpleFromGroups({controls, template}) {
 		for (const control of controls) {
-			const id = control.id || 'input_' + this.$powerUi._Unique.next();
-			const label = control.label ? `<label for="${id}">${control.label}</label>` : null;
+			if (!control.id) {
+				control.id = 'input_' + this.$powerUi._Unique.next();
+			}
+			const label = control.label ? `<label for="${control.id}">${control.label}</label>` : null;
 
 			let customCss = '';
 			if (control.classList) {
@@ -434,6 +444,11 @@ class JSONSchemaService extends PowerServices {
 					customCss = `${customCss} ${css}`;
 				}
 			}
+
+			if (!control.classList) {
+				control.classList = [];
+			}
+			control.classList.push('pw-field');
 
 			template = `${template}
 				<div class="pw-col">`;
@@ -445,19 +460,21 @@ class JSONSchemaService extends PowerServices {
 
 			} else if (control.type === 'image') {
 
+
 				template = `${template}
-				<input ${this._getIdTmpl(id)} class="pw-field ${customCss}" src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} ${this._getEventTmpl(control.events)} />`;
+				<input ${this._getInputBasicTmpl(control)} src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
 
 			} else if (control.type === 'submit' || control.type === 'reset') {
 
+				control.classList.pop();
 				template = `${template}
-				<input ${this._getIdTmpl(id)} class="${customCss}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
+				<input ${this._getInputBasicTmpl(control)} type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
 
 			} else if (control.type === 'select') {
 
 				template = `${template}
 				${label ? label : ''}
-				<select ${this._getIdTmpl(id)} class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
+				<select ${this._getInputBasicTmpl(control)} type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
 					for (const item of control.list) {
 						template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
 					}
@@ -467,13 +484,13 @@ class JSONSchemaService extends PowerServices {
 			} else if (control.type === 'radio' || control.type === 'checkbox') {
 
 				template = `${template}
-				<input class="pw-field ${customCss}" ${this._getIdTmpl(id)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
+				<input ${this._getInputBasicTmpl(control)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
 
 			} else if (control.type === 'textarea') {
 
 				template = `${template}
 				${label ? label : ''}
-				<textarea class="pw-field ${customCss}" ${this._getIdTmpl(id)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.value ? 'rows="' + control.rows + '"' : ''} ${control.value ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+				<textarea ${this._getInputBasicTmpl(control)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
 					${control.value || ''}
 				</textarea>`;
 
@@ -481,7 +498,7 @@ class JSONSchemaService extends PowerServices {
 
 				template = `${template}
 				${label ? label : ''}
-				<input ${this._getIdTmpl(id)}  class="pw-field ${customCss}" type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+				<input ${this._getInputBasicTmpl(control)} type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
 			}
 
 			template = `${template}
@@ -549,9 +566,9 @@ class JSONSchemaService extends PowerServices {
 			const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"];
 
 			if (voidTags.includes(tag)) {
-				return `<${tag} ${this._getIdTmpl(html.id)} ${this._getClassTmpl(html.classList)} ${this._getAttrTmpl(html.attrs)} />`;
+				return `<${tag} ${this._getHtmlBasicTmpl(html)} />`;
 			} else {
-				let template = `<${tag} ${this._getIdTmpl(html.id)} ${this._getClassTmpl(html.classList)} ${this._getAttrTmpl(html.attrs)} ${this._getEventTmpl(html.events)}>
+				let template = `<${tag} ${this._getHtmlBasicTmpl(html)}>
 					${html.text || ''}`;
 
 				if (html.children) {

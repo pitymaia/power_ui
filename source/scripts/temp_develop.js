@@ -1145,8 +1145,16 @@ class GridPageTemplate extends PowerTemplate {
 			},
 			{
 				"kind": "html",
+				"tagName": "input"
+			},
+			{
+				"kind": "html",
 				"tagName": "br"
 			},
+			{
+				"kind": "html",
+				"tagName": "br"
+			}
 		]
 
 		newTmpl = newTmpl + this.$service('JSONSchema').html(tags);
