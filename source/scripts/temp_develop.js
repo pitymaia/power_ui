@@ -1145,7 +1145,35 @@ class GridPageTemplate extends PowerTemplate {
 			},
 			{
 				"kind": "html",
-				"tagName": "input"
+				"tagName": "img",
+				"src": "/vendors/imgs/Brazil-Flag-icon.png",
+				"width": "30px",
+				"height": "30px"
+			},
+			{
+				"kind": "html",
+				"tagName": "input",
+				"type": "image",
+				"width": "30px",
+				"height": "30px",
+				"src": "vendors/imgs/rv_bt.png",
+				"classList": ["pw-field"]
+			},
+			{
+				"kind": "html",
+				"tagName": "input",
+				"id": "name-check",
+				"type": "checkbox",
+				"bind": "wii",
+				"title": "Have a Wii?",
+				"classList": ["pw-field"]
+			},
+			{
+				"kind": "html",
+				"tagName": "label",
+				"text": "Wii",
+				"title": "Have a Wii?",
+				"for": "name-check"
 			},
 			{
 				"kind": "html",
@@ -1167,6 +1195,7 @@ class GridPageCtrl extends PowerController {
 
 	ctrl() {
 		this.name = 'André Augusto';
+		this.wii = true;
 	}
 }
 

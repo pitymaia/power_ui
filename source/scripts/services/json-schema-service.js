@@ -317,11 +317,11 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_getHtmlBasicTmpl(item, required) {
-		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}`;
+		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}${item.title ? ' title="' + item.title + '"' : ''}${item.for ? ' for="' + item.for + '"' : ''}${item.src ? ' src="' + item.src + '"' : ''}${item.cols ? ' cols="' + item.cols + '"' : ''}${item.rows ? ' rows="' + item.rows + '"' : ''}${item.width ? ' width="' + item.width + '"' : ''}${item.height ? ' height="' + item.height + '"' : ''}`;
 	}
 
 	_getInputBasicTmpl(control, required) {
-		return `${this._getHtmlBasicTmpl(control, required)}`;
+		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.name ? ' name="' + control.name + '"' : ''}${control.value ? ' value="' + control.value + '"' : ''}${control.bind ? ' data-pow-bind="' + control.bind + '"' : ''}`;
 	}
 
 	item({item, avoidValidation, mirrored, dropmenuId}) {
@@ -458,23 +458,17 @@ class JSONSchemaService extends PowerServices {
 				template = `${template}
 					${this.button(control.button)}`;
 
-			} else if (control.type === 'image') {
-
-
-				template = `${template}
-				<input ${this._getInputBasicTmpl(control)} src="${control.src}" type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
-
 			} else if (control.type === 'submit' || control.type === 'reset') {
 
 				control.classList.pop();
 				template = `${template}
-				<input ${this._getInputBasicTmpl(control)} type="${control.type}" ${control.name ? 'name="' + control.name + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''} />`;
+				<input ${this._getInputBasicTmpl(control)} />`;
 
 			} else if (control.type === 'select') {
 
 				template = `${template}
 				${label ? label : ''}
-				<select ${this._getInputBasicTmpl(control)} type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} ${control.multiple === true ? 'multiple' : ''}>`;
+				<select ${this._getInputBasicTmpl(control)} ${control.multiple === true ? 'multiple' : ''}>`;
 					for (const item of control.list) {
 						template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
 					}
@@ -484,13 +478,13 @@ class JSONSchemaService extends PowerServices {
 			} else if (control.type === 'radio' || control.type === 'checkbox') {
 
 				template = `${template}
-				<input ${this._getInputBasicTmpl(control)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} type="${control.type}" name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} /> ${label ? label : ''}`;
+				<input ${this._getInputBasicTmpl(control)} /> ${label ? label : ''}`;
 
 			} else if (control.type === 'textarea') {
 
 				template = `${template}
 				${label ? label : ''}
-				<textarea ${this._getInputBasicTmpl(control)} ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''} ${control.value ? 'value="' + control.value + '"' : ''}>
+				<textarea ${this._getInputBasicTmpl(control)} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''}>
 					${control.value || ''}
 				</textarea>`;
 
@@ -498,7 +492,7 @@ class JSONSchemaService extends PowerServices {
 
 				template = `${template}
 				${label ? label : ''}
-				<input ${this._getInputBasicTmpl(control)} type="${control.type || 'text'}" ${control.bind ? 'data-pow-bind="' + control.bind + '"' : ''} name="${control.name || ''}" ${control.value ? 'value="' + control.value + '"' : ''} />`;
+				<input ${this._getInputBasicTmpl(control)} />`;
 			}
 
 			template = `${template}
@@ -563,10 +557,13 @@ class JSONSchemaService extends PowerServices {
 			// }
 
 			const tag = html.tagName.toLowerCase();
-			const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"];
+			// Void tags without input tag
+			const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "link", "meta", "param", "source", "track", "wbr"];
 
 			if (voidTags.includes(tag)) {
 				return `<${tag} ${this._getHtmlBasicTmpl(html)} />`;
+			} else if (tag === 'input') {
+				return `<${tag} ${this._getInputBasicTmpl(html)} />`;
 			} else {
 				let template = `<${tag} ${this._getHtmlBasicTmpl(html)}>
 					${html.text || ''}`;
