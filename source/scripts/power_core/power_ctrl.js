@@ -69,6 +69,10 @@ class PowerController extends PowerScope {
 	safeEval(string) {
 		return this.$powerUi.safeEval({text: string, scope: this});
 	}
+
+	getObjectById(id) {
+		return this.$powerUi.powerTree.allPowerObjsById[id] || null;
+	}
 }
 
 export { PowerController };

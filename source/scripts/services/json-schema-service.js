@@ -299,7 +299,11 @@ class JSONSchemaService extends PowerServices {
 		let attributes = '';
 		if (attrs) {
 			for (const attr of attrs) {
-				attributes = `${attributes} ${attr.name}="${attr.value}"`;
+				if (attr.value !== undefined) {
+					attributes = `${attributes} ${attr.name}="${attr.value}"`;
+				} else {
+					attributes = `${attributes} ${attr.name}`;
+				}
 			}
 		}
 		return attributes;

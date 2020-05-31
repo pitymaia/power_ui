@@ -1212,10 +1212,23 @@ class GridPageTemplate extends PowerTemplate {
 
 class GridPageCtrl extends PowerController {
 
+	onViewLoad() {
+		this.getObjectById('cars-list-new').powBind.subscribe({event: 'change', fn: this.onCarChange.bind(this) });
+		this.getObjectById('name-check').powBind.subscribe({event: 'change', fn: this.onWiiChange.bind(this) });
+	}
+
 	ctrl() {
 		this.name = 'André Augusto';
 		this.wii = true;
 		this.car = 'fusca';
+	}
+
+	onCarChange() {
+		window.console.log('car', this.car);
+	}
+
+	onWiiChange() {
+		window.console.log('wii', this.wii);
 	}
 }
 

@@ -94,7 +94,6 @@ class PowBind extends _PowerBasicElementWithEvents {
         this.ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
 
         this.type = this.element.type;
-        // console.log('type', this.type);
         if (this.type === 'checkbox') {
             checkboxInit(this);
         } else if (this.type === 'radio') {
@@ -108,7 +107,7 @@ class PowBind extends _PowerBasicElementWithEvents {
         }
     }
 
-    onchange() {
+    onchange(event) {
         if (this.type === 'checkbox') {
             checkboxChange(this);
         } else if (this.type === 'radio') {
