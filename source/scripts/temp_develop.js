@@ -1177,6 +1177,25 @@ class GridPageTemplate extends PowerTemplate {
 			},
 			{
 				"kind": "html",
+				"tagName": "select",
+				"name": "cars_list",
+				"value": "",
+				"multiple": false,
+				"bind": "car",
+				"id": "cars-list-new",
+				"children": [
+					{"kind": "html", "tagName": "option", "text": "Select a car", "value": "", "disabled": true, "selected": true},
+					{"kind": "html", "tagName": "option", "text": "Escort", "value": "escort", "disabled": false},
+					{"kind": "html", "tagName": "option", "text": "Volvo", "value": "volvo", "disabled": false},
+					{"kind": "html", "tagName": "option", "text": "Saab", "value": "saab", "disabled": false},
+					{"kind": "html", "tagName": "option", "text": "Opel", "value": "opel", "disabled": false},
+					{"kind": "html", "tagName": "option", "text": "Fusca", "value": "fusca", "disabled": false},
+					{"kind": "html", "tagName": "option", "text": "Mercedes", "value": "mercedes", "disabled": false},
+					{"kind": "html", "tagName": "option", "text": "audi", "value": "audi", "disabled": false},
+				]
+			},
+			{
+				"kind": "html",
 				"tagName": "br"
 			},
 			{
@@ -1196,6 +1215,7 @@ class GridPageCtrl extends PowerController {
 	ctrl() {
 		this.name = 'André Augusto';
 		this.wii = true;
+		this.car = 'fusca';
 	}
 }
 
@@ -3520,7 +3540,7 @@ class JSONViews extends PowerWindow {
 			wiiu: true,
 			n3ds: true,
 			file: '',
-			cars: 'escort',
+			cars: 'fusca',
 			cars2: ['fusca', 'escort'],
 			hidden: 'Hidden form field info',
 			textarea: 'This is my new textarea text and I love it!!!',

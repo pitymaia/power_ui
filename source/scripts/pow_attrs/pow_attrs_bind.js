@@ -1,4 +1,4 @@
-// All ohter inputs type (select-one, text, range, tel, password, textarea, color, date, etc)
+// All ohter inputs type (text, range, tel, password, textarea, color, date, etc)
 function othersInit(self) {
     const el = self.element;
     el.value = self.currentValue;
@@ -51,6 +51,18 @@ function selectMultipleInit(self) {
     self.subscribe({event: 'change', fn: self.onchange });
 }
 
+function selectOneInit(self) {
+    const el = self.element;
+    for (const child of el.children) {
+        if (self.currentValue === child.value) {
+            child.selected = true;
+        } else {
+            child.selected = false;
+        }
+    }
+    self.subscribe({event: 'change', fn: self.onchange });
+}
+
 function selectMultipleChange(self) {
     const el = self.element;
     for (const child of el.children) {
@@ -87,6 +99,8 @@ class PowBind extends _PowerBasicElementWithEvents {
             checkboxInit(this);
         } else if (this.type === 'radio') {
             radioInit(this);
+        } else if (this.type ==='select-one') {
+            selectOneInit(this);
         } else if (this.type ==='select-multiple') {
             selectMultipleInit(this);
         } else {

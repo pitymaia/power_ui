@@ -317,11 +317,11 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_getHtmlBasicTmpl(item, required) {
-		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}${item.title ? ' title="' + item.title + '"' : ''}${item.for ? ' for="' + item.for + '"' : ''}${item.src ? ' src="' + item.src + '"' : ''}${item.cols ? ' cols="' + item.cols + '"' : ''}${item.rows ? ' rows="' + item.rows + '"' : ''}${item.width ? ' width="' + item.width + '"' : ''}${item.height ? ' height="' + item.height + '"' : ''}`;
+		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}${item.title ? ' title="' + item.title + '"' : ''}${item.for ? ' for="' + item.for + '"' : ''}${item.src ? ' src="' + item.src + '"' : ''}${item.cols ? ' cols="' + item.cols + '"' : ''}${item.rows ? ' rows="' + item.rows + '"' : ''}${item.width ? ' width="' + item.width + '"' : ''}${item.height ? ' height="' + item.height + '"' : ''}${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}${item.bind ? ' data-pow-bind="' + item.bind + '"' : ''}${item.value ? ' value="' + item.value + '"' : ''}${item.name ? ' name="' + item.name + '"' : ''}${item.required ? ' required' : ''}`;
 	}
 
 	_getInputBasicTmpl(control, required) {
-		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.name ? ' name="' + control.name + '"' : ''}${control.value ? ' value="' + control.value + '"' : ''}${control.bind ? ' data-pow-bind="' + control.bind + '"' : ''}`;
+		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"`;
 	}
 
 	item({item, avoidValidation, mirrored, dropmenuId}) {
@@ -565,7 +565,7 @@ class JSONSchemaService extends PowerServices {
 			} else if (tag === 'input') {
 				return `<${tag} ${this._getInputBasicTmpl(html)} />`;
 			} else {
-				let template = `<${tag} ${this._getHtmlBasicTmpl(html)}>
+				let template = `<${tag} ${this._getHtmlBasicTmpl(html)} ${html.multiple === true ? 'multiple' : ''}>
 					${html.text || ''}`;
 
 				if (html.children) {
