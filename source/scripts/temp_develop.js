@@ -1018,7 +1018,6 @@ class GridPageTemplate extends PowerTemplate {
 		`;
 
 		const htmlTag = {
-			"kind": "html",
 			"id": "some-div",
 			"$id": "great-grid",
 			"tagName": "div",
@@ -1030,9 +1029,8 @@ class GridPageTemplate extends PowerTemplate {
 					"fn": "openModal()"
 				}
 			],
-			children: [
+			"children": [
 				{
-					"kind": "html",
 					"id": "col-1",
 					"tagName": "div",
 					"text": "PowerUi is amazing!",
@@ -1045,7 +1043,6 @@ class GridPageTemplate extends PowerTemplate {
 					"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
 				},
 				{
-					"kind": "html",
 					"id": "col-2",
 					"tagName": "div",
 					"attrs": [
@@ -1058,7 +1055,6 @@ class GridPageTemplate extends PowerTemplate {
 					"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
 				},
 				{
-					"kind": "html",
 					"id": "col-3",
 					"tagName": "div",
 					"text": "PowerUi",
@@ -1071,7 +1067,6 @@ class GridPageTemplate extends PowerTemplate {
 					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
 				},
 				{
-					"kind": "html",
 					"id": "col-4",
 					"tagName": "div",
 					"attrs": [
@@ -1084,7 +1079,6 @@ class GridPageTemplate extends PowerTemplate {
 					"classList": ["pw-col", "s-3", "m-3", "l-3", "xl-3"]
 				},
 				{
-					"kind": "html",
 					"id": "col-5",
 					"tagName": "div",
 					"text": "PowerUi",
@@ -1097,7 +1091,6 @@ class GridPageTemplate extends PowerTemplate {
 					"classList": ["pw-col", "s-6", "m-3", "l-3", "xl-3"]
 				},
 				{
-					"kind": "html",
 					"id": "col-6",
 					"tagName": "div",
 					"attrs": [
@@ -1110,7 +1103,6 @@ class GridPageTemplate extends PowerTemplate {
 					"classList": ["pw-col", "s-12", "m-3", "l-3", "xl-3"]
 				},
 				{
-					"kind": "html",
 					"id": "col-7",
 					"tagName": "div",
 					"attrs": [
@@ -1129,23 +1121,18 @@ class GridPageTemplate extends PowerTemplate {
 
 		const tags = [
 			{
-				"kind": "html",
 				"tagName": "br"
 			},
 			{
-				"kind": "html",
 				"tagName": "br"
 			},
 			{
-				"kind": "html",
 				"tagName": "hr"
 			},
 			{
-				"kind": "html",
 				"tagName": "br"
 			},
 			{
-				"kind": "html",
 				"tagName": "img",
 				"src": "/vendors/imgs/Brazil-Flag-icon.png",
 				"width": "30px",
@@ -1153,7 +1140,6 @@ class GridPageTemplate extends PowerTemplate {
 				"$id": "great-flag"
 			},
 			{
-				"kind": "html",
 				"tagName": "input",
 				"type": "image",
 				"width": "30px",
@@ -1162,7 +1148,6 @@ class GridPageTemplate extends PowerTemplate {
 				"classList": ["pw-field"]
 			},
 			{
-				"kind": "html",
 				"tagName": "input",
 				"id": "name-check",
 				"type": "checkbox",
@@ -1171,14 +1156,12 @@ class GridPageTemplate extends PowerTemplate {
 				"classList": ["pw-field"]
 			},
 			{
-				"kind": "html",
 				"tagName": "label",
 				"text": "Wii",
 				"title": "Have a Wii?",
 				"for": "name-check"
 			},
 			{
-				"kind": "html",
 				"tagName": "select",
 				"name": "cars_list",
 				"value": "",
@@ -1186,36 +1169,31 @@ class GridPageTemplate extends PowerTemplate {
 				"bind": "car",
 				"id": "cars-list-new",
 				"children": [
-					{"kind": "html", "tagName": "option", "text": "Select a car", "value": "", "disabled": true, "selected": true},
-					{"kind": "html", "tagName": "option", "text": "Escort", "value": "escort", "disabled": false},
-					{"kind": "html", "tagName": "option", "text": "Volvo", "value": "volvo", "disabled": false},
-					{"kind": "html", "tagName": "option", "text": "Saab", "value": "saab", "disabled": false},
-					{"kind": "html", "tagName": "option", "text": "Opel", "value": "opel", "disabled": false},
-					{"kind": "html", "tagName": "option", "text": "Fusca", "value": "fusca", "disabled": false},
-					{"kind": "html", "tagName": "option", "text": "Mercedes", "value": "mercedes", "disabled": false},
-					{"kind": "html", "tagName": "option", "text": "audi", "value": "audi", "disabled": false},
+					{ "tagName": "option", "text": "Select a car", "value": "", "disabled": true, "selected": true},
+					{ "tagName": "option", "text": "Escort", "value": "escort", "disabled": false},
+					{ "tagName": "option", "text": "Volvo", "value": "volvo", "disabled": false},
+					{ "tagName": "option", "text": "Saab", "value": "saab", "disabled": false},
+					{ "tagName": "option", "text": "Opel", "value": "opel", "disabled": false},
+					{ "tagName": "option", "text": "Fusca", "value": "fusca", "disabled": false},
+					{ "tagName": "option", "text": "Mercedes", "value": "mercedes", "disabled": false},
+					{ "tagName": "option", "text": "audi", "value": "audi", "disabled": false},
 				]
 			},
 			{
-				"kind": "html",
 				"tagName": "br"
 			},
 			{
-				"kind": "html",
 				"tagName": "br"
 			},
 			{
-				"kind": "html",
 				"id": "flag1",
 				"$ref": "great-flag"
 			},
 			{
-				"kind": "html",
 				"id": "flag2",
 				"$ref": "great-flag"
 			},
 			{
-				"kind": "html",
 				"id": "flag3",
 				"$ref": "great-flag"
 			},
@@ -1248,7 +1226,6 @@ class GridPageTemplate extends PowerTemplate {
 						"text": "Eu sou modificada!",
 					},
 					{
-						"kind": "html",
 						"id": "col-82",
 						"tagName": "div",
 						"attrs": [
@@ -1263,7 +1240,6 @@ class GridPageTemplate extends PowerTemplate {
 				]
 			},
 			{
-				"kind": "html",
 				"id": "flag5",
 				"$ref": "great-flag"
 			},
@@ -1298,7 +1274,6 @@ class GridPageTemplate extends PowerTemplate {
 						"id": "col-83",
 					},
 					{
-						"kind": "html",
 						"id": "col-93",
 						"tagName": "div",
 						"attrs": [
@@ -1307,11 +1282,18 @@ class GridPageTemplate extends PowerTemplate {
 								"value": "pw-red"
 							}
 						],
-						"text": "Eu sou novissima!",
+						"children": [
+							{
+								"id": "flag13",
+								"width": "20px",
+								"height": "20px",
+								"$ref": "great-flag",
+								"$id": "flag-smaller"
+							},
+						],
 						"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
 					},
 					{
-						"kind": "html",
 						"id": "col-103",
 						"tagName": "div",
 						"attrs": [
@@ -1320,7 +1302,12 @@ class GridPageTemplate extends PowerTemplate {
 								"value": "pw-yellow"
 							}
 						],
-						"text": "Eu sou novissima2!",
+						"children": [
+							{
+								"id": "flag12",
+								"$ref": "flag-smaller"
+							},
+						],
 						"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
 					}
 				]
