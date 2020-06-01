@@ -693,6 +693,11 @@ class JSONSchemaService extends PowerServices {
 			// 	return 'Failed JSON html!';
 			// }
 
+			// If this is not an html json, but a button, dropmenu or other kind of json
+			if (html.tagName === undefined) {
+				return this.otherJsonKind(html);
+			}
+
 			const tag = html.tagName.toLowerCase();
 			// Void tags without input tag
 			const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "link", "meta", "param", "source", "track", "wbr"];
@@ -717,6 +722,26 @@ class JSONSchemaService extends PowerServices {
 
 				return template;
 			}
+		}
+	}
+
+	otherJsonKind(item) {
+		if (item.button) {
+			return this.button(item.button);
+		} else if (item.simpleForm) {
+			return this.simpleForm(item.simpleForm);
+		} else if (item.tree) {
+			return this.tree(item.tree);
+		} else if (item.dropMenuButton) {
+			return this.dropMenuButton(item.dropMenuButton);
+		} else if (item.dropmenu) {
+			return this.dropmenu(item.dropmenu);
+		} else if (item.menu) {
+			return this.menu(item.menu);
+		} else if (item.accordion) {
+			return this.accordion(item.accordion);
+		} else {
+			return null;
 		}
 	}
 
