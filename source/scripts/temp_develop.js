@@ -1020,6 +1020,7 @@ class GridPageTemplate extends PowerTemplate {
 		const htmlTag = {
 			"kind": "html",
 			"id": "some-div",
+			"$id": "great-grid",
 			"tagName": "div",
 			// "text": "Pity o bom",
 			"classList": ["pw-grid", "scroll-12", "gap-2 border"],
@@ -1148,7 +1149,8 @@ class GridPageTemplate extends PowerTemplate {
 				"tagName": "img",
 				"src": "/vendors/imgs/Brazil-Flag-icon.png",
 				"width": "30px",
-				"height": "30px"
+				"height": "30px",
+				"$id": "great-flag"
 			},
 			{
 				"kind": "html",
@@ -1201,6 +1203,127 @@ class GridPageTemplate extends PowerTemplate {
 			{
 				"kind": "html",
 				"tagName": "br"
+			},
+			{
+				"kind": "html",
+				"id": "flag1",
+				"$ref": "great-flag"
+			},
+			{
+				"kind": "html",
+				"id": "flag2",
+				"$ref": "great-flag"
+			},
+			{
+				"kind": "html",
+				"id": "flag3",
+				"$ref": "great-flag"
+			},
+			{
+				"$ref": "great-grid",
+				"$id": "great-grid2",
+				"id": "some-div2",
+				// "classList": ["pw-grid", "scroll-12", "gap-2 border"],
+				"children": [
+					{
+						"id": "col-12"
+					},
+					{
+						"id": "col-22"
+					},
+					{
+						"id": "col-32"
+					},
+					{
+						"id": "col-42"
+					},
+					{
+						"id": "col-52"
+					},
+					{
+						"id": "col-62"
+					},
+					{
+						"id": "col-72",
+						"text": "Eu sou modificada!",
+					},
+					{
+						"kind": "html",
+						"id": "col-82",
+						"tagName": "div",
+						"attrs": [
+							{
+								"name": "data-pow-css-hover",
+								"value": "pw-blue"
+							}
+						],
+						"text": "Eu sou nova!",
+						"classList": ["pw-col", "s-12", "m-12", "l-12", "xl-12"]
+					}
+				]
+			},
+			{
+				"kind": "html",
+				"id": "flag5",
+				"$ref": "great-flag"
+			},
+			{
+				"$ref": "great-grid2",
+				"id": "some-div3",
+				"classList": ["pw-grid", "scroll-12", "gap-10", "border"],
+				"children": [
+					{
+						"id": "col-13"
+					},
+					{
+						"id": "col-23"
+					},
+					{
+						"id": "col-33"
+					},
+					{
+						"id": "col-43"
+					},
+					{
+						"id": "col-53"
+					},
+					{
+						"id": "col-63"
+					},
+					{
+						"id": "col-73",
+						"text": "Eu sou um framework incrivel!"
+					},
+					{
+						"id": "col-83",
+					},
+					{
+						"kind": "html",
+						"id": "col-93",
+						"tagName": "div",
+						"attrs": [
+							{
+								"name": "data-pow-css-hover",
+								"value": "pw-red"
+							}
+						],
+						"text": "Eu sou novissima!",
+						"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
+					},
+					{
+						"kind": "html",
+						"id": "col-103",
+						"tagName": "div",
+						"attrs": [
+							{
+								"name": "data-pow-css-hover",
+								"value": "pw-yellow"
+							}
+						],
+						"text": "Eu sou novissima2!",
+						"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
+					}
+				]
 			}
 		]
 

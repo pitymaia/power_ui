@@ -3,6 +3,94 @@ class JSONSchemaService extends PowerServices {
 		super({$powerUi, $ctrl});
 	}
 
+	// Recursively Clone JSON nodes
+	cloneObject(obj) {
+		const newObj = {};
+		// loop over the keys of the object first node
+		for (const key of Object.keys(obj)) {
+			// If this key is an array
+			if (typeof obj[key] === 'object' && obj[key].length) {
+				newObj[key] = [];
+				for (const item of obj[key]) {
+					if (typeof item === 'object') {
+						newObj[key].push(this.cloneObject(item));
+					} else {
+						newObj[key].push(item);
+					}
+				}
+			// If this key is an object
+			} else if (typeof obj[key] === 'object') {
+				newObj[key] = {};
+				const _item = obj[key];
+				for (const k of Object.keys(_item)) {
+					if (typeof _item[k] === 'object') {
+						newObj[key][k] = this.cloneObject(_item[k]);
+					} else {
+						newObj[key][k] = _item[k];
+					}
+				}
+			// If this key is any other typeof
+			} else {
+				newObj[key] = obj[key];
+			}
+		}
+		return newObj;
+	}
+
+	// Recursively overwrite any property on originalJSON node that is declared on newJSON object
+	overwriteJSON(originalJson, newJson) {
+		// loop over the keys of the object first node
+		for (const key of Object.keys(newJson)) {
+			// If do not exists in originalJson just add it
+			if (!originalJson[key]) {
+				originalJson[key] = newJson[key];
+			// If this key is an array
+			} else if (typeof newJson[key] === 'object' && newJson[key].length) {
+				let index = 0;
+				for (const item of newJson[key]) {
+					// If do not exists in originalJson just add it
+					if (originalJson[key][index] === undefined) {
+							originalJson[key].push(item);
+					} else if (typeof item === 'object') {
+						originalJson[key][index] = this.overwriteJSON(originalJson[key][index], item);
+					} else {
+						originalJson[key][index] = item;
+					}
+					index = index + 1;
+				}
+			// If this key is an object
+			} else if (typeof newJson[key] === 'object') {
+				const _item = newJson[key];
+				for (const k of Object.keys(_item)) {
+					if (typeof _item[k] === 'object' && originalJson[key][k] !== undefined) {
+						originalJson[key][k] = this.overwriteJSON(originalJson[key][k], _item[k]);
+					// If do not exists in originalJson just add it
+					} else {
+						originalJson[key][k] = _item[k];
+					}
+				}
+			// If this key is any other typeof
+			} else {
+				originalJson[key] = newJson[key];
+			}
+		}
+		return originalJson;
+	}
+
+	registerJSONById(json) {
+		if (!this.$powerUi.JSONById[json.$id]) {
+			this.$powerUi.JSONById[json.$id] = json;
+		}
+	}
+
+	getNewJSONFromId(json) {
+		const clonedJson = this.cloneObject(this.$powerUi.JSONById[json.$ref]);
+		delete clonedJson.$id;
+		const newJson = this.overwriteJSON(clonedJson, json);
+		delete newJson.$ref;
+		return newJson;
+	}
+
 	validateType(type, json) {
 		if (typeof json === type) {
 			return true;
@@ -77,10 +165,10 @@ class JSONSchemaService extends PowerServices {
 		if (accordion.length) {
 			return this._arrayOfSchemas(accordion, 'accordion');
 		} else {
-			if (this.validate(this.accordionDef(), accordion) === false) {
-				window.console.log('Failed JSON accordion:', accordion);
-				return 'Failed JSON accordion!';
-			}
+			// if (this.validate(this.accordionDef(), accordion) === false) {
+			// 	window.console.log('Failed JSON accordion:', accordion);
+			// 	return 'Failed JSON accordion!';
+			// }
 			const tmpEl = document.createElement('div');
 			tmpEl.innerHTML = `<div class="power-accordion" ${this._getIdTmpl(accordion.id)} data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
 			const accordionEl = tmpEl.children[0];
@@ -593,7 +681,13 @@ class JSONSchemaService extends PowerServices {
 		// This allow pass an array of tags
 		if (html.length) {
 			return this._arrayOfSchemas(html, 'html');
+		} else if (html.$ref) {
+			const ref = this.getNewJSONFromId(html);
+			return this.html(ref);
 		} else {
+			if (html.$id) {
+				this.registerJSONById(html);
+			}
 			// if (this.validate(this.htmlDef(), html) === false) {
 			// 	window.console.log('Failed JSON html:', html);
 			// 	return 'Failed JSON html!';

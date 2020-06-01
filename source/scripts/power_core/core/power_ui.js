@@ -162,6 +162,7 @@ class PowerUi extends _PowerUiBase {
 				$waitingToDelete: [],
 			},
 		};
+		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
 		this.numberOfopenModals = 0;
