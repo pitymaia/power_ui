@@ -83,7 +83,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	getNewJSONFromId(json) {
+	getNewJSON(json) {
 		const clonedJson = this.cloneObject(this.$powerUi.JSONById[json.$ref]);
 		delete clonedJson.$id;
 		const newJson = this.overwriteJSON(clonedJson, json);
@@ -682,7 +682,7 @@ class JSONSchemaService extends PowerServices {
 		if (html.length) {
 			return this._arrayOfSchemas(html, 'html');
 		} else if (html.$ref) {
-			const ref = this.getNewJSONFromId(html);
+			const ref = this.getNewJSON(html);
 			return this.html(ref);
 		} else {
 			if (html.$id) {
