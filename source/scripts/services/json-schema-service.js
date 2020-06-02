@@ -169,41 +169,47 @@ class JSONSchemaService extends PowerServices {
 			// 	window.console.log('Failed JSON accordion:', accordion);
 			// 	return 'Failed JSON accordion!';
 			// }
-			const tmpEl = document.createElement('div');
-			tmpEl.innerHTML = `<div class="power-accordion" ${this._getIdTmpl(accordion.id)} data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
-			const accordionEl = tmpEl.children[0];
-			if (accordion.classList) {
-				this.appendClassList({element: accordionEl, json: accordion});
+
+			if (!accordion.classList) {
+				accordion.classList = [];
 			}
+			accordion.classList.push('power-accordion');
+			let mainTmpl = `<div ${this._getHtmlBasicTmpl(accordion)} data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
 
 			for (const panel of accordion.panels) {
 				// Headers
-				const headerHolderEl = document.createElement('div');
-				headerHolderEl.innerHTML = `<div class="power-action" data-power-target="${panel.section.id}" ${this._getIdTmpl(panel.header.id)}>
-						<div><span class="pw-label">${panel.header.label}</span></div>
-					</div>`;
-				const headerEl = headerHolderEl.children[0];
-
-				if (panel.header) {
-					this.appendIcon({element: headerEl.children[0], json: panel.header});
+				const icon = {};
+				if (panel.header.icon === 'img' && panel.header['icon-src']) {
+					icon.kind = 'img';
+					icon.src = panel.header['icon-src'];
+				} else {
+					icon.icon = panel.header.icon;
 				}
 
-				if (panel.header.status) {
-					this.appendStatus({element: headerEl, json: panel.header.status});
-				}
+				const status = {};
+				status.active = panel.header.status.active;
+				status.inactive = panel.header.status.inactive;
 
-				accordionEl.appendChild(headerHolderEl.children[0]);
+				const sectionId = panel.section.id || this.$powerUi._Unique.next();
+
+				const headerTmpl = `
+				<div class="power-action" data-power-target="${sectionId}" ${this._getIdTmpl(panel.header.id, true)}>
+					<div>
+						${this.icon(icon)}
+						<span class="pw-label">${panel.header.label}</span>
+					</div>
+					${this.status(status)}
+				</div>`;
 
 				// Sections
-				const sectionHolderEl = document.createElement('div');
-				sectionHolderEl.innerHTML = `<div class="power-accordion-section" ${this._getIdTmpl(panel.section.id)}>
+				const sectionTmpl = `<div class="power-accordion-section" ${this._getIdTmpl(sectionId)}>
 					${panel.section.content}
 				</div>`;
 
-				accordionEl.appendChild(sectionHolderEl.children[0]);
+				mainTmpl = mainTmpl + headerTmpl + sectionTmpl;
 			}
 
-			return tmpEl.innerHTML;
+			return mainTmpl + '</div>';
 		}
 	}
 
@@ -749,6 +755,32 @@ class JSONSchemaService extends PowerServices {
 		for (const css of json.classList) {
 			element.classList.add(css);
 		}
+	}
+
+	icon(json) {
+		let template = '';
+		if (!json.classList) {
+			json.classList = [];
+		}
+		json.classList.push('pw-icon');
+
+		if (json.kind === 'img' && json.src) {
+			template = `<img ${this._getHtmlBasicTmpl(json)} />`;
+		} else {
+			json.classList.push(json.icon);
+			template = `<span ${this._getHtmlBasicTmpl(json)}></span>`;
+		}
+
+		return template;
+	}
+
+	status(json) {
+		if (!json.classList) {
+			json.classList = [];
+		}
+		json.classList.push('pw-icon');
+		json.classList.push('power-status');
+		return `<span ${this._getHtmlBasicTmpl(json)} data-power-inactive="${json.inactive}" data-power-active="${json.active}"></span>`;
 	}
 
 	// Icon is a css font or an img
