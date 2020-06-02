@@ -752,6 +752,12 @@ class JSONSchemaService extends PowerServices {
 			return this.menu(item.menu);
 		} else if (item.accordion) {
 			return this.accordion(item.accordion);
+		} else if (item.icon) {
+			return this.icon(item.icon);
+		} else if (item.status) {
+			return this.status(item.status);
+		} else if (item.html) {
+			return this.html(item.html);
 		} else {
 			return null;
 		}
