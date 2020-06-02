@@ -314,14 +314,20 @@ class JSONSchemaService extends PowerServices {
 		if (dropmenu.length) {
 			return this._arrayOfSchemas(dropmenu, 'dropmenu');
 		} else {
-			if (this.validate(this.dropmenuDef(), dropmenu) === false) {
-				window.console.log('Failed JSON dropmenu:', dropmenu);
-				return 'Failed JSON dropmenu!';
-			}
+			// if (this.validate(this.dropmenuDef(), dropmenu) === false) {
+			// 	window.console.log('Failed JSON dropmenu:', dropmenu);
+			// 	return 'Failed JSON dropmenu!';
+			// }
 
 			const tmpEl = document.createElement('div');
 
-			tmpEl.innerHTML = `<nav class="${isMenu ? 'power-menu' : 'power-dropmenu'}${mirrored === true ? ' pw-mirrored' : ''}" ${this._getIdTmpl(dropmenu.id)}></nav>`;
+			if (!dropmenu.classList) {
+				dropmenu.classList = [];
+			}
+
+			dropmenu.classList.push(isMenu ? 'power-menu' : 'power-dropmenu');
+
+			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
 			// Set menu position
 			if (dropmenu.position) {
