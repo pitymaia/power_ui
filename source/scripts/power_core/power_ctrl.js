@@ -73,6 +73,11 @@ class PowerController extends PowerScope {
 	getObjectById(id) {
 		return this.$powerUi.powerTree.allPowerObjsById[id] || null;
 	}
+
+	getBindById(id) {
+		const bind = this.getObjectById(id);
+		return bind ? bind.powBind : null;
+	}
 }
 
 export { PowerController };

@@ -1331,8 +1331,8 @@ class GridPageTemplate extends PowerTemplate {
 class GridPageCtrl extends PowerController {
 
 	onViewLoad() {
-		this.getObjectById('cars-list-new').powBind.subscribe({event: 'change', fn: this.onCarChange.bind(this) });
-		this.getObjectById('name-check').powBind.subscribe({event: 'change', fn: this.onWiiChange.bind(this) });
+		this.getBindById('cars-list-new').subscribe({event: 'change', fn: this.onCarChange.bind(this) });
+		this.getBindById('name-check').subscribe({event: 'change', fn: this.onWiiChange.bind(this) });
 	}
 
 	ctrl() {

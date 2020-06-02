@@ -455,16 +455,18 @@ class JSONSchemaService extends PowerServices {
 
 			const tmpEl = document.createElement('div');
 
-			tmpEl.innerHTML = `<a class="${dropmenuId ? 'power-action' : 'power-item'}" ${this._getIdTmpl(item.id)} ${this._getEventTmpl(item.events)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
+			if (!item.classList) {
+				item.classList = [];
+			}
+
+			item.classList.push(dropmenuId ? 'power-action' : 'power-item');
+
+			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(item)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
 
 			const itemEl = tmpEl.children[0];
 
 			if (item.icon) {
 				this.appendIcon({element: itemEl, json: item, mirrored: mirrored});
-			}
-
-			if (item.classList) {
-				this.appendClassList({element: itemEl, json: item});
 			}
 
 			return tmpEl.innerHTML;
@@ -797,15 +799,18 @@ class JSONSchemaService extends PowerServices {
 
 	// Icon is a css font or an img
 	appendIcon({element, json, mirrored}) {
-		const icon = document.createElement('span');
-		icon.classList.add('pw-icon');
-		if (json.icon === 'img' && json["icon-src"]) {
-			const img = document.createElement('img');
-			img.src = json["icon-src"];
-			icon.appendChild(img);
+		const iconHolder = document.createElement('div');
+		const iconJson = {};
+		if (json.icon === 'img' && json['icon-src']) {
+			iconJson.kind = 'img';
+			iconJson.src = json['icon-src'];
 		} else {
-			icon.classList.add(json.icon);
+			iconJson.icon = json.icon;
 		}
+
+		iconHolder.innerHTML = this.icon(iconJson);
+		const icon = iconHolder.childNodes[0];
+
 		if ((!json['icon-position'] && mirrored !== true) || json['icon-position'] === 'left') {
 			element.insertBefore(icon, element.childNodes[0]);
 		} else {
@@ -814,9 +819,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	appendStatus({element, json, mirrored}) {
-		const status = document.createElement('span');
-		status.classList.add('power-status');
-		status.classList.add('pw-icon');
+		const statusHolder = document.createElement('div');
+		statusHolder.innerHTML = this.status(json);
+		const status = statusHolder.childNodes[0];
+
 		if (mirrored === true) {
 			status.dataset.powerInactive = json.inactive.replace('right', 'left');
 		} else {
