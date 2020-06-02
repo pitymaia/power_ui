@@ -3570,7 +3570,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"id": 'my-tree',
 			"events": [
 				{
-					"name": "onclick",
+					"event": "onclick",
 					"fn": "clickTree"
 				}
 			],

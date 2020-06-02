@@ -549,7 +549,13 @@ class JSONSchemaService extends PowerServices {
 				window.console.log('Failed JSON tree:', tree);
 				return 'Failed JSON tree!';
 			}
-			let template = `<nav ${this._getIdTmpl(tree.id)} class="power-tree-view">`;
+			if (!tree.classList) {
+				tree.classList = [];
+			}
+
+			tree.classList.push('power-tree-view');
+
+			let template = `<nav ${this._getHtmlBasicTmpl(tree)}>`;
 			for (const item of tree.content) {
 				if (item.kind === 'file') {
 					if (tree.events) {
@@ -558,7 +564,7 @@ class JSONSchemaService extends PowerServices {
 
 						for (const event of tree.events) {
 							template = `${template}
-							${event.name}="${event.fn}({path: '${item.path}', event: event, element: event.target})" `;
+							${event.event}="${event.fn}({path: '${item.path}', event: event, element: event.target})" `;
 						}
 						template = `${template}
 						><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
@@ -1019,10 +1025,10 @@ class JSONSchemaService extends PowerServices {
 				"events": {
 					"type": "array",
 					"properties": {
-						"name": {"type": "string"},
+						"event": {"type": "string"},
 						"fn": {"type": "string"},
 					},
-					"required": ["name", "fn"]
+					"required": ["event", "fn"]
 				},
 				"content": {
 					"type": "array",
