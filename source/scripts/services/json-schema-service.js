@@ -514,7 +514,17 @@ class JSONSchemaService extends PowerServices {
 
 			const tmpEl = document.createElement('div');
 
-			tmpEl.innerHTML = `<button class="pw-btn-${button.kind || 'default'}" type="${button.type || 'button'}" ${this._getIdTmpl(button.id)} ${this._getEventTmpl(button.events)}><span class="pw-label">${button.label}</span></button>`;
+			if (!button.classList) {
+				button.classList = [];
+			}
+
+			if (!button.type) {
+				button.type = 'button';
+			}
+
+			button.classList.push(button.kind ? `pw-btn-${button.kind}` : 'pw-btn-default');
+
+			tmpEl.innerHTML = `<button ${this._getInputBasicTmpl(button)}><span class="pw-label">${button.label}</span></button>`;
 
 			const buttonEl = tmpEl.children[0];
 
