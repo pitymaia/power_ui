@@ -440,7 +440,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_getInputBasicTmpl(control, required) {
-		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"`;
+		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.pattern ? ' pattern="' + control.pattern + '"' : ''}`;
 	}
 
 	item({item, avoidValidation, mirrored, dropmenuId}) {
@@ -583,6 +583,69 @@ class JSONSchemaService extends PowerServices {
 			}
 			template = `${template}
 			</nav>`;
+
+			return template;
+		}
+	}
+
+	grid(grid) {
+		console.log('grid json', grid);
+		// This allow pass an array of grids
+		if (grid.length) {
+			return this._arrayOfSchemas(grid, 'grid');
+		} else {
+			// if (this.validate(this.gridDef(), grid) === false) {
+			// 	window.console.log('Failed JSON grid:', grid);
+			// 	return 'Failed JSON grid!';
+			// }
+			if (!grid.classList) {
+				grid.classList = [];
+			}
+
+			grid.classList.push('pw-grid');
+			grid.classList.push(grid.kind || 'scroll-12');
+
+			if (grid.border === true) {
+				grid.classList.push('border');
+			}
+			if (grid.gap) {
+				grid.classList.push(`gap-${grid.gap}`);
+			} else {
+				grid.classList.push('no-gap');
+			}
+
+			let template = `<div ${this._getHtmlBasicTmpl(grid)}>`;
+
+			// If user do not difine a sizes list uses a default size
+			if (!grid.sizes) {
+				grid.sizes = ['s-1 m-1 l-1 xl-1'];
+			}
+
+			let currentSizeCount = 0;
+
+			for (const field of grid.fields) {
+				if (!field.classList) {
+					field.classList = [];
+				}
+
+				field.classList.push('pw-col');
+				field.classList.push(field.size || grid.sizes[currentSizeCount]);
+
+				template = `${template}
+					<div ${this._getIdTmpl(field.id)} ${this._getClassTmpl(field.classList)}>${field.text}</div>`;
+
+				// Only change to the next size pattern if there is no custom size for this field
+				if (!field.size) {
+					currentSizeCount = currentSizeCount + 1;
+				}
+				// Reset the counter if bigger than list os sizes length
+				if (currentSizeCount >= grid.sizes.length) {
+					currentSizeCount = 0;
+				}
+			}
+
+			template = `${template}
+			</div>`;
 
 			return template;
 		}

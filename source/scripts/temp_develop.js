@@ -1023,12 +1023,12 @@ class GridPageTemplate extends PowerTemplate {
 			"tagName": "div",
 			// "text": "Pity o bom",
 			"classList": ["pw-grid", "scroll-12", "gap-2 border"],
-			"events": [
-				{
-					"event": "onclick",
-					"fn": "openModal()"
-				}
-			],
+			// "events": [
+			// 	{
+			// 		"event": "onclick",
+			// 		"fn": "openModal()"
+			// 	}
+			// ],
 			"children": [
 				{
 					"id": "col-1",
@@ -1320,9 +1320,105 @@ class GridPageTemplate extends PowerTemplate {
 					}
 				]
 			}
-		]
+		];
 
 		newTmpl = newTmpl + this.$service('JSONSchema').html(tags);
+
+		const grid = {
+			"id": "the-grid",
+			"$id": "the-grid",
+			"kind": "scroll-12",
+			"border": true,
+			"gap": 2,
+			"sizes": [
+				"s-4 m-4 l-4 xl-4",
+				"s-4 m-4 l-4 xl-4",
+				"s-4 m-4 l-4 xl-4",
+				"s-6 m-6 l-6 xl-6",
+				"s-6 m-6 l-6 xl-6",
+			],
+			"fields": [
+				{
+					"text": "field 1",
+					"size": "s-12 m-12 l-12 xl-12"
+				},
+				{
+					"text": "field 2",
+				},
+				{
+					"text": "field 3",
+				},
+				{
+					"text": "field 4",
+				},
+				{
+					"text": "field 5",
+				},
+				{
+					"text": "field 6",
+				},
+				{
+					"text": "field 7",
+				},
+				{
+					"text": "field 8",
+				},
+				{
+					"text": "field 9",
+				},
+				{
+					"text": "field 10",
+				},
+				{
+					"text": "field 11",
+				},
+				{
+					"text": "field 12",
+					"size": "s-12 m-12 l-12 xl-12"
+				},
+
+				{
+					"text": "field 1",
+				},
+				{
+					"text": "field 2",
+				},
+				{
+					"text": "field 3",
+				},
+				{
+					"text": "field 4",
+				},
+				{
+					"text": "field 5",
+				},
+				{
+					"text": "field 6",
+				},
+				{
+					"text": "field 7",
+				},
+				{
+					"text": "field 8",
+				},
+				{
+					"text": "field 9",
+				},
+				{
+					"text": "field 10",
+				},
+				{
+					"text": "field 11",
+					"size": "s-2 m-2 l-2 xl-2"
+				},
+				{
+					"text": "field 12",
+					"size": "s-10 m-10 l-10 xl-10"
+				},
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').grid(grid);
 
 		resolve(newTmpl);
 	}
