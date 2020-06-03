@@ -981,7 +981,9 @@ class JSONSchemaService extends PowerServices {
 			json.classList.push('pw-icon');
 
 			if (json.kind === 'img' && json.src) {
-				template = `<img ${this._getHtmlBasicTmpl(json)} />`;
+				const src = json.src;
+				delete json.src;
+				template = `<span ${this._getHtmlBasicTmpl(json)}><img src=${src} /></span>`;
 			} else {
 				json.classList.push(json.icon);
 				template = `<span ${this._getHtmlBasicTmpl(json)}></span>`;
