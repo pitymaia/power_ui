@@ -588,12 +588,21 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	grid(grid) {
-		console.log('grid json', grid);
+	grid(_grid) {
+		// Do not change the original JSON
+		const grid = this.cloneObject(_grid);
+		console.log('grid', grid);
 		// This allow pass an array of grids
-		if (grid.length) {
-			return this._arrayOfSchemas(grid, 'grid');
+		if (_grid.length) {
+			return this._arrayOfSchemas(_grid, 'grid');
+		} else if (_grid.$ref) {
+			// Use the original JSON
+			return this.grid(this.getNewJSON(_grid));
 		} else {
+			if (_grid.$id) {
+				// Register original JSON
+				this.registerJSONById(_grid);
+			}
 			// if (this.validate(this.gridDef(), grid) === false) {
 			// 	window.console.log('Failed JSON grid:', grid);
 			// 	return 'Failed JSON grid!';
@@ -770,17 +779,21 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
-	html(html) {
+	html(_html) {
+		// Do not change the original JSON
+		const html = this.cloneObject(_html);
 		// This allow pass an array of tags
-		if (html.length) {
-			return this._arrayOfSchemas(html, 'html');
-		} else if (html.$ref) {
-			const ref = this.getNewJSON(html);
-			return this.html(ref);
+		if (_html.length) {
+			return this._arrayOfSchemas(_html, 'html');
+		} else if (_html.$ref) {
+			// Use the original JSON
+			return this.html(this.getNewJSON(_html));
 		} else {
-			if (html.$id) {
-				this.registerJSONById(html);
+			if (_html.$id) {
+				// Register original JSON
+				this.registerJSONById(_html);
 			}
+
 			// if (this.validate(this.htmlDef(), html) === false) {
 			// 	window.console.log('Failed JSON html:', html);
 			// 	return 'Failed JSON html!';

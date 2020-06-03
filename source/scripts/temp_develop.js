@@ -1420,6 +1420,22 @@ class GridPageTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').grid(grid);
 
+		const grid2 = {
+			"gap": 10,
+			"id": "the-second-grid",
+			"$ref": "the-grid",
+			"kind": "flex-12",
+			"sizes": [
+				"s-2 m-2 l-6 xl-6",
+				"s-2 m-2 l-6 xl-6",
+				"s-2 m-2 l-6 xl-6",
+				"s-2 m-2 l-6 xl-6",
+				"s-2 m-2 l-6 xl-6",
+			],
+		}
+
+		newTmpl = newTmpl + this.$service('JSONSchema').grid(grid2);
+
 		resolve(newTmpl);
 	}
 }
