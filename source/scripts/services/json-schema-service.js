@@ -5,36 +5,48 @@ class JSONSchemaService extends PowerServices {
 
 	// Recursively Clone JSON nodes
 	cloneObject(obj) {
-		const newObj = {};
-		// loop over the keys of the object first node
-		for (const key of Object.keys(obj)) {
-			// If this key is an array
-			if (typeof obj[key] === 'object' && obj[key].length) {
-				newObj[key] = [];
-				for (const item of obj[key]) {
-					if (typeof item === 'object') {
-						newObj[key].push(this.cloneObject(item));
-					} else {
-						newObj[key].push(item);
-					}
+		if (typeof obj === 'object' && obj.length !== undefined) {
+			const newObj = [];
+			for (const item of obj) {
+				if (typeof item === 'object') {
+					newObj.push(this.cloneObject(item));
+				} else {
+					newObj.push(item);
 				}
-			// If this key is an object
-			} else if (typeof obj[key] === 'object') {
-				newObj[key] = {};
-				const _item = obj[key];
-				for (const k of Object.keys(_item)) {
-					if (typeof _item[k] === 'object') {
-						newObj[key][k] = this.cloneObject(_item[k]);
-					} else {
-						newObj[key][k] = _item[k];
-					}
-				}
-			// If this key is any other typeof
-			} else {
-				newObj[key] = obj[key];
 			}
+			return newObj;
+		} else {
+			const newObj = {};
+			// loop over the keys of the object first node
+			for (const key of Object.keys(obj)) {
+				// If this key is an array
+				if (typeof obj[key] === 'object' && obj[key].length !== undefined) {
+					newObj[key] = [];
+					for (const item of obj[key]) {
+						if (typeof item === 'object') {
+							newObj[key].push(this.cloneObject(item));
+						} else {
+							newObj[key].push(item);
+						}
+					}
+				// If this key is an object
+				} else if (typeof obj[key] === 'object') {
+					newObj[key] = {};
+					const _item = obj[key];
+					for (const k of Object.keys(_item)) {
+						if (typeof _item[k] === 'object') {
+							newObj[key][k] = this.cloneObject(_item[k]);
+						} else {
+							newObj[key][k] = _item[k];
+						}
+					}
+				// If this key is any other typeof
+				} else {
+					newObj[key] = obj[key];
+				}
+			}
+			return newObj;
 		}
-		return newObj;
 	}
 
 	// Recursively overwrite any property on originalJSON node that is declared on newJSON object
@@ -45,7 +57,7 @@ class JSONSchemaService extends PowerServices {
 			if (!originalJson[key]) {
 				originalJson[key] = newJson[key];
 			// If this key is an array
-			} else if (typeof newJson[key] === 'object' && newJson[key].length) {
+			} else if (typeof newJson[key] === 'object' && newJson[key].length !== undefined) {
 				let index = 0;
 				for (const item of newJson[key]) {
 					// If do not exists in originalJson just add it
@@ -160,11 +172,21 @@ class JSONSchemaService extends PowerServices {
 		return true;
 	}
 
-	accordion(accordion) {
+	accordion(_accordion) {
+		// Do not change the original JSON
+		const accordion = this.cloneObject(_accordion);
 		// This allow pass an array of accordions
-		if (accordion.length) {
-			return this._arrayOfSchemas(accordion, 'accordion');
+		if (_accordion.length) {
+			return this._arrayOfSchemas(_accordion, 'accordion');
+		} else if (_accordion.$ref) {
+			// Use the original JSON
+			return this.accordion(this.getNewJSON(_accordion));
 		} else {
+			if (_accordion.$id) {
+				// Register original JSON
+				this.registerJSONById(_accordion);
+			}
+
 			// if (this.validate(this.accordionDef(), accordion) === false) {
 			// 	window.console.log('Failed JSON accordion:', accordion);
 			// 	return 'Failed JSON accordion!';
@@ -213,11 +235,21 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	menu(menu) {
+	menu(_menu) {
+		// Do not change the original JSON
+		const menu = this.cloneObject(_menu);
 		// This allow pass an array of menus
-		if (menu.length) {
-			return this._arrayOfSchemas(menu, 'menu');
+		if (_menu.length) {
+			return this._arrayOfSchemas(_menu, 'menu');
+		} else if (_menu.$ref) {
+			// Use the original JSON
+			return this.menu(this.getNewJSON(_menu));
 		} else {
+			if (_menu.$id) {
+				// Register original JSON
+				this.registerJSONById(_menu);
+			}
+
 			if (this.validate(this.menuDef(), menu) === false) {
 				window.console.log('Failed JSON menu:', menu);
 				return 'Failed JSON menu!';
@@ -309,11 +341,21 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	dropmenu(dropmenu, mirrored, isMenu) {
+	dropmenu(_dropmenu, mirrored, isMenu) {
+		// Do not change the original JSON
+		const dropmenu = this.cloneObject(_dropmenu);
 		// This allow pass an array of dropmenus
-		if (dropmenu.length) {
-			return this._arrayOfSchemas(dropmenu, 'dropmenu');
+		if (_dropmenu.length) {
+			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
+		} else if (_dropmenu.$ref) {
+			// Use the original JSON
+			return this.dropmenu(this.getNewJSON(_dropmenu));
 		} else {
+			if (_dropmenu.$id) {
+				// Register original JSON
+				this.registerJSONById(_dropmenu);
+			}
+
 			// if (this.validate(this.dropmenuDef(), dropmenu) === false) {
 			// 	window.console.log('Failed JSON dropmenu:', dropmenu);
 			// 	return 'Failed JSON dropmenu!';
@@ -444,40 +486,60 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	item({item, avoidValidation, mirrored, dropmenuId}) {
+		// Do not change the original JSON
+		const newItem = this.cloneObject(item);
 		// This allow pass an array of items
 		if (item.length) {
 			return this._arrayOfSchemas(item, 'item');
+		} else if (item.$ref) {
+			// Use the original JSON
+			return this.item(this.getNewJSON(item));
 		} else {
-			if (!avoidValidation && this.validate(this.itemDef(), item) === false) {
-				window.console.log('Failed JSON item:', item);
+			if (item.$id) {
+				// Register original JSON
+				this.registerJSONById(item);
+			}
+
+			if (!avoidValidation && this.validate(this.itemDef(), newItem) === false) {
+				window.console.log('Failed JSON item:', newItem);
 				return 'Failed JSON item!';
 			}
 
 			const tmpEl = document.createElement('div');
 
-			if (!item.classList) {
-				item.classList = [];
+			if (!newItem.classList) {
+				newItem.classList = [];
 			}
 
-			item.classList.push(dropmenuId ? 'power-action' : 'power-item');
+			newItem.classList.push(dropmenuId ? 'power-action' : 'power-item');
 
-			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(item)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${item.label}</span></a>`;
+			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(newItem)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${newItem.label}</span></a>`;
 
 			const itemEl = tmpEl.children[0];
 
-			if (item.icon) {
-				this.appendIcon({element: itemEl, json: item, mirrored: mirrored});
+			if (newItem.icon) {
+				this.appendIcon({element: itemEl, json: newItem, mirrored: mirrored});
 			}
 
 			return tmpEl.innerHTML;
 		}
 	}
 
-	dropMenuButton(dropMenuButton) {
-		// This allow pass an array of dropMenuButton
-		if (dropMenuButton.length) {
-			return this._arrayOfSchemas(dropMenuButton, 'dropMenuButton');
+	dropMenuButton(_dropMenuButton) {
+		// Do not change the original JSON
+		const dropMenuButton = this.cloneObject(_dropMenuButton);
+		// This allow pass an array of dropMenuButtons
+		if (_dropMenuButton.length) {
+			return this._arrayOfSchemas(_dropMenuButton, 'dropMenuButton');
+		} else if (_dropMenuButton.$ref) {
+			// Use the original JSON
+			return this.dropMenuButton(this.getNewJSON(_dropMenuButton));
 		} else {
+			if (_dropMenuButton.$id) {
+				// Register original JSON
+				this.registerJSONById(_dropMenuButton);
+			}
+
 			if (this.validate(this.dropmenuButtonDef(), dropMenuButton) === false) {
 				window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
 				return 'Failed JSON button!';
@@ -502,11 +564,21 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	button(button, avoidValidation, mirrored) {
+	button(_button, avoidValidation, mirrored) {
+		// Do not change the original JSON
+		const button = this.cloneObject(_button);
 		// This allow pass an array of buttons
-		if (button.length) {
-			return this._arrayOfSchemas(button, 'button');
+		if (_button.length) {
+			return this._arrayOfSchemas(_button, 'button');
+		} else if (_button.$ref) {
+			// Use the original JSON
+			return this.button(this.getNewJSON(_button));
 		} else {
+			if (_button.$id) {
+				// Register original JSON
+				this.registerJSONById(_button);
+			}
+
 			if (!avoidValidation && this.validate(this.itemDef(), button) === false) {
 				window.console.log('Failed JSON button:', button);
 				return 'Failed JSON button!';
@@ -540,11 +612,21 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	tree(tree) {
+	tree(_tree) {
+		// Do not change the original JSON
+		const tree = this.cloneObject(_tree);
 		// This allow pass an array of trees
-		if (tree.length) {
-			return this._arrayOfSchemas(tree, 'tree');
+		if (_tree.length) {
+			return this._arrayOfSchemas(_tree, 'tree');
+		} else if (_tree.$ref) {
+			// Use the original JSON
+			return this.tree(this.getNewJSON(_tree));
 		} else {
+			if (_tree.$id) {
+				// Register original JSON
+				this.registerJSONById(_tree);
+			}
+
 			if (this.validate(this.treeDef(), tree) === false) {
 				window.console.log('Failed JSON tree:', tree);
 				return 'Failed JSON tree!';
@@ -591,7 +673,6 @@ class JSONSchemaService extends PowerServices {
 	grid(_grid) {
 		// Do not change the original JSON
 		const grid = this.cloneObject(_grid);
-		console.log('grid', grid);
 		// This allow pass an array of grids
 		if (_grid.length) {
 			return this._arrayOfSchemas(_grid, 'grid');
@@ -751,22 +832,37 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
-	simpleForm(form) {
-		if (this.validate(this.simpleFormDef(), form) === false) {
-			window.console.log('Failed JSON form:', form);
-			return 'Failed JSON form!';
+	simpleForm(_form) {
+		// Do not change the original JSON
+		const form = this.cloneObject(_form);
+		// This allow pass an array of forms
+		if (_form.length) {
+			return this._arrayOfSchemas(_form, 'form');
+		} else if (_form.$ref) {
+			// Use the original JSON
+			return this.form(this.getNewJSON(_form));
+		} else {
+			if (_form.$id) {
+				// Register original JSON
+				this.registerJSONById(_form);
+			}
+
+			if (this.validate(this.simpleFormDef(), form) === false) {
+				window.console.log('Failed JSON form:', form);
+				return 'Failed JSON form!';
+			}
+
+			const formType = form.type === 'form' ? 'form' : 'div';
+
+			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
+
+			template = this._simpleFormContent({template: template, content: form.content});
+
+			template = `${template}
+			</${formType}>`;
+
+			return template;
 		}
-
-		const formType = form.type === 'form' ? 'form' : 'div';
-
-		let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
-
-		template = this._simpleFormContent({template: template, content: form.content});
-
-		template = `${template}
-		</${formType}>`;
-
-		return template;
 	}
 
 	_arrayOfSchemas(_array, func) {
@@ -863,30 +959,60 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	icon(json) {
-		let template = '';
-		if (!json.classList) {
-			json.classList = [];
-		}
-		json.classList.push('pw-icon');
-
-		if (json.kind === 'img' && json.src) {
-			template = `<img ${this._getHtmlBasicTmpl(json)} />`;
+	icon(_json) {
+		// Do not change the original JSON
+		const json = this.cloneObject(_json);
+		// This allow pass an array of json
+		if (_json.length) {
+			return this._arrayOfSchemas(_json, 'icon');
+		} else if (_json.$ref) {
+			// Use the original JSON
+			return this.icon(this.getNewJSON(_json));
 		} else {
-			json.classList.push(json.icon);
-			template = `<span ${this._getHtmlBasicTmpl(json)}></span>`;
-		}
+			if (_json.$id) {
+				// Register original JSON
+				this.registerJSONById(_json);
+			}
 
-		return template;
+			let template = '';
+			if (!json.classList) {
+				json.classList = [];
+			}
+			json.classList.push('pw-icon');
+
+			if (json.kind === 'img' && json.src) {
+				template = `<img ${this._getHtmlBasicTmpl(json)} />`;
+			} else {
+				json.classList.push(json.icon);
+				template = `<span ${this._getHtmlBasicTmpl(json)}></span>`;
+			}
+
+			return template;
+		}
 	}
 
-	status(json) {
-		if (!json.classList) {
-			json.classList = [];
+	status(_json) {
+		// Do not change the original JSON
+		const json = this.cloneObject(_json);
+		// This allow pass an array of json
+		if (_json.length) {
+			return this._arrayOfSchemas(_json, 'status');
+		} else if (_json.$ref) {
+			// Use the original JSON
+			return this.status(this.getNewJSON(_json));
+		} else {
+			if (_json.$id) {
+				// Register original JSON
+				this.registerJSONById(_json);
+			}
+
+			if (!json.classList) {
+				json.classList = [];
+			}
+			json.classList.push('pw-icon');
+			json.classList.push('power-status');
+			return `<span ${this._getHtmlBasicTmpl(json)} data-power-inactive="${json.inactive}" data-power-active="${json.active}"></span>`;
 		}
-		json.classList.push('pw-icon');
-		json.classList.push('power-status');
-		return `<span ${this._getHtmlBasicTmpl(json)} data-power-inactive="${json.inactive}" data-power-active="${json.active}"></span>`;
 	}
 
 	// Icon is a css font or an img
