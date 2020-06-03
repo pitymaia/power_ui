@@ -1412,8 +1412,29 @@ class GridPageTemplate extends PowerTemplate {
 					"size": "s-2 m-2 l-2 xl-2"
 				},
 				{
-					"text": "field 12",
-					"size": "s-10 m-10 l-10 xl-10"
+					// "text": "field 12",
+					"size": "s-10 m-10 l-10 xl-10",
+					"children": [
+						{
+							"html": {
+								"id": "flag24",
+								"$ref": "great-flag"
+							}
+						},
+						{
+							"html": {
+								"id": "flag25",
+								"$ref": "great-flag"
+							}
+						},
+						{
+							"button": {
+								"label": "Nice button",
+								"icon": "power-logo",
+								"kind": "success",
+							}
+						}
+					]
 				},
 			]
 		};
@@ -1432,7 +1453,7 @@ class GridPageTemplate extends PowerTemplate {
 				"s-2 m-2 l-6 xl-6",
 				"s-2 m-2 l-6 xl-6",
 			],
-		}
+		};
 
 		newTmpl = newTmpl + this.$service('JSONSchema').grid(grid2);
 

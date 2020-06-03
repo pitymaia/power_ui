@@ -722,7 +722,16 @@ class JSONSchemaService extends PowerServices {
 				field.classList.push(field.size || grid.sizes[currentSizeCount]);
 
 				template = `${template}
-					<div ${this._getIdTmpl(field.id)} ${this._getClassTmpl(field.classList)}>${field.text}</div>`;
+					<div ${this._getIdTmpl(field.id)} ${this._getClassTmpl(field.classList)}>${field.text || ''}`;
+
+				if (field.children) {
+					for (const child of field.children) {
+						template = `${template}
+							${this.otherJsonKind(child)}`;
+					}
+				}
+
+				template = template + '</div>';
 
 				// Only change to the next size pattern if there is no custom size for this field
 				if (!field.size) {
