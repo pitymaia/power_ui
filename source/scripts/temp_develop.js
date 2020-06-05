@@ -1374,7 +1374,6 @@ class GridPageTemplate extends PowerTemplate {
 				},
 				{
 					"text": "field 12",
-					"size": "s-12 m-12 l-12 xl-12"
 				},
 
 				{
@@ -1382,6 +1381,7 @@ class GridPageTemplate extends PowerTemplate {
 				},
 				{
 					"text": "field 2",
+					"size": "s-12 m-12 l-12 xl-12"
 				},
 				{
 					"text": "field 3",
@@ -1409,11 +1409,11 @@ class GridPageTemplate extends PowerTemplate {
 				},
 				{
 					"text": "field 11",
-					"size": "s-2 m-2 l-2 xl-2"
+					"size": "s-2 m-2 l-6 xl-12"
 				},
 				{
 					// "text": "field 12",
-					"size": "s-10 m-10 l-10 xl-10",
+					"size": "s-6 m-6 l-6 xl-12",
 					"children": [
 						{
 							"html": {
@@ -1445,7 +1445,7 @@ class GridPageTemplate extends PowerTemplate {
 			"gap": 10,
 			"id": "the-second-grid",
 			"$ref": "the-grid",
-			"kind": "flex-12",
+			"kind": "scroll-12",
 			"sizes": [
 				"s-2 m-2 l-6 xl-6",
 				"s-2 m-2 l-6 xl-6",
@@ -3775,6 +3775,74 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		};
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').tree(tree);
+
+		const grid = {
+			"id": "the-grid-json",
+			"kind": "scroll-12",
+			"border": true,
+			"gap": 4,
+			"sizes": [
+				"s-6 m-6 l-6 xl-12",
+			],
+			"fields": [
+				{
+					"text": "field 1",
+					"size": "s-12 m-12 l-12 xl-12"
+				},
+				{
+					"text": "field 2",
+				},
+				{
+					"text": "field 3",
+				},
+				{
+					"text": "field 4",
+				},
+				{
+					"text": "field 5",
+				},
+				{
+					"text": "field 6",
+				},
+				{
+					"text": "field 7",
+				},
+				{
+					"text": "field 8",
+				},
+				{
+					"text": "field 9",
+				},
+				{
+					"text": "field 10",
+				},
+				{
+					"text": "field 11",
+				},
+				{
+					// "text": "field 12",
+					"size": "s-12 m-12 l-12 xl-12",
+					"children": [
+						{
+							"button": {
+								"id": 'my-bt-grid',
+								"label": "Secundary",
+								"icon": "save-front",
+								"kind": "secundary",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+									}
+								]
+							}
+						}
+					]
+				},
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').grid(grid);
 
 		resolve(htmlTemplate);
 	}
