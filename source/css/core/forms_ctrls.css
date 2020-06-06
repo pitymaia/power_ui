@@ -101,8 +101,10 @@
     white-space: nowrap;
   }
 
-  .pw-inner-grid .inline-grid .pw-col {
-    white-space: nowrap
+  .pw-field-container {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-y: auto;
   }
 
   input.pw-field[type='checkbox']:not(.switch) {

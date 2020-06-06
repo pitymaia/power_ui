@@ -800,37 +800,47 @@ class JSONSchemaService extends PowerServices {
 
 				control.classList.pop();
 				template = `${template}
-				<input ${this._getInputBasicTmpl(control)} />`;
+				<div class="pw-field-container">
+					<input ${this._getInputBasicTmpl(control)} />
+				</div>`;
 
 			} else if (control.type === 'select') {
 
 				template = `${template}
-				${label ? label : ''}
-				<select ${this._getInputBasicTmpl(control)} ${control.multiple === true ? 'multiple' : ''}>`;
-					for (const item of control.list) {
-						template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
-					}
-				template = `${template}
-				</select>`;
+				<div class="pw-field-container">
+					${label ? label : ''}
+					<select ${this._getInputBasicTmpl(control)} ${control.multiple === true ? 'multiple' : ''}>`;
+						for (const item of control.list) {
+							template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
+						}
+					template = `${template}
+					</select>
+				</div>`;
 
 			} else if (control.type === 'radio' || control.type === 'checkbox') {
 
 				template = `${template}
-				<input ${this._getInputBasicTmpl(control)} /> ${label ? label : ''}`;
+				<div class="pw-field-container">
+					<input ${this._getInputBasicTmpl(control)} /> ${label ? label : ''}
+				</div>`;
 
 			} else if (control.type === 'textarea') {
 
 				template = `${template}
-				${label ? label : ''}
-				<textarea ${this._getInputBasicTmpl(control)} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''}>
-					${control.value || ''}
-				</textarea>`;
+				<div class="pw-field-container">
+					${label ? label : ''}
+					<textarea ${this._getInputBasicTmpl(control)} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''}>
+						${control.value || ''}
+					</textarea>
+				</div>`;
 
 			} else {
 
 				template = `${template}
-				${label ? label : ''}
-				<input ${this._getInputBasicTmpl(control)} />`;
+				<div class="pw-field-container">
+					${label ? label : ''}
+					<input ${this._getInputBasicTmpl(control)} />
+				</div>`;
 			}
 
 			template = `${template}
