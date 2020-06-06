@@ -1,41 +1,11 @@
-/* Forms simple auto break grid */
-.pw-horizontal-form .pw-row .pw-col,
-.pw-horizontal-form.pw-row .pw-col,
-.pw-horizontal-form .pw-row .pw-col .pw-row,
-.pw-horizontal-form.pw-row .pw-col .pw-row {
-    display: inline-block;
-    vertical-align: top;
-    /* debug */
-   /* border-color: black;
-    border-style: solid;
-    border-width: 1px;*/
-}
+/* Forms simple using auto break grid */
 
-.pw-col .pw-vertical-form .pw-row .pw-col,
-.pw-col .pw-vertical-form.pw-row .pw-col {
-    display: block;
-    vertical-align: top;
-}
-.pw-horizontal-form .pw-row .pw-col,
-.pw-horizontal-form.pw-row .pw-col,
-.pw-vertical-form .pw-row .pw-col,
-.pw-vertical-form.pw-row .pw-col {
-    padding: 0 6px;
-}
-.pw-vertical-form .pw-row,
-.pw-vertical-form.pw-row {
+.pw-simple-form.pw-vertical-form input:not([type="radio"]):not([type="checkbox"]),
+.pw-simple-form.pw-vertical-form select,
+.pw-simple-form.pw-vertical-form textarea {
     display: block;
 }
-
-.pw-simple-form .pw-horizontal-form input:not([type="radio"]):not([type="checkbox"]),
-.pw-simple-form .pw-horizontal-form select,
-.pw-simple-form .pw-horizontal-form textarea,
-.pw-simple-form .pw-vertical-form input:not([type="radio"]):not([type="checkbox"]),
-.pw-simple-form .pw-vertical-form select,
-.pw-simple-form .pw-vertical-form textarea {
-    display: block;
-}
-/* Forms simple auto break grid */
+/* Forms simple using auto break grid */
 
 /* Real grid system */
 
@@ -46,7 +16,25 @@
 .pw-grid {
     max-width: 99%;
     margin: 0.5em auto;
+}
+.pw-grid:not(.inline-grid) {
     display: grid;
+}
+.pw-inner-grid .pw-grid {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+.pw-inner-grid {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.inline-grid {
+    display: inline-grid;
+}
+
+.inline-grid .pw-col * {
+    max-width: 100%;
 }
 
 .pw-grid.gap-10 {

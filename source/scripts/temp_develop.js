@@ -1792,28 +1792,25 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const form1 = {
 			"layout": "vertical",
 			// "type": "form",
-			"content": [
+			"controls": [
 				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "User Name:",
-							"type": "text",
-							"value": "Pity o bom",
-							"name": "user_name",
-							"bind": "form.user_name",
-						},
-						{
-							"label": "User Password:",
-							"type": "password",
-							"value": "test123",
-							"name": "password",
-							"bind": "form.password",
-						},
-					]
+					"label": "User Name:",
+					"type": "text",
+					"value": "Pity o bom",
+					"name": "user_name",
+					"bind": "form.user_name",
+					"size": "s-6 m-6 l-6 xl-6"
 				},
 				{
-					"layout": "horizontal",
+					"label": "User Password:",
+					"type": "password",
+					"value": "test123",
+					"name": "password",
+					"bind": "form.password",
+					"size": "s-6 m-6 l-6 xl-6"
+				},
+				{
+					// "size": "s-12 m-12 l-12 xl-12",
 					"controls": [
 						{
 							// "classList": ["switch"],
@@ -1822,6 +1819,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"value": "maths",
 							"name": "sciences",
 							"bind": "form.sciences",
+							"size": "s-6 m-6 l-6 xl-6",
 						},
 						{
 							"label": "Physics",
@@ -1829,12 +1827,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"value": "physics",
 							"name": "sciences",
 							"bind": "form.sciences",
+							"size": "s-6 m-6 l-6 xl-6",
 						},
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
 						{
 							"classList": ["switch"],
 							"label": "Cat",
@@ -1843,6 +1837,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"name": "animals",
 							"bind": "form.animals",
 							"id": "cat2",
+							"size": "s-6 m-6 l-6 xl-6",
 						},
 						{
 							"classList": ["switch"],
@@ -1852,12 +1847,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"name": "animals",
 							"bind": "form.animals",
 							"id": "dog2",
-						}
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
+							"size": "s-6 m-6 l-6 xl-6",
+						},
 						{
 							"classList": ["switch"],
 							"label": "Apple",
@@ -1866,6 +1857,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"name": "fruits",
 							"bind": "form.fruit",
 							"id": "apple2",
+							"size": "s-6 m-6 l-6 xl-6",
 						},
 						{
 							"classList": ["switch"],
@@ -1875,252 +1867,228 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"name": "fruits",
 							"bind": "form.fruit",
 							"id": "orange1",
+							"size": "s-6 m-6 l-6 xl-6",
+						},
+					]
+				},
+				{
+					"label": "Birthday:",
+					"type": "date",
+					"name": "date",
+					"bind": "form.date",
+					"id": "date2",
+					"size": "s-6 m-6 l-6 xl-6",
+				},
+				{
+					"label": "Select your favorite color:",
+					"type": "color",
+					"name": "color",
+					"bind": "form.color",
+					"id": "color2",
+					"size": "s-6 m-6 l-6 xl-6",
+				},
+				{
+					"label": "Enter an e-mail:",
+					"type": "email",
+					"value": "pity@ig.com.br",
+					"name": "email",
+					"bind": "form.email",
+					"size": "s-6 m-6 l-6 xl-6",
+					"id": "email2"
+				},
+				{
+					"label": "Enter a number:",
+					"type": "number",
+					"value": "33",
+					"name": "number",
+					"size": "s-6 m-6 l-6 xl-6",
+					"bind": "form.number"
+				},
+				{
+					"label": "Sound range:",
+					"type": "range",
+					"value": "10",
+					"name": "range",
+					"bind": "form.range",
+					"size": "s-6 m-6 l-6 xl-6",
+					"id": "range2"
+				},
+				{
+					"label": "Enter your phone number:",
+					"type": "phone",
+					"value": "55895833",
+					"name": "phone",
+					"size": "s-6 m-6 l-6 xl-6",
+					"bind": "form.phone"
+				},
+				{
+					"label": "Enter an URL:",
+					"type": "url",
+					"value": "",
+					"name": "url",
+					"bind": "form.url",
+					// "size": "s-6 m-6 l-6 xl-6",
+					"id": "url2"
+				},
+				{
+					"label": "Choose a File:",
+					"type": "file",
+					"value": "",
+					"name": "file",
+					// "size": "s-6 m-6 l-6 xl-6",
+					"bind": "form.file"
+				},
+				{
+					"size": "s-6 m-6 l-6 xl-6",
+					"controls": [
+						{
+							"label": "I have a bike",
+							"type": "checkbox",
+							"name": "bike",
+							"bind": "form.vehicle1",
+							"id": "bike"
+						},
+						{
+							"label": "I have a car",
+							"type": "checkbox",
+							"name": "car",
+							"bind": "form.vehicle2",
+							"id": "car"
+						},
+						{
+							"label": "I have a boat",
+							"type": "checkbox",
+							"name": "boat",
+							"bind": "form.vehicle3",
+							"id": "boat"
+						},
+					]
+				},
+				{
+					"size": "s-6 m-6 l-6 xl-6",
+					"controls": [
+						{
+							"classList": ["switch"],
+							"label": "I have a Wii",
+							"type": "checkbox",
+							"name": "wii",
+							"bind": "form.wii",
+							"id": "wii"
+						},
+						{
+							"classList": ["switch"],
+							"label": "I have a Wii U",
+							"type": "checkbox",
+							"name": "wiiu",
+							"bind": "form.wiiu",
+							"id": "wiiu"
+						},
+						{
+							"classList": ["switch"],
+							"label": "I have a 3Ds",
+							"type": "checkbox",
+							"name": "n3ds",
+							"bind": "form.n3ds",
+							"id": "n3ds"
+						},
+					]
+				},
+				{
+					"label": "Choose one:",
+					"size": "s-6 m-6 l-6 xl-6",
+					"type": "select",
+					"name": "cars_list",
+					"bind": "form.cars",
+					"id": "cars-list",
+					"list": [
+						{"label": "Select a car", "value": "", "disabled": true},
+						{"label": "Escort", "value": "escort", "disabled": false, "selected": true},
+						{"label": "Volvo", "value": "volvo", "disabled": false},
+						{"label": "Saab", "value": "saab", "disabled": false},
+						{"label": "Opel", "value": "opel", "disabled": false},
+						{"label": "Fusca", "value": "fusca", "disabled": false},
+						{"label": "Mercedes", "value": "mercedes", "disabled": false},
+						{"label": "audi", "value": "audi", "disabled": false},
+					]
+				},
+				{
+					"label": "Choose many:",
+					"size": "s-6 m-6 l-6 xl-6",
+					"type": "select",
+					"multiple": true,
+					"name": "cars_list2",
+					"bind": "form.cars2",
+					"id": "cars-list2",
+					"list": [
+						{"label": "Select a car", "value": "", "disabled": true},
+						{"label": "Escort", "value": "escort", "disabled": false, "selected": true},
+						{"label": "Volvo", "value": "volvo", "disabled": false, "selected": true},
+						{"label": "Saab", "value": "saab", "disabled": false, "selected": true},
+						{"label": "Opel", "value": "opel", "disabled": false},
+						{"label": "Fusca", "value": "fusca", "disabled": false},
+						{"label": "Mercedes", "value": "mercedes", "disabled": false},
+						{"label": "audi", "value": "audi", "disabled": false},
+					]
+				},
+				{
+					"label": "Mission:",
+					"type": "textarea",
+					"value": "Pity o bom",
+					"name": "mission",
+					"rows": 4,
+					"cols": 50,
+					"bind": "form.textarea",
+				},
+				{
+					"type": "image",
+					"size": "s-4 m-4 l-4 xl-4",
+					"src": "vendors/imgs/rv_bt.png",
+					"events": [
+						{
+							"event": "onclick",
+							"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
 						}
 					]
 				},
 				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "Birthday:",
-							"type": "date",
-							"name": "date",
-							"bind": "form.date",
-							"id": "date2",
-						},
-						{
-							"label": "Select your favorite color:",
-							"type": "color",
-							"name": "color",
-							"bind": "form.color",
-							"id": "color2"
-						}
-					]
+					"size": "s-4 m-4 l-4 xl-4",
+					"classList": ["pw-btn-primary"],
+					"type": "submit",
 				},
 				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "Enter an e-mail:",
-							"type": "email",
-							"value": "pity@ig.com.br",
-							"name": "email",
-							"bind": "form.email",
-							"id": "email2"
-						},
-						{
-							"label": "Enter a number:",
-							"type": "number",
-							"value": "33",
-							"name": "number",
-							"bind": "form.number"
-						},
-					]
+					"size": "s-4 m-4 l-4 xl-4",
+					"classList": ["pw-btn-highlight"],
+					"type": "reset",
 				},
 				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "Sound range:",
-							"type": "range",
-							"value": "10",
-							"name": "range",
-							"bind": "form.range",
-							"id": "range2"
-						},
-						{
-							"label": "Enter your phone number:",
-							"type": "phone",
-							"value": "55895833",
-							"name": "phone",
-							"bind": "form.phone"
-						},
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "Enter an URL:",
-							"type": "url",
-							"value": "",
-							"name": "url",
-							"bind": "form.url",
-							"id": "url2"
-						},
-						{
-							"label": "Choose a File:",
-							"type": "file",
-							"value": "",
-							"name": "file",
-							"bind": "form.file"
-						},
-					]
-				},
-				{
-					"layout": "horizontal",
-					"content": [
-						{
-							"layout": "vertical",
-							"controls": [
-								{
-									"label": "I have a bike",
-									"type": "checkbox",
-									"name": "bike",
-									"bind": "form.vehicle1",
-									"id": "bike"
-								},
-								{
-									"label": "I have a car",
-									"type": "checkbox",
-									"name": "car",
-									"bind": "form.vehicle2",
-									"id": "car"
-								},
-								{
-									"label": "I have a boat",
-									"type": "checkbox",
-									"name": "boat",
-									"bind": "form.vehicle3",
-									"id": "boat"
-								}
-							]
-						},
-						{
-							"layout": "vertical",
-							"controls": [
-								{
-									"classList": ["switch"],
-									"label": "I have a Wii",
-									"type": "checkbox",
-									"name": "wii",
-									"bind": "form.wii",
-									"id": "wii"
-								},
-								{
-									"classList": ["switch"],
-									"label": "I have a Wii U",
-									"type": "checkbox",
-									"name": "wiiu",
-									"bind": "form.wiiu",
-									"id": "wiiu"
-								},
-								{
-									"classList": ["switch"],
-									"label": "I have a 3Ds",
-									"type": "checkbox",
-									"name": "n3ds",
-									"bind": "form.n3ds",
-									"id": "n3ds"
-								}
-							]
-						}
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"label": "Choose one:",
-							"type": "select",
-							"name": "cars_list",
-							"bind": "form.cars",
-							"id": "cars-list",
-							"list": [
-								{"label": "Select a car", "value": "", "disabled": true},
-								{"label": "Escort", "value": "escort", "disabled": false, "selected": true},
-								{"label": "Volvo", "value": "volvo", "disabled": false},
-								{"label": "Saab", "value": "saab", "disabled": false},
-								{"label": "Opel", "value": "opel", "disabled": false},
-								{"label": "Fusca", "value": "fusca", "disabled": false},
-								{"label": "Mercedes", "value": "mercedes", "disabled": false},
-								{"label": "audi", "value": "audi", "disabled": false},
-							]
-						},
-						{
-							"label": "Choose many:",
-							"type": "select",
-							"multiple": true,
-							"name": "cars_list2",
-							"bind": "form.cars2",
-							"id": "cars-list2",
-							"list": [
-								{"label": "Select a car", "value": "", "disabled": true},
-								{"label": "Escort", "value": "escort", "disabled": false, "selected": true},
-								{"label": "Volvo", "value": "volvo", "disabled": false, "selected": true},
-								{"label": "Saab", "value": "saab", "disabled": false, "selected": true},
-								{"label": "Opel", "value": "opel", "disabled": false},
-								{"label": "Fusca", "value": "fusca", "disabled": false},
-								{"label": "Mercedes", "value": "mercedes", "disabled": false},
-								{"label": "audi", "value": "audi", "disabled": false},
-							]
-						}
-					]
-				},
-				{
-					"layout": "vertical",
-					"controls": [
-						{
-							"label": "Mission:",
-							"type": "textarea",
-							"value": "Pity o bom",
-							"name": "mission",
-							"rows": 4,
-							"cols": 50,
-							"bind": "form.textarea",
-						},
-					]
-				},
-				{
-					"layout": "horizontal",
-					"controls": [
-						{
-							"type": "image",
-							"src": "vendors/imgs/rv_bt.png",
-							"events": [
-								{
-									"event": "onclick",
-									"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
-								}
-							]
-						},
-						{
-							"classList": ["pw-btn-primary"],
-							"type": "submit",
-						},
-						{
-							"classList": ["pw-btn-highlight"],
-							"type": "reset",
-						},
-						{
-							"button": {
-								"id": "bt-form1",
-								"label": "Learn More",
-								"icon": "power-logo",
-								"kind": "highlight",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
-									}
-								]
+					"size": "s-4 m-4 l-4 xl-4",
+					"button": {
+						"id": "bt-form1",
+						"label": "Learn More",
+						"icon": "power-logo",
+						"kind": "highlight",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
 							}
-						},
-						{
-							"button": {
-								"id": 'bt2-form1',
-								"label": "Warning",
-								"icon": "save-front",
-								"kind": "warning",
-								"events": [
-									{
-										"event": "onclick",
-										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
-									}
-								]
+						]
+					}
+				},
+				{
+					"size": "s-4 m-4 l-4 xl-4",
+					"button": {
+						"id": 'bt2-form1',
+						"label": "Warning",
+						"icon": "save-front",
+						"kind": "warning",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
 							}
-						}
-					]
+						]
+					}
 				}
 			]
 		};

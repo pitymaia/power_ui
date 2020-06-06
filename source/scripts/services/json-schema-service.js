@@ -698,6 +698,9 @@ class JSONSchemaService extends PowerServices {
 			if (grid.border === true) {
 				grid.classList.push('border');
 			}
+			if (grid.inline === true) {
+				grid.classList.push('inline-grid');
+			}
 			if (grid.gap) {
 				grid.classList.push(`gap-${grid.gap}`);
 			} else {
@@ -750,7 +753,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	_simpleFromGroups({controls, template}) {
+	_simpleFromGroups({controls, template, inline}) {
 		for (const control of controls) {
 			if (!control.id) {
 				control.id = 'input_' + this.$powerUi._Unique.next();
@@ -769,10 +772,20 @@ class JSONSchemaService extends PowerServices {
 			}
 			control.classList.push('pw-field');
 
-			template = `${template}
-				<div class="pw-col">`;
+			const size = control.size ? control.size : 's-12 m-12 l-12 xl-12';
 
-			if (control.button) {
+			template = `${template}
+				<div class="${control.controls ? 'pw-inner-grid' : ''} pw-col ${size}">`;
+
+			// Allow a inner grid with controls
+			if (control.controls) {
+
+				template = `${template}
+				<div class="pw-grid scroll-12 gap-1 ${inline ? 'inline-grid' : ''}">
+					${this._simpleFromGroups({controls: control.controls, template: '', inline: true})}
+				</div>`;
+
+			} else if (control.button) {
 
 				template = `${template}
 					${this.button(control.button)}`;
@@ -820,26 +833,6 @@ class JSONSchemaService extends PowerServices {
 
 		return template;
 	}
-	_simpleFormContent({content, template}) {
-		for (const item of content) {
-			template = `${template}
-			<div class="${item.layout ? 'pw-' + item.layout + '-form' : 'pw-vertical-form'} pw-row">`;
-			if (item.controls) {
-				template = this._simpleFromGroups({controls: item.controls, template: template});
-			}
-			// Recursively get another content layer
-			if (item.content) {
-				template = `${template}
-				<div class="pw-col">`;
-					template = `${this._simpleFormContent({content: item.content, template: template})}
-				</div>`;
-			}
-
-			template = template + '</div>';
-		}
-
-		return template;
-	}
 
 	simpleForm(_form) {
 		// Do not change the original JSON
@@ -856,16 +849,21 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_form);
 			}
 
-			if (this.validate(this.simpleFormDef(), form) === false) {
-				window.console.log('Failed JSON form:', form);
-				return 'Failed JSON form!';
-			}
+			// if (this.validate(this.simpleFormDef(), form) === false) {
+			// 	window.console.log('Failed JSON form:', form);
+			// 	return 'Failed JSON form!';
+			// }
 
 			const formType = form.type === 'form' ? 'form' : 'div';
 
-			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="${form.theme || 'pw-simple-form'} ${form.layout ? 'pw-' + form.layout + '-form' : 'pw-vertical-form'}">`;
+			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="pw-vertical-form ${form.theme || 'pw-simple-form'} pw-grid scroll-12 gap-4 inline-grid">`;
 
-			template = this._simpleFormContent({template: template, content: form.content});
+			template = this._simpleFromGroups({controls: form.controls, template: template});
+			// for (const item of form.controls) {
+			// 	template = `${template}
+			// 	<div class="pw-col ${item.layout ? item.layout : 'pw-vertical-section'}">`;
+			// 	template = template + '</div>';
+			// }
 
 			template = `${template}
 			</${formType}>`;
