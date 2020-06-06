@@ -540,7 +540,7 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_dropMenuButton);
 			}
 
-			if (this.validate(this.dropmenuButtonDef(), dropMenuButton) === false) {
+			if (this.validate(this.dropmenubuttonDef(), dropMenuButton) === false) {
 				window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
 				return 'Failed JSON button!';
 			}
@@ -855,7 +855,7 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_form);
 			}
 
-			if (this.validate(this.simpleFormDef(), form) === false) {
+			if (this.validate(this.simpleformDef(), form) === false) {
 				window.console.log('Failed JSON form:', form);
 				return 'Failed JSON form!';
 			}
@@ -1119,16 +1119,28 @@ class JSONSchemaService extends PowerServices {
 				"classList": {"type": "array"},
 				"label": {"type": "string"},
 				"type": {"type": "string"},
-				"value": {"type": ["string", "boolean", "int", "float"]},
+				"value": {"type": "any"},
 				"name": {"type": "string"},
 				"bind": {"type": "string"},
 				"id": {"type": "string"},
-				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"}
+				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"},
+				"button": {"$ref": "#/schema/draft-07/item"},
+				"item": {"$ref": "#/schema/draft-07/item"},
+				"status": {"$ref": "#/schema/draft-07/status"},
+				"icon": {"$ref": "#/schema/draft-07/icon"},
+				"menu": {"$ref": "#/schema/draft-07/menu"},
+				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
+				"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
+				"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
+				"tree": {"$ref": "#/schema/draft-07/tree"},
+				"html": {"$ref": "#/schema/draft-07/html"},
+				"accordion": {"$ref": "#/schema/draft-07/accordion"},
+				"grid": {"$ref": "#/schema/draft-07/grid"}
 			}
 		};
 	}
 
-	simpleFormDef() {
+	simpleformDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
 			"$id": "#/schema/draft-07/simpleform",
@@ -1136,8 +1148,8 @@ class JSONSchemaService extends PowerServices {
 			"properties": {
 				"classList": {"type": "array"},
 				"type": {"type": "string"},
-				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"},
-
+				"inline" : {"type": "boolean"},
+				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"}
 			},
 			"required": ["controls"]
 		};
@@ -1252,10 +1264,10 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	dropmenuButtonDef() {
+	dropmenubuttonDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "schema/draft-07/button-dropmenu",
+			"$id": "schema/draft-07/dropmenubutton",
 			"type": "object",
 			"properties": {
 				"button": {"$ref": "#/schema/draft-07/item"},
@@ -1286,8 +1298,16 @@ class JSONSchemaService extends PowerServices {
 		const references = {};
 		references[`${path}item`] = this.itemDef;
 		references[`${path}status`] = this.statusDef;
+		references[`${path}icon`] = this.iconDef;
+		references[`${path}menu`] = this.menuDef;
 		references[`${path}dropmenu`] = this.dropmenuDef;
+		references[`${path}dropmenubutton`] = this.dropmenubuttonDef;
+		references[`${path}simpleform`] = this.simpleformDef;
 		references[`${path}simpleformcontrols`] = this.simpleformcontrolsDef;
+		references[`${path}tree`] = this.treeDef;
+		references[`${path}html`] = this.htmlDef;
+		references[`${path}accordion`] = this.accordionDef;
+		references[`${path}grid`] = this.gridDef;
 
 		return references[$ref]();
 	}
