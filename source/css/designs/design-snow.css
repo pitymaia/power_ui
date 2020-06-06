@@ -151,12 +151,15 @@
 }
 
 /* buttons start*/
-.pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action {
+.pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action,
+.pwdesign-white-smoke input[type='reset'],
+.pwdesign-white-smoke input[type='submit'],
+.pwdesign-white-smoke input[type='image'] {
     margin-right: 0.5em;
     display: inline-block;
     margin-top: 1em;
     padding: 0.7em;
-    vertical-align: top;
+    vertical-align: middle;
 }
 .pwdesign-white-smoke .pw-btn-default {
     color: #FFFFFF;

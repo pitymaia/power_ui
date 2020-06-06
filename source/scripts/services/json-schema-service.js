@@ -785,6 +785,12 @@ class JSONSchemaService extends PowerServices {
 					${this._simpleFromGroups({controls: control.controls, template: '', inline: true})}
 				</div>`;
 
+			// Allow adding any other html or json object
+			} else if (control.children) {
+				for (const child of control.children) {
+					template = template + this.otherJsonKind(child);
+				}
+
 			} else if (control.button) {
 
 				template = `${template}

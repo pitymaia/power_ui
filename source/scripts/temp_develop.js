@@ -1939,7 +1939,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"bind": "form.file"
 				},
 				{
-					"size": "s-6 m-6 l-6 xl-6",
+					"size": "s-12 m-6 l-6 xl-6",
 					"controls": [
 						{
 							"label": "I have a bike",
@@ -1965,7 +1965,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					]
 				},
 				{
-					"size": "s-6 m-6 l-6 xl-6",
+					"size": "s-12 m-6 l-6 xl-6",
 					"controls": [
 						{
 							"classList": ["switch"],
@@ -2040,55 +2040,64 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"bind": "form.textarea",
 				},
 				{
-					"type": "image",
-					"size": "s-4 m-4 l-4 xl-4",
-					"src": "vendors/imgs/rv_bt.png",
-					"events": [
+					// "size": "s-12 m-12 l-12 xl-12",
+					"children": [
 						{
-							"event": "onclick",
-							"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+							"html": {
+								"tagName": "input",
+								"type": "image",
+								"src": "vendors/imgs/rv_bt.png",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+									}
+								]
+							}
+						},
+						{
+							"html": {
+								"tagName": "input",
+								"classList": ["pw-btn-primary"],
+								"type": "submit",
+							}
+						},
+						{
+							"html": {
+								"tagName": "input",
+								"classList": ["pw-btn-highlight"],
+								"type": "reset",
+							}
+						},
+						{
+							"button": {
+								"id": "bt-form1",
+								"label": "Learn More",
+								"icon": "power-logo",
+								"kind": "highlight",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+									}
+								]
+							}
+						},
+						{
+							"button": {
+								"id": 'bt2-form1',
+								"label": "Warning",
+								"icon": "save-front",
+								"kind": "warning",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+									}
+								]
+							}
 						}
 					]
-				},
-				{
-					"size": "s-4 m-4 l-4 xl-4",
-					"classList": ["pw-btn-primary"],
-					"type": "submit",
-				},
-				{
-					"size": "s-4 m-4 l-4 xl-4",
-					"classList": ["pw-btn-highlight"],
-					"type": "reset",
-				},
-				{
-					"size": "s-4 m-4 l-4 xl-4",
-					"button": {
-						"id": "bt-form1",
-						"label": "Learn More",
-						"icon": "power-logo",
-						"kind": "highlight",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
-							}
-						]
-					}
-				},
-				{
-					"size": "s-4 m-4 l-4 xl-4",
-					"button": {
-						"id": 'bt2-form1',
-						"label": "Warning",
-						"icon": "save-front",
-						"kind": "warning",
-						"events": [
-							{
-								"event": "onclick",
-								"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
-							}
-						]
-					}
 				}
 			]
 		};
