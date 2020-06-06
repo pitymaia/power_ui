@@ -345,3 +345,13 @@ p.pw-spinner-label {
   }
 }
 /* end spinner */
+
+/* Forms simple using auto break grid */
+
+.pw-simple-form.pw-vertical-form input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+.pw-simple-form.pw-vertical-form select,
+.pw-simple-form.pw-vertical-form textarea {
+    display: block;
+}
+
+/* Forms simple using auto break grid */

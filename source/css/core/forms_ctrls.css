@@ -98,6 +98,11 @@
   label {
     vertical-align: middle;
     margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  .pw-inner-grid .inline-grid .pw-col {
+    white-space: nowrap
   }
 
   input.pw-field[type='checkbox']:not(.switch) {

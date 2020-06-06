@@ -1792,6 +1792,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const form1 = {
 			"type": "form",
 			"inline": true,
+			"padding-right": true,
 			"controls": [
 				{
 					"label": "User Name:",
@@ -1967,6 +1968,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				},
 				{
 					"size": "s-12 m-6 l-6 xl-6",
+					"inline": true,
 					"controls": [
 						{
 							"classList": ["switch"],
