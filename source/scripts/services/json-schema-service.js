@@ -753,7 +753,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	_simpleFromGroups({controls, template, inline}) {
+	simpleFormControls({controls, template, inline}) {
 		for (const control of controls) {
 			if (!control.id) {
 				control.id = 'input_' + this.$powerUi._Unique.next();
@@ -781,8 +781,8 @@ class JSONSchemaService extends PowerServices {
 			if (control.controls) {
 
 				template = `${template}
-				<div class="pw-grid scroll-12 gap-1 ${inline ? 'inline-grid' : ''}">
-					${this._simpleFromGroups({controls: control.controls, template: '', inline: true})}
+				<div class="pw-grid scroll-12 gap-1 ${((control.inline === true) || (inline === true)) ? 'inline-grid' : ''}">
+					${this.simpleFormControls({controls: control.controls, template: ''})}
 				</div>`;
 
 			// Allow adding any other html or json object
@@ -855,21 +855,16 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_form);
 			}
 
-			// if (this.validate(this.simpleFormDef(), form) === false) {
-			// 	window.console.log('Failed JSON form:', form);
-			// 	return 'Failed JSON form!';
-			// }
+			if (this.validate(this.simpleFormDef(), form) === false) {
+				window.console.log('Failed JSON form:', form);
+				return 'Failed JSON form!';
+			}
 
 			const formType = form.type === 'form' ? 'form' : 'div';
 
-			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="pw-vertical-form ${form.theme || 'pw-simple-form'} pw-grid scroll-12 gap-4 inline-grid">`;
+			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="pw-vertical-form ${form.theme || 'pw-simple-form'} pw-grid scroll-12 gap-4 ${(form.inline === false) ? '' : 'inline-grid'}">`;
 
-			template = this._simpleFromGroups({controls: form.controls, template: template});
-			// for (const item of form.controls) {
-			// 	template = `${template}
-			// 	<div class="pw-col ${item.layout ? item.layout : 'pw-vertical-section'}">`;
-			// 	template = template + '</div>';
-			// }
+			template = this.simpleFormControls({controls: form.controls, template: template});
 
 			template = `${template}
 			</${formType}>`;
@@ -1115,27 +1110,21 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	simpleFormContentDef() {
+	simpleformcontrolsDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#/schema/draft-07/simpleformcontent",
-			"type": "object",
+			"$id": "#/schema/draft-07/simpleformcontrols",
+			"type": "array",
 			"properties": {
-				"layout": {"type": "string"},
-				"content": {"$ref": "#/schema/draft-07/simpleformcontent"},
-				"controls": {
-					"type": "array",
-					"properties": {
-						"classList": {"type": "array"},
-						"label": {"type": "string"},
-						"type": {"type": "string"},
-						"value": {"type": ["string", "boolean", "int", "float"]},
-						"name": {"type": "string"},
-						"bind": {"type": "string"},
-						"id": {"type": "string"}
-					}
-				}
-			},
+				"classList": {"type": "array"},
+				"label": {"type": "string"},
+				"type": {"type": "string"},
+				"value": {"type": ["string", "boolean", "int", "float"]},
+				"name": {"type": "string"},
+				"bind": {"type": "string"},
+				"id": {"type": "string"},
+				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"}
+			}
 		};
 	}
 
@@ -1147,11 +1136,10 @@ class JSONSchemaService extends PowerServices {
 			"properties": {
 				"classList": {"type": "array"},
 				"type": {"type": "string"},
-				"layout": {"type": "string"},
-				"content": {"$ref": "#/schema/draft-07/simpleformcontent"},
+				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"},
 
 			},
-			"required": ["content"]
+			"required": ["controls"]
 		};
 	}
 
@@ -1261,7 +1249,7 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["content"]
-		}
+		};
 	}
 
 	dropmenuButtonDef() {
@@ -1299,7 +1287,7 @@ class JSONSchemaService extends PowerServices {
 		references[`${path}item`] = this.itemDef;
 		references[`${path}status`] = this.statusDef;
 		references[`${path}dropmenu`] = this.dropmenuDef;
-		references[`${path}simpleformcontent`] = this.simpleFormContentDef;
+		references[`${path}simpleformcontrols`] = this.simpleformcontrolsDef;
 
 		return references[$ref]();
 	}
