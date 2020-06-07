@@ -121,7 +121,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	// If exist some if this properties the required is not really needed
-	especialRequired(json) {
+	especialRequired(json, requiredKey) {
 		const especial = {
 			"html": true,
 			"button": true,
@@ -137,7 +137,7 @@ class JSONSchemaService extends PowerServices {
 			"grid": true
 		};
 		for (const key of Object.keys(json)) {
-			if (especial[key] && typeof json[key] === 'object') {
+			if (especial[key] && typeof json[key] === 'object' && requiredKey === key) {
 				return true;
 			}
 		}
@@ -167,7 +167,10 @@ class JSONSchemaService extends PowerServices {
 		// Validade other properties required fields
 		if (schema.required) {
 			for (const key of schema.required) {
-				if (!this.especialRequired(json) && !json[key]) {
+					// if (schema.$id === '#/schema/draft-07/dropmenu' && !json.items) {
+					// 	console.log('key', key, 'schema', schema, json);
+					// }
+				if (!this.especialRequired(json, key) && !json[key]) {
 					window.console.log(`JSON missing required property: "${key}"`, json);
 					return false;
 				}
@@ -231,6 +234,64 @@ class JSONSchemaService extends PowerServices {
 		}
 
 		return true;
+	}
+
+	// Build pow-event attributes
+	_getEventTmpl(events) {
+		// Add events if have
+		if (events) {
+			let eventsTmpl = '';
+			for (const event of events) {
+				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
+			}
+			eventsTmpl = `data-pow-event ${eventsTmpl}`;
+			return eventsTmpl;
+		} else {
+			return '';
+		}
+	}
+
+	_getIdTmpl(id, required) {
+		if (id) {
+			return `id="${id}"`;
+		} else if (required) {
+			return `id="${required}_${this.$powerUi._Unique.next()}"`;
+		} else {
+			return '';
+		}
+	}
+
+	_getAttrTmpl(attrs) {
+		let attributes = '';
+		if (attrs) {
+			for (const attr of attrs) {
+				if (attr.value !== undefined) {
+					attributes = `${attributes} ${attr.name}="${attr.value}"`;
+				} else {
+					attributes = `${attributes} ${attr.name}`;
+				}
+			}
+		}
+		return attributes;
+	}
+
+	_getClassTmpl(classList) {
+		let customCss = '';
+		if (classList) {
+			for (const css of classList) {
+				customCss = customCss ? `${customCss} ${css}` : css;
+			}
+			return `class="${customCss}"`;
+		}
+		return customCss;
+	}
+
+	_getHtmlBasicTmpl(item, required) {
+		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}${item.title ? ' title="' + item.title + '"' : ''}${item.for ? ' for="' + item.for + '"' : ''}${item.src ? ' src="' + item.src + '"' : ''}${item.cols ? ' cols="' + item.cols + '"' : ''}${item.rows ? ' rows="' + item.rows + '"' : ''}${item.width ? ' width="' + item.width + '"' : ''}${item.height ? ' height="' + item.height + '"' : ''}${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}${item.bind ? ' data-pow-bind="' + item.bind + '"' : ''}${item.value ? ' value="' + item.value + '"' : ''}${item.name ? ' name="' + item.name + '"' : ''}${item.required ? ' required' : ''}`;
+	}
+
+	_getInputBasicTmpl(control, required) {
+		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.pattern ? ' pattern="' + control.pattern + '"' : ''}`;
 	}
 
 	accordion(_accordion) {
@@ -311,10 +372,17 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_menu);
 			}
 
-			if (this.validate(this.menuDef(), menu) === false) {
+			if (this._validate(this.menuDef(), menu) === false) {
 				window.console.log('Failed JSON menu:', menu);
-				return 'Failed JSON menu!';
+				throw 'Failed JSON dropmenu!';
 			}
+			if (menu.events) {
+				const result = this._validateEvents(menu.events, menu, 'menu');
+				if ( result !== true) {
+					throw result;
+				}
+			}
+
 			// Menus extends dropmenu
 			const tmpEl = document.createElement('div');
 
@@ -417,10 +485,16 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_dropmenu);
 			}
 
-			// if (this.validate(this.dropmenuDef(), dropmenu) === false) {
-			// 	window.console.log('Failed JSON dropmenu:', dropmenu);
-			// 	return 'Failed JSON dropmenu!';
-			// }
+			if (this._validate(this.dropmenuDef(), dropmenu) === false) {
+				window.console.log('Failed JSON dropmenu:', dropmenu);
+				throw 'Failed JSON dropmenu!';
+			}
+			if (dropmenu.events) {
+				const result = this._validateEvents(dropmenu.events, dropmenu, 'dropmenu');
+				if ( result !== true) {
+					throw result;
+				}
+			}
 
 			const tmpEl = document.createElement('div');
 
@@ -444,7 +518,6 @@ class JSONSchemaService extends PowerServices {
 				if (item.item) {
 					itemHolderEl.innerHTML = this.item({
 						item: item.item,
-						avoidValidation: false,
 						mirrored: item.mirrored === undefined ? mirrored : item.mirrored,
 						dropmenuId: item.dropmenu ? item.dropmenu.id : false
 					});
@@ -488,65 +561,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	// Build pow-event attributes
-	_getEventTmpl(events) {
-		// Add events if have
-		if (events) {
-			let eventsTmpl = '';
-			for (const event of events) {
-				eventsTmpl = `${eventsTmpl} ${event.event}="${event.fn}" `;
-			}
-			eventsTmpl = `data-pow-event ${eventsTmpl}`;
-			return eventsTmpl;
-		} else {
-			return '';
-		}
-	}
-
-	_getIdTmpl(id, required) {
-		if (id) {
-			return `id="${id}"`;
-		} else if (required) {
-			return `id="${required}_${this.$powerUi._Unique.next()}"`;
-		} else {
-			return '';
-		}
-	}
-
-	_getAttrTmpl(attrs) {
-		let attributes = '';
-		if (attrs) {
-			for (const attr of attrs) {
-				if (attr.value !== undefined) {
-					attributes = `${attributes} ${attr.name}="${attr.value}"`;
-				} else {
-					attributes = `${attributes} ${attr.name}`;
-				}
-			}
-		}
-		return attributes;
-	}
-
-	_getClassTmpl(classList) {
-		let customCss = '';
-		if (classList) {
-			for (const css of classList) {
-				customCss = customCss ? `${customCss} ${css}` : css;
-			}
-			return `class="${customCss}"`;
-		}
-		return customCss;
-	}
-
-	_getHtmlBasicTmpl(item, required) {
-		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}${item.title ? ' title="' + item.title + '"' : ''}${item.for ? ' for="' + item.for + '"' : ''}${item.src ? ' src="' + item.src + '"' : ''}${item.cols ? ' cols="' + item.cols + '"' : ''}${item.rows ? ' rows="' + item.rows + '"' : ''}${item.width ? ' width="' + item.width + '"' : ''}${item.height ? ' height="' + item.height + '"' : ''}${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}${item.bind ? ' data-pow-bind="' + item.bind + '"' : ''}${item.value ? ' value="' + item.value + '"' : ''}${item.name ? ' name="' + item.name + '"' : ''}${item.required ? ' required' : ''}`;
-	}
-
-	_getInputBasicTmpl(control, required) {
-		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.pattern ? ' pattern="' + control.pattern + '"' : ''}`;
-	}
-
-	item({item, avoidValidation, mirrored, dropmenuId}) {
+	item({item, mirrored, dropmenuId}) {
 		// Do not change the original JSON
 		const newItem = this.cloneObject(item);
 		// This allow pass an array of items
@@ -561,9 +576,15 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(item);
 			}
 
-			if (!avoidValidation && this.validate(this.itemDef(), newItem) === false) {
+			if (this._validate(this.itemDef(), newItem) === false) {
 				window.console.log('Failed JSON item:', newItem);
 				return 'Failed JSON item!';
+			}
+			if (newItem.events) {
+				const result = this._validateEvents(newItem.events, newItem, 'item');
+				if ( result !== true) {
+					throw result;
+				}
 			}
 
 			const tmpEl = document.createElement('div');
@@ -596,14 +617,14 @@ class JSONSchemaService extends PowerServices {
 			// Use the original JSON
 			return this.dropMenuButton(this.getNewJSON(_dropMenuButton));
 		} else {
+			if (this._validate(this.dropmenubuttonDef(), dropMenuButton) === false) {
+				window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
+				throw 'Failed JSON dropMenuButton!';
+			}
+
 			if (_dropMenuButton.$id) {
 				// Register original JSON
 				this.registerJSONById(_dropMenuButton);
-			}
-
-			if (this.validate(this.dropmenubuttonDef(), dropMenuButton) === false) {
-				window.console.log('Failed JSON dropMenuButton:', dropMenuButton);
-				return 'Failed JSON button!';
 			}
 
 			const tmpEl = document.createElement('div');
@@ -1301,7 +1322,7 @@ class JSONSchemaService extends PowerServices {
 					}
 				}
 			},
-			"required": ["id"]
+			"required": ["id", "items"]
 		};
 	}
 
