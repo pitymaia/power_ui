@@ -709,10 +709,10 @@ class JSONSchemaService extends PowerServices {
 				// Register original JSON
 				this.registerJSONById(_grid);
 			}
-			// if (this.validate(this.gridDef(), grid) === false) {
-			// 	window.console.log('Failed JSON grid:', grid);
-			// 	return 'Failed JSON grid!';
-			// }
+			if (this.validate(this.gridDef(), grid) === false) {
+				window.console.log('Failed JSON grid:', grid);
+				return 'Failed JSON grid!';
+			}
 			if (!grid.classList) {
 				grid.classList = [];
 			}
@@ -1444,7 +1444,7 @@ class JSONSchemaService extends PowerServices {
 				"id": {"type": "string"},
 				"kind": {"type": "string"},
 				"border": {"type": "boolean"},
-				"gap": {"type": "int"},
+				"gap": {"type": "number"},
 				"sizes": {"type": "array"},
 				"fields": {
 					"type": "array",
