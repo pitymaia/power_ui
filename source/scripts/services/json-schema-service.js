@@ -1380,6 +1380,14 @@ class JSONSchemaService extends PowerServices {
 						"required": {"type": "boolean"},
 						"disabled": {"type": "boolean"},
 						"pattern": {"type": "string"},
+						"events": {
+							"type": "array",
+							"properties": {
+								"event": {"type": "string"},
+								"fn": {"type": "string"},
+							},
+							"required": ["event", "fn"]
+						},
 						"html": {"$ref": "#/schema/draft-07/html"},
 						"button": {"$ref": "#/schema/draft-07/item"},
 						"item": {"$ref": "#/schema/draft-07/item"},
@@ -1396,6 +1404,58 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["tagName"]
+		};
+	}
+
+	gridDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/grid",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"classList": {"type": "array"},
+				"id": {"type": "string"},
+				"kind": {"type": "string"},
+				"border": {"type": "boolean"},
+				"gap": {"type": "int"},
+				"sizes": {"type": "array"},
+				"fields": {
+					"type": "array",
+					"properties": {
+						"classList": {"type": "array"},
+						"text": {"type": "string"},
+						"size": {"type": "string"},
+						"children": {
+							"type": "array",
+							"properties": {
+								"html": {"$ref": "#/schema/draft-07/html"},
+								"button": {"$ref": "#/schema/draft-07/item"},
+								"item": {"$ref": "#/schema/draft-07/item"},
+								"status": {"$ref": "#/schema/draft-07/status"},
+								"icon": {"$ref": "#/schema/draft-07/icon"},
+								"menu": {"$ref": "#/schema/draft-07/menu"},
+								"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
+								"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
+								"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
+								"tree": {"$ref": "#/schema/draft-07/tree"},
+								"accordion": {"$ref": "#/schema/draft-07/accordion"},
+								"grid": {"$ref": "#/schema/draft-07/grid"}
+							}
+						}
+					}
+				},
+				"events": {
+					"type": "array",
+					"properties": {
+						"event": {"type": "string"},
+						"fn": {"type": "string"},
+					},
+					"required": ["event", "fn"]
+				}
+			},
+			"required": ["fields"]
 		};
 	}
 
