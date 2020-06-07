@@ -137,7 +137,7 @@ class JSONSchemaService extends PowerServices {
 			"grid": true
 		};
 		for (const key of Object.keys(json)) {
-			if (especial[key]) {
+			if (especial[key] && typeof json[key] === 'object') {
 				return true;
 			}
 		}
@@ -154,8 +154,6 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_validate(schema, json) {
-		// window.console.log('schema', schema);
-		// window.console.log('json', json);
 		// Validate item properties
 		for (const key of Object.keys(schema.properties || {})) {
 			// Validade other types property
@@ -457,7 +455,7 @@ class JSONSchemaService extends PowerServices {
 					itemHolderEl.innerHTML = this.dropMenuButton(item);
 				} else if (item.button && !item.dropmenu) {
 					if (mirrored !== undefined && item.button.mirrored === undefined) {
-						itemHolderEl.innerHTML = this.button(item.button, false, mirrored);
+						itemHolderEl.innerHTML = this.button(item.button, mirrored);
 					} else {
 						itemHolderEl.innerHTML = this.button(item.button);
 					}
@@ -610,7 +608,7 @@ class JSONSchemaService extends PowerServices {
 
 			const tmpEl = document.createElement('div');
 			// Create button
-			tmpEl.innerHTML = this.button(dropMenuButton.button, true, dropMenuButton.button.mirrored);
+			tmpEl.innerHTML = this.button(dropMenuButton.button, dropMenuButton.button.mirrored);
 
 			const buttonEl = tmpEl.children[0];
 			buttonEl.dataset.powerTarget = dropMenuButton.dropmenu.id;
@@ -627,7 +625,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	button(_button, avoidValidation, mirrored) {
+	button(_button, mirrored) {
 		// Do not change the original JSON
 		const button = this.cloneObject(_button);
 		// This allow pass an array of buttons
@@ -642,9 +640,15 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_button);
 			}
 
-			if (!avoidValidation && this.validate(this.itemDef(), button) === false) {
+			if (this._validate(this.itemDef(), button) === false) {
 				window.console.log('Failed JSON button:', button);
-				return 'Failed JSON button!';
+				throw 'Failed JSON button!';
+			}
+			if (button.events) {
+				const result = this._validateEvents(button.events, button, 'button');
+				if ( result !== true) {
+					throw result;
+				}
 			}
 
 			const tmpEl = document.createElement('div');
@@ -690,10 +694,17 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_tree);
 			}
 
-			if (this.validate(this.treeDef(), tree) === false) {
+			if (this._validate(this.treeDef(), tree) === false) {
 				window.console.log('Failed JSON tree:', tree);
-				return 'Failed JSON tree!';
+				throw 'Failed JSON tree!';
 			}
+			if (tree.events) {
+				const result = this._validateEvents(tree.events, tree, 'tree');
+				if ( result !== true) {
+					throw result;
+				}
+			}
+
 			if (!tree.classList) {
 				tree.classList = [];
 			}
@@ -750,12 +761,12 @@ class JSONSchemaService extends PowerServices {
 
 			if (this._validate(this.gridDef(), grid) === false) {
 				window.console.log('Failed JSON grid:', grid);
-				return 'Failed JSON grid!';
+				throw 'Failed JSON grid!';
 			}
 			if (grid.events) {
 				const result = this._validateEvents(grid.events, grid, 'grid');
 				if ( result !== true) {
-					return result;
+					throw result;
 				}
 			}
 
@@ -790,12 +801,12 @@ class JSONSchemaService extends PowerServices {
 			for (const field of grid.fields) {
 				if (this._validate(this.gridDef().properties.fields, field) === false) {
 					window.console.log('Failed JSON grid field:', field, grid);
-					return 'Failed JSON grid field!';
+					throw 'Failed JSON grid field!';
 				}
 				if (field.events) {
 					const result = this._validateEvents(field.events, field, 'field');
 					if ( result !== true) {
-						return result;
+						throw result;
 					}
 				}
 
@@ -837,6 +848,16 @@ class JSONSchemaService extends PowerServices {
 
 	simpleFormControls({controls, template, inline}) {
 		for (const control of controls) {
+			if (this._validate(this.simpleformcontrolsDef(), control) === false) {
+				window.console.log('Failed JSON control:', control);
+				throw 'Failed JSON control!';
+			}
+			if (control.events) {
+				const result = this._validateEvents(control.events, control, 'control');
+				if ( result !== true) {
+					throw result;
+				}
+			}
 			if (!control.id) {
 				control.id = 'input_' + this.$powerUi._Unique.next();
 			}
@@ -947,9 +968,15 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_form);
 			}
 
-			if (this.validate(this.simpleformDef(), form) === false) {
+			if (this._validate(this.simpleformDef(), form) === false) {
 				window.console.log('Failed JSON form:', form);
-				return 'Failed JSON form!';
+				throw 'Failed JSON form!';
+			}
+			if (form.events) {
+				const result = this._validateEvents(form.events, form, 'form');
+				if ( result !== true) {
+					throw result;
+				}
 			}
 
 			const formType = form.type === 'form' ? 'form' : 'div';

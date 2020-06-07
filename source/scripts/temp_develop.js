@@ -1444,6 +1444,12 @@ class GridPageTemplate extends PowerTemplate {
 								"label": "Nice button",
 								"icon": "power-logo",
 								"kind": "success",
+								"events": [
+									{
+										"event": "onclick",
+										"fn": "openModal()"
+									}
+								],
 							}
 						}
 					]
@@ -1802,7 +1808,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1);
 
 		const form1 = {
-			"type": "form",
+			// "type": "form",
 			"inline": true,
 			"padding": false,
 			"controls": [
