@@ -1080,6 +1080,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/accordion",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"classList": {"type": "array"},
 				"config": {
 					"type": "object",
@@ -1126,6 +1128,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/simpleformcontrols",
 			"type": "array",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"classList": {"type": "array"},
 				"label": {"type": "string"},
 				"type": {"type": "string"},
@@ -1156,9 +1160,12 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/simpleform",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"classList": {"type": "array"},
 				"type": {"type": "string"},
 				"inline" : {"type": "boolean"},
+				"padding": {"type": "boolean"},
 				"controls": {"$ref": "#/schema/draft-07/simpleformcontrols"}
 			},
 			"required": ["controls"]
@@ -1171,6 +1178,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/dropmenu",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"id": {"type": "string"},
 				"classList": {"type": "array"},
 				"items": {
@@ -1193,6 +1202,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/menu",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"id": {"type": "string"},
 				"classList": {"type": "array"},
 				"mirrored": {"type": "boolean"},
@@ -1220,6 +1231,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/item",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"classList": {"type": "array"},
 				"label": {"type": "string"},
 				"id": {"type": "string"},
@@ -1247,6 +1260,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "#/schema/draft-07/menu",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"classList": {"type": "array"},
 				"id": {"type": "string"},
 				"events": {
@@ -1280,6 +1295,8 @@ class JSONSchemaService extends PowerServices {
 			"$id": "schema/draft-07/dropmenubutton",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"button": {"$ref": "#/schema/draft-07/item"},
 				"status": {"$ref": "#/schema/draft-07/status"},
 				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
@@ -1294,11 +1311,91 @@ class JSONSchemaService extends PowerServices {
 			"$id": "schema/draft-07/status",
 			"type": "object",
 			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
 				"active": {"type": "string"},
 				"inactive": {"type": "string"},
 				"position": {"type": "string"}
 			},
 			"required": ["active", "inactive"]
+		};
+	}
+
+	htmlDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/html",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"classList": {"type": "array"},
+				"id": {"type": "string"},
+				"tagName": {"type": "string"},
+				"multiple": {"type": "boolean"},
+				"src": {"type": "string"},
+				"width": {"type": "string"},
+				"height": {"type": "string"},
+				"type": {"type": "string"},
+				"bind": {"type": "string"},
+				"title": {"type": "string"},
+				"for": {"type": "string"},
+				"attrs": {"type": "array"},
+				"cols": {"type": "string"},
+				"rows": {"type": "string"},
+				"value": {"type": "any"},
+				"name": {"type": "string"},
+				"required": {"type": "boolean"},
+				"disabled": {"type": "boolean"},
+				"pattern": {"type": "string"},
+				"events": {
+					"type": "array",
+					"properties": {
+						"event": {"type": "string"},
+						"fn": {"type": "string"},
+					},
+					"required": ["event", "fn"]
+				},
+				"children": {
+					"type": "array",
+					"properties": {
+						"$id": {"type": "string"},
+						"$ref": {"type": "string"},
+						"classList": {"type": "array"},
+						"id": {"type": "string"},
+						"tagName": {"type": "string"},
+						"multiple": {"type": "boolean"},
+						"src": {"type": "string"},
+						"width": {"type": "string"},
+						"height": {"type": "string"},
+						"type": {"type": "string"},
+						"bind": {"type": "string"},
+						"title": {"type": "string"},
+						"for": {"type": "string"},
+						"attrs": {"type": "array"},
+						"cols": {"type": "string"},
+						"rows": {"type": "string"},
+						"value": {"type": "any"},
+						"name": {"type": "string"},
+						"required": {"type": "boolean"},
+						"disabled": {"type": "boolean"},
+						"pattern": {"type": "string"},
+						"html": {"$ref": "#/schema/draft-07/html"},
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"icon": {"$ref": "#/schema/draft-07/icon"},
+						"menu": {"$ref": "#/schema/draft-07/menu"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
+						"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
+						"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
+						"tree": {"$ref": "#/schema/draft-07/tree"},
+						"accordion": {"$ref": "#/schema/draft-07/accordion"},
+						"grid": {"$ref": "#/schema/draft-07/grid"}
+					}
+				}
+			},
+			"required": ["tagName"]
 		};
 	}
 
