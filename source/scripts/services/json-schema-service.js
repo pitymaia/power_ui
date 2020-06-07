@@ -180,62 +180,6 @@ class JSONSchemaService extends PowerServices {
 		return true;
 	}
 
-	validate(schema, json) {
-		// Check current object type against schema type
-		if (this.validateType(schema.type, json) === false) {
-			return false;
-		}
-		// Validade required fields
-		if (schema.required) {
-			for (const property of schema.required) {
-				if (!this.especialRequired(json) && !json[property] && (!json[0] || (json[0] && !json[0][property]))) {
-					window.console.log(`JSON missing required property: "${property}"`, json);
-					return false;
-				}
-			}
-		}
-		// Validate item properties and inner nodes
-		for (const key of Object.keys(schema.properties || {})) {
-			// Validate inner schema nodes
-			// If is some reference to another schema get it
-			// TODO: This is not working...
-			if (schema.properties[key].$ref) {
-				// console.log('schema.properties[key].$ref', this.$ref(schema.properties[key].$ref), json[key], key, json);
-				if (json[key] && this.validate(this.$ref(schema.properties[key].$ref), json[key]) === false) {
-					return false;
-				}
-			}
-			// Validate image icons
-			if (key === 'icon' && json[key] === 'img' && json['icon-src'] === undefined) {
-				window.console.log('Failed JSON: "icon-src" is required! Some item with "icon" attribute is set to "img" but is missing the "icon-src" attribute');
-				window.console.log('Failed JSON ID is:', json.id, ' and key is: ', key);
-				return false;
-			}
-			// Validade array type property
-			else if (schema.properties[key].type === 'array' && schema.properties[key].items) {
-				for (const item of json[key]) {
-					if (this.validate(schema.properties[key].items, item) === false) {
-						return false;
-					}
-				}
-			// Validade other types property
-			} else if (schema.properties[key].properties && json[key] !== undefined) {
-				if (this.validate(schema.properties[key], json[key]) === false) {
-					return false;
-				}
-			}
-			// Validate current property type
-			if (json[key] !== undefined && !schema.properties[key].$ref) {
-				if (this.validateType(schema.properties[key].type, json[key]) === false) {
-					window.console.log('Failed JSON key is:', key);
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
 	// Build pow-event attributes
 	_getEventTmpl(events) {
 		// Add events if have
@@ -292,6 +236,87 @@ class JSONSchemaService extends PowerServices {
 
 	_getInputBasicTmpl(control, required) {
 		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.pattern ? ' pattern="' + control.pattern + '"' : ''}`;
+	}
+
+	_arrayOfSchemas(_array, func) {
+		let template = '';
+		for (const tag of _array) {
+			template = `${template}
+				${this[func](tag)}`;
+		}
+
+		return template;
+	}
+
+	otherJsonKind(item) {
+		if (item.button) {
+			return this.button(item.button);
+		} else if (item.simpleForm) {
+			return this.simpleForm(item.simpleForm);
+		} else if (item.tree) {
+			return this.tree(item.tree);
+		} else if (item.dropMenuButton) {
+			return this.dropMenuButton(item.dropMenuButton);
+		} else if (item.dropmenu) {
+			return this.dropmenu(item.dropmenu);
+		} else if (item.menu) {
+			return this.menu(item.menu);
+		} else if (item.accordion) {
+			return this.accordion(item.accordion);
+		} else if (item.icon) {
+			return this.icon(item.icon);
+		} else if (item.status) {
+			return this.status(item.status);
+		} else if (item.html) {
+			return this.html(item.html);
+		} else {
+			return null;
+		}
+	}
+
+	appendClassList({element, json}) {
+		for (const css of json.classList) {
+			element.classList.add(css);
+		}
+	}
+
+	// Icon is a css font or an img
+	appendIcon({element, json, mirrored}) {
+		const iconHolder = document.createElement('div');
+		const iconJson = {};
+		if (json.icon === 'img' && json['icon-src']) {
+			iconJson.kind = 'img';
+			iconJson.src = json['icon-src'];
+		} else {
+			iconJson.icon = json.icon;
+		}
+
+		iconHolder.innerHTML = this.icon(iconJson);
+		const icon = iconHolder.childNodes[0];
+
+		if ((!json['icon-position'] && mirrored !== true) || json['icon-position'] === 'left') {
+			element.insertBefore(icon, element.childNodes[0]);
+		} else {
+			element.appendChild(icon);
+		}
+	}
+
+	appendStatus({element, json, mirrored}) {
+		const statusHolder = document.createElement('div');
+		statusHolder.innerHTML = this.status(json);
+		const status = statusHolder.childNodes[0];
+
+		if (mirrored === true) {
+			status.dataset.powerInactive = json.inactive.replace('right', 'left');
+		} else {
+			status.dataset.powerInactive = json.inactive;
+		}
+		status.dataset.powerActive = json.active;
+		if (json.position === 'left' || mirrored === true) {
+			element.insertBefore(status, element.childNodes[0]);
+		} else {
+			element.appendChild(status);
+		}
 	}
 
 	accordion(_accordion) {
@@ -1030,16 +1055,6 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	_arrayOfSchemas(_array, func) {
-		let template = '';
-		for (const tag of _array) {
-			template = `${template}
-				${this[func](tag)}`;
-		}
-
-		return template;
-	}
-
 	html(_html) {
 		// Do not change the original JSON
 		const html = this.cloneObject(_html);
@@ -1055,10 +1070,10 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_html);
 			}
 
-			if (this.validate(this.htmlDef(), html) === false) {
-				window.console.log('Failed JSON html:', html);
-				return 'Failed JSON html!';
-			}
+			// if (this.validate(this.htmlDef(), html) === false) {
+			// 	window.console.log('Failed JSON html:', html);
+			// 	return 'Failed JSON html!';
+			// }
 
 			// If this is not an html json, but a button, dropmenu or other kind of json
 			if (html.tagName === undefined) {
@@ -1089,38 +1104,6 @@ class JSONSchemaService extends PowerServices {
 
 				return template;
 			}
-		}
-	}
-
-	otherJsonKind(item) {
-		if (item.button) {
-			return this.button(item.button);
-		} else if (item.simpleForm) {
-			return this.simpleForm(item.simpleForm);
-		} else if (item.tree) {
-			return this.tree(item.tree);
-		} else if (item.dropMenuButton) {
-			return this.dropMenuButton(item.dropMenuButton);
-		} else if (item.dropmenu) {
-			return this.dropmenu(item.dropmenu);
-		} else if (item.menu) {
-			return this.menu(item.menu);
-		} else if (item.accordion) {
-			return this.accordion(item.accordion);
-		} else if (item.icon) {
-			return this.icon(item.icon);
-		} else if (item.status) {
-			return this.status(item.status);
-		} else if (item.html) {
-			return this.html(item.html);
-		} else {
-			return null;
-		}
-	}
-
-	appendClassList({element, json}) {
-		for (const css of json.classList) {
-			element.classList.add(css);
 		}
 	}
 
@@ -1179,45 +1162,6 @@ class JSONSchemaService extends PowerServices {
 			json.classList.push('pw-icon');
 			json.classList.push('power-status');
 			return `<span ${this._getHtmlBasicTmpl(json)} data-power-inactive="${json.inactive}" data-power-active="${json.active}"></span>`;
-		}
-	}
-
-	// Icon is a css font or an img
-	appendIcon({element, json, mirrored}) {
-		const iconHolder = document.createElement('div');
-		const iconJson = {};
-		if (json.icon === 'img' && json['icon-src']) {
-			iconJson.kind = 'img';
-			iconJson.src = json['icon-src'];
-		} else {
-			iconJson.icon = json.icon;
-		}
-
-		iconHolder.innerHTML = this.icon(iconJson);
-		const icon = iconHolder.childNodes[0];
-
-		if ((!json['icon-position'] && mirrored !== true) || json['icon-position'] === 'left') {
-			element.insertBefore(icon, element.childNodes[0]);
-		} else {
-			element.appendChild(icon);
-		}
-	}
-
-	appendStatus({element, json, mirrored}) {
-		const statusHolder = document.createElement('div');
-		statusHolder.innerHTML = this.status(json);
-		const status = statusHolder.childNodes[0];
-
-		if (mirrored === true) {
-			status.dataset.powerInactive = json.inactive.replace('right', 'left');
-		} else {
-			status.dataset.powerInactive = json.inactive;
-		}
-		status.dataset.powerActive = json.active;
-		if (json.position === 'left' || mirrored === true) {
-			element.insertBefore(status, element.childNodes[0]);
-		} else {
-			element.appendChild(status);
 		}
 	}
 
