@@ -132,7 +132,7 @@ class JSONSchemaService extends PowerServices {
 			"dropmenu": true,
 			"dropmenubutton": true,
 			"simpleform": true,
-			"tree": true,
+			"treeview": true,
 			"accordion": true,
 			"grid": true
 		};
@@ -253,8 +253,8 @@ class JSONSchemaService extends PowerServices {
 			return this.button(item.button);
 		} else if (item.simpleForm) {
 			return this.simpleForm(item.simpleForm);
-		} else if (item.tree) {
-			return this.tree(item.tree);
+		} else if (item.treeview) {
+			return this.treeview(item.treeview);
 		} else if (item.dropMenuButton) {
 			return this.dropMenuButton(item.dropMenuButton);
 		} else if (item.dropmenu) {
@@ -749,7 +749,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	tree(_tree) {
+	treeview(_tree) {
 		// Do not change the original JSON
 		const tree = this.cloneObject(_tree);
 		// This allow pass an array of trees
@@ -764,7 +764,7 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_tree);
 			}
 
-			if (this._validate(this.treeDef(), tree) === false) {
+			if (this._validate(this.treeViewDef(), tree) === false) {
 				window.console.log('Failed JSON tree:', tree);
 				throw 'Failed JSON tree!';
 			}
@@ -1225,7 +1225,7 @@ class JSONSchemaService extends PowerServices {
 										"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 										"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 										"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-										"tree": {"$ref": "#/schema/draft-07/tree"},
+										"treeview": {"$ref": "#/schema/draft-07/treeview"},
 										"accordion": {"$ref": "#/schema/draft-07/accordion"},
 										"grid": {"$ref": "#/schema/draft-07/grid"}
 									}
@@ -1265,7 +1265,7 @@ class JSONSchemaService extends PowerServices {
 				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 				"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 				"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-				"tree": {"$ref": "#/schema/draft-07/tree"},
+				"treeview": {"$ref": "#/schema/draft-07/treeview"},
 				"html": {"$ref": "#/schema/draft-07/html"},
 				"accordion": {"$ref": "#/schema/draft-07/accordion"},
 				"grid": {"$ref": "#/schema/draft-07/grid"}
@@ -1373,16 +1373,21 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
-	treeDef() {
+	treeNodeDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#/schema/draft-07/menu",
+			"$id": "#/schema/draft-07/treenode",
 			"type": "object",
 			"properties": {
 				"$id": {"type": "string"},
 				"$ref": {"type": "string"},
 				"classList": {"type": "array"},
 				"id": {"type": "string"},
+				"name": {"type": "string"},
+				"fullName": {"type": "string"},
+				"extension": {"type": "string"},
+				"path": {"type": "string"},
+				"kind": {"type": "string"},
 				"events": {
 					"type": "array",
 					"properties": {
@@ -1391,20 +1396,33 @@ class JSONSchemaService extends PowerServices {
 					},
 					"required": ["event", "fn"]
 				},
-				"content": {
+				"childNodes": {"$ref": "treeview"}
+			},
+			"required": ["name", "fullName", "path", "kind"]
+		};
+	}
+
+	treeViewDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/treeview",
+			"type": "array",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"events": {
 					"type": "array",
 					"properties": {
-						"name": {"type": "string"},
-						"fullName": {"type": "string"},
-						"extension": {"type": "string"},
-						"path": {"type": "string"},
-						"kind": {"type": "string"},
-						"content": {"type": "array"}
+						"event": {"type": "string"},
+						"fn": {"type": "string"},
 					},
-					"required": ["name", "fullName", "path", "kind"]
-				}
+					"required": ["event", "fn"]
+				},
+				"nodes": {"$ref": "treenode"}
 			},
-			"required": ["content"]
+			"required": ["nodes"]
 		};
 	}
 
@@ -1516,7 +1534,7 @@ class JSONSchemaService extends PowerServices {
 						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 						"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 						"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-						"tree": {"$ref": "#/schema/draft-07/tree"},
+						"treeview": {"$ref": "#/schema/draft-07/treeview"},
 						"accordion": {"$ref": "#/schema/draft-07/accordion"},
 						"grid": {"$ref": "#/schema/draft-07/grid"}
 					}
@@ -1566,7 +1584,7 @@ class JSONSchemaService extends PowerServices {
 								"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 								"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 								"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-								"tree": {"$ref": "#/schema/draft-07/tree"},
+								"treeview": {"$ref": "#/schema/draft-07/treeview"},
 								"accordion": {"$ref": "#/schema/draft-07/accordion"},
 								"grid": {"$ref": "#/schema/draft-07/grid"}
 							}
@@ -1598,7 +1616,7 @@ class JSONSchemaService extends PowerServices {
 		references[`${path}dropmenubutton`] = this.dropmenubuttonDef;
 		references[`${path}simpleform`] = this.simpleformDef;
 		references[`${path}simpleformcontrols`] = this.simpleformcontrolsDef;
-		references[`${path}tree`] = this.treeDef;
+		references[`${path}treeview`] = this.treeViewDef;
 		references[`${path}html`] = this.htmlDef;
 		references[`${path}accordion`] = this.accordionDef;
 		references[`${path}grid`] = this.gridDef;
