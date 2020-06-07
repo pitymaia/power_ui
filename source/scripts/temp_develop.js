@@ -1023,12 +1023,12 @@ class GridPageTemplate extends PowerTemplate {
 			"tagName": "div",
 			// "text": "Pity o bom",
 			"classList": ["pw-grid", "scroll-12", "gap-2 border"],
-			// "events": [
-			// 	{
-			// 		"event": "onclick",
-			// 		"fn": "openModal()"
-			// 	}
-			// ],
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal()"
+				}
+			],
 			"children": [
 				{
 					"id": "col-1",
@@ -1330,6 +1330,12 @@ class GridPageTemplate extends PowerTemplate {
 			"kind": "scroll-12",
 			"border": true,
 			"gap": 2,
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal()"
+				}
+			],
 			"sizes": [
 				"s-4 m-4 l-4 xl-4",
 				"s-4 m-4 l-4 xl-4",
@@ -1339,6 +1345,12 @@ class GridPageTemplate extends PowerTemplate {
 			],
 			"fields": [
 				{
+					"events": [
+						{
+							"event": "onclick",
+							"fn": "openModal()"
+						}
+					],
 					"text": "field 1",
 					"size": "s-12 m-12 l-12 xl-12"
 				},

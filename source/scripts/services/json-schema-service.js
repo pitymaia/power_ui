@@ -104,6 +104,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	validateType(type, json) {
+		// console.log('type', type, 'json', json, typeof json, typeof json === type);
 		if (typeof json === type) {
 			return true;
 		} else if (type === 'array' && json.length !== undefined) {
@@ -111,7 +112,8 @@ class JSONSchemaService extends PowerServices {
 		} else if (type === 'any') {
 			return true;
 		} else if (type.length !== undefined && json.length !== undefined) {
-			console.log('TYPE ARRAY', type);
+			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
+			return false;
 		} else {
 			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
 			return false;
@@ -139,6 +141,42 @@ class JSONSchemaService extends PowerServices {
 				return true;
 			}
 		}
+	}
+
+	_validateEvents(events, obj, name) {
+		for (const event of events) {
+			if (this._validate(this.gridDef().properties.events, event) === false) {
+				window.console.log(`Failed JSON ${name} event:`, event, events, obj);
+				return `Failed JSON ${name} event!`;
+			}
+		}
+		return true;
+	}
+
+	_validate(schema, json) {
+		// window.console.log('schema', schema);
+		// window.console.log('json', json);
+		// Validate item properties
+		for (const key of Object.keys(schema.properties || {})) {
+			// Validade other types property
+			if (schema.properties[key].type && json[key] !== undefined) {
+				// Check current object type against schema type
+				if (this.validateType(schema.properties[key].type, json[key]) === false) {
+					return false;
+				}
+			}
+		}
+		// Validade other properties required fields
+		if (schema.required) {
+			for (const key of schema.required) {
+				if (!this.especialRequired(json) && !json[key]) {
+					window.console.log(`JSON missing required property: "${key}"`, json);
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	validate(schema, json) {
@@ -709,10 +747,18 @@ class JSONSchemaService extends PowerServices {
 				// Register original JSON
 				this.registerJSONById(_grid);
 			}
-			if (this.validate(this.gridDef(), grid) === false) {
+
+			if (this._validate(this.gridDef(), grid) === false) {
 				window.console.log('Failed JSON grid:', grid);
 				return 'Failed JSON grid!';
 			}
+			if (grid.events) {
+				const result = this._validateEvents(grid.events, grid, 'grid');
+				if ( result !== true) {
+					return result;
+				}
+			}
+
 			if (!grid.classList) {
 				grid.classList = [];
 			}
@@ -742,6 +788,17 @@ class JSONSchemaService extends PowerServices {
 			let currentSizeCount = 0;
 
 			for (const field of grid.fields) {
+				if (this._validate(this.gridDef().properties.fields, field) === false) {
+					window.console.log('Failed JSON grid field:', field, grid);
+					return 'Failed JSON grid field!';
+				}
+				if (field.events) {
+					const result = this._validateEvents(field.events, field, 'field');
+					if ( result !== true) {
+						return result;
+					}
+				}
+
 				if (!field.classList) {
 					field.classList = [];
 				}
@@ -1452,6 +1509,14 @@ class JSONSchemaService extends PowerServices {
 						"classList": {"type": "array"},
 						"text": {"type": "string"},
 						"size": {"type": "string"},
+						"events": {
+							"type": "array",
+							"properties": {
+								"event": {"type": "string"},
+								"fn": {"type": "string"},
+							},
+							"required": ["event", "fn"]
+						},
 						"children": {
 							"type": "array",
 							"properties": {
