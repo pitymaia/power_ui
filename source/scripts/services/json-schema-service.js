@@ -1077,10 +1077,16 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_html);
 			}
 
-			// if (this.validate(this.htmlDef(), html) === false) {
-			// 	window.console.log('Failed JSON html:', html);
-			// 	return 'Failed JSON html!';
-			// }
+			if (this._validate(this.htmlDef(), html) === false) {
+				window.console.log('Failed JSON html:', html);
+				return 'Failed JSON html!';
+			}
+			if (html.events) {
+				const result = this._validateEvents(html.events, html, 'html');
+				if ( result !== true) {
+					throw result;
+				}
+			}
 
 			// If this is not an html json, but a button, dropmenu or other kind of json
 			if (html.tagName === undefined) {
