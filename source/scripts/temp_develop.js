@@ -2141,7 +2141,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					},
 					"section": {
 						"id": "female-section",
-						"content": `<ul>
+						"text": `<ul>
 							<li>Princesa</li>
 							<li>Lady</li>
 							<li>Lindinha</li>
@@ -2165,7 +2165,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					},
 					"section": {
 						"id": "male-section",
-						"content": `<ul>
+						"text": `<ul>
 							<li>Riquinho</li>
 							<li>Tico</li>
 							<li>Pingo</li>
@@ -2184,14 +2184,40 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					},
 					"section": {
 						"id": "favorite-section",
-						"content": `<ul>
+						"text": `<ul>
 							<li>Riquinho</li>
 							<li>Princesa</li>
 							<li>Pingo</li>
 							<li>Drew</li>
 							<li>Penny</li>
 							<li>Sol</li>
-						</ul>`
+						</ul>`,
+						"children": [
+							{
+								"html": {
+									"tagName": "img",
+									"src": "/vendors/imgs/Brazil-Flag-icon.png",
+									"width": "30px",
+									"height": "30px",
+								}
+							},
+							{
+								"button": {
+									"classList": ['my-custom-button'],
+									"id": 'my-bt-new',
+									"label": "Default",
+									"icon": "img",
+									"icon-src": "vendors/imgs/rv_bt.png",
+									"kind": "default",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+										}
+									]
+								}
+							}
+						]
 					}
 				}
 			]

@@ -388,9 +388,16 @@ class JSONSchemaService extends PowerServices {
 				</div>`;
 
 				// Sections
-				const sectionTmpl = `<div class="power-accordion-section" ${this._getIdTmpl(sectionId)}>
-					${panel.section.content}
-				</div>`;
+				let sectionTmpl = `<div class="power-accordion-section" ${this._getIdTmpl(sectionId)}>
+					${panel.section.text || ''}`;
+
+					// If this is not an html json, but a button, dropmenu or other kind of json
+					if (panel.section.children) {
+						for (const child of panel.section.children) {
+							sectionTmpl = sectionTmpl + this.otherJsonKind(child);
+						}
+					}
+				sectionTmpl = sectionTmpl + '</div>';
 
 				mainTmpl = mainTmpl + headerTmpl + sectionTmpl;
 			}
@@ -1199,9 +1206,26 @@ class JSONSchemaService extends PowerServices {
 							"type": "object",
 							"properties": {
 								"id": {"type": "string"},
-								"content": {"type": "string"}
+								"text": {"type": "string"},
+								"children": {
+									"type": "array",
+									"properties": {
+										"html": {"$ref": "#/schema/draft-07/html"},
+										"button": {"$ref": "#/schema/draft-07/item"},
+										"item": {"$ref": "#/schema/draft-07/item"},
+										"status": {"$ref": "#/schema/draft-07/status"},
+										"icon": {"$ref": "#/schema/draft-07/icon"},
+										"menu": {"$ref": "#/schema/draft-07/menu"},
+										"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
+										"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
+										"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
+										"tree": {"$ref": "#/schema/draft-07/tree"},
+										"accordion": {"$ref": "#/schema/draft-07/accordion"},
+										"grid": {"$ref": "#/schema/draft-07/grid"}
+									}
+								}
 							},
-							"required": ["content", "id"]
+							"required": ["id"]
 						}
 					},
 					"required": ["header", "section"]
