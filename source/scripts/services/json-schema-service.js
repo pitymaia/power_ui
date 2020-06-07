@@ -107,12 +107,37 @@ class JSONSchemaService extends PowerServices {
 		if (typeof json === type) {
 			return true;
 		} else if (type === 'array' && json.length !== undefined) {
-				return true;
+			return true;
+		} else if (type === 'any') {
+			return true;
 		} else if (type.length !== undefined && json.length !== undefined) {
 			console.log('TYPE ARRAY', type);
 		} else {
 			window.console.log(`JSON type expected to be "${type}" but is "${typeof json}"`, json);
 			return false;
+		}
+	}
+
+	// If exist some if this properties the required is not really needed
+	especialRequired(json) {
+		const especial = {
+			"html": true,
+			"button": true,
+			"item": true,
+			"status": true,
+			"icon": true,
+			"menu": true,
+			"dropmenu": true,
+			"dropmenubutton": true,
+			"simpleform": true,
+			"tree": true,
+			"accordion": true,
+			"grid": true
+		};
+		for (const key of Object.keys(json)) {
+			if (especial[key]) {
+				return true;
+			}
 		}
 	}
 
@@ -124,7 +149,7 @@ class JSONSchemaService extends PowerServices {
 		// Validade required fields
 		if (schema.required) {
 			for (const property of schema.required) {
-				if (!json[property] && (!json[0] || (json[0] && !json[0][property]))) {
+				if (!this.especialRequired(json) && !json[property] && (!json[0] || (json[0] && !json[0][property]))) {
 					window.console.log(`JSON missing required property: "${property}"`, json);
 					return false;
 				}
@@ -908,10 +933,10 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_html);
 			}
 
-			// if (this.validate(this.htmlDef(), html) === false) {
-			// 	window.console.log('Failed JSON html:', html);
-			// 	return 'Failed JSON html!';
-			// }
+			if (this.validate(this.htmlDef(), html) === false) {
+				window.console.log('Failed JSON html:', html);
+				return 'Failed JSON html!';
+			}
 
 			// If this is not an html json, but a button, dropmenu or other kind of json
 			if (html.tagName === undefined) {
