@@ -309,10 +309,14 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_accordion);
 			}
 
-			// if (this.validate(this.accordionDef(), accordion) === false) {
-			// 	window.console.log('Failed JSON accordion:', accordion);
-			// 	return 'Failed JSON accordion!';
-			// }
+			if (this._validate(this.accordionDef(), accordion) === false) {
+				window.console.log('Failed JSON accordion:', accordion);
+				throw 'Failed JSON accordion!';
+			}
+			if (this._validate(this.accordionDef().properties.config, accordion.config) === false) {
+				window.console.log('Failed JSON accordion config:', accordion.config);
+				throw 'Failed JSON accordion config!';
+			}
 
 			if (!accordion.classList) {
 				accordion.classList = [];
@@ -321,6 +325,19 @@ class JSONSchemaService extends PowerServices {
 			let mainTmpl = `<div ${this._getHtmlBasicTmpl(accordion)} data-multiple-sections-open="${(accordion.config && accordion.config.multipleSectionsOpen ? accordion.config.multipleSectionsOpen : false)}">`;
 
 			for (const panel of accordion.panels) {
+				if (this._validate(this.accordionDef().properties.panels, panel) === false) {
+					window.console.log('Failed JSON accordion panel:', panel);
+					throw 'Failed JSON accordion panel!';
+				}
+				if (this._validate(this.accordionDef().properties.panels.properties.header, panel.header) === false) {
+					window.console.log('Failed JSON accordion header:', panel.header);
+					throw 'Failed JSON accordion header!';
+				}
+				if (this._validate(this.accordionDef().properties.panels.properties.section, panel.section) === false) {
+					window.console.log('Failed JSON accordion section:', panel.section);
+					throw 'Failed JSON accordion section!';
+				}
+
 				// Headers
 				const icon = {};
 				if (panel.header.icon === 'img' && panel.header['icon-src']) {
@@ -1212,6 +1229,7 @@ class JSONSchemaService extends PowerServices {
 			"properties": {
 				"$id": {"type": "string"},
 				"$ref": {"type": "string"},
+				"id": {"type": "string"},
 				"classList": {"type": "array"},
 				"config": {
 					"type": "object",
@@ -1221,31 +1239,28 @@ class JSONSchemaService extends PowerServices {
 				},
 				"panels": {
 					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"header": {
-								"type": "object",
-								"properties": {
-									"id": {"type": "string"},
-									"label": {"type": "string"},
-									"icon": {"type": "string"},
-									"icon-position": {"type": "string"},
-									"status": {"$ref": "#/schema/draft-07/status"}
-								},
-								"required": ["label", "id"]
+					"properties": {
+						"header": {
+							"type": "object",
+							"properties": {
+								"id": {"type": "string"},
+								"label": {"type": "string"},
+								"icon": {"type": "string"},
+								"icon-position": {"type": "string"},
+								"status": {"$ref": "#/schema/draft-07/status"}
 							},
-							"section": {
-								"type": "object",
-								"properties": {
-									"id": {"type": "string"},
-									"content": {"type": "string"}
-								},
-								"required": ["content", "id"]
-							}
+							"required": ["label", "id"]
 						},
-						"required": ["header", "section"]
-					}
+						"section": {
+							"type": "object",
+							"properties": {
+								"id": {"type": "string"},
+								"content": {"type": "string"}
+							},
+							"required": ["content", "id"]
+						}
+					},
+					"required": ["header", "section"]
 				}
 			},
 			"required": ["panels"]
@@ -1422,7 +1437,7 @@ class JSONSchemaService extends PowerServices {
 	dropmenubuttonDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "schema/draft-07/dropmenubutton",
+			"$id": "#/schema/draft-07/dropmenubutton",
 			"type": "object",
 			"properties": {
 				"$id": {"type": "string"},
@@ -1438,7 +1453,7 @@ class JSONSchemaService extends PowerServices {
 	statusDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "schema/draft-07/status",
+			"$id": "#/schema/draft-07/status",
 			"type": "object",
 			"properties": {
 				"$id": {"type": "string"},

@@ -2194,7 +2194,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						</ul>`
 					}
 				}
-			],
+			]
 		};
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').accordion(accordion);
