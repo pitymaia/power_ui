@@ -1147,6 +1147,11 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_json);
 			}
 
+			if (this._validate(this.iconDef(), _json) === false) {
+				window.console.log('Failed JSON icon:', _json);
+				return 'Failed JSON icon!';
+			}
+
 			let template = '';
 			if (!json.classList) {
 				json.classList = [];
@@ -1179,6 +1184,11 @@ class JSONSchemaService extends PowerServices {
 			if (_json.$id) {
 				// Register original JSON
 				this.registerJSONById(_json);
+			}
+
+			if (this._validate(this.statusDef(), _json) === false) {
+				window.console.log('Failed JSON status:', _json);
+				return 'Failed JSON status!';
 			}
 
 			if (!json.classList) {
@@ -1464,9 +1474,26 @@ class JSONSchemaService extends PowerServices {
 				"$ref": {"type": "string"},
 				"active": {"type": "string"},
 				"inactive": {"type": "string"},
-				"position": {"type": "string"}
+				"position": {"type": "string"},
+				"classList": {"type": "array"}
 			},
 			"required": ["active", "inactive"]
+		};
+	}
+
+	iconDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/icon",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"icon": {"type": "string"},
+				"kind": {"type": "string"},
+				"src": {"type": "string"},
+				"classList": {"type": "array"}
+			},
 		};
 	}
 
