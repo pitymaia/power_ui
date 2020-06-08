@@ -234,6 +234,10 @@ class JSONSchemaService extends PowerServices {
 		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}${item.title ? ' title="' + item.title + '"' : ''}${item.for ? ' for="' + item.for + '"' : ''}${item.src ? ' src="' + item.src + '"' : ''}${item.cols ? ' cols="' + item.cols + '"' : ''}${item.rows ? ' rows="' + item.rows + '"' : ''}${item.width ? ' width="' + item.width + '"' : ''}${item.height ? ' height="' + item.height + '"' : ''}${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}${item.bind ? ' data-pow-bind="' + item.bind + '"' : ''}${item.value ? ' value="' + item.value + '"' : ''}${item.name ? ' name="' + item.name + '"' : ''}${item.required ? ' required' : ''}`;
 	}
 
+	_getHtmlMoreBasicTmpl(item, required) {
+		return `${this._getIdTmpl(item.id, required)} ${this._getClassTmpl(item.classList)} ${this._getAttrTmpl(item.attrs)} ${this._getEventTmpl(item.events)}`;
+	}
+
 	_getInputBasicTmpl(control, required) {
 		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.pattern ? ' pattern="' + control.pattern + '"' : ''}`;
 	}
@@ -775,25 +779,41 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
-
 			if (!tree.classList) {
 				tree.classList = [];
 			}
 
 			tree.classList.push('power-tree-view');
 
-			let template = `<nav ${this._getHtmlBasicTmpl(tree)}${tree.onClickFile ? ' data-on-click-file="' + tree.onClickFile + '"' : ''}>`;
+			let template = `<nav ${this._getHtmlMoreBasicTmpl(tree)} ${tree.onClickFile ? ' data-on-click-file="' + tree.onClickFile + '"' : ''}>`;
 
 			for (const item of tree.nodes) {
+				if (this._validate(this.treeNodeDef(), item) === false) {
+					window.console.log('Failed JSON tree node:', item);
+					throw 'Failed JSON tree node!';
+				}
+				if (item.events) {
+					const result = this._validateEvents(item.events, item, 'tree node');
+					if ( result !== true) {
+						throw result;
+					}
+				}
+				if (!item.classList) {
+					item.classList = [];
+				}
+
 				if (item.kind === 'file') {
+					item.classList.push('power-item');
+
 					template = `${template}
-					<a class="power-item"${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
+					<a ${this._getHtmlMoreBasicTmpl(item)} ${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
 					template = `${template}
 					><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
 				} else if (item.kind === 'folder') {
 					const id = `list-${this.$powerUi._Unique.next()}`;
+					item.classList.push('power-list');
 					template = `${template}
-					<a class="power-list" data-power-target="${id}">
+					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}">
 						<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
 					</a>
 					${this.tree({nodes: item.nodes, id: id, events: tree.events})}`;

@@ -299,7 +299,7 @@ class SimpleModal extends PowerModal {
 	init() {
 		this.commitBt = {
 			label: 'Close',
-		}
+		};
 
 		const tree = [
 			{
@@ -368,6 +368,8 @@ class SimpleModal extends PowerModal {
 
 		this.addAfterTemplate = '<div style="text-align:left;">' + this.$powerUi.treeTemplate(tree) + '</div>';
 	}
+
+
 
 	ctrl({lock, $powerUi}) {
 		this.cats = [
@@ -3725,15 +3727,21 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const tree = {
 			"classList": ["custom-tree"],
 			"id": 'my-tree',
+			"onClickFile": "clickTree",
 			// "events": [
 			// 	{
 			// 		"event": "onclick",
-			// 		"fn": "clickTree"
+			// 		"fn": "openModal()"
 			// 	}
 			// ],
-			"onClickFile": "clickTree",
 			"nodes": [
 				{
+					"events": [
+						{
+							"event": "onclick",
+							"fn": "openModal()"
+						}
+					],
 					"name": "test",
 					"fullName": "test",
 					"extension": "",
@@ -3748,6 +3756,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"kind": "folder",
 							"nodes": [
 								{
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal()"
+										}
+									],
 									"name": "brand",
 									"fullName": "brand.png",
 									"icon": "save-front",
