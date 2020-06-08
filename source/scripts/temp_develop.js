@@ -3725,27 +3725,28 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const tree = {
 			"classList": ["custom-tree"],
 			"id": 'my-tree',
-			"events": [
-				{
-					"event": "onclick",
-					"fn": "clickTree"
-				}
-			],
-			"content": [
+			// "events": [
+			// 	{
+			// 		"event": "onclick",
+			// 		"fn": "clickTree"
+			// 	}
+			// ],
+			"onClickFile": "clickTree",
+			"nodes": [
 				{
 					"name": "test",
 					"fullName": "test",
 					"extension": "",
 					"path": "/home/andre/test",
 					"kind": "folder",
-					"content": [
+					"nodes": [
 						{
 							"name": "media",
 							"fullName": "media",
 							"extension": "",
 							"path": "/home/andre/test/media",
 							"kind": "folder",
-							"content": [
+							"nodes": [
 								{
 									"name": "brand",
 									"fullName": "brand.png",
@@ -3771,7 +3772,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"extension": "",
 					"path": "/home/andre/scripts",
 					"kind": "folder",
-					"content": [
+					"nodes": [
 						{
 							"name": "index",
 							"fullName": "index.js",
@@ -3794,7 +3795,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"extension": ".html",
 					"path": "/home/andre/default-template.html",
 					"kind": "file",
-				},
+				}
 			]
 		};
 
@@ -3913,8 +3914,8 @@ class JSONViews extends PowerWindow {
 		// },2000);
 	}
 
-	clickTree({path, event, element}) {
-		console.log('path', path, 'event', event, 'element', element);
+	clickTree(ctx, element, params) {
+		window.console.log('path', params.path);
 	}
 }
 

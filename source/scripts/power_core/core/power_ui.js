@@ -336,9 +336,15 @@ class PowerUi extends _PowerUiBase {
 	safeEval({text, scope}) {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
-	// Return object on $scope or $powerUi
+
+	// Find object on $scope or $powerUi and set its value
 	setValueOnScope({text, scope, valueToSet}) {
 		new ParserEval({text: text, scope: scope, $powerUi: this, valueToSet: valueToSet});
+	}
+
+	// Return object on $scope or $powerUi
+	getObjectOnScope({text, scope}) {
+		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
 	initAll({template, routeId, viewId}) {
@@ -652,7 +658,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_powerTreeView(element) {
-		return new PowerDropmenu(element, this);
+		return new PowerTreeView(element, this);
 	}
 
 	_powerStatus(element) {

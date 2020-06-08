@@ -25,7 +25,7 @@ class _pwBasicHover extends _PowerBasicElementWithEvents {
 		}
 	}
 
-	mouseout() {
+	mouseout(params) {
 		if (this._$pwActive) {
 			this.element[this.$_target] = this.$_pwDefaultValue || '';
 			this.toggle();

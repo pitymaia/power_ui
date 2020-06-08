@@ -132,7 +132,7 @@ class JSONSchemaService extends PowerServices {
 			"dropmenu": true,
 			"dropmenubutton": true,
 			"simpleform": true,
-			"treeview": true,
+			"tree": true,
 			"accordion": true,
 			"grid": true
 		};
@@ -253,8 +253,8 @@ class JSONSchemaService extends PowerServices {
 			return this.button(item.button);
 		} else if (item.simpleForm) {
 			return this.simpleForm(item.simpleForm);
-		} else if (item.treeview) {
-			return this.treeview(item.treeview);
+		} else if (item.tree) {
+			return this.tree(item.tree);
 		} else if (item.dropMenuButton) {
 			return this.dropMenuButton(item.dropMenuButton);
 		} else if (item.dropmenu) {
@@ -749,7 +749,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	treeview(_tree) {
+	tree(_tree) {
 		// Do not change the original JSON
 		const tree = this.cloneObject(_tree);
 		// This allow pass an array of trees
@@ -764,7 +764,7 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_tree);
 			}
 
-			if (this._validate(this.treeViewDef(), tree) === false) {
+			if (this._validate(this.treeDef(), tree) === false) {
 				window.console.log('Failed JSON tree:', tree);
 				throw 'Failed JSON tree!';
 			}
@@ -775,36 +775,28 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
+
 			if (!tree.classList) {
 				tree.classList = [];
 			}
 
 			tree.classList.push('power-tree-view');
 
-			let template = `<nav ${this._getHtmlBasicTmpl(tree)}>`;
-			for (const item of tree.content) {
-				if (item.kind === 'file') {
-					if (tree.events) {
-						template = `${template}
-						<a class="power-item" data-pow-event `;
+			let template = `<nav ${this._getHtmlBasicTmpl(tree)}${tree.onClickFile ? ' data-on-click-file="' + tree.onClickFile + '"' : ''}>`;
 
-						for (const event of tree.events) {
-							template = `${template}
-							${event.event}="${event.fn}({path: '${item.path}', event: event, element: event.target})" `;
-						}
-						template = `${template}
-						><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
-					} else {
-						template = `${template}
-						<a class="power-item"><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
-					}
+			for (const item of tree.nodes) {
+				if (item.kind === 'file') {
+					template = `${template}
+					<a class="power-item"${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
+					template = `${template}
+					><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
 				} else if (item.kind === 'folder') {
 					const id = `list-${this.$powerUi._Unique.next()}`;
 					template = `${template}
 					<a class="power-list" data-power-target="${id}">
 						<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
 					</a>
-					${this.tree({content: item.content, id: id, events: tree.events})}`;
+					${this.tree({nodes: item.nodes, id: id, events: tree.events})}`;
 				}
 			}
 			template = `${template}
@@ -1225,7 +1217,7 @@ class JSONSchemaService extends PowerServices {
 										"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 										"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 										"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-										"treeview": {"$ref": "#/schema/draft-07/treeview"},
+										"tree": {"$ref": "#/schema/draft-07/tree"},
 										"accordion": {"$ref": "#/schema/draft-07/accordion"},
 										"grid": {"$ref": "#/schema/draft-07/grid"}
 									}
@@ -1265,7 +1257,7 @@ class JSONSchemaService extends PowerServices {
 				"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 				"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 				"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-				"treeview": {"$ref": "#/schema/draft-07/treeview"},
+				"tree": {"$ref": "#/schema/draft-07/tree"},
 				"html": {"$ref": "#/schema/draft-07/html"},
 				"accordion": {"$ref": "#/schema/draft-07/accordion"},
 				"grid": {"$ref": "#/schema/draft-07/grid"}
@@ -1396,17 +1388,17 @@ class JSONSchemaService extends PowerServices {
 					},
 					"required": ["event", "fn"]
 				},
-				"childNodes": {"$ref": "treeview"}
+				"nodes": {"$ref": "tree"}
 			},
 			"required": ["name", "fullName", "path", "kind"]
 		};
 	}
 
-	treeViewDef() {
+	treeDef() {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
-			"$id": "#/schema/draft-07/treeview",
-			"type": "array",
+			"$id": "#/schema/draft-07/tree",
+			"type": "object",
 			"properties": {
 				"$id": {"type": "string"},
 				"$ref": {"type": "string"},
@@ -1534,7 +1526,7 @@ class JSONSchemaService extends PowerServices {
 						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 						"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 						"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-						"treeview": {"$ref": "#/schema/draft-07/treeview"},
+						"tree": {"$ref": "#/schema/draft-07/tree"},
 						"accordion": {"$ref": "#/schema/draft-07/accordion"},
 						"grid": {"$ref": "#/schema/draft-07/grid"}
 					}
@@ -1584,7 +1576,7 @@ class JSONSchemaService extends PowerServices {
 								"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
 								"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
 								"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
-								"treeview": {"$ref": "#/schema/draft-07/treeview"},
+								"tree": {"$ref": "#/schema/draft-07/tree"},
 								"accordion": {"$ref": "#/schema/draft-07/accordion"},
 								"grid": {"$ref": "#/schema/draft-07/grid"}
 							}
@@ -1616,7 +1608,7 @@ class JSONSchemaService extends PowerServices {
 		references[`${path}dropmenubutton`] = this.dropmenubuttonDef;
 		references[`${path}simpleform`] = this.simpleformDef;
 		references[`${path}simpleformcontrols`] = this.simpleformcontrolsDef;
-		references[`${path}treeview`] = this.treeViewDef;
+		references[`${path}tree`] = this.treeDef;
 		references[`${path}html`] = this.htmlDef;
 		references[`${path}accordion`] = this.accordionDef;
 		references[`${path}grid`] = this.gridDef;

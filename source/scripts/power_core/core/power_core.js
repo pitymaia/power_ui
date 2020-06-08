@@ -186,7 +186,7 @@ class UEvent {
 		if (name)  UEvent.index[name] = this;
 	}
 
-	subscribe(fn, ctx, params) { // *ctx* is what *this* will be inside *fn*.
+	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
 		// Remove any old event before add to avoid duplication
 		this.unsubscribe(fn);
 		this.observers.push({fn, ctx, arguments});
