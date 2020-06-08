@@ -8,7 +8,7 @@ class PowEvent extends _PowerBasicElementWithEvents {
         // The controller scope of this view
         const ctrlScope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
         for (const attr of this.element.attributes) {
-            if (attr.name.includes('on')) {
+            if (attr.name.includes('on') && !attr.name.includes('data')) {
                 const name = attr.name.slice(2, attr.name.length);
                 this.element.setAttribute(`data-pow-${name}`, this.$powerUi.interpolation.encodeHtml(attr.value));
                 // attr.value = `document.dispatchEvent(new CustomEvent('pwScope', {detail: {viewId: '${view.id}', elementId: '${this.element.id}', attrName: '${name}'}}))`;

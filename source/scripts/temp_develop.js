@@ -3728,12 +3728,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ["custom-tree"],
 			"id": 'my-tree',
 			"onClickFile": "clickTree",
-			// "events": [
-			// 	{
-			// 		"event": "onclick",
-			// 		"fn": "openModal()"
-			// 	}
-			// ],
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "openModal()"
+				}
+			],
 			"nodes": [
 				{
 					"events": [

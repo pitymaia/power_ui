@@ -785,7 +785,7 @@ class JSONSchemaService extends PowerServices {
 
 			tree.classList.push('power-tree-view');
 
-			let template = `<nav ${this._getHtmlMoreBasicTmpl(tree)} ${tree.onClickFile ? ' data-on-click-file="' + tree.onClickFile + '"' : ''}>`;
+			let template = `<nav ${this._getHtmlMoreBasicTmpl(tree)} ${tree.onClickFile ? 'data-on-click-file="' + tree.onClickFile + '"' : ''}>`;
 
 			for (const item of tree.nodes) {
 				if (this._validate(this.treeNodeDef(), item) === false) {
@@ -816,7 +816,7 @@ class JSONSchemaService extends PowerServices {
 					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}">
 						<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
 					</a>
-					${this.tree({nodes: item.nodes, id: id, events: tree.events})}`;
+					${this.tree({nodes: item.nodes, id: id})}`;
 				}
 			}
 			template = `${template}
