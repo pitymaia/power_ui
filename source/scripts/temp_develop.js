@@ -3883,6 +3883,504 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').grid(grid);
 
+		const iconsGrid = {
+			"id": "icons-grid",
+			"kind": "flex-12",
+			"border": false,
+			"gap": 4,
+			"fields": [
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "save-front",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "save-back",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "arrow-down",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "arrow-left",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "arrow-right",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "arrow-up",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-atom",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "cancel-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "cancel-simple",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "cancel-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "caret-down",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "caret-left",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "caret-right",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "caret-up",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "chevron-down",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "chevron-left",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "chevron-right",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "chevron-up",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "document-blank",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "donwload",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "edit-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "edit-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-eletric",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "exclamation-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "exclamation-circle-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "exclamation-circle-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "exclamation-simple",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "exclamation-white",
+							}
+						}
+					]
+				},
+
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "folder-close",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "folder-open",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-hamburguer",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "interrogation-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "interrogation-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "interrogation-circle-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "interrogation-circle-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "interrogation-simple",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-lamp",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-maximize",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-minimize",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "minus-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "minus-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "ok-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "ok-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "ok-simple",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "plus-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "plus-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "power-logo",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "settings-horizontal-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "settings-horizontal-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "settings-square-black",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "settings-square-white",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-upload",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-user",
+							}
+						}
+					]
+				},
+				{
+					"children": [
+						{
+							"icon": {
+								"icon": "icon-window",
+							}
+						}
+					]
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').grid(iconsGrid);
+
 		resolve(htmlTemplate);
 	}
 }

@@ -85,7 +85,7 @@
     border-style: solid;
     border-width: 1px;
 }
-.scroll-12 {
+.scroll-12, .flex-12 {
     overflow: auto;
 }
 
