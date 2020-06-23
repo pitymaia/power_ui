@@ -2208,7 +2208,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"classList": ['my-custom-button'],
 									"id": 'my-bt-new',
 									"label": "Default",
-									"icon": "icon-img",
+									"icon": "img",
 									"icon-src": "vendors/imgs/rv_bt.png",
 									"kind": "default",
 									"events": [
@@ -2231,7 +2231,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ['my-custom-button'],
 			"id": 'my-bt',
 			"label": "Default",
-			"icon": "icon-img",
+			"icon": "img",
 			"icon-src": "vendors/imgs/rv_bt.png",
 			"kind": "default",
 			"events": [
