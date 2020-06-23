@@ -23,7 +23,7 @@ class PowerTreeTemplate {
 				const id = `list-${this.$powerUi._Unique.next()}`;
 				template = `${template}
 				<a class="power-list" data-power-target="${id}">
-					<span class="power-status pw-icon" data-power-active="folder-open" data-power-inactive="folder-close"></span> ${item.fullName}
+					<span class="power-status pw-icon" data-power-active="icon-folder-open" data-power-inactive="icon-folder-close"></span> ${item.fullName}
 				</a>
 				${this.buildTemplate(item.content, id)}`;
 			}

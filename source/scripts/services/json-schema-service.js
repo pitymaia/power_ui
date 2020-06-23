@@ -814,7 +814,7 @@ class JSONSchemaService extends PowerServices {
 					item.classList.push('power-list');
 					template = `${template}
 					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}">
-						<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
+						<span class="power-status pw-icon" data-power-active="${item.active || 'icon-folder-open'}" data-power-inactive="${item.inactive || 'icon-folder-close'}"></span> ${item.fullName}
 					</a>
 					${this.tree({nodes: item.nodes, id: id})}`;
 				}
