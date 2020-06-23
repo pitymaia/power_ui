@@ -82,7 +82,7 @@ class PowerDialogBase extends PowerWidget {
 				buttons = buttons + commitBt;
 			}
 			if (this.noBt) {
-				const noIco = `<span class="pw-icon ${(this.noBt.icon ? this.noBt.icon : 'cancel-black')}"></span>`;
+				const noIco = `<span class="pw-icon ${(this.noBt.icon ? this.noBt.icon : 'icon-cancel-black')}"></span>`;
 				const noBt = `<button
 								class="${(this.noBt.css ? this.noBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(false)">
@@ -94,7 +94,7 @@ class PowerDialogBase extends PowerWidget {
 				buttons = buttons + noBt;
 			}
 			if (this.cancelBt) {
-				const defaultIco = this.noBt ? 'cancel-simple' : 'cancel-black';
+				const defaultIco = this.noBt ? 'icon-cancel-simple' : 'icon-cancel-black';
 				const cancelIco = `<span class="pw-icon ${(this.cancelBt.icon ? this.cancelBt.icon : defaultIco)}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
@@ -117,7 +117,7 @@ class PowerDialogBase extends PowerWidget {
 		this.$title = this.$title || $title;
 		return `<div class="pw-title-bar">
 					<span class="pw-title-bar-label">${this.$title}</span>
-					<div data-pow-event onclick="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
+					<div data-pow-event onclick="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
 				</div>
 				<div class="pw-body">
 					<div class="pw-container" data-pw-content>

@@ -222,7 +222,7 @@ class PowerWindowIframe extends PowerWindow {
 					<div class="pw-window-resizable">
 						<div class="pw-title-bar">
 							<span class="pw-title-bar-label">${this.$title}</span>
-							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
+							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
 						</div>
 						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 						</div>

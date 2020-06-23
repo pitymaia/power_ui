@@ -416,14 +416,14 @@ class SimpleDialog extends PowerWindow {
 	init() {
 		this.commitBt = {
 			label: 'Yes',
-			// icon: 'save-front',
+			// icon: 'icon-disc-front',
 		};
 		this.noBt = {
-			// icon: 'save-back'
+			// icon: 'icon-disc-back'
 		};
 		this.cancelBt = {
 			label: 'Cancel',
-			// icon: 'save-back',
+			// icon: 'icon-disc-back',
 		};
 	}
 
@@ -495,7 +495,7 @@ class SmallDialog extends PowerTemplate {
 		const button = {
 			"id": "dialog-refresh",
 			"label": "Refresh",
-			"icon": "power-logo",
+			"icon": "icon-power-logo",
 			"kind": "danger",
 			"events": [
 				{
@@ -528,11 +528,11 @@ class RootScope extends PowerRoot {
 					"item": {
 						"id": "my-books-12",
 						"label": "Books",
-						"icon": "power-logo"
+						"icon": "icon-power-logo"
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "my-books-menu-12",
@@ -542,7 +542,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "the-fall-12",
 									"label": "The Fall",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -555,7 +555,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "brave-12",
 									"label": "Brave new world",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -568,7 +568,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "animal-farm-12",
 									"label": "Animal Farm",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -581,11 +581,11 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "books-plus-12",
 									"label": "More Books",
-									"icon": "power-logo"
+									"icon": "icon-power-logo"
 								},
 								"status": {
-									"active": "caret-down",
-									"inactive": "caret-right",
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
 								},
 								"dropmenu": {
 									"id": "my-books-menu-22",
@@ -595,7 +595,7 @@ class RootScope extends PowerRoot {
 											"item": {
 												"id": "a1984-12",
 												"label": "1984",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -608,7 +608,7 @@ class RootScope extends PowerRoot {
 											"item": {
 												"id": "never-12",
 												"label": "Neverending Story",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -621,7 +621,7 @@ class RootScope extends PowerRoot {
 											"item": {
 												"id": "stranger-12",
 												"label": "The Stranger",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -640,11 +640,11 @@ class RootScope extends PowerRoot {
 					"item": {
 						"id": "games-12",
 						"label": "Games",
-						"icon": "power-logo"
+						"icon": "icon-power-logo"
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "the-books-menu-12",
@@ -654,7 +654,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "mario-12",
 									"label": "New Super Mario",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -667,7 +667,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "starcraft-12",
 									"label": "StarCraft",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -680,7 +680,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "zelda-12",
 									"label": "Zelda",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -693,11 +693,11 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "more-games-12",
 									"label": "More Games",
-									"icon": "power-logo"
+									"icon": "icon-power-logo"
 								},
 								"status": {
-									"active": "caret-down",
-									"inactive": "caret-right",
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
 								},
 								"dropmenu": {
 									"id": "my-games-menu-22",
@@ -707,7 +707,7 @@ class RootScope extends PowerRoot {
 											"item": {
 												"id": "doom-12",
 												"label": "Doom",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -720,7 +720,7 @@ class RootScope extends PowerRoot {
 											"item": {
 												"id": "quake-12",
 												"label": "Quake",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -733,7 +733,7 @@ class RootScope extends PowerRoot {
 											"item": {
 												"id": "simcity-12",
 												"label": "Sim City 2000",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -752,12 +752,12 @@ class RootScope extends PowerRoot {
 					"button": {
 						"id": "books-plus-1b2",
 						"label": "More Books",
-						"icon": "power-logo",
+						"icon": "icon-power-logo",
 						"kind": "warning",
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "my-books-menu-2b2",
@@ -767,7 +767,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "a1984-b12",
 									"label": "1984",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -780,7 +780,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "never-1b2",
 									"label": "Neverending Story",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -793,7 +793,7 @@ class RootScope extends PowerRoot {
 								"item": {
 									"id": "stranger-1b2",
 									"label": "The Stranger",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -809,7 +809,7 @@ class RootScope extends PowerRoot {
 					"button": {
 						"id": "learn-1b2",
 						"label": "Learn More",
-						"icon": "power-logo",
+						"icon": "icon-power-logo",
 						"kind": "highlight",
 						"events": [
 							{
@@ -838,7 +838,7 @@ class RootScope extends PowerRoot {
 		const button = {
 			"id": "modal-root",
 			"label": "Learn More",
-			"icon": "power-logo",
+			"icon": "icon-power-logo",
 			"kind": "warning",
 			"events": [
 				{
@@ -853,7 +853,7 @@ class RootScope extends PowerRoot {
 		const button2 = {
 			"id": "grid-view",
 			"label": "Go to Grid",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "primary",
 			"events": [
 				{
@@ -868,7 +868,7 @@ class RootScope extends PowerRoot {
 		const button3 = {
 			"id": "go-power",
 			"label": "Go to Power",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "default",
 			"events": [
 				{
@@ -1313,7 +1313,7 @@ class GridPageTemplate extends PowerTemplate {
 								"button": {
 									"id": "books-unique",
 									"label": "More Books",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"kind": "warning",
 								},
 							}
@@ -1444,7 +1444,7 @@ class GridPageTemplate extends PowerTemplate {
 						{
 							"button": {
 								"label": "Nice button",
-								"icon": "power-logo",
+								"icon": "icon-power-logo",
 								"kind": "success",
 								"events": [
 									{
@@ -1518,11 +1518,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"item": {
 						"id": "my-books-1",
 						"label": "Books",
-						"icon": "power-logo"
+						"icon": "icon-power-logo"
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "my-books-menu-1",
@@ -1531,7 +1531,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "the-fall-1",
 									"label": "The Fall",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1544,7 +1544,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "brave-1",
 									"label": "Brave new world",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1557,7 +1557,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "animal-farm-1",
 									"label": "Animal Farm",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1570,11 +1570,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "books-plus-1",
 									"label": "More Books",
-									"icon": "power-logo"
+									"icon": "icon-power-logo"
 								},
 								"status": {
-									"active": "caret-down",
-									"inactive": "caret-right",
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
 								},
 								"dropmenu": {
 									"id": "my-books-menu-2",
@@ -1583,7 +1583,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "a1984-1",
 												"label": "1984",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -1596,7 +1596,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "never-1",
 												"label": "Neverending Story",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -1609,7 +1609,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "stranger-1",
 												"label": "The Stranger",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -1628,11 +1628,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"item": {
 						"id": "games-1",
 						"label": "Games",
-						"icon": "power-logo"
+						"icon": "icon-power-logo"
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "the-books-menu-1",
@@ -1641,7 +1641,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "mario-1",
 									"label": "New Super Mario",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1654,7 +1654,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "starcraft-1",
 									"label": "StarCraft",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1667,7 +1667,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "zelda-1",
 									"label": "Zelda",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1680,11 +1680,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "more-games-1",
 									"label": "More Games",
-									"icon": "power-logo"
+									"icon": "icon-power-logo"
 								},
 								"status": {
-									"active": "caret-down",
-									"inactive": "caret-right",
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
 								},
 								"dropmenu": {
 									"id": "my-games-menu-2",
@@ -1693,7 +1693,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "doom-1",
 												"label": "Doom",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -1706,7 +1706,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "quake-1",
 												"label": "Quake",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -1719,7 +1719,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "simcity-1",
 												"label": "Sim City 2000",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -1738,12 +1738,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"button": {
 						"id": "books-plus-1b",
 						"label": "More Books",
-						"icon": "power-logo",
+						"icon": "icon-power-logo",
 						"kind": "warning",
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "my-books-menu-2b",
@@ -1752,7 +1752,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "a1984-b1",
 									"label": "1984",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1765,7 +1765,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "never-1b",
 									"label": "Neverending Story",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1778,7 +1778,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "stranger-1b",
 									"label": "The Stranger",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -1794,7 +1794,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"button": {
 						"id": "learn-1b",
 						"label": "Learn More",
-						"icon": "power-logo",
+						"icon": "icon-power-logo",
 						"kind": "highlight",
 						"events": [
 							{
@@ -2096,7 +2096,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"button": {
 								"id": "bt-form1",
 								"label": "Learn More",
-								"icon": "power-logo",
+								"icon": "icon-power-logo",
 								"kind": "highlight",
 								"events": [
 									{
@@ -2110,7 +2110,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"button": {
 								"id": 'bt2-form1',
 								"label": "Warning",
-								"icon": "save-front",
+								"icon": "icon-disc-front",
 								"kind": "warning",
 								"events": [
 									{
@@ -2180,7 +2180,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				{
 					"header": {
 						"id": "favorite-action",
-						"icon": "save-front",
+						"icon": "icon-disc-front",
 						"label": "My favorite cats",
 						"status": {"active": "chevron-down", "inactive": "chevron-right"}
 					},
@@ -2208,7 +2208,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"classList": ['my-custom-button'],
 									"id": 'my-bt-new',
 									"label": "Default",
-									"icon": "img",
+									"icon": "icon-img",
 									"icon-src": "vendors/imgs/rv_bt.png",
 									"kind": "default",
 									"events": [
@@ -2231,7 +2231,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ['my-custom-button'],
 			"id": 'my-bt',
 			"label": "Default",
-			"icon": "img",
+			"icon": "icon-img",
 			"icon-src": "vendors/imgs/rv_bt.png",
 			"kind": "default",
 			"events": [
@@ -2247,7 +2247,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button2 = {
 			"id": 'my-bt2',
 			"label": "Highlight",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "highlight",
 			"events": [
 				{
@@ -2262,7 +2262,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button3 = {
 			"id": 'my-bt3',
 			"label": "Secundary",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "secundary",
 			"events": [
 				{
@@ -2277,7 +2277,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button4 = {
 			"id": 'my-bt4',
 			"label": "Primary",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "primary",
 			"events": [
 				{
@@ -2292,7 +2292,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button5 = {
 			"id": 'my-bt5',
 			"label": "Danger",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "danger",
 			"type": "button",
 			"events": [
@@ -2308,7 +2308,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button6 = {
 			"id": 'my-bt6',
 			"label": "Warning",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "warning",
 			"events": [
 				{
@@ -2323,7 +2323,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const button7 = {
 			"id": 'my-bt7',
 			"label": "Success",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "success",
 			"events": [
 				{
@@ -2339,7 +2339,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"classList": ["ping", "pong"],
 			"id": 'my-bt8',
 			"label": "Basic",
-			"icon": "save-front",
+			"icon": "icon-disc-front",
 			"kind": "basic",
 			"events": [
 				{
@@ -2357,7 +2357,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt9',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "warning",
 				"events": [
@@ -2368,8 +2368,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -2380,7 +2380,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -2394,7 +2394,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -2407,23 +2407,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2436,7 +2436,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2449,7 +2449,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2472,7 +2472,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt10',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "primary",
 				"events": [
@@ -2483,8 +2483,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -2495,7 +2495,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-2",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -2509,7 +2509,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-2",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -2522,23 +2522,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-2",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-2",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-2",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2551,7 +2551,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-2",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2564,7 +2564,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-2",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2586,7 +2586,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt11',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "basic",
 				"events": [
@@ -2597,8 +2597,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -2609,7 +2609,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-3",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -2623,7 +2623,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-3",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -2636,23 +2636,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-3",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-3",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-3",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2665,7 +2665,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-3",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2678,7 +2678,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-3",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2700,7 +2700,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt12',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "danger",
 				"events": [
@@ -2711,8 +2711,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -2723,7 +2723,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-4",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -2737,7 +2737,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-4",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -2750,23 +2750,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-4",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-4",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-4",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2779,7 +2779,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-4",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2792,7 +2792,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-4",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2816,7 +2816,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt13',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "default",
 				"events": [
@@ -2827,8 +2827,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -2839,23 +2839,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-13",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-13",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-13",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2868,7 +2868,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-13",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2881,7 +2881,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-13",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2897,7 +2897,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-13",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -2911,7 +2911,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-13",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -2930,7 +2930,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt14',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "secundary",
 				"events": [
@@ -2941,8 +2941,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -2953,23 +2953,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-14",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-14",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-14",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2982,7 +2982,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-14",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -2995,7 +2995,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-14",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3011,7 +3011,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-14",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -3025,7 +3025,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-14",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3044,7 +3044,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt15',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "success",
 				"events": [
@@ -3055,8 +3055,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -3067,7 +3067,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-15",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -3081,23 +3081,23 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-15",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-15",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-15",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3110,7 +3110,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-15",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3123,7 +3123,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-15",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3139,7 +3139,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-15",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3158,7 +3158,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt116',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"icon-position": "left",
 				"kind": "highlight",
 				"events": [
@@ -3169,8 +3169,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 				"position": "right"
 			},
 			"dropmenu": {
@@ -3181,12 +3181,12 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-16",
 							"label": "The Fall",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 							"position": "right"
 						},
 						"dropmenu": {
@@ -3196,7 +3196,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem1-16",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3209,7 +3209,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-16",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3222,7 +3222,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-16",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3238,7 +3238,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-16",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"icon-position": "left",
 							"events": [
 								{
@@ -3252,7 +3252,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-16",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3273,7 +3273,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt117',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"kind": "danger",
 				"mirrored": true,
 				"events": [
@@ -3284,8 +3284,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 			},
 			"dropmenu": {
 				"id": "my-drop-menu-17",
@@ -3295,7 +3295,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-17",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3308,21 +3308,21 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-17",
 							"label": "The Fall",
-							"icon": "power-logo"
+							"icon": "icon-power-logo"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-17",
-							"icon": "save-front",
+							"icon": "icon-disc-front",
 							"items": [
 								{
 									"item": {
 										"id": "subitem1-17",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3335,7 +3335,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-17",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3348,7 +3348,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-17",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3364,7 +3364,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-17",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3383,7 +3383,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"button": {
 				"id": 'my-bt118',
 				"label": "DropMenu",
-				"icon": "save-front",
+				"icon": "icon-disc-front",
 				"kind": "primary",
 				"mirrored": true,
 				"events": [
@@ -3394,8 +3394,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"status": {
-				"active": "caret-down",
-				"inactive": "caret-right",
+				"active": "icon-caret-down",
+				"inactive": "icon-caret-right",
 			},
 			"dropmenu": {
 				"id": "my-drop-menu-18",
@@ -3405,11 +3405,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item3-18",
 							"label": "The Fall",
-							"icon": "power-logo"
+							"icon": "icon-power-logo"
 						},
 						"status": {
-							"active": "caret-down",
-							"inactive": "caret-right",
+							"active": "icon-caret-down",
+							"inactive": "icon-caret-right",
 						},
 						"dropmenu": {
 							"id": "my-drop-menu2-18",
@@ -3418,7 +3418,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem1-18",
 										"label": "Zelda",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3431,7 +3431,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem2-18",
 										"label": "Mario",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3444,7 +3444,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									"item": {
 										"id": "subitem3-18",
 										"label": "StarCraft",
-										"icon": "power-logo",
+										"icon": "icon-power-logo",
 										"events": [
 											{
 												"event": "onclick",
@@ -3460,7 +3460,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item1-18",
 							"label": "Brave new world",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3473,7 +3473,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"item": {
 							"id": "my-item2-18",
 							"label": "Animal Farm",
-							"icon": "power-logo",
+							"icon": "icon-power-logo",
 							"events": [
 								{
 									"event": "onclick",
@@ -3503,11 +3503,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"item": {
 						"id": "my-books-1-2",
 						"label": "Books",
-						"icon": "power-logo"
+						"icon": "icon-power-logo"
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "the-books-menu-2-2",
@@ -3516,7 +3516,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "the-fall-2",
 									"label": "The Fall",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -3529,7 +3529,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "brave-2",
 									"label": "Brave new world",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -3542,7 +3542,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "animal-farm-2",
 									"label": "Animal Farm",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -3555,11 +3555,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "books-plus-2",
 									"label": "More Books",
-									"icon": "power-logo"
+									"icon": "icon-power-logo"
 								},
 								"status": {
-									"active": "caret-down",
-									"inactive": "caret-right",
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
 								},
 								"dropmenu": {
 									"id": "my-books-menu-2-2",
@@ -3568,7 +3568,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "a1984-1-2",
 												"label": "1984",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -3581,7 +3581,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "never-1-2",
 												"label": "Neverending Story",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -3594,7 +3594,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "stranger-1-2",
 												"label": "The Stranger",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -3613,11 +3613,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"item": {
 						"id": "games-1-2",
 						"label": "Games",
-						"icon": "power-logo"
+						"icon": "icon-power-logo"
 					},
 					"status": {
-						"active": "caret-down",
-						"inactive": "caret-right",
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
 						"id": "the-books-menu-1-2",
@@ -3626,7 +3626,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "mario-1-2",
 									"label": "New Super Mario",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -3639,7 +3639,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "starcraft-1-2",
 									"label": "StarCraft",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -3652,7 +3652,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "zelda-1-2",
 									"label": "Zelda",
-									"icon": "power-logo",
+									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
@@ -3665,11 +3665,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 								"item": {
 									"id": "more-games-1-2",
 									"label": "More Games",
-									"icon": "power-logo"
+									"icon": "icon-power-logo"
 								},
 								"status": {
-									"active": "caret-down",
-									"inactive": "caret-right",
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
 								},
 								"dropmenu": {
 									"id": "my-games-menu-2-2",
@@ -3678,7 +3678,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "doom-1-2",
 												"label": "Doom",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -3691,7 +3691,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "quake-1-2",
 												"label": "Quake",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -3704,7 +3704,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 											"item": {
 												"id": "simcity-1-2",
 												"label": "Sim City 2000",
-												"icon": "power-logo",
+												"icon": "icon-power-logo",
 												"events": [
 													{
 														"event": "onclick",
@@ -3764,7 +3764,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 									],
 									"name": "brand",
 									"fullName": "brand.png",
-									"icon": "save-front",
+									"icon": "icon-disc-front",
 									"extension": ".png",
 									"path": "/home/andre/test/media/brand.png",
 									"kind": "file"
@@ -3866,7 +3866,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 							"button": {
 								"id": 'my-bt-grid',
 								"label": "Secundary",
-								"icon": "save-front",
+								"icon": "icon-disc-front",
 								"kind": "secundary",
 								"events": [
 									{
@@ -3893,7 +3893,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "save-front",
+								"icon": "icon-disc-front",
 							}
 						}
 					]
@@ -3902,7 +3902,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "save-back",
+								"icon": "icon-disc-back",
 							}
 						}
 					]
@@ -3911,7 +3911,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "arrow-down",
+								"icon": "icon-arrow-down",
 							}
 						}
 					]
@@ -3920,7 +3920,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "arrow-left",
+								"icon": "icon-arrow-left",
 							}
 						}
 					]
@@ -3929,7 +3929,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "arrow-right",
+								"icon": "icon-arrow-right",
 							}
 						}
 					]
@@ -3938,7 +3938,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "arrow-up",
+								"icon": "icon-arrow-up",
 							}
 						}
 					]
@@ -3956,7 +3956,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "cancel-black",
+								"icon": "icon-cancel-black",
 							}
 						}
 					]
@@ -3965,7 +3965,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "cancel-simple",
+								"icon": "icon-cancel-simple",
 							}
 						}
 					]
@@ -3974,7 +3974,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "cancel-white",
+								"icon": "icon-cancel-white",
 							}
 						}
 					]
@@ -3983,7 +3983,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "caret-down",
+								"icon": "icon-caret-down",
 							}
 						}
 					]
@@ -3992,7 +3992,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "caret-left",
+								"icon": "icon-caret-left",
 							}
 						}
 					]
@@ -4001,7 +4001,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "caret-right",
+								"icon": "icon-caret-right",
 							}
 						}
 					]
@@ -4010,7 +4010,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "caret-up",
+								"icon": "icon-caret-up",
 							}
 						}
 					]
@@ -4019,7 +4019,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "chevron-down",
+								"icon": "icon-chevron-down",
 							}
 						}
 					]
@@ -4028,7 +4028,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "chevron-left",
+								"icon": "icon-chevron-left",
 							}
 						}
 					]
@@ -4037,7 +4037,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "chevron-right",
+								"icon": "icon-chevron-right",
 							}
 						}
 					]
@@ -4046,7 +4046,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "chevron-up",
+								"icon": "icon-chevron-up",
 							}
 						}
 					]
@@ -4055,7 +4055,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "document-blank",
+								"icon": "icon-document-blank",
 							}
 						}
 					]
@@ -4064,7 +4064,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "donwload",
+								"icon": "icon-donwload",
 							}
 						}
 					]
@@ -4073,7 +4073,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "edit-black",
+								"icon": "icon-edit-black",
 							}
 						}
 					]
@@ -4082,7 +4082,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "edit-white",
+								"icon": "icon-edit-white",
 							}
 						}
 					]
@@ -4100,7 +4100,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "exclamation-black",
+								"icon": "icon-exclamation-black",
 							}
 						}
 					]
@@ -4109,7 +4109,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "exclamation-circle-black",
+								"icon": "icon-exclamation-circle-black",
 							}
 						}
 					]
@@ -4118,7 +4118,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "exclamation-circle-white",
+								"icon": "icon-exclamation-circle-white",
 							}
 						}
 					]
@@ -4127,7 +4127,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "exclamation-simple",
+								"icon": "icon-exclamation-simple",
 							}
 						}
 					]
@@ -4136,7 +4136,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "exclamation-white",
+								"icon": "icon-exclamation-white",
 							}
 						}
 					]
@@ -4146,7 +4146,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "folder-close",
+								"icon": "icon-folder-close",
 							}
 						}
 					]
@@ -4155,7 +4155,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "folder-open",
+								"icon": "icon-folder-open",
 							}
 						}
 					]
@@ -4173,7 +4173,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "interrogation-black",
+								"icon": "icon-interrogation-black",
 							}
 						}
 					]
@@ -4182,7 +4182,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "interrogation-white",
+								"icon": "icon-interrogation-white",
 							}
 						}
 					]
@@ -4191,7 +4191,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "interrogation-circle-black",
+								"icon": "icon-interrogation-circle-black",
 							}
 						}
 					]
@@ -4200,7 +4200,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "interrogation-circle-white",
+								"icon": "icon-interrogation-circle-white",
 							}
 						}
 					]
@@ -4209,7 +4209,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "interrogation-simple",
+								"icon": "icon-interrogation-simple",
 							}
 						}
 					]
@@ -4245,7 +4245,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "minus-black",
+								"icon": "icon-minus-black",
 							}
 						}
 					]
@@ -4254,7 +4254,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "minus-white",
+								"icon": "icon-minus-white",
 							}
 						}
 					]
@@ -4263,7 +4263,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "ok-black",
+								"icon": "icon-ok-black",
 							}
 						}
 					]
@@ -4272,7 +4272,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "ok-white",
+								"icon": "icon-ok-white",
 							}
 						}
 					]
@@ -4281,7 +4281,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "ok-simple",
+								"icon": "icon-ok-simple",
 							}
 						}
 					]
@@ -4290,7 +4290,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "plus-black",
+								"icon": "icon-plus-black",
 							}
 						}
 					]
@@ -4299,7 +4299,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "plus-white",
+								"icon": "icon-plus-white",
 							}
 						}
 					]
@@ -4308,7 +4308,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "power-logo",
+								"icon": "icon-power-logo",
 							}
 						}
 					]
@@ -4317,7 +4317,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "settings-horizontal-black",
+								"icon": "icon-settings-horizontal-black",
 							}
 						}
 					]
@@ -4326,7 +4326,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "settings-horizontal-white",
+								"icon": "icon-settings-horizontal-white",
 							}
 						}
 					]
@@ -4335,7 +4335,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "settings-square-black",
+								"icon": "icon-settings-square-black",
 							}
 						}
 					]
@@ -4344,7 +4344,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "settings-square-white",
+								"icon": "icon-settings-square-white",
 							}
 						}
 					]
