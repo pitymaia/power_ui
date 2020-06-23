@@ -70,7 +70,7 @@ class PowerDialogBase extends PowerWidget {
 			let buttons = '';
 			if (this.commitBt) {
 				const defaultLabel = this.noBt ? 'Yes' : 'Ok';
-				const commitIco = `<span class="pw-icon ${(this.commitBt.icon ? this.commitBt.icon : 'ok-black')}"></span>`;
+				const commitIco = `<span class="pw-icon ${(this.commitBt.icon ? this.commitBt.icon : 'icon-ok-black')}"></span>`;
 				const commitBt = `<button
 								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(true)">

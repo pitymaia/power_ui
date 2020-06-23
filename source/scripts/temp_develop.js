@@ -2139,7 +2139,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"id": "female-action",
 						"label": "My female cats",
 						"icon": "icon-atom",
-						"status": {"active": "chevron-down", "inactive": "chevron-right", "position": "right"}
+						"status": {"active": "icon-chevron-down", "inactive": "icon-chevron-right", "position": "right"}
 					},
 					"section": {
 						"id": "female-section",
@@ -2163,7 +2163,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"id": "male-action",
 						"label": "My male cats",
 						"icon": "icon-user",
-						"status": {"active": "chevron-down", "inactive": "chevron-right"}
+						"status": {"active": "icon-chevron-down", "inactive": "icon-chevron-right"}
 					},
 					"section": {
 						"id": "male-section",
@@ -2182,7 +2182,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						"id": "favorite-action",
 						"icon": "icon-disc-front",
 						"label": "My favorite cats",
-						"status": {"active": "chevron-down", "inactive": "chevron-right"}
+						"status": {"active": "icon-chevron-down", "inactive": "icon-chevron-right"}
 					},
 					"section": {
 						"id": "favorite-section",
@@ -4064,7 +4064,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-donwload",
+								"icon": "icon-download",
 							}
 						}
 					]
@@ -4073,7 +4073,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-edit-black",
+								"icon": "icon-edit-square-fill",
 							}
 						}
 					]
@@ -4082,7 +4082,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-edit-white",
+								"icon": "icon-edit-square-stroke",
 							}
 						}
 					]
@@ -4100,7 +4100,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-exclamation-black",
+								"icon": "icon-exclamation",
 							}
 						}
 					]
@@ -4109,7 +4109,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-exclamation-circle-black",
+								"icon": "icon-warning-circle-black",
 							}
 						}
 					]
@@ -4118,7 +4118,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-exclamation-circle-white",
+								"icon": "icon-warning-circle-white",
 							}
 						}
 					]
@@ -4127,7 +4127,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-exclamation-simple",
+								"icon": "icon-warning-black",
 							}
 						}
 					]
@@ -4136,7 +4136,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-exclamation-white",
+								"icon": "icon-warning-white",
 							}
 						}
 					]
@@ -4173,7 +4173,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-interrogation-black",
+								"icon": "icon-interrogation-triangle-black",
 							}
 						}
 					]
@@ -4182,7 +4182,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-interrogation-white",
+								"icon": "icon-interrogation-triangle-white",
 							}
 						}
 					]
@@ -4209,7 +4209,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-interrogation-simple",
+								"icon": "icon-interrogation",
 							}
 						}
 					]
@@ -4317,7 +4317,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-settings-horizontal-black",
+								"icon": "icon-settings-horizontal-square",
 							}
 						}
 					]
@@ -4326,7 +4326,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-settings-horizontal-white",
+								"icon": "icon-settings-horizontal-frame",
 							}
 						}
 					]
@@ -4335,7 +4335,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-settings-square-black",
+								"icon": "icon-settings-vertical-square",
 							}
 						}
 					]
@@ -4344,7 +4344,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-settings-square-white",
+								"icon": "icon-settings-vertical-frame",
 							}
 						}
 					]
@@ -4362,7 +4362,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-user",
+								"icon": "icon-user-fill",
 							}
 						}
 					]
@@ -4371,7 +4371,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 					"children": [
 						{
 							"icon": {
-								"icon": "icon-window",
+								"icon": "icon-windows",
 							}
 						}
 					]

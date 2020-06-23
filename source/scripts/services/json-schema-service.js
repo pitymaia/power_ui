@@ -808,7 +808,7 @@ class JSONSchemaService extends PowerServices {
 					template = `${template}
 					<a ${this._getHtmlMoreBasicTmpl(item)} ${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
 					template = `${template}
-					><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
+					><span class="pw-icon ${item.icon || 'icon-document-blank'}"></span> ${item.fullName}</a>`;
 				} else if (item.kind === 'folder') {
 					const id = `list-${this.$powerUi._Unique.next()}`;
 					item.classList.push('power-list');
