@@ -255,12 +255,8 @@ body.modal-open {
 
 /* buttons start*/
 .pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secundary, .pw-btn-success, .pw-btn-basic {
-    margin-top: 1em;
     border: none;
-    font-weight: bold;
-    padding: 0.7em;
     cursor: pointer;
-    /*border-radius: 0.3em;*/
 }
 .power-menu button.pw-btn-default, .power-menu button.pw-btn-highlight, .power-menu button.pw-btn-danger, .power-menu button.pw-btn-primary, .power-menu button.pw-btn-warning, .power-menu button.pw-btn-secundary, .power-menu button.pw-btn-success, .power-menu button.pw-btn-basic {
     margin-top: 0;
@@ -320,8 +316,8 @@ body.modal-open {
 }
 
 p.pw-spinner-label {
+    font-family: Verdana, Arial, "Courier New", "san-serif";
     margin-left: 0.2em;
-    font-family: sans-serif;
     text-transform: uppercase;
     font-size: 1.3em;
     font-weight: bold;

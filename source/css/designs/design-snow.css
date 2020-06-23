@@ -1,5 +1,7 @@
-.pwdesign-white-smoke, .pwdesign-white-smoke label {
-    font-family: Verdana, Arial, "Courier New";
+.pwdesign-white-smoke,
+.pwdesign-white-smoke *
+ {
+    font-family: Verdana, Arial, "Courier New", "san-serif";
     font-size: 1em;
 }
 
@@ -138,19 +140,41 @@
 
 .pwdesign-white-smoke .pw-bt-close {
     color: #FFF;
-    font-size: 1.6rem;
-    margin-top: .5em;
-    margin-right: .8rem;
+    margin-top: .9rem;
+    margin-right: .9rem;
 }
 /* Dialog-Modal-Window end */
+
 .pwdesign-white-smoke .pw-icon {
-    font-size: 1.6rem;
+    font-size: 1.3em;
 }
-/*.pwdesign-white-smoke .pw-icon.caret-left, .pwdesign-white-smoke .pw-icon.caret-up, .pwdesign-white-smoke .pw-icon.caret-right, .pwdesign-white-smoke .pw-icon.caret-down {
-    font-size: 1.3rem;
-}*/
 
 /* buttons start*/
+
+.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secundary, .pw-btn-success, .pw-btn-basic {
+    margin-top: 1em;
+    border: none;
+    cursor: pointer;
+    padding: 0.7em;
+    /*border-radius: 0.3em;*/
+}
+
+.pwdesign-white-smoke .pw-btn-default .pw-label,
+.pwdesign-white-smoke .pw-btn-highlight .pw-label,
+.pwdesign-white-smoke .pw-btn-danger .pw-label,
+.pwdesign-white-smoke .pw-btn-primary .pw-label,
+.pwdesign-white-smoke .pw-btn-warning .pw-label,
+.pwdesign-white-smoke .pw-btn-secundary .pw-label,
+.pwdesign-white-smoke .pw-btn-success .pw-label,
+.pwdesign-white-smoke .pw-btn-basic .pw-label,
+.pwdesign-white-smoke input[type='reset'],
+.pwdesign-white-smoke input[type='submit']
+ {
+    font-weight: bold;
+    font-size: 0.95em;
+    /*border-radius: 0.3em;*/
+}
+
 .pwdesign-white-smoke button, .pwdesign-white-smoke button.power-action,
 .pwdesign-white-smoke input[type='reset'],
 .pwdesign-white-smoke input[type='submit'],
