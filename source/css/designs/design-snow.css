@@ -136,24 +136,24 @@
 /* keyboard mode on*/
 
 /* Power tabs */
-.pwdesign-white-smoke .power-tab > .power-action, .pwdesign-white-smoke .power-tab > .power-tab-section {
+.pwdesign-white-smoke .power-tabs > .power-action, .pwdesign-white-smoke .power-tabs > .power-tab-section {
     border-width: 1px;
     border-style: solid;
     border-color: black;
 }
-.pwdesign-white-smoke .power-tab > .power-action {
+.pwdesign-white-smoke .power-tabs > .power-action {
     background-color: #F5F5F5;
 }
-.pwdesign-white-smoke .power-tab > .power-tab-section {
+.pwdesign-white-smoke .power-tabs > .power-tab-section {
     background-color: #fff;
 }
-.pwdesign-white-smoke .power-tab > .power-tab-section {
+.pwdesign-white-smoke .power-tabs > .power-tab-section {
     visibility: hidden;
     overflow: hidden;
     max-height: 0;
     opacity: 0;
 }
-.pwdesign-white-smoke .power-tab > .power-tab-section.power-active {
+.pwdesign-white-smoke .power-tabs > .power-tab-section.power-active {
     visibility: visible;
     opacity: 1;
     padding: 0.5em;
@@ -161,14 +161,14 @@
     max-height: 100vh;
     transition: visibility 0.3s linear, opacity 0.5s linear;
 }
-.pwdesign-white-smoke .power-tab > .power-action {
+.pwdesign-white-smoke .power-tabs > .power-action {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.2em;
 }
 
-.pwdesign-white-smoke .power-tab > .power-action.power-active {
+.pwdesign-white-smoke .power-tabs > .power-action.power-active {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom: 0;

@@ -641,8 +641,8 @@ class PowerUi extends _PowerUiBase {
 		return new PowerAccordionSection(element, this);
 	}
 
-	_powerTab(element) {
-		return new PowerTab(element, this);
+	_powerTabs(element) {
+		return new PowerTabs(element, this);
 	}
 
 	_powerTabSection(element) {
