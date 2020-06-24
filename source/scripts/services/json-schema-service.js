@@ -369,16 +369,20 @@ class JSONSchemaService extends PowerServices {
 
 				// Headers
 				const icon = {};
-				if (panel.header.icon === 'img' && panel.header['icon-src']) {
-					icon.kind = 'img';
-					icon.src = panel.header['icon-src'];
-				} else {
-					icon.icon = panel.header.icon;
+				if (panel.header.icon) {
+					if (panel.header.icon === 'img' && panel.header['icon-src']) {
+						icon.kind = 'img';
+						icon.src = panel.header['icon-src'];
+					} else {
+						icon.icon = panel.header.icon;
+					}
 				}
 
 				const status = {};
-				status.active = panel.header.status.active;
-				status.inactive = panel.header.status.inactive;
+				if (panel.header.status) {
+					status.active = panel.header.status.active;
+					status.inactive = panel.header.status.inactive;
+				}
 
 				const sectionId = panel.section.id || this.$powerUi._Unique.next();
 
@@ -398,6 +402,97 @@ class JSONSchemaService extends PowerServices {
 					// If this is not an html json, but a button, dropmenu or other kind of json
 					if (panel.section.children) {
 						for (const child of panel.section.children) {
+							sectionTmpl = sectionTmpl + this.otherJsonKind(child);
+						}
+					}
+				sectionTmpl = sectionTmpl + '</div>';
+
+				mainTmpl = mainTmpl + headerTmpl + sectionTmpl;
+			}
+
+			return mainTmpl + '</div>';
+		}
+	}
+
+	powertabs(_powertabs) {
+		// Do not change the original JSON
+		const powertabs = this.cloneObject(_powertabs);
+		// This allow pass an array of powertabs
+		if (_powertabs.length) {
+			return this._arrayOfSchemas(_powertabs, 'powertabs');
+		} else if (_powertabs.$ref) {
+			// Use the original JSON
+			return this.powertabs(this.getNewJSON(_powertabs));
+		} else {
+			if (_powertabs.$id) {
+				// Register original JSON
+				this.registerJSONById(_powertabs);
+			}
+
+			// if (this._validate(this.powertabsDef(), powertabs) === false) {
+			// 	window.console.log('Failed JSON powertabs:', powertabs);
+			// 	throw 'Failed JSON powertabs!';
+			// }
+			// if (this._validate(this.powertabsDef().properties.config, powertabs.config) === false) {
+			// 	window.console.log('Failed JSON powertabs config:', powertabs.config);
+			// 	throw 'Failed JSON powertabs config!';
+			// }
+
+			if (!powertabs.classList) {
+				powertabs.classList = [];
+			}
+			powertabs.classList.push('power-tabs');
+			let mainTmpl = `<div ${this._getHtmlBasicTmpl(powertabs)}>`;
+
+			for (const tab of powertabs.tabs) {
+				// if (this._validate(this.powertabsDef().properties.tabs, tab) === false) {
+				// 	window.console.log('Failed JSON tab:', tab);
+				// 	throw 'Failed JSON tab!';
+				// }
+				// if (this._validate(this.powertabsDef().properties.tabs.properties.header, tab.header) === false) {
+				// 	window.console.log('Failed JSON tab header:', tab.header);
+				// 	throw 'Failed JSON tab header!';
+				// }
+				// if (this._validate(this.powertabsDef().properties.panels.properties.section, tab.section) === false) {
+				// 	window.console.log('Failed JSON tab section:', tab.section);
+				// 	throw 'Failed JSON tab section!';
+				// }
+
+				// Headers
+				const icon = {};
+				if (tab.header.icon) {
+					if (tab.header.icon === 'img' && tab.header['icon-src']) {
+						icon.kind = 'img';
+						icon.src = tab.header['icon-src'];
+					} else {
+						icon.icon = tab.header.icon;
+					}
+				}
+
+				const status = {};
+				if (tab.header.status) {
+					status.active = tab.header.status.active;
+					status.inactive = tab.header.status.inactive;
+				}
+
+				const sectionId = tab.section.id || this.$powerUi._Unique.next();
+
+				const headerTmpl = `
+				<div class="power-action" data-power-target="${sectionId}" ${this._getIdTmpl(tab.header.id, true)}>
+					<div>
+						${this.icon(icon)}
+						<span class="pw-label">${tab.header.label}</span>
+					</div>
+					${this.status(status)}
+				</div>`;
+
+				// Sections
+				let sectionTmpl = `<div class="power-tab-section" ${this._getIdTmpl(sectionId)}>
+					${tab.section.text || ''}`;
+
+					// If this is not an html json, but a button, dropmenu or other kind of json
+					if (tab.section.children) {
+						for (const child of tab.section.children) {
 							sectionTmpl = sectionTmpl + this.otherJsonKind(child);
 						}
 					}
@@ -1133,6 +1228,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	icon(_json) {
+		// Return empty string if not have an icon
+		if (_json.icon === undefined && _json.kind === undefined) {
+			return '';
+		}
 		// Do not change the original JSON
 		const json = this.cloneObject(_json);
 		// This allow pass an array of json
@@ -1172,6 +1271,11 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	status(_json) {
+		// Return if do not have status
+		if (!_json.inactive && !_json.active) {
+			return '';
+		}
+
 		// Do not change the original JSON
 		const json = this.cloneObject(_json);
 		// This allow pass an array of json

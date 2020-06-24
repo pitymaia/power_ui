@@ -7,9 +7,9 @@ class PowerTabs extends PowerTarget {
 		this.childrenSections = this.getChildrenByPowerCss('powerTabSection');
 		this.childrenActions = this.getChildrenByPowerCss('powerAction');
 
-		this.childrenSections[0].powerAction.element.classList.add('power-active');
+		this.childrenActions[0].element.classList.add('power-active');
 		this.childrenSections[0].element.classList.add('power-active');
-		this.childrenSections[0].powerAction._$pwActive = true;
+		this.childrenActions[0]._$pwActive = true;
 		this.childrenSections[0]._$pwActive = true;
 	}
 }

@@ -4381,6 +4381,98 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + this.$service('JSONSchema').grid(iconsGrid);
 
+
+		const powertabs = {
+			"classList": ['my-custom-tabs'],
+			"id": 'my-custom-tabs',
+			"tabs": [
+				{
+					"header": {
+						"id": "female-action2",
+						"label": "My female cats",
+					},
+					"section": {
+						"id": "female-section2",
+						"text": `<ul>
+							<li>Princesa</li>
+							<li>Lady</li>
+							<li>Lindinha</li>
+							<li>Florzinha</li>
+							<li>Docinho</li>
+							<li>Laylita</li>
+							<li>Meg</li>
+							<li>Lily</li>
+							<li>Penny</li>
+							<li>Morgana</li>
+							<li>Sol</li>
+						</ul>`
+					}
+				},
+				{
+					"header": {
+						"id": "male-action2",
+						"label": "My male cats",
+					},
+					"section": {
+						"id": "male-section2",
+						"text": `<ul>
+							<li>Riquinho</li>
+							<li>Tico</li>
+							<li>Pingo</li>
+							<li>Drew</li>
+							<li>Kid</li>
+							<li>Neo</li>
+						</ul>`
+					}
+				},
+				{
+					"header": {
+						"id": "favorite-action2",
+						"label": "My favorite cats",
+					},
+					"section": {
+						"id": "favorite-section2",
+						"text": `<ul>
+							<li>Riquinho</li>
+							<li>Princesa</li>
+							<li>Pingo</li>
+							<li>Drew</li>
+							<li>Penny</li>
+							<li>Sol</li>
+						</ul>`,
+						"children": [
+							{
+								"html": {
+									"tagName": "img",
+									"src": "/vendors/imgs/Brazil-Flag-icon.png",
+									"width": "30px",
+									"height": "30px",
+								}
+							},
+							{
+								"button": {
+									"classList": ['my-custom-button'],
+									"id": 'my-bt-new2',
+									"label": "Default",
+									"icon": "img",
+									"icon-src": "vendors/imgs/rv_bt.png",
+									"kind": "default",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		};
+
+		htmlTemplate = htmlTemplate + this.$service('JSONSchema').powertabs(powertabs);
+
 		resolve(htmlTemplate);
 	}
 }
