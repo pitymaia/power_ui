@@ -2128,6 +2128,14 @@ class PowerUi extends _PowerUiBase {
 		return new PowerAccordionSection(element, this);
 	}
 
+	_powerTabs(element) {
+		return new PowerTabs(element, this);
+	}
+
+	_powerTabSection(element) {
+		return new PowerTabSection(element, this);
+	}
+
 	_powerList(element) {
 		return new PowerList(element, this);
 	}
@@ -2569,16 +2577,20 @@ class JSONSchemaService extends PowerServices {
 
 				// Headers
 				const icon = {};
-				if (panel.header.icon === 'img' && panel.header['icon-src']) {
-					icon.kind = 'img';
-					icon.src = panel.header['icon-src'];
-				} else {
-					icon.icon = panel.header.icon;
+				if (panel.header.icon) {
+					if (panel.header.icon === 'img' && panel.header['icon-src']) {
+						icon.kind = 'img';
+						icon.src = panel.header['icon-src'];
+					} else {
+						icon.icon = panel.header.icon;
+					}
 				}
 
 				const status = {};
-				status.active = panel.header.status.active;
-				status.inactive = panel.header.status.inactive;
+				if (panel.header.status) {
+					status.active = panel.header.status.active;
+					status.inactive = panel.header.status.inactive;
+				}
 
 				const sectionId = panel.section.id || this.$powerUi._Unique.next();
 
@@ -2598,6 +2610,93 @@ class JSONSchemaService extends PowerServices {
 					// If this is not an html json, but a button, dropmenu or other kind of json
 					if (panel.section.children) {
 						for (const child of panel.section.children) {
+							sectionTmpl = sectionTmpl + this.otherJsonKind(child);
+						}
+					}
+				sectionTmpl = sectionTmpl + '</div>';
+
+				mainTmpl = mainTmpl + headerTmpl + sectionTmpl;
+			}
+
+			return mainTmpl + '</div>';
+		}
+	}
+
+	powertabs(_powertabs) {
+		// Do not change the original JSON
+		const powertabs = this.cloneObject(_powertabs);
+		// This allow pass an array of powertabs
+		if (_powertabs.length) {
+			return this._arrayOfSchemas(_powertabs, 'powertabs');
+		} else if (_powertabs.$ref) {
+			// Use the original JSON
+			return this.powertabs(this.getNewJSON(_powertabs));
+		} else {
+			if (_powertabs.$id) {
+				// Register original JSON
+				this.registerJSONById(_powertabs);
+			}
+
+			if (this._validate(this.powertabsDef(), powertabs) === false) {
+				window.console.log('Failed JSON powertabs:', powertabs);
+				throw 'Failed JSON powertabs!';
+			}
+
+			if (!powertabs.classList) {
+				powertabs.classList = [];
+			}
+			powertabs.classList.push('power-tabs');
+			let mainTmpl = `<div ${this._getHtmlBasicTmpl(powertabs)}>`;
+
+			for (const tab of powertabs.tabs) {
+				if (this._validate(this.powertabsDef().properties.tabs, tab) === false) {
+					window.console.log('Failed JSON tab:', tab);
+					throw 'Failed JSON tab!';
+				}
+				if (this._validate(this.powertabsDef().properties.tabs.properties.header, tab.header) === false) {
+					window.console.log('Failed JSON tab header:', tab.header);
+					throw 'Failed JSON tab header!';
+				}
+				if (this._validate(this.powertabsDef().properties.tabs.properties.section, tab.section) === false) {
+					window.console.log('Failed JSON tab section:', tab.section);
+					throw 'Failed JSON tab section!';
+				}
+
+				// Headers
+				const icon = {};
+				if (tab.header.icon) {
+					if (tab.header.icon === 'img' && tab.header['icon-src']) {
+						icon.kind = 'img';
+						icon.src = tab.header['icon-src'];
+					} else {
+						icon.icon = tab.header.icon;
+					}
+				}
+
+				const status = {};
+				if (tab.header.status) {
+					status.active = tab.header.status.active;
+					status.inactive = tab.header.status.inactive;
+				}
+
+				const sectionId = tab.section.id || this.$powerUi._Unique.next();
+
+				const headerTmpl = `
+				<div class="power-action" data-power-target="${sectionId}" ${this._getIdTmpl(tab.header.id, true)}>
+					<div>
+						${this.icon(icon)}
+						<span class="pw-label">${tab.header.label}</span>
+					</div>
+					${this.status(status)}
+				</div>`;
+
+				// Sections
+				let sectionTmpl = `<div class="power-tab-section" ${this._getIdTmpl(sectionId)}>
+					${tab.section.text || ''}`;
+
+					// If this is not an html json, but a button, dropmenu or other kind of json
+					if (tab.section.children) {
+						for (const child of tab.section.children) {
 							sectionTmpl = sectionTmpl + this.otherJsonKind(child);
 						}
 					}
@@ -3008,13 +3107,13 @@ class JSONSchemaService extends PowerServices {
 					template = `${template}
 					<a ${this._getHtmlMoreBasicTmpl(item)} ${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
 					template = `${template}
-					><span class="pw-icon ${item.icon || 'document-blank'}"></span> ${item.fullName}</a>`;
+					><span class="pw-icon ${item.icon || 'icon-document-blank'}"></span> <span>${item.fullName}</span></a>`;
 				} else if (item.kind === 'folder') {
 					const id = `list-${this.$powerUi._Unique.next()}`;
 					item.classList.push('power-list');
 					template = `${template}
 					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}">
-						<span class="power-status pw-icon" data-power-active="${item.active || 'folder-open'}" data-power-inactive="${item.inactive || 'folder-close'}"></span> ${item.fullName}
+						<span class="power-status pw-icon" data-power-active="${item.active || 'icon-folder-open'}" data-power-inactive="${item.inactive || 'icon-folder-close'}"></span> <span>${item.fullName}</span>
 					</a>
 					${this.tree({nodes: item.nodes, id: id})}`;
 				}
@@ -3333,6 +3432,10 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	icon(_json) {
+		// Return empty string if not have an icon
+		if (_json.icon === undefined && _json.kind === undefined) {
+			return '';
+		}
 		// Do not change the original JSON
 		const json = this.cloneObject(_json);
 		// This allow pass an array of json
@@ -3372,6 +3475,11 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	status(_json) {
+		// Return if do not have status
+		if (!_json.inactive && !_json.active) {
+			return '';
+		}
+
 		// Do not change the original JSON
 		const json = this.cloneObject(_json);
 		// This allow pass an array of json
@@ -3460,6 +3568,63 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["panels"]
+		};
+	}
+
+	powertabsDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/powertabs",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"tabs": {
+					"type": "array",
+					"properties": {
+						"header": {
+							"type": "object",
+							"properties": {
+								"id": {"type": "string"},
+								"label": {"type": "string"},
+								"icon": {"type": "string"},
+								"icon-position": {"type": "string"},
+								"status": {"$ref": "#/schema/draft-07/status"}
+							},
+							"required": ["label", "id"]
+						},
+						"section": {
+							"type": "object",
+							"properties": {
+								"id": {"type": "string"},
+								"text": {"type": "string"},
+								"children": {
+									"type": "array",
+									"properties": {
+										"html": {"$ref": "#/schema/draft-07/html"},
+										"button": {"$ref": "#/schema/draft-07/item"},
+										"item": {"$ref": "#/schema/draft-07/item"},
+										"status": {"$ref": "#/schema/draft-07/status"},
+										"icon": {"$ref": "#/schema/draft-07/icon"},
+										"menu": {"$ref": "#/schema/draft-07/menu"},
+										"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
+										"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
+										"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
+										"tree": {"$ref": "#/schema/draft-07/tree"},
+										"accordion": {"$ref": "#/schema/draft-07/accordion"},
+										"grid": {"$ref": "#/schema/draft-07/grid"}
+									}
+								}
+							},
+							"required": ["id"]
+						}
+					},
+					"required": ["header", "section"]
+				}
+			},
+			"required": ["tabs"]
 		};
 	}
 
@@ -7590,7 +7755,7 @@ class PowerDialogBase extends PowerWidget {
 			let buttons = '';
 			if (this.commitBt) {
 				const defaultLabel = this.noBt ? 'Yes' : 'Ok';
-				const commitIco = `<span class="pw-icon ${(this.commitBt.icon ? this.commitBt.icon : 'ok-black')}"></span>`;
+				const commitIco = `<span class="pw-icon ${(this.commitBt.icon ? this.commitBt.icon : 'icon-ok-black')}"></span>`;
 				const commitBt = `<button
 								class="${(this.commitBt.css ? this.commitBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(true)">
@@ -7602,7 +7767,7 @@ class PowerDialogBase extends PowerWidget {
 				buttons = buttons + commitBt;
 			}
 			if (this.noBt) {
-				const noIco = `<span class="pw-icon ${(this.noBt.icon ? this.noBt.icon : 'cancel-black')}"></span>`;
+				const noIco = `<span class="pw-icon ${(this.noBt.icon ? this.noBt.icon : 'icon-cancel-black')}"></span>`;
 				const noBt = `<button
 								class="${(this.noBt.css ? this.noBt.css : 'pw-btn-default')}"
 								data-pow-event onclick="_commit(false)">
@@ -7614,7 +7779,7 @@ class PowerDialogBase extends PowerWidget {
 				buttons = buttons + noBt;
 			}
 			if (this.cancelBt) {
-				const defaultIco = this.noBt ? 'cancel-simple' : 'cancel-black';
+				const defaultIco = this.noBt ? 'icon-cancel-simple' : 'icon-cancel-black';
 				const cancelIco = `<span class="pw-icon ${(this.cancelBt.icon ? this.cancelBt.icon : defaultIco)}"></span>`;
 				const cancelBt = `<button
 								class="${(this.cancelBt.css ? this.cancelBt.css : 'pw-btn-default')}"
@@ -7637,7 +7802,7 @@ class PowerDialogBase extends PowerWidget {
 		this.$title = this.$title || $title;
 		return `<div class="pw-title-bar">
 					<span class="pw-title-bar-label">${this.$title}</span>
-					<div data-pow-event onclick="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
+					<div data-pow-event onclick="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
 				</div>
 				<div class="pw-body">
 					<div class="pw-container" data-pw-content>
@@ -7829,7 +7994,7 @@ class PowerTreeTemplate {
 				const id = `list-${this.$powerUi._Unique.next()}`;
 				template = `${template}
 				<a class="power-list" data-power-target="${id}">
-					<span class="power-status pw-icon" data-power-active="folder-open" data-power-inactive="folder-close"></span> ${item.fullName}
+					<span class="power-status pw-icon" data-power-active="icon-folder-open" data-power-inactive="icon-folder-close"></span> ${item.fullName}
 				</a>
 				${this.buildTemplate(item.content, id)}`;
 			}
@@ -8067,7 +8232,7 @@ class PowerWindowIframe extends PowerWindow {
 					<div class="pw-window-resizable">
 						<div class="pw-title-bar">
 							<span class="pw-title-bar-label">${this.$title}</span>
-							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon cancel-black"></div>
+							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
 						</div>
 						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 						</div>
@@ -8901,6 +9066,67 @@ class PowerStatus extends PowerTarget {
 }
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-status'});
+
+class PowerTabs extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		this.childrenSections = this.getChildrenByPowerCss('powerTabSection');
+		this.childrenActions = this.getChildrenByPowerCss('powerAction');
+
+		this.childrenActions[0].element.classList.add('power-active');
+		this.childrenSections[0].element.classList.add('power-active');
+		this.childrenActions[0]._$pwActive = true;
+		this.childrenSections[0]._$pwActive = true;
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-tabs'});
+
+
+class PowerTabSection extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		let parent = this.parent;
+		// Add the header to this powerSection
+		do {
+			if (parent.$powerCss === 'powerTabs') {
+				this.powerTabs = parent;
+			} else {
+				parent = parent.parent;
+			}
+		} while (parent && parent.$powerCss !== 'powerTabs');
+	}
+
+	// Open and close the tab section
+	action() {
+		// Cancel if already active
+		if (this._$pwActive === true) {
+			this.powerAction._$pwActive = false;
+			// Reset this action and section to active
+			this.powerAction.broadcast('toggle', true);
+			return;
+		}
+
+		// close the other sections
+		for (const action of Object.keys(this.powerTabs.childrenActions || {})) {
+			// Only toggle if is not this section and or is active
+			const targetAction = this.powerTabs.childrenActions[action];
+			if ((targetAction.targetObj.id !== this.powerTabs.id) && targetAction._$pwActive && (this !== targetAction.targetObj)) {
+				// This prevent the targetAction.toggle call this action again, so this flag avoid a loop to occurs
+				targetAction.toggle({avoidCallAction: true});
+				targetAction.targetObj.active = !targetAction.targetObj.active;
+			}
+		}
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-tab-section'});
 
 class PowerTreeView extends PowerTarget {
     constructor(element) {
