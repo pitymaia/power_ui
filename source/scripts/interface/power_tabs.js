@@ -1,0 +1,52 @@
+class PowerTab extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		this.childrenSections = this.getChildrenByPowerCss('powerTabSection');
+		this.childrenActions = this.getChildrenByPowerCss('powerAction');
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-tab'});
+
+
+class PowerTabSection extends PowerTarget {
+	constructor(element) {
+		super(element);
+	}
+
+	init() {
+		let parent = this.parent;
+		// Add the header to this powerSection
+		do {
+			if (parent.$powerCss === 'powerTab') {
+				this.powerTab = parent;
+			} else {
+				parent = parent.parent;
+			}
+		} while (parent && parent.$powerCss !== 'powerTab');
+	}
+
+	// Open and close the tab section
+	action() {
+		// Cancel if already active
+		if (this._$pwActive === true) {
+			this.powerAction._$pwActive = false;
+			return;
+		}
+		// close the other sections
+		for (const action of Object.keys(this.powerTab.childrenActions || {})) {
+			// Only toggle if is not this section and or is active
+			const targetAction = this.powerTab.childrenActions[action];
+			if ((targetAction.targetObj.id !== this.powerTab.id) && targetAction._$pwActive && (this !== targetAction.targetObj)) {
+				// This prevent the targetAction.toggle call this action again, so this flag avoid a loop to occurs
+				targetAction.toggle({avoidCallAction: true});
+				targetAction.targetObj.active = !targetAction.targetObj.active;
+			}
+		}
+	}
+}
+// Inject the power css on PowerUi
+PowerUi.injectPowerCss({name: 'power-tab-section'});

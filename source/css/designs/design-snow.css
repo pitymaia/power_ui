@@ -48,7 +48,15 @@
     font-weight: bold;
     text-shadow: 0px 0px 11px rgb(0, 172, 230);
 }
-.pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-item > *, .pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-action > *, .pwdesign-white-smoke .power-brand > * {
+
+.pwdesign-white-smoke .power-list,
+.pwdesign-white-smoke .power-list > *,
+.pwdesign-white-smoke .power-item,
+.pwdesign-white-smoke .power-action,
+.pwdesign-white-smoke .power-item > *,
+.pwdesign-white-smoke .power-brand,
+.pwdesign-white-smoke .power-action > *,
+.pwdesign-white-smoke .power-brand > * {
     vertical-align: middle;
 }
 
@@ -102,7 +110,7 @@
 }
 /* Accordion */
 /* keyboard mode on*/
-.pwdesign-white-smoke .power-keyboard-mode, .pwdesign-white-smoke .power-keyboard-mode.power-accordion > .power-action {
+/*.pwdesign-white-smoke .power-keyboard-mode, .pwdesign-white-smoke .power-keyboard-mode.power-accordion > .power-action {
     background-image: none !important;
     background-color: #EEE8AA !important;
     border-style: solid !important;
@@ -124,8 +132,46 @@
 .pwdesign-white-smoke .power-keyboard-position {
     position: relative !important;
     z-index: 1999 !important;
-}
+}*/
 /* keyboard mode on*/
+
+/* Power tabs */
+.pwdesign-white-smoke .power-tab > .power-action, .pwdesign-white-smoke .power-tab > .power-tab-section {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+}
+.pwdesign-white-smoke .power-tab > .power-action {
+    background-color: #F5F5F5;
+}
+.pwdesign-white-smoke .power-tab > .power-tab-section {
+    background-color: #fff;
+}
+.pwdesign-white-smoke .power-tab > .power-tab-section {
+    visibility: hidden;
+    overflow: hidden;
+    max-height: 0;
+}
+.pwdesign-white-smoke .power-tab > .power-tab-section.power-active {
+    visibility: visible;
+    padding: 0.5em;
+    margin-bottom: 0.2em;
+    max-height: 100vh;
+    transition: max-height 0.4s ease-in-out;
+}
+.pwdesign-white-smoke .power-tab > .power-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.2em;
+}
+
+.pwdesign-white-smoke .power-tab > .power-action.power-active {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: 0;
+    margin-bottom: 0;
+}
 
 /* Dialog-Modal-Window start */
 .pwdesign-white-smoke .pw-modal .pw-body, .pwdesign-white-smoke .pw-dialog .pw-body, .pwdesign-white-smoke .pw-window .pw-body {

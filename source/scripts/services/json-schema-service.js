@@ -808,13 +808,13 @@ class JSONSchemaService extends PowerServices {
 					template = `${template}
 					<a ${this._getHtmlMoreBasicTmpl(item)} ${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
 					template = `${template}
-					><span class="pw-icon ${item.icon || 'icon-document-blank'}"></span> ${item.fullName}</a>`;
+					><span class="pw-icon ${item.icon || 'icon-document-blank'}"></span> <span>${item.fullName}</span></a>`;
 				} else if (item.kind === 'folder') {
 					const id = `list-${this.$powerUi._Unique.next()}`;
 					item.classList.push('power-list');
 					template = `${template}
 					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}">
-						<span class="power-status pw-icon" data-power-active="${item.active || 'icon-folder-open'}" data-power-inactive="${item.inactive || 'icon-folder-close'}"></span> ${item.fullName}
+						<span class="power-status pw-icon" data-power-active="${item.active || 'icon-folder-open'}" data-power-inactive="${item.inactive || 'icon-folder-close'}"></span> <span>${item.fullName}</span>
 					</a>
 					${this.tree({nodes: item.nodes, id: id})}`;
 				}
