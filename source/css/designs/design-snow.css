@@ -136,22 +136,34 @@
 /* keyboard mode on*/
 
 /* Power tabs */
-.pwdesign-white-smoke .power-tabs > .power-action, .pwdesign-white-smoke .power-tabs > .power-tab-section {
+.pwdesign-white-smoke .power-tabs > .power-action.power-active {
+    margin-top: 8px;
+    box-shadow: 2px -3px 5px #ddd;
+}
+.pwdesign-white-smoke .power-tabs > .power-tab-section {
+    margin-top: 8px;
+}
+.pwdesign-white-smoke .power-tabs > .power-action {
+    margin: 8px 0;
+}
+.pwdesign-white-smoke .power-tabs {
+    background-color: #F5F5F5;
     border-width: 1px;
     border-style: solid;
     border-color: black;
+    margin-bottom: 1em;
 }
-.pwdesign-white-smoke .power-tabs > .power-action {
-    background-color: #F5F5F5;
-}
-.pwdesign-white-smoke .power-tabs > .power-tab-section {
+.power-tabs .power-action.power-active {
     background-color: #fff;
+    margin: 0;
 }
 .pwdesign-white-smoke .power-tabs > .power-tab-section {
     visibility: hidden;
     overflow: hidden;
     max-height: 0;
     opacity: 0;
+    background-color: #fff;
+    margin-top: -4px;
 }
 .pwdesign-white-smoke .power-tabs > .power-tab-section.power-active {
     visibility: visible;
@@ -166,13 +178,6 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.2em;
-}
-
-.pwdesign-white-smoke .power-tabs > .power-action.power-active {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-    border-bottom: 0;
-    margin-bottom: 0;
 }
 
 /* Dialog-Modal-Window start */

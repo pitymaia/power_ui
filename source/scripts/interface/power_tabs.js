@@ -6,6 +6,11 @@ class PowerTabs extends PowerTarget {
 	init() {
 		this.childrenSections = this.getChildrenByPowerCss('powerTabSection');
 		this.childrenActions = this.getChildrenByPowerCss('powerAction');
+
+		this.childrenSections[0].powerAction.element.classList.add('power-active');
+		this.childrenSections[0].element.classList.add('power-active');
+		this.childrenSections[0].powerAction._$pwActive = true;
+		this.childrenSections[0]._$pwActive = true;
 	}
 }
 // Inject the power css on PowerUi
