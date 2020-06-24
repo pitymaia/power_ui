@@ -1,0 +1,60 @@
+/* Power tabs */
+.power-tab {
+    display: grid;
+}
+.power-tab .power-action {
+    order: 1;
+}
+.power-tab .power-tab-section {
+    order: 2;
+}
+
+@media (min-width: 300px) and (max-width: 600px) {
+    .power-tab {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .power-tab .power-tab-section {
+        grid-column: span 2;
+    }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+    .power-tab  {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .power-tab .power-tab-section {
+        grid-column: span 4;
+    }
+}
+
+@media (min-width: 900px) and (max-width: 1200px) {
+    .power-tab  {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .power-tab .power-tab-section {
+        grid-column: span 6;
+    }
+}
+
+@media (min-width: 1200px) {
+    .power-tab {
+        grid-template-columns: repeat(8, 1fr);
+    }
+
+    .power-tab .power-tab-section {
+        grid-column: span 8;
+    }
+}
+
+@media (min-width: 1500px) {
+    .power-tab {
+        grid-template-columns: repeat(10, 1fr);
+    }
+
+    .power-tab .power-tab-section {
+        grid-column: span 10;
+    }
+}
