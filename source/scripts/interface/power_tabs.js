@@ -34,6 +34,8 @@ class PowerTabSection extends PowerTarget {
 		// Cancel if already active
 		if (this._$pwActive === true) {
 			this.powerAction._$pwActive = false;
+			// Reset this action and section to active
+			this.powerAction.broadcast('toggle', true);
 			return;
 		}
 		// close the other sections
