@@ -429,14 +429,10 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_powertabs);
 			}
 
-			// if (this._validate(this.powertabsDef(), powertabs) === false) {
-			// 	window.console.log('Failed JSON powertabs:', powertabs);
-			// 	throw 'Failed JSON powertabs!';
-			// }
-			// if (this._validate(this.powertabsDef().properties.config, powertabs.config) === false) {
-			// 	window.console.log('Failed JSON powertabs config:', powertabs.config);
-			// 	throw 'Failed JSON powertabs config!';
-			// }
+			if (this._validate(this.powertabsDef(), powertabs) === false) {
+				window.console.log('Failed JSON powertabs:', powertabs);
+				throw 'Failed JSON powertabs!';
+			}
 
 			if (!powertabs.classList) {
 				powertabs.classList = [];
@@ -445,18 +441,18 @@ class JSONSchemaService extends PowerServices {
 			let mainTmpl = `<div ${this._getHtmlBasicTmpl(powertabs)}>`;
 
 			for (const tab of powertabs.tabs) {
-				// if (this._validate(this.powertabsDef().properties.tabs, tab) === false) {
-				// 	window.console.log('Failed JSON tab:', tab);
-				// 	throw 'Failed JSON tab!';
-				// }
-				// if (this._validate(this.powertabsDef().properties.tabs.properties.header, tab.header) === false) {
-				// 	window.console.log('Failed JSON tab header:', tab.header);
-				// 	throw 'Failed JSON tab header!';
-				// }
-				// if (this._validate(this.powertabsDef().properties.panels.properties.section, tab.section) === false) {
-				// 	window.console.log('Failed JSON tab section:', tab.section);
-				// 	throw 'Failed JSON tab section!';
-				// }
+				if (this._validate(this.powertabsDef().properties.tabs, tab) === false) {
+					window.console.log('Failed JSON tab:', tab);
+					throw 'Failed JSON tab!';
+				}
+				if (this._validate(this.powertabsDef().properties.tabs.properties.header, tab.header) === false) {
+					window.console.log('Failed JSON tab header:', tab.header);
+					throw 'Failed JSON tab header!';
+				}
+				if (this._validate(this.powertabsDef().properties.tabs.properties.section, tab.section) === false) {
+					window.console.log('Failed JSON tab section:', tab.section);
+					throw 'Failed JSON tab section!';
+				}
 
 				// Headers
 				const icon = {};
@@ -1364,6 +1360,63 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["panels"]
+		};
+	}
+
+	powertabsDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/powertabs",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"tabs": {
+					"type": "array",
+					"properties": {
+						"header": {
+							"type": "object",
+							"properties": {
+								"id": {"type": "string"},
+								"label": {"type": "string"},
+								"icon": {"type": "string"},
+								"icon-position": {"type": "string"},
+								"status": {"$ref": "#/schema/draft-07/status"}
+							},
+							"required": ["label", "id"]
+						},
+						"section": {
+							"type": "object",
+							"properties": {
+								"id": {"type": "string"},
+								"text": {"type": "string"},
+								"children": {
+									"type": "array",
+									"properties": {
+										"html": {"$ref": "#/schema/draft-07/html"},
+										"button": {"$ref": "#/schema/draft-07/item"},
+										"item": {"$ref": "#/schema/draft-07/item"},
+										"status": {"$ref": "#/schema/draft-07/status"},
+										"icon": {"$ref": "#/schema/draft-07/icon"},
+										"menu": {"$ref": "#/schema/draft-07/menu"},
+										"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"},
+										"dropmenubutton": {"$ref": "#/schema/draft-07/dropmenubutton"},
+										"simpleform": {"$ref": "#/schema/draft-07/simpleform"},
+										"tree": {"$ref": "#/schema/draft-07/tree"},
+										"accordion": {"$ref": "#/schema/draft-07/accordion"},
+										"grid": {"$ref": "#/schema/draft-07/grid"}
+									}
+								}
+							},
+							"required": ["id"]
+						}
+					},
+					"required": ["header", "section"]
+				}
+			},
+			"required": ["tabs"]
 		};
 	}
 
