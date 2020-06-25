@@ -412,7 +412,7 @@ class Router {
 		}
 		this.clearRouteSharedScopes();
 		// Remove 'modal-open' css class from body if all modals are closed
-		const modals = document.body.getElementsByClassName('pw-modal-backdrop');
+		const modals = document.body.getElementsByClassName('pw-backdrop');
 		if (modals.length === 0) {
 			document.body.classList.remove('modal-open');
 		}

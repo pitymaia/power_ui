@@ -276,6 +276,85 @@ class PowerOnlyPage extends PowerController {
 		// });
 	}
 
+	alertExample() {
+		this.$service('widget').alert({
+			title: 'This is an alert',
+			template: '<p>Be aware of some information!</p>',
+			controller: function() {
+				console.log('alert');
+			}
+		});
+	}
+
+	modalExample() {
+		this.$service('widget').modal({
+			title: 'This is a modal',
+			templateComponent: SimpleTemplate,
+			controller: function() {
+				console.log('modal');
+			}
+		});
+	}
+
+	windowExample() {
+		this.$service('widget').window({
+			title: 'This is a window',
+			templateComponent: SimpleTemplate,
+			controller: function() {
+				console.log('window');
+			}
+		});
+	}
+
+	confirmExample() {
+		this.$service('widget').confirm({
+			title: 'This is a confirm',
+			template: `<div>Do you really want this?</div>`,
+			controller: function() {
+				console.log('confirm?');
+			},
+			onCommit: function(resolve, reject, value) {
+				console.log('Thanks for commiting with me.', value);
+				resolve();
+			},
+			onCancel: function(resolve) {
+				console.log('This is sad...');
+				resolve();
+			}
+		});
+	}
+
+	yesNoExample() {
+		// this.$service('widget').windowIframe({
+		// 	title: 'Template dialog',
+		// 	url: 'http://localhost:3002',
+		// 	controller: function() {
+		// 		console.log('CONTROLLER IFRAME');
+		// 	}
+		// });
+
+		this.$service('widget').yesno({
+			title: 'YesNo dialog',
+			template: '<p>Save this work before close?</p>',
+			// params: {commitBt: {label: 'Save', icon: 'check'},  cancelBt: true},
+			controller: function () {
+				this.cats = [
+					{name: 'Riquinho', gender: 'male'},
+					{name: 'Princesa', gender: 'female'},
+					{name: 'Pingo', gender: 'male'},
+				]
+			},
+			onCommit: function(resolve, reject, value) {
+				console.log('Thanks for commiting with me.', value);
+				resolve();
+			},
+			onCancel: function(resolve) {
+				console.log('This is sad...');
+				resolve();
+			}
+		});
+	}
+
 	test() {
 		console.log('mouseover!');
 	}
