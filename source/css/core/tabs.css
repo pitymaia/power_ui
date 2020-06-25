@@ -5,6 +5,7 @@
 }
 .power-tabs .power-action {
     order: 1;
+    transition: order 1s;
 }
 .power-tabs .power-action.power-active {
     order: 2;
