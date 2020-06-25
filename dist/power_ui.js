@@ -4748,7 +4748,7 @@ class Router {
 		}
 		this.clearRouteSharedScopes();
 		// Remove 'modal-open' css class from body if all modals are closed
-		const modals = document.body.getElementsByClassName('pw-modal-backdrop');
+		const modals = document.body.getElementsByClassName('pw-backdrop');
 		if (modals.length === 0) {
 			document.body.classList.remove('modal-open');
 		}
@@ -7824,7 +7824,7 @@ class PowerDialog extends PowerDialogBase {
 	template({$title}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-dialog pw-dialog-container">
+		return `<div class="pw-dialog pw-dialog-container pw-backdrop">
 					${super.template({$title})}
 				</div>`;
 	}
@@ -7950,7 +7950,7 @@ class PowerModal extends PowerDialogBase {
 	}
 
 	clickOutside(event) {
-		if (event.target.classList.contains('pw-modal-backdrop')) {
+		if (event.target.classList.contains('pw-backdrop')) {
 			this._cancel();
 		}
 	}
@@ -7961,7 +7961,7 @@ class PowerModal extends PowerDialogBase {
 		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-modal pw-modal-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}" data-pow-event onclick="clickOutside(event)">
+		return `<div class="pw-modal pw-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}" data-pow-event onclick="clickOutside(event)">
 					${super.template({$title})}
 				</div>`;
 	}
