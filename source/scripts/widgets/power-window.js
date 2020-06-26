@@ -2,6 +2,17 @@ class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi, noEsc: true});
 		this.isWindow = true;
+
+		// Add it to _resizeWindow allow remove the listner
+		this._resizeWindow = this.resizeWindow.bind(this);
+		window.addEventListener('resize', this._resizeWindow, false);
+	}
+
+	// Allow async calls to implement onCancel
+	_cancel(...args) {
+		window.removeEventListener('resize', this._resizeWindow, false);
+
+		super._cancel(args);
 	}
 
 	_onViewLoad(view) {
