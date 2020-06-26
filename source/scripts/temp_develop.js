@@ -488,6 +488,7 @@ class SimpleTemplate extends PowerTemplate {
 			reject();
 		});
 	}
+
 }
 
 class SimpleDialog extends PowerWindow {
