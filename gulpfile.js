@@ -72,6 +72,7 @@ gulp.task('develop', gulp.series(function (done) {
 	gulp.src(tmpCssFiles).pipe(concat('temp_develop.css')).pipe(gulp.dest('app/css/'));
 	gulp.src('source/fonts/*.*').pipe(gulp.dest('app/fonts/'));
 	gulp.src('source/templates/*.html').pipe(gulp.dest('app/'));
+	gulp.src('source/json/*.json').pipe(gulp.dest('app/json/'));
 
 	reloadTask(done);
 }));
@@ -112,6 +113,7 @@ gulp.task('browser-sync', gulp.series(function(done) {
 	gulp.watch("source/scripts/**/*.js", gulp.series(['develop']));
 	gulp.watch("source/css/**/*.css", gulp.series(['develop']));
 	gulp.watch("source/templates/**/*.*", gulp.series(['develop']));
+	gulp.watch("source/json/**/*.*", gulp.series(['develop']));
 	done();
 }));
 

@@ -487,6 +487,18 @@ class SimpleTemplate extends PowerTemplate {
 		});
 	}
 
+	css(resolve, reject) {
+		this.$powerUi.request({
+				url: '/json/some-window.json',
+				method: 'GET',
+				status: "Loading json",
+		}).then(function (response, xhr) {
+			resolve(response.css);
+		}).catch(function (response, xhr) {
+			window.console.log('css', response, xhr);
+			reject();
+		});
+	}
 }
 
 class SimpleDialog extends PowerWindow {
