@@ -4775,6 +4775,8 @@ class Router {
 		// Remove view node
 		const node = document.getElementById(viewId);
 		node.parentNode.removeChild(node);
+		// Remove custom css of this view if exists
+		this.removeCustomCssNode(viewId);
 
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
@@ -4799,6 +4801,10 @@ class Router {
 		if (!reloading) {
 			this.removeVolatileViews({viewId: viewId});
 		}
+
+		// Remove custom css of this view if exists
+		this.removeCustomCssNode(viewId);
+
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
@@ -4809,6 +4815,14 @@ class Router {
 			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
 				delete this.routes[volatileId];
 			}
+		}
+	}
+
+	removeCustomCssNode(viewId) {
+		// Remove custom css of this view if exists
+		const nodeCss = document.getElementById('_css' + viewId);
+		if (nodeCss && nodeCss.parentNode) {
+			nodeCss.parentNode.removeChild(nodeCss);
 		}
 	}
 
@@ -5170,6 +5184,20 @@ class PowerTemplate extends PowerScope {
 		super({$powerUi: $powerUi});
 		this._viewId = viewId;
 		this._routeId = routeId;
+
+		if (this.css) {
+			const css = new Promise(this.css.bind(this));
+			css.then(function (response) {
+				const head = document.getElementsByTagName('head')[0];
+				let style = document.createElement('style');
+				style.innerHTML = response;
+				style.id = '_css' + viewId;
+				head.appendChild(style);
+			}).catch(function (response) {
+				console.log('catch', response);
+			});
+		}
+
 		return {template: this._template(), component: this};
 	}
 
