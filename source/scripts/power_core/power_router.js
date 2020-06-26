@@ -439,6 +439,8 @@ class Router {
 		// Remove view node
 		const node = document.getElementById(viewId);
 		node.parentNode.removeChild(node);
+		// Remove custom css of this view if exists
+		this.removeCustomCssNode(viewId);
 
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
@@ -463,6 +465,10 @@ class Router {
 		if (!reloading) {
 			this.removeVolatileViews({viewId: viewId});
 		}
+
+		// Remove custom css of this view if exists
+		this.removeCustomCssNode(viewId);
+
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
 	}
@@ -473,6 +479,14 @@ class Router {
 			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
 				delete this.routes[volatileId];
 			}
+		}
+	}
+
+	removeCustomCssNode(viewId) {
+		// Remove custom css of this view if exists
+		const nodeCss = document.getElementById('_css' + viewId);
+		if (nodeCss && nodeCss.parentNode) {
+			nodeCss.parentNode.removeChild(nodeCss);
 		}
 	}
 

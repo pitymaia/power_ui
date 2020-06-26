@@ -7,13 +7,11 @@ class PowerTemplate extends PowerScope {
 		if (this.css) {
 			const css = new Promise(this.css.bind(this));
 			css.then(function (response) {
-
 				const head = document.getElementsByTagName('head')[0];
 				let style = document.createElement('style');
 				style.innerHTML = response;
 				style.id = '_css' + viewId;
 				head.appendChild(style);
-				console.log('head', head);
 			}).catch(function (response) {
 				console.log('catch', response);
 			});
