@@ -133,8 +133,6 @@ class PowerWindow extends PowerDialogBase {
 			this.element.classList.add(changeWindowQueryTo);
 			this.currentWindowQuery = changeWindowQueryTo;
 		}
-
-		console.log('currentWindowQuery', this._width, this.currentWindowQuery);
 	}
 
 	// Remove any window midia query from window classes
@@ -163,8 +161,6 @@ class PowerWindow extends PowerDialogBase {
 			}
 			this.currentMenuBreakQuery = changeMenuBreakQueryTo;
 		}
-
-		console.log('currentMenuBreakQuery', this._width, this.currentMenuBreakQuery);
 	}
 
 	removeMenuBreakQuery() {

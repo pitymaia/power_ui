@@ -8012,6 +8012,17 @@ class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi, noEsc: true});
 		this.isWindow = true;
+
+		// Add it to _resizeWindow allow remove the listner
+		this._resizeWindow = this.resizeWindow.bind(this);
+		window.addEventListener('resize', this._resizeWindow, false);
+	}
+
+	// Allow async calls to implement onCancel
+	_cancel(...args) {
+		window.removeEventListener('resize', this._resizeWindow, false);
+
+		super._cancel(args);
 	}
 
 	_onViewLoad(view) {
@@ -8095,6 +8106,10 @@ class PowerWindow extends PowerDialogBase {
 			this._height = minHeight;
 		}
 
+		// Add the classes to create a css "midia query" for the window
+		this.replaceWindowSizeQuery();
+		this.replaceMenuBreakQuery();
+
 		this._width = `${this._width}px`;
 		this._height = `${this._height}px`;
 
@@ -8105,6 +8120,61 @@ class PowerWindow extends PowerDialogBase {
 		if (this.onResize) {
 			this.onResize();
 		}
+	}
+
+	// Allow simulate midia queries with power-window
+	replaceWindowSizeQuery() {
+		let changeWindowQueryTo = this.currentWindowQuery;
+
+		if (this._width <= 600) {
+			changeWindowQueryTo = 'pw-wsize-tinny';
+		} else if (this._width >= 601 && this._width <= 900) {
+			changeWindowQueryTo = 'pw-wsize-small';
+		} else if (this._width >= 901 && this._width <= 1200) {
+			changeWindowQueryTo = 'pw-wsize-medium';
+		} else if (this._width >= 1201 && this._width <= 1500) {
+			changeWindowQueryTo = 'pw-wsize-large';
+		} else {
+			changeWindowQueryTo = 'pw-wsize-extra-large';
+		}
+
+		if (this.currentWindowQuery === undefined || this.currentWindowQuery !== changeWindowQueryTo) {
+			this.removeWindowQueries();
+			this.element.classList.add(changeWindowQueryTo);
+			this.currentWindowQuery = changeWindowQueryTo;
+		}
+	}
+
+	// Remove any window midia query from window classes
+	removeWindowQueries() {
+		this.element.classList.remove('pw-wsize-tinny');
+		this.element.classList.remove('pw-wsize-small');
+		this.element.classList.remove('pw-wsize-medium');
+		this.element.classList.remove('pw-wsize-large');
+		this.element.classList.remove('pw-wsize-extra-large');
+	}
+
+	replaceMenuBreakQuery() {
+		let changeMenuBreakQueryTo = this.currentMenuBreakQuery;
+
+
+		if (this._width <= 768) {
+			changeMenuBreakQueryTo = 'pw-menu-break';
+		} else {
+			changeMenuBreakQueryTo = false;
+		}
+
+		if (this.currentMenuBreakQuery === undefined || this.currentMenuBreakQuery !== changeMenuBreakQueryTo) {
+			this.removeMenuBreakQuery();
+			if (changeMenuBreakQueryTo) {
+				this.element.classList.add(changeMenuBreakQueryTo);
+			}
+			this.currentMenuBreakQuery = changeMenuBreakQueryTo;
+		}
+	}
+
+	removeMenuBreakQuery() {
+		this.element.classList.remove('pw-menu-break');
 	}
 
 	dragElement() {
