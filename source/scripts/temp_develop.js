@@ -476,11 +476,9 @@ class SimpleTemplate extends PowerTemplate {
 				status: "Loading page",
 		}).then(function (response, xhr) {
 			let tmpEl = document.createElement("div");
-			tmpEl.innerHTML = response;
-			const treeGrid = tmpEl.getElementsByClassName('grid-flex')[0];
 			tmpEl = document.createElement("div");
 			tmpEl.innerHTML = '<h1>Pity o bom</h1>';
-			tmpEl.appendChild(treeGrid);
+			tmpEl.innerHTML = tmpEl.innerHTML + response;
 			self.pity = "Pity o bom";
 			resolve(tmpEl.innerHTML);
 		}).catch(function (response, xhr) {

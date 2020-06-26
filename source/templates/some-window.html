@@ -1,15 +1,7 @@
 <div>
-    <p>
-        Esta é minha janela 2 + 2 é igual a {{ 2+2 }} e não {{ 2+1 }}.
-    </p>
-    <div data-pow-for="cat of ['Riquinho', 'Princesa', 'Sol', 'Drew']">
-        <p data-pow-if="$pwIndex &lt; 2"><span data-pow-eval="cat + ' não é maior (>) que 2'"></span></p>
-        <p data-pow-if="$pwIndex &gt;= 2"><span data-pow-eval="cat + ' 4 é maior (>) que 2 <u>teste</u>'"></span></p>
-    </div>
-
-    aqui:
-    <div class="grid-flex">
-        <nav class="power-tree-view col">
+    Arquivos:
+    <div class="pw-grid flex-12">
+        <nav class="power-tree-view pw-col s-2 m-2 l-2 xl-4">
             <a class="power-item"><i class="power-icon icon-document-blank"></i> index.html</a>
             <a class="power-item">
                 <i class="power-icon icon-document-blank"></i> index.js
@@ -63,7 +55,7 @@
                 </a>
             </nav>
         </nav>
-        <nav class="power-tree-view col">
+        <nav class="power-tree-view pw-col s-2 m-2 l-2 xl-4">
             <a class="power-item"><i class="power-icon icon-document-blank"></i> index.html</a>
             <a class="power-item">
                 <i class="power-icon icon-document-blank"></i> index.js
@@ -117,7 +109,7 @@
                 </a>
             </nav>
         </nav>
-        <nav class="power-tree-view col">
+        <nav class="power-tree-view pw-col s-2 m-2 l-2 xl-4">
             <a class="power-item"><i class="power-icon icon-document-blank"></i> index.html</a>
             <a class="power-item">
                 <i class="power-icon icon-document-blank"></i> index.js
@@ -172,7 +164,8 @@
             </nav>
         </nav>
     </div>
-    <div class="grid-flex cols-12">
+    <hr />
+    <div class="pw-grid flex-12">
         <div>Coluna 1</div>
         <div>Coluna 2</div>
         <div>Coluna 3</div>
@@ -186,7 +179,15 @@
         <div>Coluna 11</div>
         <div>Coluna 12</div>
     </div>
+    <hr />
+    <p>
+        Esta é minha janela 2 + 2 é igual a {{ 2+2 }} e não {{ 2+1 }}.
     </p>
+    <div data-pow-for="cat of [0, 1, 2, 3, 4, 5, 6]">
+        <p data-pow-if="$pwIndex &lt; 2"><span data-pow-eval="cat + ' não é maior (>) que 2'"></span></p>
+        <p data-pow-if="$pwIndex == 2"><span data-pow-eval="cat + ' é exatamente igual a 2'"></span></p>
+        <p data-pow-if="$pwIndex &gt; 2"><span data-pow-eval="cat + ' é maior (>) que 2'"></span></p>
+    </div>
     <button class="pw-btn-default" data-pow-event onclick="refresh()">Refresh</button>
     <button class="pw-btn-default" data-pow-event onclick="closeCurrentRoute()">Close</button>
 </div>
