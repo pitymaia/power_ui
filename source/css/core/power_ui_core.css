@@ -7,12 +7,20 @@
 .power-hide {
     visibility: hidden !important;
 }
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 768px) {
     .power-dropmenu > .power-dropmenu.power-active {
         margin-left: 0 !important;
         position: relative;
     }
 }
+
+/* power menu-break query*/
+    .pw-menu-break .power-dropmenu > .power-dropmenu.power-active {
+        margin-left: 0 !important;
+        position: relative;
+    }
+/* power menu-break query*/
+
 /* Dropdown end */
 /* Menu */
 .power-menu.pw-horizontal > * {
@@ -58,13 +66,15 @@
 }
 
 /* end power tree view*/
-@media screen and (max-width: 800px) {
-    .power-menu.pw-horizontal.power-active .power-action, .power-menu.pw-horizontal.power-active .power-item {
+@media screen and (max-width: 768px) {
+    .power-menu.pw-horizontal.power-active .power-action,
+    .power-menu.pw-horizontal.power-active .power-item {
         display: block;
         width: max-content;
     }
 
-    .power-menu.pw-horizontal .power-action, .power-menu.pw-horizontal .power-item {
+    .power-menu.pw-horizontal .power-action,
+    .power-menu.pw-horizontal .power-item {
         display: none;
     }
 
@@ -89,6 +99,40 @@
         display: none;
     }
 }
+/* power menu-break query*/
+    .pw-menu-break .power-menu.pw-horizontal.power-active .power-action,
+    .pw-menu-break .power-menu.pw-horizontal.power-active .power-item {
+        display: block;
+        width: max-content;
+    }
+
+    .pw-menu-break .power-menu.pw-horizontal .power-action,
+    .pw-menu-break .power-menu.pw-horizontal .power-item {
+        display: none;
+    }
+
+    .pw-menu-break .power-menu.pw-horizontal {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+
+    .pw-menu-break .power-menu.pw-horizontal.power-active {
+        display: block;
+        justify-content: initial;
+    }
+
+    .pw-menu-break .power-menu.pw-horizontal .power-toggle {
+        display: inline-block;
+        text-align: right;
+    }
+
+    .pw-menu-break .power-menu.pw-horizontal.power-active .power-toggle {
+        display: none;
+    }
+/* power menu-break query*/
+
 .pw-menu-fixed {
     position: fixed;
 }
