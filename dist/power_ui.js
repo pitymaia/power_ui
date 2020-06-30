@@ -4843,7 +4843,7 @@ class Router {
 			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
 			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
 			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
-			this.$powerUi.controllers[_viewId].instance.$root = this.$powerUi.controllers['root-view'].instance || null;
+			this.$powerUi.controllers[_viewId].instance.$root = (this.$powerUi.controllers['root-view'] && this.$powerUi.controllers['root-view'].instance) ? this.$powerUi.controllers['root-view'].instance : null;
 		}
 
 		// If have a template to load let's do it
