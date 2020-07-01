@@ -1695,8 +1695,8 @@ class PowerUi extends _PowerUiBase {
 	bootstrap(config) {
 		this.router = new Router(config, this); // Router calls this.init();
 
-		// Keyboar mode
-		// document.addEventListener('keyup', this._keyUp.bind(this), false);
+		// suport ESC qkey
+		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
 	loadRootScope({viewId, routeId, $root, crtlInstance, template}) {
