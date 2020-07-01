@@ -3,10 +3,12 @@ class PowerRoot extends PowerController {
         super({$powerUi: $powerUi});
         this._viewId = viewId;
         this._routeId = routeId;
+
+        return {template: this._template(), component: this};
     }
 
     _template() {
-        return this.template.bind(this);
+        return new Promise(this.template.bind(this));
     }
 }
 

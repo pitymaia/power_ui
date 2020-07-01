@@ -174,29 +174,45 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
-		// Render the rootScope if exist
-		if (config.$root) {
-			this.loadRootScope({
-				viewId: 'root-view',
-				routeId: '$root',
-				$root: config.$root,
-			});
-		}
-
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events['ready'] = new UEvent();
 		this._events['Escape'] = new UEvent();
 		this.request = new Request({config, $powerUi: this});
-		this.router = new Router(config, this); // Router calls this.init();
 
-		document.addEventListener('keyup', this._keyUp.bind(this), false);
+		// Render the rootScope if exist and only boostrarp after promisse returns
+		if (config.$root) {
+			const viewId = 'root-view';
+			const routeId = '$root';
+			const root = new config.$root.component({$powerUi: this, viewId: viewId, routeId: routeId});
+			const crtlInstance = root.component;
+			const self = this;
+			root.template.then(function (response) {
+				self.loadRootScope({
+					viewId: viewId,
+					routeId: routeId,
+					$root: config.$root,
+					crtlInstance: crtlInstance,
+					template: response
+				});
+				self.bootstrap(config);
+			}).catch(function (error) {
+				console.log('error', error);
+			});
+
+		} else {
+			this.bootstrap(config);
+		}
 	}
 
-	loadRootScope({viewId, routeId, $root}) {
-		const crtlInstance = new $root.component({$powerUi: this, viewId: viewId, routeId: routeId});
-		const template = crtlInstance.template();
+	bootstrap(config) {
+		this.router = new Router(config, this); // Router calls this.init();
 
+		// Keyboar mode
+		// document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	loadRootScope({viewId, routeId, $root, crtlInstance, template}) {
 		// Register the controller with $powerUi
 		this.controllers[viewId] = {
 			component: $root.component,

@@ -600,7 +600,7 @@ class SmallDialog extends PowerTemplate {
 }
 
 class RootScope extends PowerRoot {
-	template() {
+	template(resolve, reject) {
 		let newTmpl = `<div class="power-view" id="main-view"></div>
 			<div class="power-view" id="secundary-view"></div>
 			<div>{{ 2+2 }}</div>`;
@@ -970,7 +970,7 @@ class RootScope extends PowerRoot {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button3);
 
-		return newTmpl;
+		resolve(newTmpl);
 	}
 	ctrl() {
 		console.log('$rootScope crtl is loaded');
