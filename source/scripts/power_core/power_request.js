@@ -1,15 +1,23 @@
 class Request {
 	constructor({config, $powerUi}) {
 		this.$powerUi = $powerUi;
-		this.config = config;
+		if (config.authCookie) {
+			this.$powerUi.authCookie = config.authCookie;
+		}
+		if (config.authToken) {
+			this.$powerUi.authToken = config.authToken;
+		}
+		if (config.headers) {
+			this.$powerUi.headers = config.headers;
+		}
 		const self = this;
 		return function (d) {
 			d.withCredentials = d.withCredentials === undefined ? true : d.withCredentials;
-			d.headers = d.headers || self.config.headers || {};
-			if (self.config.authCookie) {
-				d.headers.Authorization = self.$powerUi.getCookie(self.config.authCookie) || null;
-			} else if (self.config.authToken) {
-				d.headers.Authorization = `Bearer ${self.config.authToken}`;
+			d.headers = d.headers || self.$powerUi.headers || {};
+			if (self.$powerUi.authCookie) {
+				d.headers.Authorization = self.$powerUi.getCookie(self.$powerUi.authCookie) || null;
+			} else if (self.$powerUi.authToken) {
+				d.headers.Authorization = `Bearer ${self.$powerUi.authToken}`;
 			}
 			const promise = {
 				then: function (onsucess) {
@@ -83,6 +91,8 @@ class Request {
 		}
 		if (data.headers && data.headers['Content-Type'])
 			xhr.setRequestHeader('Content-Type', data.headers['Content-Type']);
+		if (data.headers && data.headers['Authorization'])
+			xhr.setRequestHeader('Authorization', data.headers['Authorization']);
 		if (data && data.body) {
 			xhr.send(JSON.stringify(data.body));
 		} else {
