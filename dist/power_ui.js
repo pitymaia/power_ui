@@ -4262,7 +4262,7 @@ class Request {
 			d.withCredentials = d.withCredentials === undefined ? true : d.withCredentials;
 			d.headers = d.headers || self.$powerUi.headers || {};
 			if (self.$powerUi.authCookie) {
-				d.headers.Authorization = self.$powerUi.getCookie(self.$powerUi.authCookie) || null;
+				d.headers.Authorization = `Bearer ${self.$powerUi.getCookie(self.$powerUi.authCookie)}` || null;
 			} else if (self.$powerUi.authToken) {
 				d.headers.Authorization = `Bearer ${self.$powerUi.authToken}`;
 			}
