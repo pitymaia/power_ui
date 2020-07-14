@@ -1,12 +1,15 @@
 class Request {
 	constructor({config, $powerUi}) {
 		this.$powerUi = $powerUi;
+		this.config = config;
 		const self = this;
 		return function (d) {
 			d.withCredentials = d.withCredentials === undefined ? true : d.withCredentials;
-			d.headers = d.headers || config.headers || {};
-			if (config.authCookie) {
-				d.headers['Authorization'] = self.$powerUi.getCookie(config.authCookie) || null;
+			d.headers = d.headers || self.config.headers || {};
+			if (self.config.authCookie) {
+				d.headers.Authorization = self.$powerUi.getCookie(self.config.authCookie) || null;
+			} else if (self.config.authToken) {
+				d.headers.Authorization = `Bearer ${self.config.authToken}`;
 			}
 			const promise = {
 				then: function (onsucess) {
