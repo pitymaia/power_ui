@@ -5,13 +5,11 @@ class PowerTemplate extends PowerScope {
 		this._routeId = routeId;
 
 		if (this.css) {
+			const self = this;
 			const css = new Promise(this.css.bind(this));
 			css.then(function (response) {
-				const head = document.getElementsByTagName('head')[0];
-				let style = document.createElement('style');
-				style.innerHTML = response;
-				style.id = '_css' + viewId;
-				head.appendChild(style);
+				self.response = response;
+				self.appendCss();
 			}).catch(function (response) {
 				console.log('catch', response);
 			});
@@ -22,6 +20,14 @@ class PowerTemplate extends PowerScope {
 
 	_template() {
 		return new Promise(this.template.bind(this));
+	}
+
+	appendCss() {
+		const head = document.getElementsByTagName('head')[0];
+		let style = document.createElement('style');
+		style.innerHTML = this.response;
+		style.id = '_css' + this._viewId;
+		head.appendChild(style);
 	}
 }
 

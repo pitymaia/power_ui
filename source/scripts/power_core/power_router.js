@@ -485,8 +485,9 @@ class Router {
 	removeCustomCssNode(viewId) {
 		// Remove custom css of this view if exists
 		const nodeCss = document.getElementById('_css' + viewId);
-		if (nodeCss && nodeCss.parentNode) {
-			nodeCss.parentNode.removeChild(nodeCss);
+		const head = nodeCss.parentNode;
+		if (nodeCss && head) {
+			head.removeChild(nodeCss);
 		}
 	}
 
@@ -535,10 +536,23 @@ class Router {
 					routes: this.routes,
 					title: title,
 				});
+			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached === true) {
+				// load template CSS
+				this.routes[routeId].$tscope._viewId = _viewId;
+				this.routes[routeId].$tscope.appendCss();
+
+				this.$powerUi.loadTemplate({
+					template: this.routes[routeId].template,
+					viewId: _viewId,
+					currentRoutes: this.currentRoutes,
+					routeId: routeId,
+					routes: this.routes,
+					title: title,
+				});
 			} else {
 				this.$powerUi.loadTemplate({
 					template: this.routes[routeId].template,
-					viewId: this.routes[routeId].viewId || viewId,
+					viewId: _viewId,
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
 					routes: this.routes,
