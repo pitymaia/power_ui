@@ -55,7 +55,7 @@ class watchInputUntilThen {
 				self.than(self.element);
 				clearInterval(self.interval);
 			}
-		}, 100);
+		}, 300);
 	}
 }
 
@@ -654,9 +654,9 @@ class PowerUi extends _PowerUiBase {
 		element.classList.add(css);
 	}
 
-	onFormError({fieldId, msg}) {
+	onFormError({id, msg}) {
 		// Get the form input to watch it
-		const formInput = document.getElementById(fieldId);
+		const formInput = document.getElementById(id);
 		// Get pw-field-container element to add pw-has-error class
 		const formContainer = formInput.parentNode;
 		formContainer.classList.add('pw-has-error');

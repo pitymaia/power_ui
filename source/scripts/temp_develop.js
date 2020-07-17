@@ -4600,12 +4600,30 @@ class JSONViews extends PowerWindow {
 
 
 	openModal() {
-		console.log('form', this.form);
-		// this.$powerUi.addSpinner('main-view');
-		// const self = this;
-		// setTimeout(function () {
-		// 	self.$powerUi.removeSpinner('main-view');
-		// },2000);
+		// console.log('form', this.form);
+		// self.$powerUi.request({
+		// 		url: 'login/',
+		// 		body: params,
+		// 		method: 'POST',
+		// 		status: 'Loading login',
+		// 		withCredentials: false,
+		// }).then(function (response) {
+		// 	console.log('SELF', self);
+		// 	console.log('success', response, self.HOST);
+		// 	self.$powerUi.setCookie({name: self.$powerUi.authCookie, value: response.token, days: 1, domain: self.HOST});
+		// 	self.setLoggedStatus();
+		// 	ctx.closeCurrentRoute();
+		// 	// window.location.href='https://poweride.libertyweb.net/#!/?sr=editor';
+		// }).catch(function (response) {
+		// 	console.log('response login', response);
+		// });
+		const fields = [
+			{id: 'url2', msg: 'Test an error here'},
+			{id: 'input_9', msg: 'Another error here'}
+		];
+		for (const field of fields) {
+			this.$powerUi.onFormError({id: field.id, msg: field.msg});
+		}
 	}
 
 	clickTree(ctx, element, params) {

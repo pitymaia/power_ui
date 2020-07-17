@@ -43,6 +43,11 @@ class Request {
 					return promise;
 				},
 				onerror: function (xhr) {
+					if (xhr && xhr.response && xhr.response.fields && xhr.response.fields.length > 0) {
+						for (const field of xhr.response.fields) {
+							self.$powerUi.onFormError({id: field.id, msg: field.msg});
+						}
+					}
 					if (promise.onerror) {
 						try {
 							return promise.onerror(JSON.parse(xhr.response), xhr);
