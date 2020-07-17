@@ -38,6 +38,28 @@ function defineRootDropmenusPosition(self, powerElement) {
 }
 
 
+// Watch a input element intil some condition is false, when it's become true run a callback and stop watching
+class watchInputUntilThen {
+	constructor(element, conditionFn, thanFn) {
+		this.element = element;
+		this.condition = conditionFn;
+		this.than = thanFn;
+		this.whatch();
+	}
+
+	whatch() {
+		const self = this;
+		// Set a interval with condition, than and clear
+		self.interval = setInterval(function () {
+			if (self.condition(self.element)) {
+				self.than(self.element);
+				clearInterval(self.interval);
+			}
+		}, 100);
+	}
+}
+
+
 class KeyboardManager {
 	constructor($powerUi) {
 		document.onkeydown = this.checkKey.bind(this);
@@ -292,13 +314,13 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	setCookie({name, value, days, domain, path}) {
-	    var expires = "";
-	    if (days) {
-	        var date = new Date();
-	        date.setTime(date.getTime() + (days*24*60*60*1000));
-	        expires = ";expires=" + date.toUTCString();
-	    }
-	    document.cookie = name + "=" + (value || "")  + expires + `;${domain ? ('domain=' + domain + ';') : ''}path=${path || '/'};`;
+		var expires = "";
+		if (days) {
+			var date = new Date();
+			date.setTime(date.getTime() + (days*24*60*60*1000));
+			expires = ";expires=" + date.toUTCString();
+		}
+		document.cookie = name + "=" + (value || "")  + expires + `;${domain ? ('domain=' + domain + ';') : ''}path=${path || '/'};`;
 	}
 
 	removeCookie({name, value, domain, path}) {
@@ -618,16 +640,65 @@ class PowerUi extends _PowerUiBase {
 					});
 				}
 				self.removeSpinner();
-				self._events['ready'].broadcast('ready');
+				self._events.ready.broadcast('ready');
 			}
 		}, 10);
+	}
+
+	removeCss(id, css) {
+		const element = document.getElementById(id);
+		element.classList.remove(css);
+	}
+	addCss(id, css) {
+		const element = document.getElementById(id);
+		element.classList.add(css);
+	}
+
+	onFormError({fieldId, msg}) {
+		// Get the form input to watch it
+		const formInput = document.getElementById(fieldId);
+		// Get pw-field-container element to add pw-has-error class
+		const formContainer = formInput.parentNode;
+		formContainer.classList.add('pw-has-error');
+
+		// Get pw-control-helper element to add the message text
+		const helpers = formContainer.getElementsByClassName('pw-control-helper') || null;
+		const formHelper = helpers ? helpers[0] : null;
+
+		if (formHelper) {
+			formHelper.innerText = msg;
+		}
+
+		// Save the current value to compare
+		const savedValue = formInput.value;
+		new watchInputUntilThen(
+			formInput,
+			function (element) {
+				// This is the condition to remove the has-error
+				let valueChange = false;
+				if (element.value !== savedValue) {
+					valueChange = true;
+				}
+
+				return valueChange;
+			},
+			function (element) {
+				// This is the 'thanFn', it runs when the above condition is true
+				if (formContainer) {
+					formContainer.classList.remove('pw-has-error');
+				}
+				if (formHelper) {
+					formHelper.innerText = '';
+				}
+			}
+		);
 	}
 
 	sanitizeHTML(str) {
 		const temp = document.createElement('div');
 		temp.textContent = str;
 		return temp.innerHTML;
-	};
+	}
 
 	_powerView(element) {
 		return new PowerView(element, this);
