@@ -278,7 +278,7 @@
     margin-right: 0.4em;
 }
 
-/* forms controls */
+/* forms controls start */
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
   .pwdesign-white-smoke input.pw-field[type='checkbox'],
   .pwdesign-white-smoke input.pw-field[type='radio'] {
@@ -294,3 +294,13 @@
     -moz-appearance: none;
   }
 }
+
+.pw-simple-form .pw-field-container.pw-has-error .pw-control-helper,
+.pw-simple-form .pw-field-container.pw-has-error label {
+    color: rgba(255,102,102, 1);
+}
+.pw-simple-form .pw-field-container.pw-has-error .pw-field {
+    background-color: rgba(255,102,102, 1);;
+}
+
+/* forms controls end*/

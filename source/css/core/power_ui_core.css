@@ -387,12 +387,19 @@ p.pw-spinner-label {
 }
 /* end spinner */
 
-/* Forms simple using auto break grid */
+/* simple-form css start*/
 
 .pw-simple-form.pw-vertical-form input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
 .pw-simple-form.pw-vertical-form select,
 .pw-simple-form.pw-vertical-form textarea {
     display: block;
 }
+.pw-simple-form .pw-field-container .pw-control-helper {
+    display: none;
+}
 
-/* Forms simple using auto break grid */
+.pw-simple-form .pw-field-container.pw-has-error .pw-control-helper {
+    display: block;
+}
+
+/* simple-form css end*/

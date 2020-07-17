@@ -1078,6 +1078,7 @@ class JSONSchemaService extends PowerServices {
 				template = `${template}
 				<div class="pw-field-container">
 					<input ${this._getInputBasicTmpl(control)} />
+					<div class="pw-control-helper"></div>
 				</div>`;
 
 			} else if (control.type === 'select') {
@@ -1091,6 +1092,7 @@ class JSONSchemaService extends PowerServices {
 						}
 					template = `${template}
 					</select>
+					<div class="pw-control-helper"></div>
 				</div>`;
 
 			} else if (control.type === 'radio' || control.type === 'checkbox') {
@@ -1108,6 +1110,7 @@ class JSONSchemaService extends PowerServices {
 					<textarea ${this._getInputBasicTmpl(control)} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''}>
 						${control.value || ''}
 					</textarea>
+					<div class="pw-control-helper"></div>
 				</div>`;
 
 			} else {
@@ -1116,6 +1119,7 @@ class JSONSchemaService extends PowerServices {
 				<div class="pw-field-container">
 					${label ? label : ''}
 					<input ${this._getInputBasicTmpl(control)} />
+					<div class="pw-control-helper"></div>
 				</div>`;
 			}
 
