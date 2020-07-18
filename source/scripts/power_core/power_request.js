@@ -36,29 +36,30 @@ class Request {
 					if (promise.onsucess) {
 						try {
 							return promise.onsucess(JSON.parse(xhr.response), xhr);
-						} catch {
+						} catch (error) {
 							return promise.onsucess(xhr.response, xhr);
 						}
 					}
 					return promise;
 				},
 				onerror: function (xhr) {
-					if (xhr && xhr.response && xhr.response.fields && xhr.response.fields.length > 0) {
-						for (const field of xhr.response.fields) {
-							self.$powerUi.onFormError({id: field.id, msg: field.msg});
-						}
-					}
 					if (promise.onerror) {
 						try {
-							return promise.onerror(JSON.parse(xhr.response), xhr);
-						} catch {
+							const _response = JSON.parse(xhr.response);
+							if (_response && _response.fields && _response.fields.length > 0) {
+								for (const field of _response.fields) {
+									self.$powerUi.onFormError({id: field.id, msg: field.msg});
+								}
+							}
+							return promise.onerror(_response, xhr);
+						} catch (error) {
 							return promise.onerror(xhr.response, xhr);
 						}
 					}
 				},
 			});
 			return promise;
-		}
+		};
 	}
 
 	encodedParams(object) {
@@ -88,16 +89,18 @@ class Request {
 			} else {
 				window.console('Request failed.  Returned status of ' + xhr.status);
 			}
-		}
+		};
 		if (method && method.toUpperCase() === 'POST')
 			xhr.setRequestHeader('Content-Type', 'application/json');
 		else {
 			xhr.setRequestHeader('Content-Type', 'text/html');
 		}
-		if (data.headers && data.headers['Content-Type'])
+		if (data.headers && data.headers['Content-Type']) {
 			xhr.setRequestHeader('Content-Type', data.headers['Content-Type']);
-		if (data.headers && data.headers['Authorization'])
-			xhr.setRequestHeader('Authorization', data.headers['Authorization']);
+		}
+		if (data.headers && data.headers.Authorization) {
+			xhr.setRequestHeader('Authorization', data.headers.Authorization);
+		}
 		if (data && data.body) {
 			xhr.send(JSON.stringify(data.body));
 		} else {
