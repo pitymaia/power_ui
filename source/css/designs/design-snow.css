@@ -209,6 +209,16 @@
     padding: 0.7em;
     /*border-radius: 0.3em;*/
 }
+.pw-col .pw-btn-default,
+.pw-col .pw-btn-highlight,
+.pw-col .pw-btn-danger,
+.pw-col .pw-btn-primary,
+.pw-col .pw-btn-warning,
+.pw-col .pw-btn-secundary,
+.pw-col .pw-btn-success,
+.pw-col .pw-btn-basic {
+    margin-top: 0;
+}
 
 .pwdesign-white-smoke .pw-btn-default .pw-label,
 .pwdesign-white-smoke .pw-btn-highlight .pw-label,
@@ -232,7 +242,7 @@
 .pwdesign-white-smoke input[type='image'] {
     margin-right: 0.5em;
     display: inline-block;
-    margin-top: 1em;
+    /*margin-top: 1em;*/
     padding: 0.7em;
     vertical-align: middle;
 }
