@@ -3433,7 +3433,7 @@ class JSONSchemaService extends PowerServices {
 			return this._arrayOfSchemas(_form, 'form');
 		} else if (_form.$ref) {
 			// Use the original JSON
-			return this.form(this.getNewJSON(_form));
+			return this.simpleForm(this.getNewJSON(_form));
 		} else {
 			if (_form.$id) {
 				// Register original JSON
