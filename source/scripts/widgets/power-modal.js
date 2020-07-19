@@ -1,7 +1,11 @@
 class PowerModal extends PowerDialogBase {
-	constructor({$powerUi}) {
+	constructor({$powerUi, classList}) {
 		super({$powerUi: $powerUi});
 		this.isModal = true;
+
+		if (classList) {
+			this.classList = classList;
+		}
 	}
 
 	clickOutside(event) {
@@ -14,9 +18,15 @@ class PowerModal extends PowerDialogBase {
 		if (document.body && document.body.classList) {
 			document.body.classList.add('modal-open');
 		}
+		let classList = ' ';
+		if (this.classList) {
+			for (const css of this.classList) {
+				classList = `${classList} ${css}`;
+			}
+		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-modal pw-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}" data-pow-event onclick="clickOutside(event)">
+		return `<div class="pw-modal pw-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}${classList}" data-pow-event onclick="clickOutside(event)">
 					${super.template({$title})}
 				</div>`;
 	}

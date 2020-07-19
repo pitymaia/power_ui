@@ -4632,9 +4632,8 @@ class JSONViews extends PowerWindow {
 }
 
 class FakeModal extends PowerModal {
-	constructor({$powerUi, lock, viewId, routeId}) {
-		super({$powerUi});
-		window.console.log('instanciate');
+	constructor({$powerUi, lock, classList, viewId, routeId}) {
+		super({$powerUi, classList});
 	}
 
 	init() {
@@ -4842,7 +4841,7 @@ const routes = [
 			hidden: false,
 			ctrl: {
 				component: FakeModal,
-				params: {lock: false},
+				params: {lock: false, classList: ['modal-custom-class']},
 			},
 		},
 		{
