@@ -3451,9 +3451,26 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
+			const classList = [
+				'pw-vertical-form',
+				`${form.theme || 'pw-simple-form'}`,
+				'pw-grid scroll-12',
+				'gap-4',
+			];
+
+			if (form.inline !== false) {
+				classList.push('inline-grid');
+			}
+			if (form.classList && form.classList.length) {
+				for (const css of form.classList) {
+					classList.push(css);
+				}
+			}
+			const classTmpl = this._getClassTmpl(classList);
+
 			const formType = form.type === 'form' ? 'form' : 'div';
 
-			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} class="pw-vertical-form ${form.theme || 'pw-simple-form'} pw-grid scroll-12 gap-4${(form.inline === false) ? '' : ' inline-grid'}${(form.padding === true) ? '' : ' pw-no-padding'}">`;
+			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} ${classTmpl}>`;
 
 			template = this.simpleFormControls({controls: form.controls, template: template});
 

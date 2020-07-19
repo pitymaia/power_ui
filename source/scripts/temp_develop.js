@@ -1903,6 +1903,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			// "type": "form",
 			"inline": true,
 			"padding": false,
+			"classList": ['custom-form', 'teste'],
 			"controls": [
 				{
 					"label": "User Name:",
