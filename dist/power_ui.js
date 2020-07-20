@@ -2032,13 +2032,13 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 	// PowerTemplate (before run any controller)
-	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title}) {
+	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId});
+		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: $ctrl});
 
 		// Add $tscope to controller and save it with the route
-		this.controllers[viewId].instance.$tscope = component.component;
+		$ctrl.$tscope = component.component;
 		routes[routeId].$tscope = component.component;
 
 		component.template.then(function (response) {
@@ -5005,6 +5005,7 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
+					$ctrl: this.$powerUi.controllers[_viewId].instance,
 				});
 			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached === true) {
 				// load template CSS

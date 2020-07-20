@@ -538,6 +538,7 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
+					$ctrl: this.$powerUi.controllers[_viewId].instance,
 				});
 			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached === true) {
 				// load template CSS
