@@ -4978,6 +4978,7 @@ class Router {
 			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
 			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
 			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
+			this.$powerUi.controllers[_viewId].instance._routeParams = paramKeys ? this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys}) : {};
 			this.$powerUi.controllers[_viewId].instance.$root = (this.$powerUi.controllers['root-view'] && this.$powerUi.controllers['root-view'].instance) ? this.$powerUi.controllers['root-view'].instance : null;
 		}
 
@@ -4997,7 +4998,6 @@ class Router {
 					title: title,
 				});
 			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached !== true) {
-
 				this.$powerUi.loadTemplateComponent({
 					template: this.routes[routeId].template,
 					viewId: _viewId,
