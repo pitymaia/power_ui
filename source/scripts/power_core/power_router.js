@@ -573,7 +573,7 @@ class Router {
 					routes: this.routes,
 					title: title,
 				});
-			} else if (this.routes[routeId].templateComponent !== undefined && !this.routes[routeId].$tscope) {
+			} else if (this.routes[routeId].templateComponent !== undefined) {
 				this.$powerUi.loadTemplateComponent({
 					template: this.routes[routeId].template,
 					viewId: _viewId,
@@ -582,27 +582,6 @@ class Router {
 					routes: this.routes,
 					title: title,
 					$ctrl: this.$powerUi.controllers[_viewId].instance,
-				});
-			// If not firt time templateComponent loads (so it already has an instance as $tscope)
-			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].$tscope) {
-				// load template CSS
-				if (this.routes[routeId].$tscope && this.routes[routeId].$tscope.css) {
-					this.routes[routeId].$tscope._viewId = _viewId;
-					this.routes[routeId].$tscope.appendCss();
-				}
-				const self = this;
-				this.routes[routeId].$tscope._template().then(function (response) {
-					const template = response;
-					self.$powerUi.loadTemplate({
-						template: template,
-						viewId: _viewId,
-						currentRoutes: self.currentRoutes,
-						routeId: routeId,
-						routes: self.routes,
-						title: title,
-					});
-				}).catch(function (response, xhr) {
-					window.console.log('loadRoute fails', response, routeId);
 				});
 			} else {
 				this.$powerUi.loadTemplate({
