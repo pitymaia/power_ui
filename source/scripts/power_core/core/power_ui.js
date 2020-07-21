@@ -504,9 +504,7 @@ class PowerUi extends _PowerUiBase {
 
 	// Run the controller instance for the route
 	runRouteController() {
-		let v = 1;
 		for (const ctrl of this.ctrlWaitingToRun) {
-			v = v+1;
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance) {
 				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
 			}
