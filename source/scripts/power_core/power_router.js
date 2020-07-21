@@ -185,14 +185,33 @@ class Router {
 		}
 
 		for (const route of openedRoutes) {
-			this.replaceViewContent({
-				view: route.view,
-				viewId: route.viewId,
-				routeId: route.routeId,
-				title: route.title,
-				template: route.template,
-				reloadCtrl: reloadCtrl,
-			});
+			if (route.$tscope) {
+				const self = this;
+				route.$tscope._template().then(function (response) {
+					const template = response;
+
+					self.replaceViewContent({
+						view: route.view,
+						viewId: route.viewId,
+						routeId: route.routeId,
+						title: route.title,
+						template: template,
+						reloadCtrl: reloadCtrl,
+					});
+				}).catch(function (response, xhr) {
+					window.console.log('_refresh fails', route);
+				});
+			} else {
+				this.replaceViewContent({
+					view: route.view,
+					viewId: route.viewId,
+					routeId: route.routeId,
+					title: route.title,
+					template: route.template,
+					reloadCtrl: reloadCtrl,
+				});
+			}
+
 		}
 	}
 
@@ -217,17 +236,38 @@ class Router {
 			}
 			let view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
 
-			this.$powerUi.buildViewTemplateAndMayCallInit({
-				self: this.$powerUi,
-				view: view,
-				template: route.template,
-				routeId: route.routeId,
-				viewId: route.viewId,
-				title: route.title,
-				refreshing: true,
-				reloadCtrl: reloadCtrl,
-				initAll: true,
-			});
+			if (route.$tscope) {
+				const self = this;
+				route.$tscope._template().then(function (response) {
+					const template = response;
+
+					self.$powerUi.buildViewTemplateAndMayCallInit({
+						self: self.$powerUi,
+						view: view,
+						template: template,
+						routeId: route.routeId,
+						viewId: route.viewId,
+						title: route.title,
+						refreshing: true,
+						reloadCtrl: reloadCtrl,
+						initAll: true,
+					});
+				}).catch(function (response, xhr) {
+					window.console.log('_refreshAll fails', response, route);
+				});
+			} else {
+				this.$powerUi.buildViewTemplateAndMayCallInit({
+					self: this.$powerUi,
+					view: view,
+					template: route.template,
+					routeId: route.routeId,
+					viewId: route.viewId,
+					title: route.title,
+					refreshing: true,
+					reloadCtrl: reloadCtrl,
+					initAll: true,
+				});
+			}
 		}
 
 	}
@@ -260,6 +300,7 @@ class Router {
 			viewId: this.currentRoutes.viewId,
 			title: this.currentRoutes.title,
 			template: this.routes[this.currentRoutes.id].template,
+			$tscope: this.routes[this.currentRoutes.id].$tscope || null,
 		});
 		for (const route of this.currentRoutes.secundaryRoutes) {
 			viewsList.push({
@@ -268,6 +309,7 @@ class Router {
 				viewId: route.viewId,
 				title: route.title,
 				template: this.routes[route.id].template,
+				$tscope: this.routes[route.id].$tscope || null,
 			});
 		}
 		for (const route of this.currentRoutes.hiddenRoutes) {
@@ -277,6 +319,7 @@ class Router {
 				viewId: route.viewId,
 				title: route.title,
 				template: this.routes[route.id].template,
+				$tscope: this.routes[route.id].$tscope || null,
 			});
 		}
 		return viewsList;

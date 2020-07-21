@@ -549,7 +549,6 @@ class PowerUi extends _PowerUiBase {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: $ctrl});
-
 		// Add $tscope to controller and save it with the route
 		$ctrl.$tscope = component.component;
 		routes[routeId].$tscope = component.component;

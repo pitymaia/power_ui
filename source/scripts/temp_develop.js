@@ -4800,6 +4800,7 @@ const routes = [
 			title: 'Create from JSON | PowerUi',
 			route: 'jsonviews',
 			templateComponent: JSONViewsTemplateComponent,
+			avoidCacheTemplate: true,
 			ctrl: {
 				component: JSONViews,
 			},
