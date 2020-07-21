@@ -5039,7 +5039,7 @@ class Router {
 					routes: this.routes,
 					title: title,
 				});
-			} else if (this.routes[routeId].templateComponent !== undefined && this.routes[routeId].templateIsCached !== true) {
+			} else if (this.routes[routeId].templateComponent !== undefined && !this.routes[routeId].$tscope) {
 				this.$powerUi.loadTemplateComponent({
 					template: this.routes[routeId].template,
 					viewId: _viewId,
