@@ -575,7 +575,7 @@ class Router {
 				});
 			} else if (this.routes[routeId].templateComponent !== undefined) {
 				this.$powerUi.loadTemplateComponent({
-					template: this.routes[routeId].template,
+					template: this.routes[routeId].templateComponent,//this.routes[routeId].template,
 					viewId: _viewId,
 					currentRoutes: this.currentRoutes,
 					routeId: routeId,
