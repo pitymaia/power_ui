@@ -1800,14 +1800,14 @@ class PowerUi extends _PowerUiBase {
 		return null;
 	}
 
-	setCookie({name, value, days, domain, path}) {
+	setCookie({name, value, days, domain, path, SameSite}) {
 		var expires = "";
 		if (days) {
 			var date = new Date();
 			date.setTime(date.getTime() + (days*24*60*60*1000));
 			expires = ";expires=" + date.toUTCString();
 		}
-		document.cookie = name + "=" + (value || "")  + expires + `;${domain ? ('domain=' + domain + ';') : ''}path=${path || '/'};`;
+		document.cookie = name + "=" + (value || "")  + expires + `;${domain ? ('domain=' + domain + ';') : ''}path=${path || '/'}; SameSite=${SameSite || ''};`;
 	}
 
 	removeCookie({name, value, domain, path}) {
@@ -4353,8 +4353,8 @@ class Request {
 			if (self.$powerUi.authCookie) {
 				d.headers.Authorization = `Bearer ${self.$powerUi.getCookie(self.$powerUi.authCookie)}` || null;
 			}
-			if (self.$powerUi['XSRF-TOKEN']) {
-				d.headers["X-XSRF-Token"] = self.$powerUi['XSRF-TOKEN'];
+			if (self.$powerUi.XSRFToken) {
+				d.headers["X-XSRF-Token"] = self.$powerUi.getXSRFToken();
 			}
 			const promise = {
 				then: function (onsucess) {
