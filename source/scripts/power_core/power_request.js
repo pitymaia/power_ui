@@ -16,8 +16,9 @@ class Request {
 			d.headers = d.headers || self.$powerUi.headers || {};
 			if (self.$powerUi.authCookie) {
 				d.headers.Authorization = `Bearer ${self.$powerUi.getCookie(self.$powerUi.authCookie)}` || null;
-			} else if (self.$powerUi.authToken) {
-				d.headers.Authorization = `Bearer ${self.$powerUi.authToken}`;
+			}
+			if (self.$powerUi['XSRF-TOKEN']) {
+				d.headers["X-XSRF-Token"] = self.$powerUi['XSRF-TOKEN'];
 			}
 			const promise = {
 				then: function (onsucess) {
