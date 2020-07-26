@@ -302,6 +302,23 @@ class PowerUi extends _PowerUiBase {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree, boilerplate: true}).template;
 	}
 
+	closeAllSecundaryRoutes() {
+		for (const sr of this.router.currentRoutes.secundaryRoutes) {
+			this.controllers[sr.viewId].instance.closeCurrentRoute();
+		}
+	}
+
+	closeAllHiddenRoutes() {
+		for (const hr of this.router.currentRoutes.hiddenRoutes) {
+			this.controllers[hr.viewId].instance.closeCurrentRoute();
+		}
+	}
+
+	closeAllRoutes() {
+		this.closeAllSecundaryRoutes();
+		this.closeAllHiddenRoutes();
+	}
+
 	getCookie(name) {
 		const nameEQ = name + "=";
 		const ca = document.cookie.split(';');

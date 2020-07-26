@@ -573,7 +573,7 @@ class Router {
 					routes: this.routes,
 					title: title,
 				});
-			} else if (this.routes[routeId].templateComponent !== undefined) {
+			} else if (this.routes[routeId].templateComponent) {
 				this.$powerUi.loadTemplateComponent({
 					template: this.routes[routeId].templateComponent,//this.routes[routeId].template,
 					viewId: _viewId,

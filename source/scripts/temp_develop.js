@@ -306,6 +306,10 @@ class PowerOnlyPage extends PowerController {
 		});
 	}
 
+	closeAll() {
+		this.$powerUi.closeAllRoutes();
+	}
+
 	confirmExample() {
 		this.$service('widget').confirm({
 			title: 'This is a confirm',
@@ -4820,6 +4824,7 @@ const routes = [
 			route: 'dialog',
 			title: 'Window dialog',
 			templateComponent: SimpleTemplate,
+			avoidCacheTemplate: false,
 			ctrl: {
 				component: SimpleDialog,
 				params: {pity: true},
