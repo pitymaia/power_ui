@@ -31,8 +31,8 @@ class Request {
 				url: d.url,
 				data: d,
 				onsucess: function (xhr) {
-					if (xhr.response.action && self.$powerUi.serverCommands && self.$powerUi.serverCommands[xhr.response.action]) {
-						self.$powerUi.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
+					if (xhr.response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[xhr.response.action]) {
+						self.$powerUi.config.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
 					}
 					if (promise.onsucess) {
 						try {
@@ -44,8 +44,8 @@ class Request {
 					return promise;
 				},
 				onerror: function (xhr) {
-					if (xhr.response.action && self.$powerUi.serverCommands && self.$powerUi.serverCommands[xhr.response.action]) {
-						self.$powerUi.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
+					if (xhr.response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[xhr.response.action]) {
+						self.$powerUi.config.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
 					}
 					if (promise.onerror) {
 						try {
