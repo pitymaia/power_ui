@@ -304,21 +304,13 @@ class PowerUi extends _PowerUiBase {
 
 	closeAllSecundaryRoutes() {
 		for (const sr of this.router.currentRoutes.secundaryRoutes) {
-			if (this.controllers[sr.viewId].instance._ready) {
-				this.controllers[sr.viewId].instance.closeCurrentRoute();
-			} else {
-				this.controllers[sr.viewId].instance._cancelOpenRoute = true;
-			}
+			this.controllers[sr.viewId].instance.closeCurrentRoute();
 		}
 	}
 
 	closeAllHiddenRoutes() {
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
-			if (this.controllers[hr.viewId].instance._ready) {
-				this.controllers[hr.viewId].instance.closeCurrentRoute();
-			} else {
-				this.controllers[hr.viewId].instance._cancelOpenRoute = true;
-			}
+			this.controllers[hr.viewId].instance.closeCurrentRoute();
 		}
 	}
 
@@ -458,8 +450,6 @@ class PowerUi extends _PowerUiBase {
 			self.controllers[viewId].instance._ready = true;
 			// Close the route if user ask to close before it is ready
 			if (self.controllers[viewId].instance._cancelOpenRoute) {
-				self.controllers[viewId].instance._cancelOpenRoute = false;
-				self.controllers[viewId].instance._ready = false;
 				self.controllers[viewId].instance.closeCurrentRoute();
 			}
 		}

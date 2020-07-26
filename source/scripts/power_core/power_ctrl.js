@@ -63,6 +63,14 @@ class PowerController extends PowerScope {
 				counter = counter + 1;
 			}
 		}
+		// If view not ready set _cancelOpenRoute to close the route after its full loaded
+		if (!this._ready) {
+			this._cancelOpenRoute = true;
+		}
+		if (this._cancelOpenRoute === true) {
+			this._cancelOpenRoute = false;
+			this._ready = false;
+		}
 		this.router.navigate({hash: newHash, title: route.title || null});
 	}
 
