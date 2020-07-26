@@ -17,9 +17,6 @@ class Request {
 			if (self.$powerUi.authCookie) {
 				d.headers.Authorization = `Bearer ${self.$powerUi.getCookie(self.$powerUi.authCookie)}` || null;
 			}
-			if (self.$powerUi.XSRFToken) {
-				d.headers["X-XSRF-Token"] = self.$powerUi.getXSRFToken();
-			}
 			const promise = {
 				then: function (onsucess) {
 					this.onsucess = onsucess;
@@ -34,6 +31,9 @@ class Request {
 				url: d.url,
 				data: d,
 				onsucess: function (xhr) {
+					if (xhr.response.action && self.$powerUi.serverCommands && self.$powerUi.serverCommands[xhr.response.action]) {
+						self.$powerUi.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
+					}
 					if (promise.onsucess) {
 						try {
 							return promise.onsucess(JSON.parse(xhr.response), xhr);
@@ -44,6 +44,9 @@ class Request {
 					return promise;
 				},
 				onerror: function (xhr) {
+					if (xhr.response.action && self.$powerUi.serverCommands && self.$powerUi.serverCommands[xhr.response.action]) {
+						self.$powerUi.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
+					}
 					if (promise.onerror) {
 						try {
 							const _response = JSON.parse(xhr.response);
