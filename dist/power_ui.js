@@ -4384,12 +4384,13 @@ class Request {
 				url: d.url,
 				data: d,
 				onsucess: function (xhr) {
-					if (xhr.response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[xhr.response.action]) {
-						self.$powerUi.config.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
-					}
 					if (promise.onsucess) {
 						try {
-							return promise.onsucess(JSON.parse(xhr.response), xhr);
+							const response = JSON.parse(xhr.response);
+							if (response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[response.action]) {
+								self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi});
+							}
+							return promise.onsucess(response, xhr);
 						} catch (error) {
 							return promise.onsucess(xhr.response, xhr);
 						}
@@ -4397,9 +4398,6 @@ class Request {
 					return promise;
 				},
 				onerror: function (xhr) {
-					if (xhr.response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[xhr.response.action]) {
-						self.$powerUi.config.serverCommands[xhr.response.action].run({response: xhr.response, $powerUi: self.$powerUi});
-					}
 					if (promise.onerror) {
 						try {
 							const _response = JSON.parse(xhr.response);
@@ -4407,6 +4405,9 @@ class Request {
 								for (const field of _response.fields) {
 									self.$powerUi.onFormError({id: field.id, msg: field.msg});
 								}
+							}
+							if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
+								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi});
 							}
 							return promise.onerror(_response, xhr);
 						} catch (error) {
