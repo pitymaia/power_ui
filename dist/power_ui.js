@@ -1945,8 +1945,9 @@ class PowerUi extends _PowerUiBase {
 			self.controllers[viewId].instance._ready = true;
 			// Close the route if user ask to close before it is ready
 			if (self.controllers[viewId].instance._cancelOpenRoute) {
+				self.controllers[viewId].instance._cancelOpenRoute = false;
 				self.controllers[viewId].instance._ready = false;
-				// self.controllers[viewId].instance.closeCurrentRoute();
+				self.controllers[viewId].instance.closeCurrentRoute();
 			}
 		}
 	}
