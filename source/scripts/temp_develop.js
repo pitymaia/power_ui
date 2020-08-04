@@ -4603,6 +4603,9 @@ class JSONViews extends PowerWindow {
 		};
 	}
 
+	onRouteClose() {
+		console.log('ON ROUTE CLOSE!!!');
+	}
 
 	openModal() {
 		// console.log('form', this.form);

@@ -490,6 +490,9 @@ class Router {
 			if (!reloading) {
 				this.removeVolatileViews({viewId: viewId});
 			}
+			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.onRouteClose) {
+				this.$powerUi.controllers[viewId].instance.onRouteClose();
+			}
 			delete this.$powerUi.controllers[viewId];
 			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
 			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
