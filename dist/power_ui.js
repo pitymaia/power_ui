@@ -4414,13 +4414,13 @@ class Request {
 					if (promise.onerror) {
 						try {
 							const _response = JSON.parse(xhr.response);
+							if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
+								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi});
+							}
 							if (_response && _response.fields && _response.fields.length > 0) {
 								for (const field of _response.fields) {
 									self.$powerUi.onFormError({id: field.id, msg: field.msg});
 								}
-							}
-							if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
-								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi});
 							}
 							return promise.onerror(_response, xhr);
 						} catch (error) {
