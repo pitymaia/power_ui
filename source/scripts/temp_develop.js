@@ -310,6 +310,10 @@ class PowerOnlyPage extends PowerController {
 		this.$powerUi.closeAllRoutes();
 	}
 
+	closeSecundary() {
+		this.$powerUi.closeAllSecundaryRoutes();
+	}
+
 	confirmExample() {
 		this.$service('widget').confirm({
 			title: 'This is a confirm',
@@ -4605,6 +4609,41 @@ class JSONViews extends PowerWindow {
 
 	onRouteClose() {
 		console.log('ON ROUTE CLOSE!!!');
+	}
+
+	onBeforeClose() {
+		console.log('onBeforeClose');
+		const self = this;
+		if (this._allowClose === undefined) {
+			this._allowClose = false;
+		} else if (this._allowClose === true) {
+			return;
+		}
+		setTimeout(function () {
+			self.$service('widget').confirm({
+				title: 'This is a confirm',
+				template: `<div>Do you really want this?</div>`,
+				controller: function() {
+					console.log('confirm?');
+					this.onRouteClose = function () {
+						if (self._allowClose === true) {
+							self.closeCurrentRoute();
+						}
+					}
+				},
+				onCommit: function(resolve, reject, value) {
+					console.log('Thanks for commiting with me.', value);
+					self._allowClose = true;
+					resolve();
+				},
+				onCancel: function(resolve) {
+					console.log('This is sad...');
+					resolve();
+				}
+			});
+		}, 100);
+
+		return this._allowClose;
 	}
 
 	openModal() {

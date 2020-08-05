@@ -54,6 +54,11 @@ class PowerController extends PowerScope {
 		} else {
 			this._cancelOpenRoute = false;
 		}
+		if (this.onBeforeClose) {
+			if (this.onBeforeClose() === false) {
+				return;
+			}
+		}
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
