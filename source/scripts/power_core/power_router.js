@@ -215,19 +215,51 @@ class Router {
 		}
 	}
 
-	// Refresh with root-view
-	_refreshAll(reloadCtrl) {
-		let openedRoutes = this.getOpenedRoutesRefreshData();
 
-		openedRoutes.unshift(this.$powerUi._rootScope);
-
-		// First remove elements and events
+	_removeElementsAndEvents(openedRoutes) {
+		const openedRoutesWithRoot = [];
 		for (const route of openedRoutes) {
+			openedRoutesWithRoot.push(route);
+		}
+
+		openedRoutesWithRoot.unshift(this.$powerUi._rootScope);
+
+		for (const route of openedRoutesWithRoot) {
 			// delete all inner elements and events from this.allPowerObjsById[id]
 			if (this.$powerUi.powerTree.allPowerObjsById[route.viewId]) {
 				this.$powerUi.powerTree.allPowerObjsById[route.viewId]['$shared'].removeInnerElementsFromPower();
 			}
 		}
+	}
+
+	_refreshRootThanOthers(openedRoutes, reloadCtrl) {
+		const self = this;
+		const route = this.$powerUi._rootScope;
+		let view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
+
+		if (route.$tscope) {
+			route.$tscope._template().then(function (response) {
+				const template = response;
+
+				self.$powerUi.buildViewTemplateAndMayCallInit({
+					self: self.$powerUi,
+					view: view,
+					template: template,
+					routeId: route.routeId,
+					viewId: route.viewId,
+					title: route.title,
+					refreshing: true,
+					reloadCtrl: reloadCtrl,
+					initAll: true,
+				});
+
+				self._refreshAllOthers(reloadCtrl, openedRoutes);
+			}).catch(function (response, xhr) {
+				window.console.log('_rootScope fails', response, route);
+			});
+		}
+	}
+	_refreshAllOthers(reloadCtrl, openedRoutes) {
 		// Second prepare and load
 		for (const route of openedRoutes) {
 			if (!document.getElementById(route.view.id)) {
@@ -269,7 +301,16 @@ class Router {
 				});
 			}
 		}
+	}
 
+	// Refresh with root-view
+	_refreshAll(reloadCtrl) {
+		let openedRoutes = this.getOpenedRoutesRefreshData();
+
+		// TODO: Check this
+		// First remove elements and events
+		// this._removeElementsAndEvents(openedRoutes);
+		this._refreshRootThanOthers(openedRoutes, reloadCtrl);
 	}
 
 	replaceViewContent({view, viewId, routeId, title, template, reloadCtrl}) {
