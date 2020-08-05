@@ -1,6 +1,6 @@
 "use strict";
 
-import { PowerUi, PowerController, PowerModal, PowerRoot, PowerConfirm, PowerWindow, PowerWindowIframe, PowerTemplate } from './power_ui.js';
+import { PowerUi, PowerController, PowerModal, PowerConfirm, PowerWindow, PowerWindowIframe, PowerTemplate } from './power_ui.js';
 // class PwcPity extends PowCssHover {
 // 	constructor(element) {
 // 		super(element);
@@ -607,7 +607,7 @@ class SmallDialog extends PowerTemplate {
 	}
 }
 
-class RootScope extends PowerRoot {
+class RootScopeTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		let newTmpl = `<div class="power-view" id="main-view"></div>
 			<div class="power-view" id="secundary-view"></div>
@@ -947,21 +947,25 @@ class RootScope extends PowerRoot {
 		};
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button);
+		if (this.$ctrl.cats) {
+			console.log('cats', this.$ctrl.cats.length);
+		}
+		if (!this.$ctrl.cats || this.$ctrl.cats.length <= 2) {
+			const button2 = {
+				"id": "grid-view",
+				"label": "Go to Grid",
+				"icon": "icon-disc-front",
+				"kind": "primary",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "goGrid()"
+					}
+				]
+			};
+			newTmpl = newTmpl + this.$service('JSONSchema').button(button2);
+		}
 
-		const button2 = {
-			"id": "grid-view",
-			"label": "Go to Grid",
-			"icon": "icon-disc-front",
-			"kind": "primary",
-			"events": [
-				{
-					"event": "onclick",
-					"fn": "goGrid()"
-				}
-			]
-		};
-
-		newTmpl = newTmpl + this.$service('JSONSchema').button(button2);
 
 		const button3 = {
 			"id": "go-power",
@@ -980,6 +984,9 @@ class RootScope extends PowerRoot {
 
 		resolve(newTmpl);
 	}
+}
+
+class RootScope extends PowerController {
 	ctrl() {
 		console.log('$rootScope crtl is loaded');
 		this.cats = [
@@ -4916,6 +4923,7 @@ const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
 	$root: {
+		templateComponent: RootScopeTemplate,
 		component: RootScope,
 		params: {lock: false},
 	},

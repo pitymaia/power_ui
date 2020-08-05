@@ -607,7 +607,7 @@ class Router {
 			if (!ctrl.params) {
 				ctrl.params = {};
 			}
-			// Create a shared scope for this route if not existas
+			// Create a shared scope for this route if not exists
 			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
 				this.$powerUi.controllers.$routeSharedScope[routeId] = {};
 				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = 0;
@@ -786,7 +786,7 @@ class Router {
 			id: '',
 			route: route.replace(this.config.rootPath, ''), // remove #!/
 			viewId: this.routes[routeId].viewId || viewId,
-		}
+		};
 		// Register current route id
 		newRoute.id = routeId;
 		// Register current route parameters keys and values

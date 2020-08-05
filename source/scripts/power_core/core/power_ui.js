@@ -193,7 +193,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services || {}; // TODO this is done, we just need document it with the formart 'widget', {component: WidgetService, params: {foo: 'bar'}}
+		this._services = config.services || {}; // TODO this is done, we just need document it with the format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
 		this.interpolation = new PowerInterpolation(config, this);
@@ -202,20 +202,21 @@ class PowerUi extends _PowerUiBase {
 		this._events['Escape'] = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 
-		// Render the rootScope if exist and only boostrarp after promisse returns
+		// Render the rootScope if exists and only boostrap after promise returns
 		if (config.$root) {
 			const viewId = 'root-view';
 			const routeId = '$root';
-			const root = new config.$root.component({$powerUi: this, viewId: viewId, routeId: routeId});
-			const crtlInstance = root.component;
+			const crtlInstance = new config.$root.component({$powerUi: this, viewId: viewId, routeId: routeId});
+			const rootTemplate = new config.$root.templateComponent({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
+			crtlInstance.$tscope = rootTemplate.component;
 			const self = this;
-			root.template.then(function (response) {
+			rootTemplate.template.then(function (response) {
 				self.loadRootScope({
 					viewId: viewId,
 					routeId: routeId,
 					$root: config.$root,
 					crtlInstance: crtlInstance,
-					template: response
+					template: response,
 				});
 				self.bootstrap(config);
 			}).catch(function (error) {
@@ -274,6 +275,7 @@ class PowerUi extends _PowerUiBase {
 			viewId: viewId,
 			view: view,
 			title: null,
+			$tscope: ctrl.$tscope,
 		};
 	}
 
