@@ -2223,6 +2223,16 @@ class PowerUi extends _PowerUiBase {
 		return temp.innerHTML;
 	}
 
+	getRouteCtrl(routeId) {
+		for (const key of Object.keys(this.controllers)) {
+			const ctrl = this.controllers[key];
+			if (ctrl.instance && ctrl.instance._routeId === routeId) {
+				return ctrl.instance;
+			}
+		}
+		return null;
+	}
+
 	_powerView(element) {
 		return new PowerView(element, this);
 	}
@@ -4322,13 +4332,7 @@ class PowerController extends PowerScope {
 	}
 
 	getRouteCtrl(routeId) {
-		for (const key of Object.keys(this.$powerUi.controllers)) {
-			const ctrl = this.$powerUi.controllers[key];
-			if (ctrl.instance && ctrl.instance._routeId === routeId) {
-				return ctrl.instance;
-			}
-		}
-		return null;
+		return this.$powerUi.getRouteCtrl(routeId);
 	}
 
 	openRoute({routeId, params, target}) {
@@ -4433,7 +4437,7 @@ class Request {
 						try {
 							const response = JSON.parse(xhr.response);
 							if (response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[response.action]) {
-								self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi});
+								self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
 							}
 							return promise.onsucess(response, xhr);
 						} catch (error) {
@@ -4447,7 +4451,7 @@ class Request {
 						try {
 							const _response = JSON.parse(xhr.response);
 							if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
-								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi});
+								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
 							}
 							if (_response && _response.fields && _response.fields.length > 0) {
 								for (const field of _response.fields) {

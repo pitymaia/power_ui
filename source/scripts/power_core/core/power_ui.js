@@ -736,6 +736,16 @@ class PowerUi extends _PowerUiBase {
 		return temp.innerHTML;
 	}
 
+	getRouteCtrl(routeId) {
+		for (const key of Object.keys(this.controllers)) {
+			const ctrl = this.controllers[key];
+			if (ctrl.instance && ctrl.instance._routeId === routeId) {
+				return ctrl.instance;
+			}
+		}
+		return null;
+	}
+
 	_powerView(element) {
 		return new PowerView(element, this);
 	}

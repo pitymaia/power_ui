@@ -35,7 +35,7 @@ class Request {
 						try {
 							const response = JSON.parse(xhr.response);
 							if (response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[response.action]) {
-								self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi});
+								self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
 							}
 							return promise.onsucess(response, xhr);
 						} catch (error) {
@@ -49,7 +49,7 @@ class Request {
 						try {
 							const _response = JSON.parse(xhr.response);
 							if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
-								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi});
+								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
 							}
 							if (_response && _response.fields && _response.fields.length > 0) {
 								for (const field of _response.fields) {
