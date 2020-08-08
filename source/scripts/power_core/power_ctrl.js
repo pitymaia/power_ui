@@ -31,11 +31,13 @@ class PowerController extends PowerScope {
 	}
 
 	getRouteCtrl(routeId) {
-		for (const ctrl of this.$powerUi.controllers) {
+		for (const key of Object.keys(this.$powerUi.controllers)) {
+			const ctrl = this.$powerUi.controllers[key];
 			if (ctrl.instance && ctrl.instance._routeId === routeId) {
 				return ctrl.instance;
 			}
 		}
+		return null;
 	}
 
 	openRoute({routeId, params, target}) {
