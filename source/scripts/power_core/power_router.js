@@ -531,6 +531,9 @@ class Router {
 			if (!reloading) {
 				this.removeVolatileViews({viewId: viewId});
 			}
+			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
+				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
+			}
 			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.onRouteClose) {
 				this.$powerUi.controllers[viewId].instance.onRouteClose();
 			}

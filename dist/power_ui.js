@@ -4351,7 +4351,11 @@ class PowerController extends PowerScope {
 		});
 	}
 
-	closeCurrentRoute() {
+	closeCurrentRoute(callback) {
+		// Save the callback to run after view is removed
+		if (callback) {
+			this._closeCurrentRouteCallback = callback;
+		}
 		// If view not ready set _cancelOpenRoute to close the route after its full loaded
 		if (!this._ready) {
 			this._cancelOpenRoute = true;
@@ -5049,6 +5053,9 @@ class Router {
 		if (this.$powerUi.controllers[viewId]) {
 			if (!reloading) {
 				this.removeVolatileViews({viewId: viewId});
+			}
+			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
+				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
 			}
 			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.onRouteClose) {
 				this.$powerUi.controllers[viewId].instance.onRouteClose();
