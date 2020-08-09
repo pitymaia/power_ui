@@ -53,7 +53,7 @@ class PowerController extends PowerScope {
 	closeCurrentRoute(callback) {
 		// Save the callback to run after view is removed
 		if (callback) {
-			this._closeCurrentRouteCallback = callback;
+			this._$closeCurrentRouteCallback = callback;
 		}
 		// If view not ready set _cancelOpenRoute to close the route after its full loaded
 		if (!this._ready) {
