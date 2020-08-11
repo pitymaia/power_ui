@@ -543,7 +543,6 @@ class PowerUi extends _PowerUiBase {
 				url: template,
 				method: 'GET',
 				status: "Loading page",
-				withCredentials: false,
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
 			self.buildViewTemplateAndMayCallInit({

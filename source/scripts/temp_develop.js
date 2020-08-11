@@ -539,7 +539,6 @@ class SimpleDialog extends PowerWindow {
 		// 		url: 'somecomponent.html',
 		// 		method: 'GET',
 		// 		status: "Loading page",
-		// 		withCredentials: false,
 		// }).then(function (response, xhr) {
 		// 	console.log('success');
 		// 	resolve();
@@ -4662,7 +4661,6 @@ class JSONViews extends PowerWindow {
 		// 		body: params,
 		// 		method: 'POST',
 		// 		status: 'Loading login',
-		// 		withCredentials: false,
 		// }).then(function (response) {
 		// 	console.log('SELF', self);
 		// 	console.log('success', response, self.HOST);

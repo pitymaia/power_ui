@@ -2030,7 +2030,6 @@ class PowerUi extends _PowerUiBase {
 				url: template,
 				method: 'GET',
 				status: "Loading page",
-				withCredentials: false,
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
 			self.buildViewTemplateAndMayCallInit({
@@ -4509,11 +4508,13 @@ class Request {
 				window.console('Request failed.  Returned status of ' + xhr.status);
 			}
 		};
-		if (method && method.toUpperCase() === 'POST')
-			xhr.setRequestHeader('Content-Type', 'application/json');
-		else {
-			xhr.setRequestHeader('Content-Type', 'text/html');
-		}
+		xhr.withCredentials = data.withCredentials;
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		// if (method && method.toUpperCase() === 'POST')
+		// 	xhr.setRequestHeader('Content-Type', 'application/json');
+		// else {
+		// 	xhr.setRequestHeader('Content-Type', 'text/html');
+		// }
 		if (data.headers && data.headers['Content-Type']) {
 			xhr.setRequestHeader('Content-Type', data.headers['Content-Type']);
 		}
