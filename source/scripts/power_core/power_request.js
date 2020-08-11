@@ -34,8 +34,12 @@ class Request {
 					if (promise.onsucess) {
 						try {
 							const response = JSON.parse(xhr.response);
-							if (response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[response.action]) {
-								self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
+							try {
+								if (response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[response.action]) {
+									self.$powerUi.config.serverCommands[response.action].run({response: response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
+								}
+							} catch (error) {
+								return promise.onerror(error, response, xhr);
 							}
 							return promise.onsucess(response, xhr);
 						} catch (error) {
@@ -48,13 +52,17 @@ class Request {
 					if (promise.onerror) {
 						try {
 							const _response = JSON.parse(xhr.response);
-							if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
-								self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
-							}
-							if (_response && _response.fields && _response.fields.length > 0) {
-								for (const field of _response.fields) {
-									self.$powerUi.onFormError({id: field.id, msg: field.msg});
+							try {
+								if (_response.action && self.$powerUi.config.serverCommands && self.$powerUi.config.serverCommands[_response.action]) {
+									self.$powerUi.config.serverCommands[_response.action].run({response: _response, $powerUi: self.$powerUi, $root: self.$powerUi.getRouteCtrl('$root')});
 								}
+								if (_response && _response.fields && _response.fields.length > 0) {
+									for (const field of _response.fields) {
+										self.$powerUi.onFormError({id: field.id, msg: field.msg});
+									}
+								}
+							} catch (error) {
+								return promise.onerror(error, _response, xhr);
 							}
 							return promise.onerror(_response, xhr);
 						} catch (error) {
