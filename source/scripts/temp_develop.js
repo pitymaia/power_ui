@@ -5028,3 +5028,42 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // 	this.unsubscribe({event: 'mouseover', fn: teste});
 // }
 // app.powerTree.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});
+
+
+function func1() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve('Pity'));
+    });
+}
+
+function func2() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve('o'));
+    });
+}
+
+function func3() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve('bom'), 200);
+    });
+}
+
+func1().then(function (pity) {
+	func2().then(function (o) {
+		func3().then(function (bom) {
+			console.log('1', pity, o, bom);
+		});
+	});
+});
+
+async function printPity() {
+	const pity = await func1();
+	const o = await func2();
+	const bom = await func3();
+
+	return `${pity} ${o} ${bom}`;
+}
+
+printPity().then(function (pity) {
+	console.log('2', pity);
+});
