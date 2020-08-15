@@ -384,6 +384,7 @@ class Router {
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
 								data: this.routes[routeId].data,
+								title: this.routes[routeId].title,
 							});
 							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
@@ -412,6 +413,7 @@ class Router {
 								paramKeys: paramKeys,
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
+								title: this.routes[routeId].title,
 								data: this.routes[routeId].data,
 							});
 							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
