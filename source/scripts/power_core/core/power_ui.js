@@ -83,7 +83,7 @@ class KeyboardManager {
 				}
 				obj.element.classList.add('power-keyboard-mode');
 			}
-			console.log('Keyboard mode ON');
+			window.console.log('Keyboard mode ON');
 		}
 	}
 
@@ -104,7 +104,7 @@ class KeyboardManager {
 			this._48 = false;
 			this._96 = false;
 			this.keyModeIsOn = false;
-			console.log('Keyboard mode OFF');
+			window.console.log('Keyboard mode OFF');
 			for (const obj of this.getRootElements()) {
 				obj.element.classList.remove('power-keyboard-mode');
 				obj.element.classList.remove('power-keyboard-position');
@@ -206,8 +206,10 @@ class PowerUi extends _PowerUiBase {
 		if (config.$root) {
 			const viewId = 'root-view';
 			const routeId = '$root';
-			const crtlInstance = new config.$root.component({$powerUi: this, viewId: viewId, routeId: routeId});
-			const rootTemplate = new config.$root.templateComponent({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
+			const crtlInstance = new config.$root.component(
+				{$powerUi: this, viewId: viewId, routeId: routeId});
+			const rootTemplate = new config.$root.templateComponent(
+				{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
 			crtlInstance.$tscope = rootTemplate.component;
 			const self = this;
 			rootTemplate.template.then(function (response) {
@@ -416,9 +418,9 @@ class PowerUi extends _PowerUiBase {
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		// If not touchdevice add keyboardManager
-		if (!this.touchdevice) {
-			this.keyboardManager = new KeyboardManager(this);
-		}
+		// if (!this.touchdevice) {
+		// 	this.keyboardManager = new KeyboardManager(this);
+		// }
 		this.initAlreadyRun = true;
 		for (const item of this.waitingInit) {
 			document.getElementById(item.node.id).style.visibility = null;
