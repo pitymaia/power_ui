@@ -10,8 +10,8 @@ function getEmptyRouteObjetc() {
 }
 
 class Router {
-	constructor(config={}, powerUi) {
-		this.config = config;
+	constructor(config, powerUi) {
+		this.config = config || {};
 		this.$powerUi = powerUi;
 		this.routes = {};
 		this.oldRoutes = getEmptyRouteObjetc();
@@ -117,7 +117,7 @@ class Router {
 				viewId: route.viewId,
 				route: route.route,
 				params: [],
-			}
+			};
 			for (const param of route.params) {
 				secundaryRoutes.params.push({key: param.key, value: param.value});
 			}
@@ -129,7 +129,7 @@ class Router {
 				viewId: route.viewId,
 				route: route.route,
 				params: [],
-			}
+			};
 			for (const param of route.params) {
 				hiddenRoutes.params.push({key: param.key, value: param.value});
 			}
@@ -138,18 +138,6 @@ class Router {
 		return dest;
 	}
 
-	// _reload() {
-	// 	const viewId = this.currentRoutes.viewId;
-	// 	this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
-	// 	this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
-	// 	this.currentRoutes = getEmptyRouteObjetc();
-	// 	this.removeMainView({viewId: viewId, reloading: true});
-	// 	this.closeOldSecundaryAndHiddenViews({reloading: true});
-	// 	this.hashChange(null, true); // true for the reloading flag and null for the event
-	// 	this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
-	// 	delete this.savedOldRoutes;
-	// }
-
 	_refresh(viewId, reloadCtrl) {
 		// If have a rootScope and need refresh it or refresh all views user _refreshAll()
 		if (viewId === 'root-view' || (!viewId && this.$powerUi._rootScope)) {
@@ -157,7 +145,7 @@ class Router {
 			return;
 		}
 
-		// This refresh a single view or multiple views if do not have a rootScope
+		// This refresh a single view or multiple views if have a $root scope
 		let openedRoutes = this.getOpenedRoutesRefreshData();
 
 		if (viewId) {
@@ -194,7 +182,6 @@ class Router {
 
 		}
 	}
-
 
 	_removeElementsAndEvents(openedRoutes) {
 		const openedRoutesWithRoot = [];
