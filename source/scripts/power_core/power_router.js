@@ -32,35 +32,15 @@ class Router {
 
 	add({id, route, template, templateUrl, templateComponent, url, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
 		template = templateUrl || template || templateComponent || url;
-		// Ensure user have a element to render the main view
-		// If the user doesn't define an id to use as main view, "main-view" will be used as id
-		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
-			this.config.routerMainViewId = 'main-view';
-			// If there are no element with the id defined to render the main view throw an error
-			if (!document.getElementById(this.config.routerMainViewId)) {
-				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view in a main view, set the config key "routerMainViewId" to false and a "viewId" flag to each route with a view.');
-			}
-		}
-		// If the user doesn't define an id to use as secundary view, "secundary-view" will be used as id
-		if (!this.config.routerSecundaryViewId && this.config.routerSecundaryViewId !== false) {
-			this.config.routerSecundaryViewId = 'secundary-view';
-			// If there are no element with the id defined to render the secundary view throw an error
-			if (!document.getElementById(this.config.routerSecundaryViewId)) {
-				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "secundary-view" or set your on id in the config using the key "routerSecundaryViewId" with the choosen id. If you not want render any view in a secundary view, set the config key "routerSecundaryViewId" to false and a "viewId" flag to each route with a view.');
-			}
-		}
+		// main route and secundary routes view id
+		this.config.routerMainViewId = 'main-view';
+		this.config.routerSecundaryViewId = 'secundary-view';
 		// Ensure that the parameters are not empty
 		if (!id) {
 			throw new Error('A route ID must be given');
 		}
 		if (!route && !template && !callback) {
-			throw new Error('route, template, templateUrl or callback must be given');
-		}
-		if (this.config.routerMainViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
-		}
-		if (this.config.routerSecundaryViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
+			throw new Error('route, template, templateUrl, templateComponent or callback must be given');
 		}
 		// Ensure that the parameters have the correct types
 		if (typeof route !== "string" && id !== '$root') {
@@ -83,7 +63,7 @@ class Router {
 			templateUrl: templateUrl || null,
 			templateComponent: templateComponent || null,
 			avoidCacheTemplate: avoidCacheTemplate === true ? true : false,
-			templateIsCached: (templateUrl || templateComponent) ? false : true,
+			templateIsCached: templateUrl ? false : true,
 			viewId: viewId || null,
 			ctrl: ctrl || null,
 			hidden: hidden || null,
