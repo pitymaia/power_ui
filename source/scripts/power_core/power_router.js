@@ -24,7 +24,7 @@ class Router {
 				this.add(route);
 			}
 		}
-		this.init();
+		this.init({hiddenRoute: false, secundaryRoute: false, reloading: false});
 
 		// call init if hash change
 		window.onhashchange = this.hashChange.bind(this);
@@ -83,7 +83,7 @@ class Router {
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.init({onHashChange: event, reloading: reloading});
+		this.init({hiddenRoute: false, secundaryRoute: false, reloading: reloading});
 	}
 
 	cloneRoutes({source}) {
@@ -327,7 +327,7 @@ class Router {
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootPath
 	// the secundaryRoute param allows to manually match secundary routes
-	init({secundaryRoute, hiddenRoute, reloading, onHashChange}={}) {
+	init({secundaryRoute, hiddenRoute, reloading}) {
 		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -362,11 +362,11 @@ class Router {
 						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
-							this.init({secundaryRoute: compRoute, reloading: reloading});
+							this.init({secundaryRoute: compRoute, hiddenRoute: false, reloading: reloading});
 						}
 						// Recursively run the init for each possible hiddenRoute
 						for (const compRoute of routeParts.hiddenRoutes) {
-							this.init({hiddenRoute: compRoute, reloading: reloading});
+							this.init({hiddenRoute: compRoute, secundaryRoute: false, reloading: reloading});
 						}
 						// Remove all the old views if needed
 						this.closeOldSecundaryAndHiddenViews({reloading: reloading});

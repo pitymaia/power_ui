@@ -456,9 +456,7 @@ class SimpleModal extends PowerModal {
 		this.addAfterTemplate = '<div style="text-align:left;">' + this.$powerUi.treeTemplate(tree) + '</div>';
 	}
 
-
-
-	ctrl({lock, $powerUi}) {
+	ctrl() {
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
 			{name: 'Lion', gender: 'male'},
