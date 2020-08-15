@@ -1570,7 +1570,7 @@ class KeyboardManager {
 				}
 				obj.element.classList.add('power-keyboard-mode');
 			}
-			console.log('Keyboard mode ON');
+			window.console.log('Keyboard mode ON');
 		}
 	}
 
@@ -1591,7 +1591,7 @@ class KeyboardManager {
 			this._48 = false;
 			this._96 = false;
 			this.keyModeIsOn = false;
-			console.log('Keyboard mode OFF');
+			window.console.log('Keyboard mode OFF');
 			for (const obj of this.getRootElements()) {
 				obj.element.classList.remove('power-keyboard-mode');
 				obj.element.classList.remove('power-keyboard-position');
@@ -1666,11 +1666,7 @@ class PowerUi extends _PowerUiBase {
 
 
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
-		this.controllers = {
-			$routeSharedScope: {
-				$waitingToDelete: [],
-			},
-		};
+		this.controllers = {};
 		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
@@ -1693,8 +1689,10 @@ class PowerUi extends _PowerUiBase {
 		if (config.$root) {
 			const viewId = 'root-view';
 			const routeId = '$root';
-			const crtlInstance = new config.$root.component({$powerUi: this, viewId: viewId, routeId: routeId});
-			const rootTemplate = new config.$root.templateComponent({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
+			const crtlInstance = new config.$root.component(
+				{$powerUi: this, viewId: viewId, routeId: routeId});
+			const rootTemplate = new config.$root.templateComponent(
+				{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
 			crtlInstance.$tscope = rootTemplate.component;
 			const self = this;
 			rootTemplate.template.then(function (response) {
@@ -1860,7 +1858,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
-	// This also add the Event to controller scope so it can be evaluated and passed to the funcion on data-pow-event as argument
+	// This also add the Event to controller scope so it can be evaluated and passed to the function on data-pow-event as argument
 	pwScope(event) {
 		const self = this;
 		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
@@ -1903,9 +1901,9 @@ class PowerUi extends _PowerUiBase {
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		// If not touchdevice add keyboardManager
-		if (!this.touchdevice) {
-			this.keyboardManager = new KeyboardManager(this);
-		}
+		// if (!this.touchdevice) {
+		// 	this.keyboardManager = new KeyboardManager(this);
+		// }
 		this.initAlreadyRun = true;
 		for (const item of this.waitingInit) {
 			document.getElementById(item.node.id).style.visibility = null;
@@ -1913,9 +1911,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 
 		for (const key of Object.keys(this.controllers || {})) {
-			if (key !== '$routeSharedScope') {
-				this.callOnViewLoad(this, key);
-			}
+			this.callOnViewLoad(this, key);
 		}
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
@@ -5026,21 +5022,11 @@ class Router {
 				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
 			}
 		}
-		this.clearRouteSharedScopes();
 		// Remove 'modal-open' css class from body if all modals are closed
 		const modals = document.body.getElementsByClassName('pw-backdrop');
 		if (modals.length === 0) {
 			document.body.classList.remove('modal-open');
 		}
-	}
-
-	clearRouteSharedScopes() {
-		for (const routeId of this.$powerUi.controllers.$routeSharedScope.$waitingToDelete) {
-			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
-				delete this.$powerUi.controllers.$routeSharedScope[routeId];
-			}
-		}
-		this.$powerUi.controllers.$routeSharedScope.$waitingToDelete = [];
 	}
 
 	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
@@ -5070,13 +5056,6 @@ class Router {
 				this.$powerUi.controllers[viewId].instance.onRouteClose();
 			}
 			delete this.$powerUi.controllers[viewId];
-			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
-			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
-				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances - 1;
-				if (this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
-					this.$powerUi.controllers.$routeSharedScope.$waitingToDelete.push(routeId);
-				}
-			}
 		}
 	}
 
@@ -5179,18 +5158,6 @@ class Router {
 		}
 	}
 	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
-		if (ctrl) {
-			if (!ctrl.params) {
-				ctrl.params = {};
-			}
-			// Create a shared scope for this route if not exists
-			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
-				this.$powerUi.controllers.$routeSharedScope[routeId] = {};
-				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = 0;
-			}
-			this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances + 1;
-			ctrl.params.$shared = this.$powerUi.controllers.$routeSharedScope[routeId];
-		}
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		const viewId = getIdAndCreateIfDontHave(newViewNode);

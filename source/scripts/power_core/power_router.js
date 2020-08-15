@@ -494,21 +494,11 @@ class Router {
 				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
 			}
 		}
-		this.clearRouteSharedScopes();
 		// Remove 'modal-open' css class from body if all modals are closed
 		const modals = document.body.getElementsByClassName('pw-backdrop');
 		if (modals.length === 0) {
 			document.body.classList.remove('modal-open');
 		}
-	}
-
-	clearRouteSharedScopes() {
-		for (const routeId of this.$powerUi.controllers.$routeSharedScope.$waitingToDelete) {
-			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
-				delete this.$powerUi.controllers.$routeSharedScope[routeId];
-			}
-		}
-		this.$powerUi.controllers.$routeSharedScope.$waitingToDelete = [];
 	}
 
 	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
@@ -538,13 +528,6 @@ class Router {
 				this.$powerUi.controllers[viewId].instance.onRouteClose();
 			}
 			delete this.$powerUi.controllers[viewId];
-			// Decrease $routeSharedScope number of opened instances and delete if is the last instance
-			if (this.$powerUi.controllers.$routeSharedScope[routeId] && this.$powerUi.controllers.$routeSharedScope[routeId]._instances !== undefined) {
-				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances - 1;
-				if (this.$powerUi.controllers.$routeSharedScope[routeId]._instances === 0) {
-					this.$powerUi.controllers.$routeSharedScope.$waitingToDelete.push(routeId);
-				}
-			}
 		}
 	}
 
@@ -647,18 +630,6 @@ class Router {
 		}
 	}
 	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
-		if (ctrl) {
-			if (!ctrl.params) {
-				ctrl.params = {};
-			}
-			// Create a shared scope for this route if not exists
-			if (!this.$powerUi.controllers.$routeSharedScope[routeId]) {
-				this.$powerUi.controllers.$routeSharedScope[routeId] = {};
-				this.$powerUi.controllers.$routeSharedScope[routeId]._instances = 0;
-			}
-			this.$powerUi.controllers.$routeSharedScope[routeId]._instances = this.$powerUi.controllers.$routeSharedScope[routeId]._instances + 1;
-			ctrl.params.$shared = this.$powerUi.controllers.$routeSharedScope[routeId];
-		}
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		const viewId = getIdAndCreateIfDontHave(newViewNode);

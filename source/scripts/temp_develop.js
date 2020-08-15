@@ -568,7 +568,7 @@ class MyWindow extends PowerWindowIframe {
 		// this.commitBt = true;
 	}
 
-	ctrl({$powerUi}) {
+	ctrl() {
 		this.$powerUi.controllers['main-view'].instance.next = this.$powerUi.controllers['main-view'].instance.next +1;
 		window.console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
 		window.console.log('Window is here!');

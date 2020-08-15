@@ -179,11 +179,7 @@ class PowerUi extends _PowerUiBase {
 
 
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
-		this.controllers = {
-			$routeSharedScope: {
-				$waitingToDelete: [],
-			},
-		};
+		this.controllers = {};
 		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
@@ -375,7 +371,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// This give support to data-pow-event and evaluate "onevent" inside the controller scope
-	// This also add the Event to controller scope so it can be evaluated and passed to the funcion on data-pow-event as argument
+	// This also add the Event to controller scope so it can be evaluated and passed to the function on data-pow-event as argument
 	pwScope(event) {
 		const self = this;
 		const ctrlScope = (event && event.detail && event.detail.viewId && self.controllers[event.detail.viewId]) ? self.controllers[event.detail.viewId].instance : false;
@@ -428,9 +424,7 @@ class PowerUi extends _PowerUiBase {
 		this.waitingInit = [];
 
 		for (const key of Object.keys(this.controllers || {})) {
-			if (key !== '$routeSharedScope') {
-				this.callOnViewLoad(this, key);
-			}
+			this.callOnViewLoad(this, key);
 		}
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
