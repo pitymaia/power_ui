@@ -62,12 +62,7 @@ class WidgetService extends PowerServices {
 				onCommitError: onCommitError,
 				onCancelError: onCancelError
 			});
-			ctrl = {
-				component: wrapFunctionInsideDialog({controller: controller, kind: kind, params: params}),
-			};
-		}
-		if (ctrl.params === undefined) {
-			ctrl.params = {};
+			ctrl = wrapFunctionInsideDialog({controller: controller, kind: kind, params: params});
 		}
 		// Create a new volatile then open it
 		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;

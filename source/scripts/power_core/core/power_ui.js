@@ -189,20 +189,20 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services || {}; // TODO this is done, we just need document it with the format 'widget', {component: WidgetService, params: {foo: 'bar'}}
+		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
-		this._events['ready'] = new UEvent();
-		this._events['Escape'] = new UEvent();
+		this._events.ready = new UEvent();
+		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 
 		// Render the rootScope if exists and only boostrap after promise returns
 		if (config.$root) {
 			const viewId = 'root-view';
 			const routeId = '$root';
-			const crtlInstance = new config.$root.component(
+			const crtlInstance = new config.$root.ctrl(
 				{$powerUi: this, viewId: viewId, routeId: routeId});
 			const rootTemplate = new config.$root.templateComponent(
 				{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
@@ -215,6 +215,7 @@ class PowerUi extends _PowerUiBase {
 					$root: config.$root,
 					crtlInstance: crtlInstance,
 					template: response,
+					data: config.$root.data,
 				});
 				self.bootstrap(config);
 			}).catch(function (error) {
@@ -526,7 +527,7 @@ class PowerUi extends _PowerUiBase {
 	runRouteController() {
 		for (const ctrl of this.ctrlWaitingToRun) {
 			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance && this.controllers[ctrl.viewId].instance.ctrl) {
-				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
+				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].data);
 			}
 		}
 		this.ctrlWaitingToRun = [];
@@ -538,7 +539,7 @@ class PowerUi extends _PowerUiBase {
 		this.request({
 				url: template,
 				method: 'GET',
-				status: "Loading page",
+				status: 'Loading page',
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
 			self.buildViewTemplateAndMayCallInit({

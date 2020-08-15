@@ -4673,7 +4673,7 @@ class JSONViews extends PowerWindow {
 		// });
 		const fields = [
 			{id: 'url2', msg: 'Test an error here'},
-			{id: 'input_9', msg: 'Another error here'}
+			// {id: 'input_9', msg: 'Another error here'}
 		];
 		for (const field of fields) {
 			this.$powerUi.onFormError({id: field.id, msg: field.msg});
@@ -4823,19 +4823,15 @@ const routes = [
 			title: 'Grid Page | PowerUI',
 			route: 'grid',
 			templateComponent: GridPageTemplate,
-			ctrl: {
-				component: GridPageCtrl
-			},
+			ctrl: GridPageCtrl,
 		},
 		{
 			id: 'front-page',
 			title: 'PowerUi - Rich UI made easy',
 			route: '/',
 			templateUrl: 'front_page.html',
-			ctrl: {
-				component: FrontPage,
-				params: {lock: true},
-			},
+			ctrl: FrontPage,
+			data: {lock: true},
 		},
 		{
 			id: 'power-only',
@@ -4843,10 +4839,8 @@ const routes = [
 			route: 'power_only',
 			templateUrl: 'power_only.html',
 			avoidCacheTemplate: false,
-			ctrl: {
-				component: PowerOnlyPage,
-				params: {lock: true},
-			},
+			ctrl: PowerOnlyPage,
+			data: {lock: true},
 		},
 		{
 			id: 'json-views',
@@ -4854,19 +4848,15 @@ const routes = [
 			route: 'jsonviews',
 			templateComponent: JSONViewsTemplateComponent,
 			avoidCacheTemplate: false,
-			ctrl: {
-				component: JSONViews,
-			},
+			ctrl: JSONViews,
 		},
 		{
 			id: 'power-only2',
 			title: 'Power only page 2 | PowerUi',
 			route: 'power_only/:id/:name/:title',
 			templateUrl: 'power_only.html',
-			ctrl: {
-				component: PowerOnlyPage,
-				params: {lock: true},
-			},
+			ctrl: PowerOnlyPage,
+			data: {lock: true},
 		},
 		{
 			id: 'simple-dialog',
@@ -4874,19 +4864,15 @@ const routes = [
 			title: 'Window dialog',
 			templateComponent: SimpleTemplate,
 			avoidCacheTemplate: false,
-			ctrl: {
-				component: SimpleDialog,
-				params: {pity: true},
-			},
+			ctrl: SimpleDialog,
+			data: {pity: true},
 		},
 		{
 			id: 'some-window',
 			route: 'window/:id',
 			title: 'My Window',
 			url: 'http://localhost:3002',
-			ctrl: {
-				component: MyWindow,
-			},
+			ctrl: MyWindow,
 		},
 		{
 			id: 'component1',
@@ -4895,10 +4881,8 @@ const routes = [
 			templateUrl: 'somecomponent.html',
 			avoidCacheTemplate: false,
 			hidden: false,
-			ctrl: {
-				component: FakeModal,
-				params: {lock: false, classList: ['modal-custom-class']},
-			},
+			ctrl: FakeModal,
+			data: {lock: false, classList: ['modal-custom-class']},
 		},
 		{
 			id: 'simple-template',
@@ -4906,10 +4890,8 @@ const routes = [
 			route: 'simple',
 			template: someViewTemplate,
 			hidden: false,
-			ctrl: {
-				component: SimpleModal,
-				params: {lock: false},
-			},
+			ctrl: SimpleModal,
+			params: {lock: false},
 		},
 		{
 			id: 'otherwise',
@@ -4924,8 +4906,8 @@ let app = new PowerUi({
 	routes: routes,
 	$root: {
 		templateComponent: RootScopeTemplate,
-		component: RootScope,
-		params: {lock: false},
+		ctrl: RootScope,
+		data: {lock: false},
 	},
 	// services: services,
 	// spinnerLabel: 'carregando',

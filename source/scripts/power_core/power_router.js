@@ -30,63 +30,50 @@ class Router {
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
-	add({id, route, template, templateUrl, templateComponent, url, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
-		template = templateUrl || template || templateComponent || url;
+	add(route) {
+		route.template = route.templateUrl || route.template || route.templateComponent || route.url;
 		// main route and secundary routes view id
 		this.config.routerMainViewId = 'main-view';
 		this.config.routerSecundaryViewId = 'secundary-view';
 		// Ensure that the parameters are not empty
-		if (!id) {
+		if (!route.id) {
 			throw new Error('A route ID must be given');
 		}
-		if (!route && !template && !callback) {
-			throw new Error('route, template, templateUrl, templateComponent or callback must be given');
+		if (!route.ctrl && route.id !== 'otherwise') {
+			window.console.log('route missing ctrl:', route);
+			throw new Error('A route "ctrl" must be given');
 		}
 		// Ensure that the parameters have the correct types
-		if (typeof route !== "string" && id !== '$root') {
+		if (typeof route.route !== "string" && route.id !== '$root') {
 			throw new TypeError('typeof route must be a string');
-		}
-		if (callback && (typeof callback !== "function")) {
-			throw new TypeError('typeof callback must be a function');
 		}
 
 		// Rewrite root route difined as '/' to an empty string so the final route can be '#!/'
-		if (route === '/') {
-			route = '';
+		if (route.route === '/') {
+			route.route = '';
 		}
 
-		const entry = {
-			title: title,
-			route: this.config.rootPath + route,
-			callback: callback || null,
-			template: template || null,
-			templateUrl: templateUrl || null,
-			templateComponent: templateComponent || null,
-			avoidCacheTemplate: avoidCacheTemplate === true ? true : false,
-			templateIsCached: templateUrl ? false : true,
-			viewId: viewId || null,
-			ctrl: ctrl || null,
-			hidden: hidden || null,
-		};
+		route.route = this.config.rootPath + route.route;
+
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
-		if (id !== 'otherwise' || template) {
+		if (route.id !== 'otherwise' || route.template) {
 			for (const routeId of Object.keys(this.routes || {})) {
 				// the "otherwise" route can be duplicated only if it do not have a template
-				if (this.routes[routeId].route === entry.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
-					if (routeId === 'otherwise' || id === 'otherwise') {
-						throw new Error(`the route "${route || '/'}" already exists, so "${id}" can't use it if you use a template. You can remove the template or use another route.`);
+				if (this.routes[routeId].route === route.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
+					if (routeId === 'otherwise' || route.id === 'otherwise') {
+						throw new Error(`the route "${route || '/'}" already exists, so "${route.id}" can't use it if you use a template. You can remove the template or use another route.`);
 					} else {
-						throw new Error(`the route "${route || '/'}" already exists, so "${id}" can't use it.`);
+						throw new Error(`the route "${route || '/'}" already exists, so "${route.id}" can't use it.`);
 					}
 				}
 			}
 		}
 		// throw an error if the route id already exists to avoid confilicting routes
-		if (this.routes[id]) {
+		if (this.routes[route.id]) {
 			throw new Error(`the id ${route.id} already exists`);
 		} else {
-			this.routes[id] = entry;
+			this.routes[route.id] = route;
 		}
 	}
 
@@ -363,6 +350,7 @@ class Router {
 								viewId: this.config.routerMainViewId,
 								ctrl: this.routes[routeId].ctrl,
 								title: this.routes[routeId].title,
+								data: this.routes[routeId].data,
 							});
 						}
 						this.setMainRouteState({
@@ -395,6 +383,7 @@ class Router {
 								paramKeys: paramKeys,
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
+								data: this.routes[routeId].data,
 							});
 							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
@@ -402,6 +391,7 @@ class Router {
 								route: secundaryRoute,
 								viewId: secundaryViewId,
 								title: this.routes[routeId].title,
+								data: this.routes[routeId].data,
 							}));
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
@@ -422,6 +412,7 @@ class Router {
 								paramKeys: paramKeys,
 								routeViewId: this.config.routerSecundaryViewId,
 								ctrl: this.routes[routeId].ctrl,
+								data: this.routes[routeId].data,
 							});
 							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
 								routeId: routeId,
@@ -429,6 +420,7 @@ class Router {
 								route: hiddenRoute,
 								viewId: hiddenViewId,
 								title: this.routes[routeId].title,
+								data: this.routes[routeId].data,
 							}));
 						} else {
 							// If the newHiddenRoute is already on the list do nothing
@@ -534,21 +526,21 @@ class Router {
 		}
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title, data}) {
 		const _viewId = this.routes[routeId].viewId || viewId;
 		if (ctrl) {
 			// Register the controller with $powerUi
 			this.$powerUi.controllers[_viewId] = {
-				component: ctrl.component,
-				params: ctrl.params,
+				component: ctrl,
+				data: data,
 			};
 			// Instanciate the controller
-			const $params = ctrl.params || {};
-			$params.$powerUi = this.$powerUi;
-			$params.viewId = _viewId;
-			$params.routeId = routeId;
-			$params.title = title;
-			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
+			const $data = data || {};
+			$data.$powerUi = this.$powerUi;
+			$data.viewId = _viewId;
+			$data.routeId = routeId;
+			$data.title = title;
+			this.$powerUi.controllers[_viewId].instance = new ctrl($data);
 			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
 			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
 			this.$powerUi.controllers[_viewId].instance._routeParams = paramKeys ? this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys}) : {};
@@ -596,7 +588,7 @@ class Router {
 			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
-	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
+	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title, data}) {
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		const viewId = getIdAndCreateIfDontHave(newViewNode);
@@ -609,8 +601,8 @@ class Router {
 			routeId: routeId,
 			paramKeys: paramKeys,
 			viewId: viewId,
-			ctrl: this.routes[routeId].ctrl,
-			title: this.routes[routeId].title,
+			ctrl: ctrl,
+			data: data,
 		});
 		return viewId;
 	}
@@ -760,7 +752,7 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setSecundaryOrHiddenRouteState({routeId, paramKeys, route, viewId, title}) {
+	setSecundaryOrHiddenRouteState({routeId, paramKeys, route, viewId, title, data}) {
 		const newRoute = {
 			title: title,
 			isMainView: false,
@@ -768,6 +760,7 @@ class Router {
 			id: '',
 			route: route.replace(this.config.rootPath, ''), // remove #!/
 			viewId: this.routes[routeId].viewId || viewId,
+			data: data,
 		};
 		// Register current route id
 		newRoute.id = routeId;
