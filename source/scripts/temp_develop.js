@@ -140,6 +140,41 @@ class FrontPage extends PowerController {
 	}
 }
 
+class PowerMainTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('PowerMainTemplate is here');
+		resolve(`<div>
+			<h1>This is the main page</h1>
+			<div class="power-view" id="power-main-child-view"></div>
+		</div>`);
+	}
+
+	// css(resolve, reject) {
+	// 	this.$powerUi.request({
+	// 			url: '/json/some-window.json',
+	// 			method: 'GET',
+	// 			status: "Loading json",
+	// 	}).then(function (response, xhr) {
+	// 		resolve(response.css);
+	// 	}).catch(function (response, xhr) {
+	// 		window.console.log('css', response, xhr);
+	// 		reject();
+	// 	});
+	// }
+}
+
+class PowerMainCtrl extends PowerController {
+	ctrl() {
+		console.log('PowerMainCtrl is here');
+	}
+}
+
+class PowerMainChildCtrl extends PowerController {
+	ctrl() {
+		console.log('PowerMainChildCtrl is here');
+	}
+}
+
 class PowerOnlyPage extends PowerController {
 	constructor({$powerUi}) {
 		super({$powerUi: $powerUi});
@@ -981,6 +1016,21 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button3);
 
+		const button4 = {
+			"id": "go-main",
+			"label": "Go to main",
+			"icon": "icon-disc-back",
+			"kind": "success",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goPowerMain()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button4);
+
 		resolve(newTmpl);
 	}
 }
@@ -1004,6 +1054,12 @@ class RootScope extends PowerController {
 	goPower() {
 		this.openRoute({
 			routeId: 'power-only',
+		});
+	}
+
+	goPowerMain() {
+		this.openRoute({
+			routeId: 'power-main',
 		});
 	}
 
@@ -4864,6 +4920,24 @@ const routes = [
 			route: 'power_only4',
 			templateUrl: 'power_only.html',
 			ctrl: PowerOnlyPage,
+			data: {lock: true},
+		},
+		{
+			id: 'power-main',
+			title: 'Power only page 2 | PowerUi',
+			route: 'power_main',
+			templateComponent: PowerMainTemplate,
+			ctrl: PowerMainCtrl,
+			data: {lock: true},
+			childRouteId: 'power-child',
+			childViewId: 'power-main-child-view',
+		},
+		{
+			id: 'power-child',
+			title: 'Child view | PowerUi',
+			route: 'power_child',
+			templateUrl: 'power_child.html',
+			ctrl: PowerMainChildCtrl,
 			data: {lock: true},
 		},
 		{
