@@ -25,6 +25,7 @@ class Router {
 			}
 		}
 		this.init({hiddenRoute: false, secundaryRoute: false, reloading: false});
+		this.engine();
 
 		// call init if hash change
 		window.onhashchange = this.hashChange.bind(this);
@@ -79,6 +80,7 @@ class Router {
 
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event, reloading) {
+		this.engine();
 		// Save a copy of currentRoutes as oldRoutes
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
@@ -325,11 +327,11 @@ class Router {
 		return hash;
 	}
 
-	routesToLoad(routeId) {
-		if (!this.routesToLoad) {
-			this.routesToLoad = [];
+	orderedRoutesToLoad(routeId) {
+		if (!this._orderedRoutesToLoad) {
+			this._orderedRoutesToLoad = [];
 		}
-		this.routesToLoad.push(routeId);
+		this._orderedRoutesToLoad.push(routeId);
 	}
 
 	buildRoutesTree(path) {
@@ -370,23 +372,58 @@ class Router {
 	buildPathAndChildRoute(fragment) {
 		fragment = fragment.replace(this.config.rootPath, '');
 		const route = {};
-		const child = fragment.split('&ch=');
-		route.path = child[0];
-		if (child.length > 1) {
-			route.childRoute = {path: child[1]};
+		let current = route;
+		const parts = fragment.split('&ch=');
+		if (fragment.includes('&ch=')) {
+			for (const child of parts) {
+				// Jump the first entry
+				if (child !== parts[0]) {
+					current.childRoute = {path: child};
+					current = current.childRoute;
+				}
+			}
 		}
+		route.path = parts[0];
 		return route;
 	}
 
-	engine(reloading) {
-		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
-		console.log('currentRoutesTree', currentRoutesTree);
-		this.initMainRoute(currentRoutesTree.mainRoute);
+	recursivelyAddChildRoute(route) {
+		if (route && route.childRoute) {
+			const childRouteId = this.matchRouteAndGetId(route.childRoute);
+			if (childRouteId) {
+				this.orderedRoutesToLoad(childRouteId);
+			}
+
+			if (route.childRoute.childRoute) {
+				this.recursivelyAddChildRoute(route.childRoute);
+			}
+		}
 	}
 
-	initMainRoute(route) {
+	engine() {
+		this._orderedRoutesToLoad = [];
+		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
+		console.log('currentRoutesTree', currentRoutesTree);
+		// First check main route
+		const mainRouteId = this.matchRouteAndGetId(currentRoutesTree.mainRoute);
+		// otherwise if do not mach a route
+		if (mainRouteId === false) {
+			const newRoute = this.routes.otherwise ? this.routes.otherwise.route : this.config.rootPath;
+			window.location.replace(encodeURI(newRoute));
+			return;
+		}
+
+		this.orderedRoutesToLoad(mainRouteId);
+
+		// Second recursively add main route child and any level of child of childs
+		this.recursivelyAddChildRoute(currentRoutesTree.mainRoute)
+
+		console.log('this._orderedRoutesToLoad', this._orderedRoutesToLoad);
+	}
+
+	matchRouteAndGetId(route) {
+		let found = false;
 		for (const routeId of Object.keys(this.routes || {})) {
-			console.log('routeId', routeId, route);
 			// Only run if not otherwise or if the otherwise have a template
 			if (routeId !== 'otherwise' || this.routes[routeId].template) {
 				// If the route have some parameters get it /some_page/:page_id/syfy/:title
@@ -395,12 +432,16 @@ class Router {
 				// our route logic is true,
 				const checkRoute = this.config.rootPath + route.path;
 				if (checkRoute.match(regEx)) {
-					// if (this.routes[routeId] && this.routes[routeId].title) {
-					// 	document.title = this.routes[routeId].title;
-					// }
+					if (this.routes[routeId] && this.routes[routeId].title) {
+						document.title = this.routes[routeId].title;
+					}
+
+					if (routeId !== 'otherwise') {
+						found = routeId;
+					}
 					// // Load main route only if it is a new route
 					// if (!this.oldRoutes.id || this.oldRoutes.route !== route.path.replace(this.config.rootPath, '')) {
-					// 	this.routesToLoad(routeId);
+					// 	this.orderedRoutesToLoad(routeId);
 					// }
 					// this.setMainRouteState({
 					// 	routeId: routeId,
@@ -413,15 +454,13 @@ class Router {
 				}
 			}
 		}
-		// // otherwise
-		// const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootPath;
-		// window.location.replace(encodeURI(newRoute));
+
+		return found;
 	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootPath
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, hiddenRoute, reloading}) {
-		this.engine();
 		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
