@@ -384,7 +384,10 @@ class Router {
 		if (route && route.childRoute) {
 			const childRouteId = this.matchRouteAndGetId(route.childRoute);
 			if (childRouteId) {
-				this.orderedRoutesToLoad.push(childRouteId);
+				// Load route only if it is a new route
+				if (!this.oldRoutes.id || (this.oldRoutes.route !== route.childRoute.path)) {
+					this.orderedRoutesToLoad.push(childRouteId);
+				}
 			}
 
 			if (route.childRoute.childRoute) {
@@ -403,7 +406,10 @@ class Router {
 		// Second recursively add main route child and any level of child of childs
 		if (mainRouteId) {
 			// Add main route to ordered list
-			this.orderedRoutesToLoad.push(mainRouteId);
+			// Load main route only if it is a new route
+			if (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
+				this.orderedRoutesToLoad.push(mainRouteId);
+			}
 			this.recursivelyAddChildRoute(currentRoutesTree.mainRoute);
 		} else {
 			// otherwise if do not mach a route
