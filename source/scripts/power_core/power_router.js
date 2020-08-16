@@ -324,10 +324,104 @@ class Router {
 		const hash = decodeURI(window.location.hash + (this.hiddenLocationHash || ''));
 		return hash;
 	}
+
+	routesToLoad(routeId) {
+		if (!this.routesToLoad) {
+			this.routesToLoad = [];
+		}
+		this.routesToLoad.push(routeId);
+	}
+
+	buildRoutesTree(path) {
+		const routeParts = {
+			full_path: path,
+			mainRoute: {path: path},
+			secundaryRoutes: [],
+			hiddenRoutes: [],
+		};
+		if (path.includes('?')) {
+			const splited = path.split('?');
+			routeParts.mainRoute = this.buildPathAndChildRoute(splited[0]);
+			for (const part of splited) {
+				if (part.includes('sr=')) {
+					for (const fragment of part.split('sr=')) {
+						if (fragment) {
+							const sroute = this.buildPathAndChildRoute(
+								this.config.rootPath + fragment);
+							routeParts.secundaryRoutes.push(sroute);
+						}
+					}
+				} else	if (part.includes('hr=')) {
+					for (const fragment of part.split('hr=')) {
+						if (fragment) {
+							const hroute = this.buildPathAndChildRoute(
+								this.config.rootPath + fragment);
+							routeParts.hiddenRoutes.push(hroute);
+						}
+					}
+				}
+			}
+		} else {
+			routeParts.mainRoute = this.buildPathAndChildRoute(path);
+		}
+		return routeParts;
+	}
+
+	buildPathAndChildRoute(fragment) {
+		fragment = fragment.replace(this.config.rootPath, '');
+		const route = {};
+		const child = fragment.split('&ch=');
+		route.path = child[0];
+		if (child.length > 1) {
+			route.childRoute = {path: child[1]};
+		}
+		return route;
+	}
+
+	engine(reloading) {
+		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
+		console.log('currentRoutesTree', currentRoutesTree);
+		this.initMainRoute(currentRoutesTree.mainRoute);
+	}
+
+	initMainRoute(route) {
+		for (const routeId of Object.keys(this.routes || {})) {
+			console.log('routeId', routeId, route);
+			// Only run if not otherwise or if the otherwise have a template
+			if (routeId !== 'otherwise' || this.routes[routeId].template) {
+				// If the route have some parameters get it /some_page/:page_id/syfy/:title
+				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
+				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
+				// our route logic is true,
+				const checkRoute = this.config.rootPath + route.path;
+				if (checkRoute.match(regEx)) {
+					// if (this.routes[routeId] && this.routes[routeId].title) {
+					// 	document.title = this.routes[routeId].title;
+					// }
+					// // Load main route only if it is a new route
+					// if (!this.oldRoutes.id || this.oldRoutes.route !== route.path.replace(this.config.rootPath, '')) {
+					// 	this.routesToLoad(routeId);
+					// }
+					// this.setMainRouteState({
+					// 	routeId: routeId,
+					// 	paramKeys: paramKeys,
+					// 	route: route.path,
+					// 	viewId: this.config.routerMainViewId,
+					// 	title: this.routes[routeId].title,
+					// });
+					break;
+				}
+			}
+		}
+		// // otherwise
+		// const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootPath;
+		// window.location.replace(encodeURI(newRoute));
+	}
 	// Match the current window.location to a route and call the necessary template and callback
 	// If location doesn't have a hash, redirect to rootPath
 	// the secundaryRoute param allows to manually match secundary routes
 	init({secundaryRoute, hiddenRoute, reloading}) {
+		this.engine();
 		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -782,6 +876,7 @@ class Router {
 		if (path.includes('?')) {
 			const splited = path.split('?');
 			routeParts.path = splited[0];
+			console.log('SPLITED:', splited, 'path', path);
 			for (const part of splited) {
 				if (part.includes('sr=')) {
 					for (const fragment of part.split('sr=')) {

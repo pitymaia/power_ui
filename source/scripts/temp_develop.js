@@ -4839,14 +4839,7 @@ const routes = [
 			avoidCacheTemplate: false,
 			ctrl: PowerOnlyPage,
 			data: {lock: true},
-		},
-		{
-			id: 'json-views',
-			title: 'Create from JSON | PowerUi',
-			route: 'jsonviews',
-			templateComponent: JSONViewsTemplateComponent,
-			avoidCacheTemplate: false,
-			ctrl: JSONViews,
+			childId: 'power-only2',
 		},
 		{
 			id: 'power-only2',
@@ -4855,6 +4848,14 @@ const routes = [
 			templateUrl: 'power_only.html',
 			ctrl: PowerOnlyPage,
 			data: {lock: true},
+		},
+		{
+			id: 'json-views',
+			title: 'Create from JSON | PowerUi',
+			route: 'jsonviews',
+			templateComponent: JSONViewsTemplateComponent,
+			avoidCacheTemplate: false,
+			ctrl: JSONViews,
 		},
 		{
 			id: 'simple-dialog',
