@@ -327,13 +327,6 @@ class Router {
 		return hash;
 	}
 
-	orderedRoutesToLoad(routeId) {
-		if (!this._orderedRoutesToLoad) {
-			this._orderedRoutesToLoad = [];
-		}
-		this._orderedRoutesToLoad.push(routeId);
-	}
-
 	buildRoutesTree(path) {
 		const routeParts = {
 			full_path: path,
@@ -376,7 +369,7 @@ class Router {
 		const parts = fragment.split('&ch=');
 		if (fragment.includes('&ch=')) {
 			for (const child of parts) {
-				// Jump the first entry
+				// Jump the first entry becouse it's not a child route
 				if (child !== parts[0]) {
 					current.childRoute = {path: child};
 					current = current.childRoute;
@@ -391,7 +384,7 @@ class Router {
 		if (route && route.childRoute) {
 			const childRouteId = this.matchRouteAndGetId(route.childRoute);
 			if (childRouteId) {
-				this.orderedRoutesToLoad(childRouteId);
+				this.orderedRoutesToLoad.push(childRouteId);
 			}
 
 			if (route.childRoute.childRoute) {
@@ -400,32 +393,52 @@ class Router {
 		}
 	}
 
+	// http://localhost:3000/#!/power_only&ch=power_only2&ch=power_only3?sr=jsonviews&ch=power_only2
 	engine() {
-		this._orderedRoutesToLoad = [];
+		this.orderedRoutesToLoad = [];
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		console.log('currentRoutesTree', currentRoutesTree);
 		// First check main route
 		const mainRouteId = this.matchRouteAndGetId(currentRoutesTree.mainRoute);
-		// otherwise if do not mach a route
-		if (mainRouteId === false) {
+		// Second recursively add main route child and any level of child of childs
+		if (mainRouteId) {
+			// Add main route to ordered list
+			this.orderedRoutesToLoad.push(mainRouteId);
+			this.recursivelyAddChildRoute(currentRoutesTree.mainRoute);
+		} else {
+			// otherwise if do not mach a route
 			const newRoute = this.routes.otherwise ? this.routes.otherwise.route : this.config.rootPath;
 			window.location.replace(encodeURI(newRoute));
 			return;
 		}
-
-		this.orderedRoutesToLoad(mainRouteId);
-
-		// Second recursively add main route child and any level of child of childs
-		this.recursivelyAddChildRoute(currentRoutesTree.mainRoute)
-
-		console.log('this._orderedRoutesToLoad', this._orderedRoutesToLoad);
+		// Third mach any secundary route and its childs
+		for (const route of currentRoutesTree.secundaryRoutes) {
+			const secRouteRouteId = this.matchRouteAndGetId(route);
+			if (secRouteRouteId) {
+				// Add secundary route to ordered list
+				this.orderedRoutesToLoad.push(secRouteRouteId);
+				// Add any secundary child route to ordered list
+				this.recursivelyAddChildRoute(route);
+			}
+		}
+		// Fourth mach any hidden route and its childs
+		for (const route of currentRoutesTree.hiddenRoutes) {
+			const hiddenRouteRouteId = this.matchRouteAndGetId(route);
+			if (hiddenRouteRouteId) {
+				// Add hidden route to ordered list
+				this.orderedRoutesToLoad.push(hiddenRouteRouteId);
+				// Add any hidden child route to ordered list
+				this.recursivelyAddChildRoute(route);
+			}
+		}
+		console.log('this.orderedRoutesToLoad', this.orderedRoutesToLoad);
 	}
 
 	matchRouteAndGetId(route) {
 		let found = false;
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
-			if (routeId !== 'otherwise' || this.routes[routeId].template) {
+			if (routeId !== 'otherwise') {
 				// If the route have some parameters get it /some_page/:page_id/syfy/:title
 				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
 				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
@@ -915,7 +928,6 @@ class Router {
 		if (path.includes('?')) {
 			const splited = path.split('?');
 			routeParts.path = splited[0];
-			console.log('SPLITED:', splited, 'path', path);
 			for (const part of splited) {
 				if (part.includes('sr=')) {
 					for (const fragment of part.split('sr=')) {
