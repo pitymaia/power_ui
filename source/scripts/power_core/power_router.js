@@ -382,11 +382,11 @@ class Router {
 
 	recursivelyAddChildRoute(route) {
 		if (route && route.childRoute) {
-			const childRouteId = this.matchRouteAndGetId(route.childRoute);
-			if (childRouteId) {
+			const childRoute = this.matchRouteAndGetIdAndParamKeys(route.childRoute);
+			if (childRoute) {
 				// Load route only if it is a new route
 				if (!this.oldRoutes.id || (this.oldRoutes.route !== route.childRoute.path)) {
-					this.orderedRoutesToLoad.push(childRouteId);
+					this.orderedRoutesToLoad.push(childRoute.routeId);
 				}
 			}
 
@@ -402,13 +402,22 @@ class Router {
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		console.log('currentRoutesTree', currentRoutesTree);
 		// First check main route
-		const mainRouteId = this.matchRouteAndGetId(currentRoutesTree.mainRoute);
+		const mainRoute = this.matchRouteAndGetIdAndParamKeys(currentRoutesTree.mainRoute);
 		// Second recursively add main route child and any level of child of childs
-		if (mainRouteId) {
+		if (mainRoute) {
 			// Add main route to ordered list
 			// Load main route only if it is a new route
 			if (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
-				this.orderedRoutesToLoad.push(mainRouteId);
+				this.orderedRoutesToLoad.push(mainRoute.routeId);
+
+				// Register main route
+				this.setMainRouteState({
+					routeId: mainRoute.routeId,
+					paramKeys: mainRoute.paramKeys,
+					route: currentRoutesTree.mainRoute.path,
+					viewId: this.config.routerMainViewId,
+					title: this.routes[mainRoute.routeId].title,
+				});
 			}
 			this.recursivelyAddChildRoute(currentRoutesTree.mainRoute);
 		} else {
@@ -419,28 +428,29 @@ class Router {
 		}
 		// Third mach any secundary route and its childs
 		for (const route of currentRoutesTree.secundaryRoutes) {
-			const secRouteRouteId = this.matchRouteAndGetId(route);
-			if (secRouteRouteId) {
+			const secundaryRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			if (secundaryRoute) {
 				// Add secundary route to ordered list
-				this.orderedRoutesToLoad.push(secRouteRouteId);
+				this.orderedRoutesToLoad.push(secundaryRoute.routeId);
 				// Add any secundary child route to ordered list
 				this.recursivelyAddChildRoute(route);
 			}
 		}
 		// Fourth mach any hidden route and its childs
 		for (const route of currentRoutesTree.hiddenRoutes) {
-			const hiddenRouteRouteId = this.matchRouteAndGetId(route);
-			if (hiddenRouteRouteId) {
+			const hiddenRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			if (hiddenRoute) {
 				// Add hidden route to ordered list
-				this.orderedRoutesToLoad.push(hiddenRouteRouteId);
+				this.orderedRoutesToLoad.push(hiddenRoute.routeId);
 				// Add any hidden child route to ordered list
 				this.recursivelyAddChildRoute(route);
 			}
 		}
 		console.log('this.orderedRoutesToLoad', this.orderedRoutesToLoad);
+		console.log('this.currentRoutes', this.currentRoutes);
 	}
 
-	matchRouteAndGetId(route) {
+	matchRouteAndGetIdAndParamKeys(route) {
 		let found = false;
 		for (const routeId of Object.keys(this.routes || {})) {
 			// Only run if not otherwise or if the otherwise have a template
@@ -456,19 +466,8 @@ class Router {
 					}
 
 					if (routeId !== 'otherwise') {
-						found = routeId;
+						found = {routeId: routeId, paramKeys: paramKeys};
 					}
-					// // Load main route only if it is a new route
-					// if (!this.oldRoutes.id || this.oldRoutes.route !== route.path.replace(this.config.rootPath, '')) {
-					// 	this.orderedRoutesToLoad(routeId);
-					// }
-					// this.setMainRouteState({
-					// 	routeId: routeId,
-					// 	paramKeys: paramKeys,
-					// 	route: route.path,
-					// 	viewId: this.config.routerMainViewId,
-					// 	title: this.routes[routeId].title,
-					// });
 					break;
 				}
 			}
