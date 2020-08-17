@@ -451,10 +451,12 @@ class Router {
 		for (const route of currentRoutesTree.secundaryRoutes) {
 			const secundaryRoute = this.matchRouteAndGetIdAndParamKeys(route);
 			if (secundaryRoute) {
-				// Load secundary route only if it is a new route
-				if (this.secundaryOrHiddenRouteIsNew(route.path)) {
+				let secundaryViewId = this.getVewIdIfRouteExists(route.path, 'secundaryRoutes');
+				console.log('secundaryViewId', secundaryViewId);
+				// Load secundary route only if it's a new route
+				if (secundaryViewId === false) {
 					// Create secundary route viewId
-					const secundaryViewId = _Unique.domID('view');
+					secundaryViewId = _Unique.domID('view');
 					// Add secundary route to ordered list
 					this.orderedRoutesToLoad.push({
 						routeId: secundaryRoute.routeId,
@@ -480,10 +482,11 @@ class Router {
 		for (const route of currentRoutesTree.hiddenRoutes) {
 			const hiddenRoute = this.matchRouteAndGetIdAndParamKeys(route);
 			if (hiddenRoute) {
+				let hiddenViewId = this.getVewIdIfRouteExists(route.path, 'hiddenRoutes');
 				// Load hidden route only if it is a new route
-				if (this.secundaryOrHiddenRouteIsNew(route.path)) {
+				if (hiddenViewId === false) {
 					// Create hodden route viewId
-					const hiddenViewId = _Unique.domID('view');
+					hiddenViewId = _Unique.domID('view');
 					// Add hidden route to ordered list
 					this.orderedRoutesToLoad.push({
 						routeId: hiddenRoute.routeId,
@@ -510,11 +513,13 @@ class Router {
 		this.openNewRoutes();
 	}
 
-	secundaryOrHiddenRouteIsNew(route) {
-		const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === route);
-		const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === route);
-		if (!oldSecundaryRoute && !newSecundaryRoute) {
-			return true;
+	getVewIdIfRouteExists(route, listName) {
+		const oldRoute = this.oldRoutes[listName].find(r=>r && r.route === route);
+		const newRoute = this.currentRoutes[listName].find(r=>r && r.route === route);
+		if (!oldRoute && !newRoute) {
+			return false;
+		} else {
+			return oldRoute.viewId;
 		}
 	}
 
