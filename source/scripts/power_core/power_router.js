@@ -409,7 +409,6 @@ class Router {
 			// Load main route only if it is a new route
 			if (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
 				this.orderedRoutesToLoad.push(mainRoute.routeId);
-
 				// Register main route
 				this.setMainRouteState({
 					routeId: mainRoute.routeId,
@@ -432,6 +431,15 @@ class Router {
 			if (secundaryRoute) {
 				// Add secundary route to ordered list
 				this.orderedRoutesToLoad.push(secundaryRoute.routeId);
+				// Register secundary route
+				this.setSecundaryRouteState({
+					routeId: secundaryRoute.routeId,
+					paramKeys: secundaryRoute.paramKeys,
+					route: route.path,
+					viewId: this.config.routerSecundaryViewId,
+					title: this.routes[secundaryRoute.routeId].title,
+					data: this.routes[secundaryRoute.routeId].data,
+				});
 				// Add any secundary child route to ordered list
 				this.recursivelyAddChildRoute(route);
 			}
@@ -442,6 +450,15 @@ class Router {
 			if (hiddenRoute) {
 				// Add hidden route to ordered list
 				this.orderedRoutesToLoad.push(hiddenRoute.routeId);
+				// Register hidden route
+				this.setHiddenRouteState({
+					routeId: hiddenRoute.routeId,
+					paramKeys: hiddenRoute.paramKeys,
+					route: route.path,
+					viewId: this.config.routerSecundaryViewId,
+					title: this.routes[hiddenRoute.routeId].title,
+					data: this.routes[hiddenRoute.routeId].data,
+				});
 				// Add any hidden child route to ordered list
 				this.recursivelyAddChildRoute(route);
 			}
@@ -537,14 +554,14 @@ class Router {
 								data: this.routes[routeId].data,
 								title: this.routes[routeId].title,
 							});
-							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
+							this.setSecundaryRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
 								route: secundaryRoute,
-								viewId: secundaryViewId,
+								viewId: this.config.routerSecundaryViewId,
 								title: this.routes[routeId].title,
 								data: this.routes[routeId].data,
-							}));
+							});
 						} else {
 							// If the newSecundaryRoute is already on the list do nothing
 							// Only add if it is only on oldSecundaryRoute list
@@ -567,14 +584,14 @@ class Router {
 								title: this.routes[routeId].title,
 								data: this.routes[routeId].data,
 							});
-							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
+							this.setHiddenRouteState({
 								routeId: routeId,
 								paramKeys: paramKeys,
 								route: hiddenRoute,
 								viewId: hiddenViewId,
 								title: this.routes[routeId].title,
 								data: this.routes[routeId].data,
-							}));
+							});
 						} else {
 							// If the newHiddenRoute is already on the list do nothing
 							// Only add if it is only on oldHiddenRoute list
@@ -922,6 +939,14 @@ class Router {
 			newRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, route: route});
 		}
 		return newRoute;
+	}
+	setSecundaryRouteState(params) {
+		this.currentRoutes.secundaryRoutes.push(
+			this.setSecundaryOrHiddenRouteState(params));
+	}
+	setHiddenRouteState(params) {
+		this.currentRoutes.hiddenRoutes.push(
+			this.setSecundaryOrHiddenRouteState(params));
 	}
 
 	extractRouteParts(path) {
