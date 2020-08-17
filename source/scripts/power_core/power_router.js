@@ -412,6 +412,7 @@ class Router {
 
 	// http://localhost:3000/#!/power_only&ch=power_only2&ch=power_only3?sr=jsonviews&ch=power_only2
 	engine() {
+		this.priority = 0;
 		this.orderedRoutesToLoad = [];
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		console.log('currentRoutesTree', currentRoutesTree);
@@ -938,11 +939,16 @@ class Router {
 
 	buildHash({routeId, params, paramKeys}) {
 		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
-
 		if (params && paramKeys.length) {
 			for (const key of paramKeys) {
-				route = route.replace(`:${key}`, params[key]);
+				if (params[key]) {
+					route = route.replace(`:${key}`, params[key]);
+				}
 			}
+		}
+		// If it's a child view recursively get the main view route
+		if (this.routes[routeId].mainRouteId) {
+			route = `${this.buildHash({routeId: this.routes[routeId].mainRouteId, params: params, paramKeys: paramKeys})}&ch=${route}`;
 		}
 		return route;
 	}
@@ -999,12 +1005,14 @@ class Router {
 		this.currentRoutes.isMainView = true;
 		this.currentRoutes.title = title;
 		this.currentRoutes.data = data;
+		this.currentRoutes.priority = this.priority;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
 		} else {
 			this.currentRoutes.params = [];
 		}
+		this.priority = this.priority + 1;
 	}
 	setOtherRouteState({routeId, paramKeys, route, viewId, title, data}) {
 		const newRoute = {
@@ -1014,7 +1022,8 @@ class Router {
 			id: '',
 			route: route.replace(this.config.rootPath, ''), // remove #!/
 			viewId: this.routes[routeId].viewId || viewId,
-			data: data,
+			data: data || null,
+			priority: this.priority,
 		};
 		// Register current route id
 		newRoute.id = routeId;
@@ -1022,6 +1031,7 @@ class Router {
 		if (paramKeys) {
 			newRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, route: route});
 		}
+		this.priority = this.priority + 1;
 		return newRoute;
 	}
 	setSecundaryRouteState(params) {

@@ -1059,7 +1059,7 @@ class RootScope extends PowerController {
 
 	goPowerMain() {
 		this.openRoute({
-			routeId: 'power-main',
+			routeId: 'power-child',
 		});
 	}
 
@@ -4935,6 +4935,7 @@ const routes = [
 			templateUrl: 'power_child.html',
 			ctrl: PowerMainChildCtrl,
 			data: {lock: true},
+			mainRouteId: 'power-main',
 		},
 		{
 			id: 'json-views',
