@@ -4895,7 +4895,6 @@ const routes = [
 			avoidCacheTemplate: false,
 			ctrl: PowerOnlyPage,
 			data: {lock: true},
-			childId: 'power-only2',
 		},
 		{
 			id: 'power-only2',
@@ -4904,7 +4903,6 @@ const routes = [
 			templateUrl: 'power_only.html',
 			ctrl: PowerOnlyPage,
 			data: {lock: true},
-			childId: 'power-only3',
 		},
 		{
 			id: 'power-only3',
@@ -4929,8 +4927,6 @@ const routes = [
 			templateComponent: PowerMainTemplate,
 			ctrl: PowerMainCtrl,
 			data: {lock: true},
-			childRouteId: 'power-child',
-			childViewId: 'power-main-child-view',
 		},
 		{
 			id: 'power-child',
