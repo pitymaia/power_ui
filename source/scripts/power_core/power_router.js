@@ -382,7 +382,22 @@ class Router {
 			if (childRoute) {
 				// Load route only if it is a new route
 				if (!this.oldRoutes.id || (this.oldRoutes.route !== route.childRoute.path)) {
-					this.orderedRoutesToLoad.push(childRoute.routeId);
+					// Create secundary route viewId
+					const childViewId = _Unique.domID('view');
+					// Add child route to ordered list
+					this.orderedRoutesToLoad.push({
+						routeId: childRoute.routeId,
+						viewId: childViewId,
+					});
+					// Register child route on currentRoutes list
+					this.setChildRouteState({
+						routeId: childRoute.routeId,
+						paramKeys: childRoute.paramKeys,
+						route: route.childRoute.path,
+						viewId: childViewId,
+						title: this.routes[childRoute.routeId].title,
+						data: this.routes[childRoute.routeId].data,
+					});
 				}
 			}
 
@@ -394,7 +409,6 @@ class Router {
 
 	// http://localhost:3000/#!/power_only&ch=power_only2&ch=power_only3?sr=jsonviews&ch=power_only2
 	engine() {
-		return;
 		this.orderedRoutesToLoad = [];
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		console.log('currentRoutesTree', currentRoutesTree);
@@ -405,14 +419,18 @@ class Router {
 			// Add main route to ordered list
 			// Load main route only if it is a new route
 			if (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
-				this.orderedRoutesToLoad.push(mainRoute.routeId);
-				// Register main route
+				this.orderedRoutesToLoad.push({
+					routeId: mainRoute.routeId,
+					viewId: this.config.routerMainViewId,
+				});
+				// Register main route on currentRoutes list
 				this.setMainRouteState({
 					routeId: mainRoute.routeId,
 					paramKeys: mainRoute.paramKeys,
 					route: currentRoutesTree.mainRoute.path,
 					viewId: this.config.routerMainViewId,
 					title: this.routes[mainRoute.routeId].title,
+					data: this.routes[mainRoute.routeId].data,
 				});
 			}
 			this.recursivelyAddChildRoute(currentRoutesTree.mainRoute);
@@ -426,14 +444,19 @@ class Router {
 		for (const route of currentRoutesTree.secundaryRoutes) {
 			const secundaryRoute = this.matchRouteAndGetIdAndParamKeys(route);
 			if (secundaryRoute) {
+				// Create secundary route viewId
+				const secundaryViewId = _Unique.domID('view');
 				// Add secundary route to ordered list
-				this.orderedRoutesToLoad.push(secundaryRoute.routeId);
-				// Register secundary route
+				this.orderedRoutesToLoad.push({
+					routeId: secundaryRoute.routeId,
+					viewId: secundaryViewId,
+				});
+				// Register secundary route on currentRoutes list
 				this.setSecundaryRouteState({
 					routeId: secundaryRoute.routeId,
 					paramKeys: secundaryRoute.paramKeys,
 					route: route.path,
-					viewId: this.config.routerSecundaryViewId,
+					viewId: secundaryViewId,
 					title: this.routes[secundaryRoute.routeId].title,
 					data: this.routes[secundaryRoute.routeId].data,
 				});
@@ -445,14 +468,19 @@ class Router {
 		for (const route of currentRoutesTree.hiddenRoutes) {
 			const hiddenRoute = this.matchRouteAndGetIdAndParamKeys(route);
 			if (hiddenRoute) {
+				// Create hodden route viewId
+				const hiddenViewId = _Unique.domID('view');
 				// Add hidden route to ordered list
-				this.orderedRoutesToLoad.push(hiddenRoute.routeId);
-				// Register hidden route
+				this.orderedRoutesToLoad.push({
+					routeId: hiddenRoute.routeId,
+					viewId: hiddenViewId,
+				});
+				// Register hidden route on currentRoutes list
 				this.setHiddenRouteState({
 					routeId: hiddenRoute.routeId,
 					paramKeys: hiddenRoute.paramKeys,
 					route: route.path,
-					viewId: this.config.routerSecundaryViewId,
+					viewId: hiddenViewId,
 					title: this.routes[hiddenRoute.routeId].title,
 					data: this.routes[hiddenRoute.routeId].data,
 				});
@@ -524,6 +552,7 @@ class Router {
 							route: routeParts.path,
 							viewId: this.config.routerMainViewId,
 							title: this.routes[routeId].title,
+							data: this.routes[routeId].data,
 						});
 						// Recursively run the init for each possible secundaryRoute
 						for (const compRoute of routeParts.secundaryRoutes) {
@@ -905,13 +934,14 @@ class Router {
 	return exists;
 	}
 
-	setMainRouteState({routeId, paramKeys, route, viewId, title}) {
+	setMainRouteState({routeId, paramKeys, route, viewId, title, data}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootPath, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
 		this.currentRoutes.title = title;
+		this.currentRoutes.data = data;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -919,7 +949,7 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setSecundaryOrHiddenRouteState({routeId, paramKeys, route, viewId, title, data}) {
+	setOtherRouteState({routeId, paramKeys, route, viewId, title, data}) {
 		const newRoute = {
 			title: title,
 			isMainView: false,
@@ -939,11 +969,15 @@ class Router {
 	}
 	setSecundaryRouteState(params) {
 		this.currentRoutes.secundaryRoutes.push(
-			this.setSecundaryOrHiddenRouteState(params));
+			this.setOtherRouteState(params));
 	}
 	setHiddenRouteState(params) {
 		this.currentRoutes.hiddenRoutes.push(
-			this.setSecundaryOrHiddenRouteState(params));
+			this.setOtherRouteState(params));
+	}
+	setChildRouteState(params) {
+		this.currentRoutes.childRoutes.push(
+			this.setOtherRouteState(params));
 	}
 
 	extractRouteParts(path) {
