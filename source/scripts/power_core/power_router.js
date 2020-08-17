@@ -6,6 +6,7 @@ function getEmptyRouteObjetc() {
 		route: '',
 		secundaryRoutes: [],
 		hiddenRoutes: [],
+		childRoutes: [],
 	};
 }
 
@@ -88,6 +89,21 @@ class Router {
 		this.init({hiddenRoute: false, secundaryRoute: false, reloading: reloading});
 	}
 
+	cloneRouteList(dest, source, listName) {
+		for (const route of source[listName]) {
+			const list = {
+				id: route.id,
+				viewId: route.viewId,
+				route: route.route,
+				params: [],
+			};
+			for (const param of route.params) {
+				list.params.push({key: param.key, value: param.value});
+			}
+			dest[listName].push(list);
+		}
+	}
+
 	cloneRoutes({source}) {
 		const dest = {
 			params: [],
@@ -96,34 +112,14 @@ class Router {
 			route: source.route,
 			secundaryRoutes: [],
 			hiddenRoutes: [],
+			childRoutes: [],
 		};
 		for (const param of source.params) {
 			dest.params.push({key: param.key, value: param.value});
 		}
-		for (const route of source.secundaryRoutes) {
-			const secundaryRoutes = {
-				id: route.id,
-				viewId: route.viewId,
-				route: route.route,
-				params: [],
-			};
-			for (const param of route.params) {
-				secundaryRoutes.params.push({key: param.key, value: param.value});
-			}
-			dest.secundaryRoutes.push(secundaryRoutes);
-		}
-		for (const route of source.hiddenRoutes) {
-			const hiddenRoutes = {
-				id: route.id,
-				viewId: route.viewId,
-				route: route.route,
-				params: [],
-			};
-			for (const param of route.params) {
-				hiddenRoutes.params.push({key: param.key, value: param.value});
-			}
-			dest.hiddenRoutes.push(hiddenRoutes);
-		}
+		this.cloneRouteList(dest, source, 'secundaryRoutes');
+		this.cloneRouteList(dest, source, 'hiddenRoutes');
+		this.cloneRouteList(dest, source, 'childRoutes');
 		return dest;
 	}
 
@@ -398,6 +394,7 @@ class Router {
 
 	// http://localhost:3000/#!/power_only&ch=power_only2&ch=power_only3?sr=jsonviews&ch=power_only2
 	engine() {
+		return;
 		this.orderedRoutesToLoad = [];
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		console.log('currentRoutesTree', currentRoutesTree);
@@ -558,7 +555,7 @@ class Router {
 								routeId: routeId,
 								paramKeys: paramKeys,
 								route: secundaryRoute,
-								viewId: this.config.routerSecundaryViewId,
+								viewId: secundaryViewId,
 								title: this.routes[routeId].title,
 								data: this.routes[routeId].data,
 							});
@@ -631,13 +628,13 @@ class Router {
 	}
 
 	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
-		// If this is a volatile route remove it from routes
+		// If this is a volatile(hidden) route remove it from routes
 		if (!reloading && this.routes[routeId] && this.routes[routeId].isVolatile) {
 			delete this.routes[routeId];
 		}
 		// Remove all view power Objects and events
-		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared']) {
-			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeElementAndInnersFromPower();
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
+			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeElementAndInnersFromPower();
 		}
 		// Remove view node
 		const node = document.getElementById(viewId);
