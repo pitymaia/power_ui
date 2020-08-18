@@ -532,7 +532,7 @@ class PowerUi extends _PowerUiBase {
 		this.ctrlWaitingToRun = [];
 	}
 	// Templates for views with controllers
-	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title}) {
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
@@ -548,6 +548,10 @@ class PowerUi extends _PowerUiBase {
 				routeId: routeId,
 				viewId: viewId,
 				title: title,
+				loadRouteInOrder: loadRouteInOrder,
+				orderedRoutesToLoad: orderedRoutesToLoad,
+				routeIndex: routeIndex,
+				ctx: ctx,
 			});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
@@ -562,7 +566,7 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 	// PowerTemplate (before run any controller)
-	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl}) {
+	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: $ctrl});
@@ -579,6 +583,10 @@ class PowerUi extends _PowerUiBase {
 				routeId: routeId,
 				viewId: viewId,
 				title: title,
+				loadRouteInOrder: loadRouteInOrder,
+				orderedRoutesToLoad: orderedRoutesToLoad,
+				routeIndex: routeIndex,
+				ctx: ctx,
 			});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
@@ -593,7 +601,7 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
+	loadTemplate({template, viewId, currentRoutes, routeId, routes, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		// Add $tscope to controller if have a saved $tscope
 		if (routes[routeId].$tscope) {
@@ -606,11 +614,15 @@ class PowerUi extends _PowerUiBase {
 			routeId: routeId,
 			viewId: viewId,
 			title: title,
+			loadRouteInOrder: loadRouteInOrder,
+			orderedRoutesToLoad: orderedRoutesToLoad,
+			routeIndex: routeIndex,
+			ctx: ctx,
 		});
 	}
 
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl, initAll}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl, initAll, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		// TODO: Why widget has init?
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
 			if (!refreshing && self.controllers[viewId].instance.init) {
@@ -634,7 +646,13 @@ class PowerUi extends _PowerUiBase {
 		} else {
 			view.innerHTML = template;
 		}
-		console.log("buildViewTemplateAndMayCallInit", view);
+		console.log("buildViewTemplateAndMayCallInit", view, routeIndex, orderedRoutesToLoad ? (orderedRoutesToLoad.length - 1) : '');
+		if (orderedRoutesToLoad) {
+			if (routeIndex <= (orderedRoutesToLoad.length - 1)) {
+				console.log("$$%%@@ CHAMOU", (orderedRoutesToLoad.length - 1) <= routeIndex);
+				loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx);
+			}
+		}
 		self.ifNotWaitingServerCallInit({
 			routeId: routeId,
 			viewId: viewId,

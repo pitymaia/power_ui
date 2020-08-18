@@ -536,27 +536,31 @@ class Router {
 	}
 
 	openNewRoutes() {
-		let lastRouteIndex = -1;
-		for (const route of this.orderedRoutesToLoad) {
-			console.log('route kind', route.kind);
-			if (route.kind === 'secundary' || route.kind === 'hidden') {
-				this.addNewViewNode(route.viewId, this.config.routerSecundaryViewId);
-			} else if (route.kind === 'child') {
-				// Add the new node inside it's main route power-view node
-				this.addNewViewNode(route.viewId, this.routes[this.orderedRoutesToLoad[lastRouteIndex].routeId].childViewId);
-				console.log('IS CHILD:', this.routes[this.orderedRoutesToLoad[lastRouteIndex].routeId].childViewId, route);
-			}
+		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
+	}
 
-			this.loadRoute({
-				routeId: route.routeId,
-				paramKeys: route.paramKeys,
-				viewId: route.viewId,
-				ctrl: this.routes[route.routeId].ctrl,
-				title: this.routes[route.routeId].title,
-				data: this.routes[route.routeId].data,
-			});
-			lastRouteIndex = lastRouteIndex + 1;
+	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
+		const route = orderedRoutesToLoad[routeIndex];
+		if (route.kind === 'secundary' || route.kind === 'hidden') {
+			ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
+		} else if (route.kind === 'child') {
+			// Add the new node inside it's main route power-view node
+			ctx.addNewViewNode(route.viewId, ctx.routes[ctx.orderedRoutesToLoad[routeIndex - 1].routeId].childViewId);
+			console.log('IS CHILD:', ctx.routes[ctx.orderedRoutesToLoad[routeIndex - 1].routeId].childViewId, route);
 		}
+
+		ctx.loadRoute({
+			routeId: route.routeId,
+			paramKeys: route.paramKeys,
+			viewId: route.viewId,
+			ctrl: ctx.routes[route.routeId].ctrl,
+			title: ctx.routes[route.routeId].title,
+			data: ctx.routes[route.routeId].data,
+			loadRouteInOrder: ctx.loadRouteInOrder,
+			orderedRoutesToLoad: ctx.orderedRoutesToLoad,
+			routeIndex: routeIndex + 1,
+			ctx: ctx,
+		});
 	}
 
 	matchRouteAndGetIdAndParamKeys(route) {
@@ -790,7 +794,7 @@ class Router {
 		}
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl, title, data}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		console.log('LOAD ROUTE', routeId, viewId);
 		const _viewId = this.routes[routeId].viewId || viewId;
 		if (ctrl) {
@@ -826,6 +830,10 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
+					loadRouteInOrder: loadRouteInOrder,
+					orderedRoutesToLoad: orderedRoutesToLoad,
+					routeIndex: routeIndex,
+					ctx: ctx,
 				});
 			} else if (this.routes[routeId].templateComponent) {
 				this.$powerUi.loadTemplateComponent({
@@ -836,6 +844,10 @@ class Router {
 					routes: this.routes,
 					title: title,
 					$ctrl: this.$powerUi.controllers[_viewId].instance,
+					loadRouteInOrder: loadRouteInOrder,
+					orderedRoutesToLoad: orderedRoutesToLoad,
+					routeIndex: routeIndex,
+					ctx: ctx,
 				});
 			} else {
 				this.$powerUi.loadTemplate({
@@ -845,6 +857,10 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
+					loadRouteInOrder: loadRouteInOrder,
+					orderedRoutesToLoad: orderedRoutesToLoad,
+					routeIndex: routeIndex,
+					ctx: ctx,
 				});
 			}
 		}
