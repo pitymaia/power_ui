@@ -1013,8 +1013,8 @@ class RootScopeTemplate extends PowerTemplate {
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button3);
 
 		const button4 = {
-			"id": "go-main",
-			"label": "Go to main",
+			"id": "go-child1",
+			"label": "Go to child 1",
 			"icon": "icon-disc-back",
 			"kind": "success",
 			"events": [
@@ -1026,6 +1026,21 @@ class RootScopeTemplate extends PowerTemplate {
 		};
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button4);
+
+		const button5 = {
+			"id": "go-child2",
+			"label": "Go to child 2",
+			"icon": "icon-disc-back",
+			"kind": "danger",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goPowerChild2()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button5);
 
 		resolve(newTmpl);
 	}
@@ -1055,6 +1070,11 @@ class RootScope extends PowerController {
 	goPowerMain() {
 		this.openRoute({
 			routeId: 'power-child',
+		});
+	}
+	goPowerChild2() {
+		this.openRoute({
+			routeId: 'power-child2',
 		});
 	}
 
@@ -4916,17 +4936,24 @@ const routes = [
 			title: 'Power only page 2 | PowerUi',
 			route: 'power_main',
 			templateComponent: PowerMainTemplate,
-			// template: '<div><h1>This is the main page</h1><div class="power-view" id="power-main-child-view"></div></div>',
 			ctrl: PowerMainCtrl,
 			data: {lock: true},
-			childViewId: 'power-main-child-view',
+			powerViewNodeId: 'power-main-child-view',
 		},
 		{
 			id: 'power-child',
 			title: 'Child view | PowerUi',
 			route: 'power_child',
 			templateUrl: 'power_child.html',
-			// template: '<div>THIS IS THE CHILD ROUTE PAGE!<div>',
+			ctrl: PowerMainChildCtrl,
+			data: {lock: true},
+			mainRouteId: 'power-main',
+		},
+		{
+			id: 'power-child2',
+			title: 'Child view | PowerUi',
+			route: 'power_child2',
+			template: '<div>THIS IS THE CHILD ROUTE PAGE 2!<div>',
 			ctrl: PowerMainChildCtrl,
 			data: {lock: true},
 			mainRouteId: 'power-main',
