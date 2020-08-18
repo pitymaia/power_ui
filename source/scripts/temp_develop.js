@@ -142,7 +142,6 @@ class FrontPage extends PowerController {
 
 class PowerMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('PowerMainTemplate is here');
 		resolve(`<div>
 			<h1>This is the main page</h1>
 			<div class="power-view" id="power-main-child-view"></div>
@@ -165,13 +164,11 @@ class PowerMainTemplate extends PowerTemplate {
 
 class PowerMainCtrl extends PowerController {
 	ctrl() {
-		console.log('PowerMainCtrl is here');
 	}
 }
 
 class PowerMainChildCtrl extends PowerController {
 	ctrl() {
-		console.log('PowerMainChildCtrl is here');
 	}
 }
 
@@ -197,7 +194,6 @@ class PowerOnlyPage extends PowerController {
 			{name: 'Florzinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
-		console.log('PowerOnlyPage ctrl', this);
 	}
 
 	jsonViews() {
@@ -1037,7 +1033,6 @@ class RootScopeTemplate extends PowerTemplate {
 
 class RootScope extends PowerController {
 	ctrl() {
-		console.log('$rootScope crtl is loaded');
 		this.cats = [
 			{name: 'Penny', gender: 'female'},
 			{name: 'Riquinho', gender: 'male'},
@@ -5100,42 +5095,3 @@ window.c = {'2d': {e: function() {return function() {return 'eu';};}}};
 // 	this.unsubscribe({event: 'mouseover', fn: teste});
 // }
 // app.powerTree.allPowerObjsById['panel-0-action'].powerAction.subscribe({event: 'mouseover', fn: teste});
-
-
-function func1() {
-    return new Promise(resolve => {
-        setTimeout(() => resolve('Pity'));
-    });
-}
-
-function func2() {
-    return new Promise(resolve => {
-        setTimeout(() => resolve('o'));
-    });
-}
-
-function func3() {
-    return new Promise(resolve => {
-        setTimeout(() => resolve('bom'), 200);
-    });
-}
-
-func1().then(function (pity) {
-	func2().then(function (o) {
-		func3().then(function (bom) {
-			console.log('1', pity, o, bom);
-		});
-	});
-});
-
-async function printPity() {
-	const pity = await func1();
-	const o = await func2();
-	const bom = await func3();
-
-	return `${pity} ${o} ${bom}`;
-}
-
-printPity().then(function (pity) {
-	console.log('2', pity);
-});

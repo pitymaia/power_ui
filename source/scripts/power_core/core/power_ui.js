@@ -469,7 +469,6 @@ class PowerUi extends _PowerUiBase {
 
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
-		console.log('@@@@@ VIEWID:', viewId, 'ROUTEID:', routeId);
 		this.addSpinnerAndHideView(view);
 		this.waitingInit.push({node: view, viewId: viewId});
 		return view;
@@ -646,10 +645,8 @@ class PowerUi extends _PowerUiBase {
 		} else {
 			view.innerHTML = template;
 		}
-		console.log("buildViewTemplateAndMayCallInit", view, routeIndex, orderedRoutesToLoad ? (orderedRoutesToLoad.length - 1) : '');
 		if (orderedRoutesToLoad) {
 			if (routeIndex <= (orderedRoutesToLoad.length - 1)) {
-				console.log("$$%%@@ CHAMOU", (orderedRoutesToLoad.length - 1) <= routeIndex);
 				loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx);
 			}
 		}
