@@ -525,19 +525,28 @@ class Router {
 	}
 
 	addNewViewNode(viewId, routeViewNodeId) {
+		console.log('::addNewViewNode:: viewId', viewId, 'routeViewNodeId', routeViewNodeId);
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		newViewNode.id = viewId;
 		newViewNode.classList.add('power-view');
-		document.getElementById(routeViewNodeId).appendChild(newViewNode);
+		const viewNode = document.getElementById(routeViewNodeId);
+		console.log('$$$$$$$$$$$ routeViewNodeId', routeViewNodeId, viewNode);
+		viewNode.appendChild(newViewNode);
 	}
 
 	openNewRoutes() {
+		let lastRouteIndex = -1;
 		for (const route of this.orderedRoutesToLoad) {
 			console.log('route kind', route.kind);
 			if (route.kind === 'secundary' || route.kind === 'hidden') {
 				this.addNewViewNode(route.viewId, this.config.routerSecundaryViewId);
+			} else if (route.kind === 'child') {
+				// Add the new node inside it's main route power-view node
+				this.addNewViewNode(route.viewId, this.routes[this.orderedRoutesToLoad[lastRouteIndex].routeId].childViewId);
+				console.log('IS CHILD:', this.routes[this.orderedRoutesToLoad[lastRouteIndex].routeId].childViewId, route);
 			}
+
 			this.loadRoute({
 				routeId: route.routeId,
 				paramKeys: route.paramKeys,
@@ -546,6 +555,7 @@ class Router {
 				title: this.routes[route.routeId].title,
 				data: this.routes[route.routeId].data,
 			});
+			lastRouteIndex = lastRouteIndex + 1;
 		}
 	}
 
@@ -781,6 +791,7 @@ class Router {
 	}
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title, data}) {
+		console.log('LOAD ROUTE', routeId, viewId);
 		const _viewId = this.routes[routeId].viewId || viewId;
 		if (ctrl) {
 			// Register the controller with $powerUi
@@ -836,10 +847,6 @@ class Router {
 					title: title,
 				});
 			}
-		}
-		// If have a callback run it
-		if (this.routes[routeId].callback) {
-			return this.routes[routeId].callback.call(this, this.routes[routeId]);
 		}
 	}
 	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title, data}) {

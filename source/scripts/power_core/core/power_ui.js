@@ -403,14 +403,13 @@ class PowerUi extends _PowerUiBase {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
-	initAll({template, routeId, viewId}) {
+	initAll() {
 		const t0 = performance.now();
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
 		if (this.initAlreadyRun) {
 			this.powerTree.removeAllEvents();
 		}
 		this._createPowerTree();
-		this.truth = {};
 		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
@@ -454,7 +453,7 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	initNodes({template, routeId, viewId, refreshing}) {
+	initNodes() {
 		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			// Interpolate using root controller scope
@@ -462,7 +461,6 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 			this.callOnViewLoad(this, item.node.id);
 		}
-		// this.callOnViewLoad(this, viewId);
 
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
@@ -471,6 +469,7 @@ class PowerUi extends _PowerUiBase {
 
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
+		console.log('@@@@@ VIEWID:', viewId, 'ROUTEID:', routeId);
 		this.addSpinnerAndHideView(view);
 		this.waitingInit.push({node: view, viewId: viewId});
 		return view;
@@ -635,9 +634,8 @@ class PowerUi extends _PowerUiBase {
 		} else {
 			view.innerHTML = template;
 		}
-
+		console.log("buildViewTemplateAndMayCallInit", view);
 		self.ifNotWaitingServerCallInit({
-			template: template,
 			routeId: routeId,
 			viewId: viewId,
 			refreshing: refreshing,
@@ -646,35 +644,26 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing, reloadCtrl, initAll}) {
+	ifNotWaitingServerCallInit({routeId, viewId, refreshing, reloadCtrl, initAll}) {
 		const self = this;
 		if (!refreshing || (refreshing && reloadCtrl)) {
 			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
 		}
-		setTimeout(function () {
+		// setTimeout(function () {
 			self.waitingViews = self.waitingViews - 1;
 			if (self.waitingViews === 0) {
 				if (!refreshing || (refreshing && reloadCtrl)) {
 					self.runRouteController();
 				}
 				if (self.initAlreadyRun && !initAll) {
-					self.initNodes({
-						template: template,
-						routeId: routeId,
-						viewId: viewId,
-						refreshing: refreshing,
-					});
+					self.initNodes();
 				} else {
-					self.initAll({
-						template: template,
-						routeId: routeId,
-						viewId: viewId,
-					});
+					self.initAll();
 				}
 				self.removeSpinner();
 				self._events.ready.broadcast('ready');
 			}
-		}, 10);
+		// }, 10);
 	}
 
 	removeCss(id, css) {
