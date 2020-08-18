@@ -92,7 +92,7 @@ class WidgetService extends PowerServices {
 			templateComponent: templateComponent,
 			hidden: true,
 			ctrl: ctrl,
-			isVolatile: true,
+			isHidden: true,
 		};
 
 		this.$powerUi.router.routes[routeId] = newRoute;

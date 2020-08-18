@@ -511,7 +511,7 @@ class Router {
 		}
 		console.log('this.orderedRoutesToLoad', this.orderedRoutesToLoad);
 		console.log('this.currentRoutes', this.currentRoutes);
-		this.openNewRoutes();
+		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
 	}
 
 	getVewIdIfRouteExists(route, listName) {
@@ -533,10 +533,6 @@ class Router {
 		const viewNode = document.getElementById(routeViewNodeId);
 		console.log('$$$$$$$$$$$ routeViewNodeId', routeViewNodeId, viewNode);
 		viewNode.appendChild(newViewNode);
-	}
-
-	openNewRoutes() {
-		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
 	}
 
 	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
@@ -729,8 +725,8 @@ class Router {
 	}
 
 	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
-		// If this is a volatile(hidden) route remove it from routes
-		if (!reloading && this.routes[routeId] && this.routes[routeId].isVolatile) {
+		// If this is a hidden route remove it from routes
+		if (!reloading && this.routes[routeId] && this.routes[routeId].isHidden) {
 			delete this.routes[routeId];
 		}
 		// Remove all view power Objects and events
@@ -746,7 +742,7 @@ class Router {
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
 			if (!reloading) {
-				this.removeVolatileViews({viewId: viewId});
+				this.removeHiddenViews({viewId: viewId});
 			}
 			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
 				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
@@ -763,18 +759,18 @@ class Router {
 			return;
 		}
 		if (!reloading) {
-			this.removeVolatileViews({viewId: viewId});
+			this.removeHiddenViews({viewId: viewId});
 		}
 
 		// Remove custom css of this view if exists
 		this.removeCustomCssNode(viewId);
 
 		// delete all inner elements and events from this.allPowerObjsById[id]
-		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
+		this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
 	}
 	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
 	// One route are create for each instante, so we need remove it when the controller are distroyed
-	removeVolatileViews({viewId}) {
+	removeHiddenViews({viewId}) {
 		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
 			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
 				delete this.routes[volatileId];
