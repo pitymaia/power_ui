@@ -539,6 +539,12 @@ class Router {
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
 			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
 		}
+
+		// Remove 'modal-open' css class from body if all modals are closed
+		const modals = document.body.getElementsByClassName('pw-backdrop');
+		if (modals && modals.length === 0) {
+			document.body.classList.remove('modal-open');
+		}
 	}
 
 	buildOrderedRoutesToClose() {
@@ -553,18 +559,29 @@ class Router {
 				kind: 'main',
 			});
 		}
-		// Add old child route from main if have some
-		for (const old of this.oldRoutes.mainChildRoutes) {
-			if (!this.currentRoutes.mainChildRoutes.find(o=> o.route === old.route)) {
+		// Add old child route from main route if have some
+		this.markToRemoveRouteViews('mainChildRoutes', 'child');
+		// Add old child route and secundary routes if have some
+		this.markToRemoveRouteViews('secundaryChildRoutes', 'child');
+		this.markToRemoveRouteViews('secundaryRoutes', 'secundary');
+		// Add old child route from hidden routes if have some
+		this.markToRemoveRouteViews('hiddenChildRoutes', 'child');
+		this.markToRemoveRouteViews('hiddenRoutes', 'hidden');
+
+		console.log("REMOVE:", this.orderedRoutesToClose);
+	}
+
+	markToRemoveRouteViews(routesListName, kind) {
+		for (const old of this.oldRoutes[routesListName]) {
+			if (!this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
 				this.orderedRoutesToClose.unshift({
 					routeId: old.id,
 					viewId: old.viewId,
 					params: old.params,
-					kind: 'child',
+					kind: kind,
 				});
 			}
 		}
-		console.log("REMOVE:", this.orderedRoutesToClose);
 	}
 
 	getVewIdIfRouteExists(route, listName) {
@@ -588,6 +605,9 @@ class Router {
 
 	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
 		const route = orderedRoutesToLoad[routeIndex];
+		if (!route) {
+			return;
+		}
 		if (route.kind === 'secundary' || route.kind === 'hidden') {
 			ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
 		} else if (route.kind === 'child') {

@@ -646,9 +646,7 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = template;
 		}
 		if (orderedRoutesToLoad) {
-			if (routeIndex <= (orderedRoutesToLoad.length - 1)) {
-				loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx);
-			}
+			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx);
 		}
 		self.ifNotWaitingServerCallInit({
 			routeId: routeId,

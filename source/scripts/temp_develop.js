@@ -4682,15 +4682,11 @@ class JSONViews extends PowerWindow {
 				template: `<div>Do you really want this?</div>`,
 				controller: function() {
 					console.log('confirm?');
-					this.onRouteClose = function () {
-						if (self._allowClose === true) {
-							self.closeCurrentRoute();
-						}
-					}
 				},
 				onCommit: function(resolve, reject, value) {
 					console.log('Thanks for commiting with me.', value);
 					self._allowClose = true;
+					self.closeCurrentRoute();
 					resolve();
 				},
 				onCancel: function(resolve) {
