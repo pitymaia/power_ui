@@ -188,6 +188,107 @@ class PowerThirdCtrl2 extends PowerController {
 	}
 }
 
+class SecundaryMainTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Secundary main template');
+		let newTmpl = `<div>
+			<div class="power-view" id="secundary-child-views"></div>
+		</div>`
+
+		const menu1 = {
+			"id": 'secundary-menu',
+			"mirrored": false,
+			"position": "top-right",
+			// "orientation": "vertical",
+			// "kind": "float-right",
+			"items": [
+				{
+					"item": {
+						"id": "my-item-1",
+						"label": "Child 1",
+						"icon": "icon-food-lollipop",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openChild()"
+							}
+						],
+					},
+				},
+				{
+					"item": {
+						"id": "my-item-2",
+						"label": "Child 2",
+						"icon": "icon-food-hamburguer",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openChild2()"
+							}
+						],
+					},
+				},
+			]
+		};
+
+		newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
+
+		resolve(newTmpl);
+	}
+}
+
+class SecundaryMainCtrl extends PowerModal {
+	ctrl() {
+		console.log('Secundary main ctrl');
+	}
+
+	openChild() {
+		this.openRoute({
+			routeId: 'secchild',
+			target: '_self',
+		});
+	}
+
+	openChild2() {
+		this.openRoute({
+			routeId: 'secchild2',
+			target: '_self',
+		});
+	}
+}
+
+class SecundaryChildTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Secundary child template');
+		resolve(`<div>
+			<h1>This is the child page</h1>
+			<div>LOL, THIS IS AWESOME!</div>
+		</div>`);
+	}
+}
+
+class SecundaryChildCtrl extends PowerController {
+	ctrl() {
+		console.log('Secundary child ctrl');
+	}
+}
+
+class SecundaryChildTemplate2 extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Secundary child 2 template');
+		resolve(`<div>
+			<h1>This is the child page 2</h1>
+			<div>SO GREAT FRAMEWORK!</div>
+		</div>`);
+	}
+}
+
+class SecundaryChildCtrl2 extends PowerController {
+	ctrl() {
+		console.log('Secundary child 2 ctrl');
+	}
+}
+
 class PowerMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		console.log('Main template');
@@ -1121,6 +1222,21 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button7);
 
+		const button8 = {
+			"id": "go-secundary",
+			"label": "Open secundary",
+			"icon": "icon-disc-back",
+			"kind": "secundary",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goPowerSecundary()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button8);
+
 		resolve(newTmpl);
 	}
 }
@@ -1166,6 +1282,13 @@ class RootScope extends PowerController {
 	goPowerThird2() {
 		this.openRoute({
 			routeId: 'third-level2',
+		});
+	}
+
+	goPowerSecundary() {
+		this.openRoute({
+			routeId: 'secchild',
+			target: '_blank',
 		});
 	}
 
@@ -5076,6 +5199,33 @@ const routes = [
 			ctrl: PowerThirdCtrl2,
 			data: {lock: true},
 			mainRouteId: 'power-mid',
+		},
+		{
+			id: 'secundary-main',
+			title: 'Secundary Main',
+			route: 'secundary_main',
+			templateComponent: SecundaryMainTemplate,
+			ctrl: SecundaryMainCtrl,
+			data: {lock: true},
+			powerViewNodeId: 'secundary-child-views',
+		},
+		{
+			id: 'secchild',
+			title: 'Secundary child',
+			route: 'secundary_child',
+			templateComponent: SecundaryChildTemplate,
+			ctrl: SecundaryChildCtrl,
+			data: {lock: true},
+			mainRouteId: 'secundary-main',
+		},
+		{
+			id: 'secchild2',
+			title: 'Secundary child',
+			route: 'secundary_child2',
+			templateComponent: SecundaryChildTemplate2,
+			ctrl: SecundaryChildCtrl2,
+			data: {lock: true},
+			mainRouteId: 'secundary-main',
 		},
 		{
 			id: 'json-views',

@@ -545,7 +545,7 @@ class Router {
 			}
 		}
 		// Remove the node it self if not main-view
-		if (viewId !== 'main-view') {
+		if (viewId !== 'main-view' && powerViewNode) {
 			powerViewNode.parentNode.removeChild(powerViewNode);
 		}
 
@@ -972,19 +972,21 @@ class Router {
 			}
 		}
 
-		if (this.routeExists({routeId, params})) {
+		if (this.routeNotExists({routeId, params})) {
 			return;
 		} else {
 			// Close the current view and open the route in a new secundary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
-				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const newRoute = oldHash.includes(fragment) ? oldHash : oldHash + fragment;
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
-				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const newRoute = oldHash.includes(fragment) ? oldHash : oldHash + fragment;
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
@@ -1049,7 +1051,7 @@ class Router {
 		return route;
 	}
 
-	routeExists({routeId, params}) {
+	routeNotExists({routeId, params}) {
 		let exists = false;
 		// Test the main route
 		if (routeId === this.currentRoutes.id) {
@@ -1089,7 +1091,6 @@ class Router {
 				}
 			}
 		}
-
 	return exists;
 	}
 
