@@ -970,8 +970,16 @@ class Router {
 			return oldHash;
 		} else if (splitedChild.length > 1 && oldHash.includes(splitedChild[0])) {
 			// Secundary or hidden route with a new child must be replaced
-			const newHash = oldHash.replace(splitedOld[1], splitedFragment[1])
-			return newHash;
+			const newEntry = splitedChild[0].split('?')[1];
+			let index = 0;
+			for (const item of splitedOld) {
+				const oldMain = item.split('&ch=')[0];
+				if (oldMain === newEntry) {
+					splitedOld[index] = splitedFragment[1];
+					return splitedOld.join('?');
+				}
+				index = index + 1;
+			}
 		} else {
 			return oldHash + fragment;
 		}
