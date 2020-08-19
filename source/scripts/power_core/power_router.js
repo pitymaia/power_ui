@@ -384,7 +384,6 @@ class Router {
 
 	recursivelyAddChildRoute(route, mainKind, powerViewNodeId) {
 		const routesListName = `${mainKind}ChildRoutes`;
-		console.log('ROUTE', route);
 		if (route && route.childRoute) {
 			const childRoute = this.matchRouteAndGetIdAndParamKeys(route.childRoute);
 			if (childRoute) {
@@ -426,7 +425,6 @@ class Router {
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		// First check main route
 		const mainRoute = this.matchRouteAndGetIdAndParamKeys(currentRoutesTree.mainRoute);
-		console.log('mainRoute', mainRoute);
 		// Second recursively add main route child and any level of child of childs
 		if (mainRoute) {
 			// Add main route to ordered list
@@ -523,7 +521,6 @@ class Router {
 
 	closeRouteInOrder(orderedRoutesToClose, routeIndex, ctx) {
 		const route = orderedRoutesToClose[routeIndex];
-
 		if (!route) {
 			return;
 		}
@@ -535,13 +532,21 @@ class Router {
 		if (!this.$powerUi.powerTree) {
 			return;
 		}
-
 		// Remove custom css of this view if exists
 		this.removeCustomCssNode(viewId);
 
+		const powerViewNode = document.getElementById(viewId);
 		// delete all inner elements and events from this.allPowerObjsById[id]
 		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
-			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
+			if (viewId === 'main-view') {
+				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
+			} else {
+				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeElementAndInnersFromPower(powerViewNode)
+			}
+		}
+		// Remove the node it self if not main-view
+		if (viewId !== 'main-view') {
+			powerViewNode.parentNode.removeChild(powerViewNode);
 		}
 
 		// Remove 'modal-open' css class from body if all modals are closed
@@ -605,7 +610,6 @@ class Router {
 
 	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
 		const route = orderedRoutesToLoad[routeIndex];
-		console.log('ROUTE:', route);
 
 		if (!route) {
 			return;

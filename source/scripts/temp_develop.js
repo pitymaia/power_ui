@@ -140,35 +140,83 @@ class FrontPage extends PowerController {
 	}
 }
 
+class PowerMidTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Mid template');
+		resolve(`<div>
+			<h1>This is the mid page</h1>
+			<div class="power-view" id="power-mid-view"></div>
+		</div>`);
+	}
+}
+
+class PowerMidCtrl extends PowerController {
+	ctrl() {
+		console.log('MID ctrl');
+	}
+}
+
+class PowerThirdTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Third template');
+		resolve(`<div>
+			<h1>Third page HERE!</h1>
+			<div>THIS IS SO COOL!</div>
+		</div>`);
+	}
+}
+
+class PowerThirdCtrl extends PowerController {
+	ctrl() {
+		console.log('Third ctrl');
+	}
+}
+
+class PowerThirdTemplate2 extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Third 2 template');
+		resolve(`<div>
+			<h1>This is the Third 2 page</h1>
+			<div>LOL, THIS IS AWESOME!</div>
+		</div>`);
+	}
+}
+
+class PowerThirdCtrl2 extends PowerController {
+	ctrl() {
+		console.log('Third 2 ctrl');
+	}
+}
+
 class PowerMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
+		console.log('Main template');
 		resolve(`<div>
 			<h1>This is the main page</h1>
 			<div class="power-view" id="power-main-child-view"></div>
 		</div>`);
 	}
-
-	// css(resolve, reject) {
-	// 	this.$powerUi.request({
-	// 			url: '/json/some-window.json',
-	// 			method: 'GET',
-	// 			status: "Loading json",
-	// 	}).then(function (response, xhr) {
-	// 		resolve(response.css);
-	// 	}).catch(function (response, xhr) {
-	// 		window.console.log('css', response, xhr);
-	// 		reject();
-	// 	});
-	// }
 }
 
 class PowerMainCtrl extends PowerController {
 	ctrl() {
+		console.log('Main ctrl');
+	}
+}
+
+class PowerMainChildTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Child template');
+		resolve(`<div>
+			<h1>This is the Child page 2</h1>
+			<div>VIVA!</div>
+		</div>`);
 	}
 }
 
 class PowerMainChildCtrl extends PowerController {
 	ctrl() {
+		console.log('Child ctrl');
 	}
 }
 
@@ -637,6 +685,7 @@ class SmallDialog extends PowerTemplate {
 
 class RootScopeTemplate extends PowerTemplate {
 	template(resolve, reject) {
+		console.log('ROOT template');
 		let newTmpl = `<br /><br /><br /><br />
 			<div>Antes</div>
 			<div class="power-view" id="main-view"></div>
@@ -1042,12 +1091,43 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button5);
 
+		const button6 = {
+			"id": "go-third",
+			"label": "Go to third",
+			"icon": "icon-disc-back",
+			"kind": "default",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goPowerThird()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button6);
+
+		const button7 = {
+			"id": "go-third2",
+			"label": "Go to third 2",
+			"icon": "icon-disc-back",
+			"kind": "highlight",
+			"events": [
+				{
+					"event": "onclick",
+					"fn": "goPowerThird2()"
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').button(button7);
+
 		resolve(newTmpl);
 	}
 }
 
 class RootScope extends PowerController {
 	ctrl() {
+		console.log('Root ctrl');
 		this.cats = [
 			{name: 'Penny', gender: 'female'},
 			{name: 'Riquinho', gender: 'male'},
@@ -1075,6 +1155,17 @@ class RootScope extends PowerController {
 	goPowerChild2() {
 		this.openRoute({
 			routeId: 'power-child2',
+		});
+	}
+	goPowerThird() {
+		this.openRoute({
+			routeId: 'third-level',
+		});
+	}
+
+	goPowerThird2() {
+		this.openRoute({
+			routeId: 'third-level2',
 		});
 	}
 
@@ -4953,10 +5044,38 @@ const routes = [
 			id: 'power-child2',
 			title: 'Child view | PowerUi',
 			route: 'power_child2',
-			template: '<div>THIS IS THE CHILD ROUTE PAGE 2!<div>',
+			templateComponent: PowerMainChildTemplate,
 			ctrl: PowerMainChildCtrl,
 			data: {lock: true},
 			mainRouteId: 'power-main',
+		},
+		{
+			id: 'power-mid',
+			title: 'Child view | PowerUi',
+			route: 'power_mid',
+			templateComponent: PowerMidTemplate,
+			ctrl: PowerMidCtrl,
+			data: {lock: true},
+			mainRouteId: 'power-main',
+			powerViewNodeId: 'power-mid-view',
+		},
+		{
+			id: 'third-level',
+			title: 'Third view',
+			route: 'third',
+			templateComponent: PowerThirdTemplate,
+			ctrl: PowerThirdCtrl,
+			data: {lock: true},
+			mainRouteId: 'power-mid',
+		},
+		{
+			id: 'third-level2',
+			title: 'Third view 2',
+			route: 'third2',
+			templateComponent: PowerThirdTemplate2,
+			ctrl: PowerThirdCtrl2,
+			data: {lock: true},
+			mainRouteId: 'power-mid',
 		},
 		{
 			id: 'json-views',
