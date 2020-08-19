@@ -228,6 +228,19 @@ class SecundaryMainTemplate extends PowerTemplate {
 						],
 					},
 				},
+				{
+					"item": {
+						"id": "my-item-3",
+						"label": "Child Main",
+						"icon": "icon-food-carot",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openChild3()"
+							}
+						],
+					},
+				},
 			]
 		};
 
@@ -252,6 +265,13 @@ class SecundaryMainCtrl extends PowerModal {
 	openChild2() {
 		this.openRoute({
 			routeId: 'secchild2',
+			target: '_self',
+		});
+	}
+
+	openChild3() {
+		this.openRoute({
+			routeId: 'secmainchild',
 			target: '_self',
 		});
 	}
@@ -286,6 +306,63 @@ class SecundaryChildTemplate2 extends PowerTemplate {
 class SecundaryChildCtrl2 extends PowerController {
 	ctrl() {
 		console.log('Secundary child 2 ctrl');
+	}
+}
+
+class SecundaryChildMainTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('Secundary child MAIN template');
+		resolve(`<div>
+			<h1>This is the MAIN of a CHILD</h1>
+			<div>And I Love it!!!!</div>
+			<div class="power-view" id="secundary-child-another"></div>
+		</div>`);
+	}
+}
+
+class SecundaryChildMainCtrl extends PowerController {
+	ctrl() {
+		console.log('Secundary child MAIN ctrl');
+	}
+}
+
+class SecundaryChildOfChildTemplate extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('This a Secundary child of a child template');
+		resolve(`<div>
+			<h1>This is the CHIL of a CHILD</h1>
+			<div>And I Love it A LOT!!!!</div>
+			<button id="childofchild2" class="pw-btn-warning" data-pow-event="" onclick="openChildOfChild2()" type="button">
+				<span class="pw-icon icon-disc-back"></span><span class="pw-label">Open another</span></button>
+		</div>`);
+	}
+}
+
+class SecundaryChildOfChildCtrl extends PowerController {
+	ctrl() {
+		console.log('Secundary child of a child ctrl');
+	}
+	openChildOfChild2() {
+		this.openRoute({
+			routeId: 'secmainchild2',
+			target: '_self',
+		});
+	}
+}
+
+class SecundaryChildOfChildTemplate2 extends PowerTemplate {
+	template(resolve, reject) {
+		console.log('This a Secundary child of a child template 2');
+		resolve(`<div>
+			<h1>This is the CHIL of a CHILD 2</h1>
+			<div>This is a lot of work to do...</div>
+		</div>`);
+	}
+}
+
+class SecundaryChildOfChildCtrl2 extends PowerController {
+	ctrl() {
+		console.log('Secundary child of a child ctrl 2');
 	}
 }
 
@@ -5226,6 +5303,32 @@ const routes = [
 			ctrl: SecundaryChildCtrl2,
 			data: {lock: true},
 			mainRouteId: 'secundary-main',
+		},
+		{
+			id: 'secchildmain',
+			title: 'Secundary child',
+			route: 'secchildmain',
+			templateComponent: SecundaryChildMainTemplate,
+			ctrl: SecundaryChildMainCtrl,
+			data: {lock: true},
+			mainRouteId: 'secundary-main',
+			powerViewNodeId: 'secundary-child-another',
+		},
+		{
+			id: 'secmainchild',
+			title: 'Another main child',
+			route: 'secundary_mc',
+			templateComponent: SecundaryChildOfChildTemplate,
+			ctrl: SecundaryChildOfChildCtrl,
+			mainRouteId: 'secchildmain',
+		},
+		{
+			id: 'secmainchild2',
+			title: 'Another main child 2',
+			route: 'secundary_mc2',
+			templateComponent: SecundaryChildOfChildTemplate2,
+			ctrl: SecundaryChildOfChildCtrl2,
+			mainRouteId: 'secchildmain',
 		},
 		{
 			id: 'json-views',

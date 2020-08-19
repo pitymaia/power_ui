@@ -961,6 +961,22 @@ class Router {
 		return this.routes[routeId].hidden ? 'hr' : 'sr';
 	}
 
+	buildNewHash(oldHash, fragment) {
+		const splitedChild = fragment.split('&ch=');
+		const splitedOld = oldHash.split('?');
+		const splitedFragment = fragment.split('?');
+		// If the fragment is already in old hash do not change it
+		if (splitedOld.includes(splitedFragment[1])) {
+			return oldHash;
+		} else if (splitedChild.length > 1 && oldHash.includes(splitedChild[0])) {
+			// Secundary or hidden route with a new child must be replaced
+			const newHash = oldHash.replace(splitedOld[1], splitedFragment[1])
+			return newHash;
+		} else {
+			return oldHash + fragment;
+		}
+	}
+
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
 		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
@@ -980,13 +996,13 @@ class Router {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
-				const newRoute = oldHash.includes(fragment) ? oldHash : oldHash + fragment;
+				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
-				const newRoute = oldHash.includes(fragment) ? oldHash : oldHash + fragment;
+				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
@@ -1206,7 +1222,11 @@ class Router {
 		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
 			return this.currentRoutes;
 		} else {
-			for (const route of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
+			for (const route of this.currentRoutes.secundaryRoutes.concat(
+				this.currentRoutes.hiddenRoutes).concat(
+				this.currentRoutes.mainChildRoutes).concat(
+				this.currentRoutes.secundaryChildRoutes).concat(
+				this.currentRoutes.hiddenChildRoutes)) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
