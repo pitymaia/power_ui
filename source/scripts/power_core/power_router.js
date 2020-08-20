@@ -329,6 +329,43 @@ class Router {
 		return hash;
 	}
 
+	addSpinnerAndHideContent(viewId) {
+		// Only add one spinner when the first view is added to waitingViews
+		if (!document.getElementById('_power-spinner')) {
+			// Backdrop
+			const spinnerBackdrop = document.createElement('div');
+			spinnerBackdrop.classList.add('pw-spinner-backdrop');
+			spinnerBackdrop.id = '_power-spinner';
+
+			// Spinner label
+			const spinnerLabel = document.createElement('p');
+			spinnerLabel.classList.add('pw-spinner-label');
+			spinnerLabel.innerText = this.config.spinnerLabel || 'LOADING';
+			spinnerBackdrop.appendChild(spinnerLabel);
+
+			// Spinner
+			const spinner = document.createElement('div');
+			spinner.classList.add('pw-spinner');
+			spinnerBackdrop.appendChild(spinner);
+
+			// Add to body
+			document.body.appendChild(spinnerBackdrop);
+		}
+		// Avoid blink uninterpolated data before call compile and interpolate
+		const node = document.getElementById(viewId);
+		node.style.visibility = 'hidden';
+	}
+
+	removeSpinnerAndShowContent(viewId) {
+		const spinner = document.getElementById('_power-spinner');
+		// return;
+		spinner.parentNode.removeChild(spinner);
+		if (viewId) {
+			const view = document.getElementById(viewId);
+			view.style.visibility = null;
+		}
+	}
+
 	buildRoutesTree(path) {
 		const routeParts = {
 			full_path: path,
@@ -499,6 +536,7 @@ class Router {
 	engine() {
 		this.orderedRoutesToLoad = [];
 		this.orderedRoutesToClose = [];
+		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
@@ -619,8 +657,10 @@ class Router {
 
 	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
 		const route = orderedRoutesToLoad[routeIndex];
-
+		console.log('!!!! route', route);
 		if (!route) {
+				ctx.$powerUi.callInitViews();
+				ctx.removeSpinnerAndShowContent('root-view');
 			return;
 		}
 		if (route.kind === 'secundary' || route.kind === 'hidden') {

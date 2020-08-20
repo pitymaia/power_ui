@@ -469,56 +469,8 @@ class PowerUi extends _PowerUiBase {
 
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
-		this.addSpinnerAndHideView(view);
 		this.waitingInit.push({node: view, viewId: viewId});
 		return view;
-	}
-
-	// To use as loading service
-	addSpinner(viewId) {
-		const view = document.getElementById(viewId);
-		this.addSpinnerAndHideView(view, true);
-	}
-
-	removeSpinner(viewId) {
-		const spinner = document.getElementById('_power-spinner');
-		spinner.parentNode.removeChild(spinner);
-		if (viewId) {
-			const view = document.getElementById(viewId);
-			view.style.visibility = null;
-		}
-	}
-
-	addSpinnerAndHideView(view, doNotWait) {
-		// Only add one spinner when the first view is added to waitingViews
-		if (!document.getElementById('_power-spinner')) {
-			// Backdrop
-			const spinnerBackdrop = document.createElement('div');
-			spinnerBackdrop.classList.add('pw-spinner-backdrop');
-			spinnerBackdrop.id = '_power-spinner';
-
-			// Spinner label
-			const spinnerLabel = document.createElement('p');
-			spinnerLabel.classList.add('pw-spinner-label');
-			spinnerLabel.innerText = this.config.spinnerLabel || 'LOADING';
-			spinnerBackdrop.appendChild(spinnerLabel);
-
-			// Spinner
-			const spinner = document.createElement('div');
-			spinner.classList.add('pw-spinner');
-			spinnerBackdrop.appendChild(spinner);
-
-			// Add to body
-			document.body.appendChild(spinnerBackdrop);
-		}
-		// Avoid blink uninterpolated data before call compile and interpolate
-		if (view) {
-			// Hidding a view is optional
-			view.style.visibility = 'hidden';
-			if (!doNotWait) {
-				this.waitingViews = this.waitingViews + 1;
-			}
-		}
 	}
 
 	// Run the controller instance for the route
@@ -561,7 +513,7 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = false;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			window.console.log('ERROR loading templateURL:', response);
 		});
 	}
 	// PowerTemplate (before run any controller)
@@ -596,7 +548,7 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = false;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			window.console.log('ERROR loading templateComponent:', response);
 		});
 	}
 
@@ -620,18 +572,28 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
+	callInitViews() {
+		console.log('this.initAlreadyRun', this.initAlreadyRun)
+		if (this.initAlreadyRun) {
+			this.initNodes();
+		} else {
+			this.initAll();
+		}
+		this._events.ready.broadcast('ready');
+	}
+
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl, initAll, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		// TODO: Why widget has init?
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-			if (!refreshing && self.controllers[viewId].instance.init) {
+			if (self.controllers[viewId].instance.init) {
 				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
 
 		// Save main-view and secundary-view innerHTML before refresh so can restore it after replace the template
-		if (routeId === '#root' && refreshing) {
+		if (routeId === '#root') {
 			let mainView = document.getElementById('main-view');
 			const mainViewInnerHTML = mainView.innerHTML;
 			let secundaryView = document.getElementById('secundary-view');
@@ -646,37 +608,8 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = template;
 		}
 		if (orderedRoutesToLoad) {
-			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx);
+			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, self.callInitViews.bind(self));
 		}
-		self.ifNotWaitingServerCallInit({
-			routeId: routeId,
-			viewId: viewId,
-			refreshing: refreshing,
-			reloadCtrl: reloadCtrl,
-			initAll: initAll,
-		});
-	}
-
-	ifNotWaitingServerCallInit({routeId, viewId, refreshing, reloadCtrl, initAll}) {
-		const self = this;
-		if (!refreshing || (refreshing && reloadCtrl)) {
-			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
-		}
-		// setTimeout(function () {
-			self.waitingViews = self.waitingViews - 1;
-			if (self.waitingViews === 0) {
-				if (!refreshing || (refreshing && reloadCtrl)) {
-					self.runRouteController();
-				}
-				if (self.initAlreadyRun && !initAll) {
-					self.initNodes();
-				} else {
-					self.initAll();
-				}
-				self.removeSpinner();
-				self._events.ready.broadcast('ready');
-			}
-		// }, 10);
 	}
 
 	removeCss(id, css) {
