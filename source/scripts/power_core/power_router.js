@@ -27,10 +27,9 @@ class Router {
 				this.add(route);
 			}
 		}
-		this.init({hiddenRoute: false, secundaryRoute: false, reloading: false});
 		this.engine();
 
-		// call init if hash change
+		// call engine if hash change
 		window.onhashchange = this.hashChange.bind(this);
 	}
 
@@ -82,12 +81,11 @@ class Router {
 	}
 
 	// Copy the current open secundary route, and init the router with the new route
-	hashChange(event, reloading) {
+	hashChange(event) {
 		// Save a copy of currentRoutes as oldRoutes
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.init({hiddenRoute: false, secundaryRoute: false, reloading: reloading});
 		this.engine();
 	}
 
@@ -657,7 +655,6 @@ class Router {
 
 	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
 		const route = orderedRoutesToLoad[routeIndex];
-		console.log('!!!! route', route);
 		if (!route) {
 				ctx.$powerUi.callInitViews();
 				ctx.removeSpinnerAndShowContent('root-view');
@@ -708,201 +705,6 @@ class Router {
 		}
 
 		return found;
-	}
-	// Match the current window.location to a route and call the necessary template and callback
-	// If location doesn't have a hash, redirect to rootPath
-	// the secundaryRoute param allows to manually match secundary routes
-	init({secundaryRoute, hiddenRoute, reloading}) {
-		return;
-		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootPath);
-		for (const routeId of Object.keys(this.routes || {})) {
-			// Only run if not otherwise or if the otherwise have a template
-			if (routeId !== 'otherwise' || this.routes[routeId].template) {
-				// If the route have some parameters get it /some_page/:page_id/syfy/:title
-				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
-				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
-				// our route logic is true,
-				if (routeParts.path.match(regEx)) {
-					if (this.routes[routeId] && this.routes[routeId].title) {
-						document.title = this.routes[routeId].title;
-					}
-					if (!secundaryRoute && !hiddenRoute) {
-						// Load main route only if it is a new route
-						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootPath, '')) {
-							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId, reloading: reloading});
-							this.loadRoute({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								viewId: this.config.routerMainViewId,
-								ctrl: this.routes[routeId].ctrl,
-								title: this.routes[routeId].title,
-								data: this.routes[routeId].data,
-							});
-						}
-						this.setMainRouteState({
-							routeId: routeId,
-							paramKeys: paramKeys,
-							route: routeParts.path,
-							viewId: this.config.routerMainViewId,
-							title: this.routes[routeId].title,
-							data: this.routes[routeId].data,
-						});
-						// Recursively run the init for each possible secundaryRoute
-						for (const compRoute of routeParts.secundaryRoutes) {
-							this.init({secundaryRoute: compRoute, hiddenRoute: false, reloading: reloading});
-						}
-						// Recursively run the init for each possible hiddenRoute
-						for (const compRoute of routeParts.hiddenRoutes) {
-							this.init({hiddenRoute: compRoute, secundaryRoute: false, reloading: reloading});
-						}
-						// Remove all the old views if needed
-						this.closeOldSecundaryAndHiddenViews({reloading: reloading});
-						return true;
-					} else if (secundaryRoute) {
-						// Load secundary route if not already open
-						// Check if the route already open as old route or as new route
-						const thisRoute = secundaryRoute.replace(this.config.rootPath, '');
-						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
-						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
-						if (!oldSecundaryRoute && !newSecundaryRoute) {
-							const secundaryViewId = this.loadSecundaryOrHiddenRoute({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								routeViewId: this.config.routerSecundaryViewId,
-								ctrl: this.routes[routeId].ctrl,
-								data: this.routes[routeId].data,
-								title: this.routes[routeId].title,
-							});
-							this.setSecundaryRouteState({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								route: secundaryRoute,
-								viewId: secundaryViewId,
-								title: this.routes[routeId].title,
-								data: this.routes[routeId].data,
-							});
-						} else {
-							// If the newSecundaryRoute is already on the list do nothing
-							// Only add if it is only on oldSecundaryRoute list
-							if (!newSecundaryRoute) {
-								this.currentRoutes.secundaryRoutes.push(oldSecundaryRoute);
-							}
-						}
-					} else if (hiddenRoute) {
-						// Load hidden route if not already open
-						// Check if the route already open as old route or as new route
-						const thisRoute = hiddenRoute.replace(this.config.rootPath, '');
-						const oldHiddenRoute = this.oldRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
-						const newHiddenRoute = this.currentRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
-						if (!oldHiddenRoute && !newHiddenRoute) {
-							const hiddenViewId = this.loadSecundaryOrHiddenRoute({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								routeViewId: this.config.routerSecundaryViewId,
-								ctrl: this.routes[routeId].ctrl,
-								title: this.routes[routeId].title,
-								data: this.routes[routeId].data,
-							});
-							this.setHiddenRouteState({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								route: hiddenRoute,
-								viewId: hiddenViewId,
-								title: this.routes[routeId].title,
-								data: this.routes[routeId].data,
-							});
-						} else {
-							// If the newHiddenRoute is already on the list do nothing
-							// Only add if it is only on oldHiddenRoute list
-							if (!newHiddenRoute) {
-								this.currentRoutes.hiddenRoutes.push(oldHiddenRoute);
-							}
-						}
-					}
-				}
-			}
-		}
-		// otherwise
-		// (doesn't run otherwise for secundary routes)
-		if (!secundaryRoute && !hiddenRoute) {
-			const newRoute = this.routes.otherwise ? this.routes.otherwise.route : this.config.rootPath;
-			window.location.replace(encodeURI(newRoute));
-		}
-	}
-
-	// Only close the old secundary and hidden views that are not also in the currentRoutes.secundaryRoutes
-	closeOldSecundaryAndHiddenViews({reloading}) {
-		for (const route of this.oldRoutes.secundaryRoutes) {
-			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
-			}
-		}
-		for (const route of this.oldRoutes.hiddenRoutes) {
-			if (!this.currentRoutes.hiddenRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
-			}
-		}
-		// Remove 'modal-open' css class from body if all modals are closed
-		const modals = document.body.getElementsByClassName('pw-backdrop');
-		if (modals.length === 0) {
-			document.body.classList.remove('modal-open');
-		}
-	}
-
-	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
-		// If this is a hidden route remove it from routes
-		if (!reloading && this.routes[routeId] && this.routes[routeId].isHidden) {
-			delete this.routes[routeId];
-		}
-		// Remove all view power Objects and events
-		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
-			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeElementAndInnersFromPower();
-		}
-		// Remove view node
-		const node = document.getElementById(viewId);
-		node.parentNode.removeChild(node);
-		// Remove custom css of this view if exists
-		this.removeCustomCssNode(viewId);
-
-		// Delete the controller instance of this view if exists
-		if (this.$powerUi.controllers[viewId]) {
-			if (!reloading) {
-				this.removeHiddenViews({viewId: viewId});
-			}
-			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
-				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
-			}
-			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.onRouteClose) {
-				this.$powerUi.controllers[viewId].instance.onRouteClose();
-			}
-			delete this.$powerUi.controllers[viewId];
-		}
-	}
-
-	removeMainView({viewId, reloading}) {
-		if (!this.$powerUi.powerTree) {
-			return;
-		}
-		if (!reloading) {
-			this.removeHiddenViews({viewId: viewId});
-		}
-
-		// Remove custom css of this view if exists
-		this.removeCustomCssNode(viewId);
-
-		// delete all inner elements and events from this.allPowerObjsById[id]
-		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
-			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
-		}
-	}
-	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
-	// One route are create for each instante, so we need remove it when the controller are distroyed
-	removeHiddenViews({viewId}) {
-		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
-			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
-				delete this.routes[volatileId];
-			}
-		}
 	}
 
 	removeCustomCssNode(viewId) {
@@ -986,24 +788,6 @@ class Router {
 				});
 			}
 		}
-	}
-	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title, data}) {
-		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
-		const newViewNode = document.createElement('div');
-		const viewId = getIdAndCreateIfDontHave(newViewNode);
-		newViewNode.id = viewId;
-		newViewNode.classList.add('power-view');
-		document.getElementById(routeViewId).appendChild(newViewNode);
-		// Load the route inside the new element view
-		this.loadRoute({
-			title: title,
-			routeId: routeId,
-			paramKeys: paramKeys,
-			viewId: viewId,
-			ctrl: ctrl,
-			data: data,
-		});
-		return viewId;
 	}
 
 	routeKind(routeId) {

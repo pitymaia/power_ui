@@ -473,15 +473,6 @@ class PowerUi extends _PowerUiBase {
 		return view;
 	}
 
-	// Run the controller instance for the route
-	runRouteController() {
-		for (const ctrl of this.ctrlWaitingToRun) {
-			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance && this.controllers[ctrl.viewId].instance.ctrl) {
-				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].data);
-			}
-		}
-		this.ctrlWaitingToRun = [];
-	}
 	// Templates for views with controllers
 	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		const self = this;
@@ -607,8 +598,16 @@ class PowerUi extends _PowerUiBase {
 		} else {
 			view.innerHTML = template;
 		}
+		this.runRouteController(viewId);
 		if (orderedRoutesToLoad) {
 			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, self.callInitViews.bind(self));
+		}
+	}
+
+	// Run the controller instance for the route
+	runRouteController(viewId) {
+		if (this.controllers[viewId] && this.controllers[viewId].instance && this.controllers[viewId].instance.ctrl) {
+			this.controllers[viewId].instance.ctrl(this.controllers[viewId].data);
 		}
 	}
 
