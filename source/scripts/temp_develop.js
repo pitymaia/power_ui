@@ -405,6 +405,7 @@ class PowerOnlyPage extends PowerController {
 		this.oldName = this.myName;
 	}
 	ctrl({lock, $powerUi}) {
+		console.log('PowerOnlyPage CTRL');
 		this.next = 0;
 		this.cats = [
 			{name: 'Sol', gender: 'female'},

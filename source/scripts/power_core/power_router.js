@@ -539,6 +539,7 @@ class Router {
 		this.buildOrderedRoutesToClose();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		this.removeControllerInOrder(this.orderedRoutesToClose, 0, this);
+		this.initRouteControllerInOrder(this.orderedRoutesToLoad, 0, this);
 		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
 	}
 
@@ -558,6 +559,37 @@ class Router {
 		}
 		ctx.runOnRouteCloseAndRemoveController(route.viewId);
 		ctx.removeControllerInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
+	}
+
+	// Run the controller instance for the route
+	initRouteControllerInOrder(orderedRoutesToLoad, routeIndex, ctx) {
+		const route = orderedRoutesToLoad[routeIndex];
+		if (!route) {
+			return;
+		}
+
+		const $data = ctx.routes[route.routeId].data || {};
+		const ctrl = ctx.routes[route.routeId].ctrl;
+		// Register the controller with $powerUi
+		ctx.$powerUi.controllers[route.viewId] = {
+			component: ctrl,
+			data: $data,
+		};
+		// Instanciate the controller
+		$data.$powerUi = ctx.$powerUi;
+		$data.viewId = route.viewId;
+		$data.routeId = route.routeId;
+		$data.title = ctx.routes[route.routeId].title;
+		ctx.$powerUi.controllers[route.viewId].instance = new ctrl($data);
+		ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
+		ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
+		ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues({routeId: route.routeId, paramKeys: route.paramKeys}) : {};
+		ctx.$powerUi.controllers[route.viewId].instance.$root = (this.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
+
+		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance && ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
+			ctx.$powerUi.controllers[route.viewId].instance.ctrl(ctx.$powerUi.controllers[route.viewId].data);
+		}
+		ctx.initRouteControllerInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx);
 	}
 
 	runOnRouteCloseAndRemoveController(viewId) {
@@ -721,24 +753,6 @@ class Router {
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
 		const _viewId = this.routes[routeId].viewId || viewId;
-		if (ctrl) {
-			// Register the controller with $powerUi
-			this.$powerUi.controllers[_viewId] = {
-				component: ctrl,
-				data: data,
-			};
-			// Instanciate the controller
-			const $data = data || {};
-			$data.$powerUi = this.$powerUi;
-			$data.viewId = _viewId;
-			$data.routeId = routeId;
-			$data.title = title;
-			this.$powerUi.controllers[_viewId].instance = new ctrl($data);
-			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
-			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
-			this.$powerUi.controllers[_viewId].instance._routeParams = paramKeys ? this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys}) : {};
-			this.$powerUi.controllers[_viewId].instance.$root = (this.$powerUi.controllers['root-view'] && this.$powerUi.controllers['root-view'].instance) ? this.$powerUi.controllers['root-view'].instance : null;
-		}
 
 		// If have a template to load let's do it
 		if (this.routes[routeId].template && !this.config.noRouterViews) {
