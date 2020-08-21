@@ -149,10 +149,7 @@ class PowerMidTemplate extends PowerTemplate {
 class PowerMidCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
 		console.log('PowerMidCtrl LOAD', viewId);
-		setTimeout(function () {
-			console.log('PowerMidCtrl LOAD done!');
-			resolve();
-		}, 3000);
+		resolve();
 	}
 	ctrl() {
 		console.log('MID ctrl');
@@ -172,10 +169,7 @@ class PowerThirdTemplate extends PowerTemplate {
 class PowerThirdCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
 		console.log('PowerThirdCtrl LOAD', viewId);
-		setTimeout(function () {
-			console.log('PowerThirdCtrl LOAD done!');
-			resolve();
-		}, 3000);
+		resolve();
 	}
 	ctrl() {
 		console.log('Third ctrl');
@@ -392,10 +386,7 @@ class PowerMainTemplate extends PowerTemplate {
 class PowerMainCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
 		console.log('PowerMainCtrl LOAD', viewId);
-		setTimeout(function () {
-			console.log('PowerMainCtrl LOAD done!');
-			resolve();
-		}, 2000);
+		resolve();
 	}
 	ctrl() {
 		console.log('Main ctrl');
@@ -418,10 +409,7 @@ class PowerMainChildTemplate extends PowerTemplate {
 class PowerMainChildCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
 		console.log('PowerMainChildCtrl LOAD', viewId);
-		setTimeout(function () {
-			console.log('PowerMainChildCtrl LOAD done!');
-			resolve();
-		}, 2000);
+		resolve();
 	}
 	ctrl() {
 		console.log('Child ctrl');
@@ -439,10 +427,7 @@ class PowerOnlyPage extends PowerController {
 	}
 	load({resolve, reject, viewId}) {
 		console.log('PowerOnlyPage LOAD :)', viewId);
-		setTimeout(function () {
-			console.log('LOAD done!');
-			resolve();
-		}, 500);
+		resolve();
 	}
 	onViewLoad() {
 		console.log('PowerOnlyPage onViewLoad');
@@ -5019,25 +5004,23 @@ class JSONViews extends PowerWindow {
 		} else if (this._allowClose === true) {
 			return;
 		}
-		setTimeout(function () {
-			self.$service('widget').confirm({
-				title: 'This is a confirm',
-				template: `<div>Do you really want this?</div>`,
-				controller: function() {
-					console.log('confirm?');
-				},
-				onCommit: function(resolve, reject, value) {
-					console.log('Thanks for commiting with me.', value);
-					self._allowClose = true;
-					self.closeCurrentRoute();
-					resolve();
-				},
-				onCancel: function(resolve) {
-					console.log('This is sad...');
-					resolve();
-				}
-			});
-		}, 100);
+		this.$service('widget').confirm({
+			title: 'This is a confirm',
+			template: `<div>Do you really want close?</div>`,
+			controller: function() {
+				console.log('confirm?');
+			},
+			onCommit: function(resolve, reject, value) {
+				console.log('Thanks for commiting with me.', value);
+				self._allowClose = true;
+				self.closeCurrentRoute();
+				resolve();
+			},
+			onCancel: function(resolve) {
+				console.log('This is sad...');
+				resolve();
+			}
+		});
 
 		return this._allowClose;
 	}

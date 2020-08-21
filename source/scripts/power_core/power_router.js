@@ -350,7 +350,7 @@ class Router {
 			document.body.appendChild(spinnerBackdrop);
 		}
 		// Avoid blink uninterpolated data before call compile and interpolate
-		const node = document.getElementById(viewId);
+		const node = document.getElementById(viewId) || document.getElementById('main-view').parentNode;
 		node.style.visibility = 'hidden';
 	}
 
