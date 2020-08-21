@@ -151,6 +151,13 @@ class PowerMidTemplate extends PowerTemplate {
 }
 
 class PowerMidCtrl extends PowerController {
+	load({resolve, reject, viewId}) {
+		console.log('PowerMidCtrl LOAD', viewId);
+		setTimeout(function () {
+			console.log('PowerMidCtrl LOAD done!');
+			resolve();
+		}, 3000);
+	}
 	ctrl() {
 		console.log('MID ctrl');
 	}
@@ -167,6 +174,13 @@ class PowerThirdTemplate extends PowerTemplate {
 }
 
 class PowerThirdCtrl extends PowerController {
+	load({resolve, reject, viewId}) {
+		console.log('PowerThirdCtrl LOAD', viewId);
+		setTimeout(function () {
+			console.log('PowerThirdCtrl LOAD done!');
+			resolve();
+		}, 3000);
+	}
 	ctrl() {
 		console.log('Third ctrl');
 	}
@@ -377,6 +391,13 @@ class PowerMainTemplate extends PowerTemplate {
 }
 
 class PowerMainCtrl extends PowerController {
+	load({resolve, reject, viewId}) {
+		console.log('PowerMainCtrl LOAD', viewId);
+		setTimeout(function () {
+			console.log('PowerMainCtrl LOAD done!');
+			resolve();
+		}, 2000);
+	}
 	ctrl() {
 		console.log('Main ctrl');
 	}
@@ -393,6 +414,13 @@ class PowerMainChildTemplate extends PowerTemplate {
 }
 
 class PowerMainChildCtrl extends PowerController {
+	load({resolve, reject, viewId}) {
+		console.log('PowerMainChildCtrl LOAD', viewId);
+		setTimeout(function () {
+			console.log('PowerMainChildCtrl LOAD done!');
+			resolve();
+		}, 2000);
+	}
 	ctrl() {
 		console.log('Child ctrl');
 	}
@@ -403,6 +431,13 @@ class PowerOnlyPage extends PowerController {
 		super({$powerUi: $powerUi});
 		this.myName = 'My name is Pity the best!';
 		this.oldName = this.myName;
+	}
+	load({resolve, reject, viewId}) {
+		console.log('PowerOnlyPage LOAD :)', viewId);
+		setTimeout(function () {
+			console.log('LOAD done!');
+			resolve();
+		}, 3000)
 	}
 	ctrl({lock, $powerUi}) {
 		console.log('PowerOnlyPage CTRL');

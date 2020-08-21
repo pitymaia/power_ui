@@ -531,41 +531,55 @@ class Router {
 			currentRoutesTree.hiddenRoutes, 'hiddenRoutes', 'hidden', this.setHiddenRouteState.bind(this));
 	}
 
-	engine() {
+	async engine() {
 		this.orderedRoutesToLoad = [];
 		this.orderedRoutesToClose = [];
 		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
-		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
-		this.removeControllerInOrder(this.orderedRoutesToClose, 0, this);
-		this.initRouteControllerInOrder(this.orderedRoutesToLoad, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.removeViewInOrder, this.orderedRoutesToClose, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.removeControllerInOrder, this.orderedRoutesToClose, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.initRouteControllerAndCallLoadInOrder, this.orderedRoutesToLoad, 0, this);
 		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
 	}
 
-	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx) {
-		const route = orderedRoutesToClose[routeIndex];
-		if (!route) {
-			return;
-		}
-		ctx.removeView(route.viewId);
-		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
+	// This is the first link in a chain of recursive loop with promises
+	// We are calling recursive functions that may contain promises
+	// When the function detects it's done it calls the this function resolve
+	resolveWhenListIsPopulated(fn, orderedList, index, ctx) {
+		const _promise = new Promise(function(resolve) {
+			const _resolve = resolve;
+			fn(orderedList, index, ctx, _resolve);
+		});
+		return _promise;
 	}
 
-	removeControllerInOrder(orderedRoutesToClose, routeIndex, ctx) {
+	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
-			return;
+			return _resolve();
+		}
+		ctx.removeView(route.viewId);
+		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	}
+
+	removeControllerInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToClose[routeIndex];
+		if (!route) {
+			return _resolve();
 		}
 		ctx.runOnRouteCloseAndRemoveController(route.viewId);
-		ctx.removeControllerInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
+		ctx.removeControllerInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 	}
 
 	// Run the controller instance for the route
-	initRouteControllerInOrder(orderedRoutesToLoad, routeIndex, ctx) {
+	initRouteControllerAndCallLoadInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToLoad[routeIndex];
 		if (!route) {
-			return;
+			return	_resolve();
 		}
 
 		const $data = ctx.routes[route.routeId].data || {};
@@ -584,12 +598,19 @@ class Router {
 		ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
 		ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
 		ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues({routeId: route.routeId, paramKeys: route.paramKeys}) : {};
-		ctx.$powerUi.controllers[route.viewId].instance.$root = (this.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
+		ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
 
-		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance && ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
-			ctx.$powerUi.controllers[route.viewId].instance.ctrl(ctx.$powerUi.controllers[route.viewId].data);
+		// Run the controller load
+		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance && ctx.$powerUi.controllers[route.viewId].instance.load) {
+			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(ctx.$powerUi.controllers[route.viewId].data);
+			loadPromise.then(function (response) {
+				ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			}).catch(function (error) {
+				window.console.log('Error: ', error);
+			});
+		} else {
+			ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 		}
-		ctx.initRouteControllerInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx);
 	}
 
 	runOnRouteCloseAndRemoveController(viewId) {

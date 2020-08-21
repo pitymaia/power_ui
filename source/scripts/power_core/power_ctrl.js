@@ -5,6 +5,16 @@ class PowerController extends PowerScope {
 		this.volatileRouteIds = [];
 	}
 
+	_load(data) {
+		const self = this;
+		return new Promise(
+			function (resolve, reject) {
+				data.resolve = resolve;
+				data.reject = reject;
+				self.load(data);
+			});
+	}
+
 	get router() {
 		return this.$powerUi.router;
 	}
