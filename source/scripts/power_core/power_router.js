@@ -546,6 +546,8 @@ class Router {
 			this.runControllerInOrder, this.orderedRoutesToLoad, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.loadRouteInOrder, this.orderedRoutesToLoad, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.callOnViewLoadInOrder, this.orderedRoutesToLoad, 0, this);
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -671,6 +673,48 @@ class Router {
 		}
 	}
 
+	callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToLoad[routeIndex];
+		if (!route) {
+			return _resolve();
+		}
+
+		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance) {
+			if (ctx.$powerUi.controllers[route.viewId].instance.onViewLoad) {
+				const result = ctx.$powerUi.controllers[route.viewId].instance.onViewLoad(
+					ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
+				if (result && result.promise) {
+					result.promise.then(function () {
+						ctx.afterOnViewLoad(ctx, route);
+						ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					}).catch(function (error) {
+						window.console.log('Error running onViewLoad: ', route.routeId, error);
+					});
+				} else {
+					ctx.afterOnViewLoad(ctx, route);
+					ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				}
+			} else {
+				ctx.afterOnViewLoad(ctx, route);
+				ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
+	afterOnViewLoad(ctx, route) {
+		if (ctx.$powerUi.controllers[route.viewId].instance._onViewLoad) {
+			ctx.$powerUi.controllers[route.viewId].instance._onViewLoad(
+				ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
+		}
+		ctx.$powerUi.controllers[route.viewId].instance._ready = true;
+		// Close the route if user ask to close before it is ready
+		if (ctx.$powerUi.controllers[route.viewId].instance._cancelOpenRoute) {
+			ctx.$powerUi.controllers[route.viewId].instance.closeCurrentRoute();
+		}
+	}
+
 	removeView(viewId) {
 		if (!this.$powerUi.powerTree) {
 			return;
@@ -755,8 +799,8 @@ class Router {
 	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToLoad[routeIndex];
 		if (!route) {
-				ctx.$powerUi.callInitViews();
-				ctx.removeSpinnerAndShowContent('root-view');
+			ctx.$powerUi.callInitViews();
+			ctx.removeSpinnerAndShowContent('root-view');
 			return _resolve();
 		}
 		if (route.kind === 'secundary' || route.kind === 'hidden') {

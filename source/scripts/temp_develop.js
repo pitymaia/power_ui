@@ -114,10 +114,6 @@ class FrontPage extends PowerController {
 		return value;
 	}
 
-	onViewLoad(view) {
-
-	}
-
 	openModal(params) {
 		this.openRoute({
 			params: params,
@@ -362,6 +358,9 @@ class SecundaryChildOfChildCtrl extends PowerController {
 			target: '_self',
 		});
 	}
+	onViewLoad() {
+		console.log('SecundaryChildOfChildCtrl onViewLoad');
+	}
 }
 
 class SecundaryChildOfChildTemplate2 extends PowerTemplate {
@@ -401,6 +400,9 @@ class PowerMainCtrl extends PowerController {
 	ctrl() {
 		console.log('Main ctrl');
 	}
+	onViewLoad() {
+		console.log('PowerMainCtrl onViewLoad');
+	}
 }
 
 class PowerMainChildTemplate extends PowerTemplate {
@@ -424,6 +426,9 @@ class PowerMainChildCtrl extends PowerController {
 	ctrl() {
 		console.log('Child ctrl');
 	}
+	onViewLoad() {
+		console.log('PowerMainChildCtrl onViewLoad');
+	}
 }
 
 class PowerOnlyPage extends PowerController {
@@ -437,10 +442,13 @@ class PowerOnlyPage extends PowerController {
 		setTimeout(function () {
 			console.log('LOAD done!');
 			resolve();
-		}, 3000)
+		}, 500);
+	}
+	onViewLoad() {
+		console.log('PowerOnlyPage onViewLoad');
 	}
 	ctrl({lock, $powerUi}) {
-		console.log('PowerOnlyPage CTRL');
+		console.log('PowerOnlyPage CTRL @');
 		this.next = 0;
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
@@ -501,10 +509,6 @@ class PowerOnlyPage extends PowerController {
 			this.$root.changeCats();
 			this.refresh();
 		}
-	}
-
-	onViewLoad(view) {
-
 	}
 
 	openSimpleModal() {
@@ -5188,10 +5192,6 @@ class FakeModal extends PowerModal {
 			this.refresh();
 		}
 		console.log('this.cats.length', this.cats.length);
-	}
-
-	onViewLoad(view) {
-
 	}
 
 	openSimpleModal() {

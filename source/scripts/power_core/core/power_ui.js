@@ -422,35 +422,8 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 		this.waitingInit = [];
-
-		for (const key of Object.keys(this.controllers || {})) {
-			this.callOnViewLoad(this, key);
-		}
 		const t1 = performance.now();
 		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
-	}
-
-	// pwReload() {
-	// 	this.initAlreadyRun = false;
-	// 	this.router._reload();
-	// }
-
-	callOnViewLoad(self, viewId) {
-		if (self.controllers[viewId] && self.controllers[viewId].instance) {
-			if (self.controllers[viewId].instance.onViewLoad) {
-				self.controllers[viewId].instance.onViewLoad(
-					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
-			}
-			if (self.controllers[viewId].instance._onViewLoad) {
-				self.controllers[viewId].instance._onViewLoad(
-					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
-			}
-			self.controllers[viewId].instance._ready = true;
-			// Close the route if user ask to close before it is ready
-			if (self.controllers[viewId].instance._cancelOpenRoute) {
-				self.controllers[viewId].instance.closeCurrentRoute();
-			}
-		}
 	}
 
 	initNodes() {
@@ -459,7 +432,6 @@ class PowerUi extends _PowerUiBase {
 			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
-			this.callOnViewLoad(this, item.node.id);
 		}
 
 		const t1 = performance.now();
@@ -532,14 +504,6 @@ class PowerUi extends _PowerUiBase {
 				ctx: ctx,
 				_resolve: _resolve,
 			});
-			// Cache this template for new requests if avoidCacheTemplate not setted as true
-			const routeConfig = routes[routeId];
-			if (routeConfig.avoidCacheTemplate !== true) {
-				routeConfig.template = template;
-				routeConfig.templateIsCached = true;
-			} else {
-				routeConfig.templateIsCached = false;
-			}
 		}).catch(function (response, xhr) {
 			window.console.log('ERROR loading templateComponent:', response);
 		});
@@ -601,7 +565,7 @@ class PowerUi extends _PowerUiBase {
 			view.innerHTML = template;
 		}
 		if (orderedRoutesToLoad) {
-			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, self.callInitViews.bind(self), _resolve);
+			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve);
 		}
 	}
 
