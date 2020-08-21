@@ -1814,14 +1814,6 @@ class GridPageTemplate extends PowerTemplate {
 							{
 								"id": "flag12",
 								"$ref": "flag-smaller"
-							},
-							{
-								"button": {
-									"id": "books-unique",
-									"label": "More Books",
-									"icon": "icon-power-logo",
-									"kind": "warning",
-								},
 							}
 						],
 						"classList": ["pw-col", "s-6", "m-6", "l-6", "xl-6"]
