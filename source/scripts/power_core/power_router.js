@@ -537,8 +537,7 @@ class Router {
 		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
-		await this.resolveWhenListIsPopulated(
-			this.removeViewInOrder, this.orderedRoutesToClose, 0, this);
+		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.removeControllerInOrder, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
@@ -559,13 +558,13 @@ class Router {
 		return _promise;
 	}
 
-	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
-			return _resolve();
+			return;
 		}
 		ctx.removeView(route.viewId);
-		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
 	}
 
 	removeControllerInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
