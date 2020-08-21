@@ -543,6 +543,8 @@ class Router {
 			this.removeControllerInOrder, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.initRouteControllerAndCallLoadInOrder, this.orderedRoutesToLoad, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.runControllerInOrder, this.orderedRoutesToLoad, 0, this);
 		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
 	}
 
@@ -603,23 +605,50 @@ class Router {
 		// Run the controller load
 		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance && ctx.$powerUi.controllers[route.viewId].instance.load) {
 			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(ctx.$powerUi.controllers[route.viewId].data);
-			loadPromise.then(function (response) {
+			loadPromise.then(function () {
 				ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 			}).catch(function (error) {
-				window.console.log('Error: ', error);
+				window.console.log('Error load CTRL: ', error);
 			});
 		} else {
 			ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
+	runControllerInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToLoad[routeIndex];
+		if (!route) {
+			return	_resolve();
+		}
+
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
+				const result = ctx.$powerUi.controllers[route.viewId].instance.ctrl(
+					ctx.$powerUi.controllers[route.viewId].data);
+				if (result && result.promise) {
+					result.promise.then(function () {
+						ctx.runControllerInOrder(
+							ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					}).catch(function (error) {
+						window.console.log('Error running CTRL: ', error);
+					});
+				} else {
+					ctx.runControllerInOrder(
+						ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				}
+		}
+	}
+
 	runOnRouteCloseAndRemoveController(viewId) {
 		// Delete the controller instance of this view if exists
 		if (this.$powerUi.controllers[viewId]) {
-			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
+			if(this.$powerUi.controllers[viewId].instance &&
+				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
 				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
 			}
-			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.onRouteClose) {
+			if(this.$powerUi.controllers[viewId].instance &&
+				this.$powerUi.controllers[viewId].instance.onRouteClose) {
 				this.$powerUi.controllers[viewId].instance.onRouteClose();
 			}
 			delete this.$powerUi.controllers[viewId];
@@ -635,7 +664,8 @@ class Router {
 
 		const powerViewNode = document.getElementById(viewId);
 		// delete all inner elements and events from this.allPowerObjsById[id]
-		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId] &&
+			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
 			if (viewId === 'main-view') {
 				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
 			} else {
