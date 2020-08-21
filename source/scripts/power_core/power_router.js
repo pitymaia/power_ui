@@ -1077,7 +1077,7 @@ class Router {
 				}
 			}
 		}
-	return exists;
+		return exists;
 	}
 
 	setMainRouteState({routeId, paramKeys, route, viewId, title, data}) {
