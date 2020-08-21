@@ -544,7 +544,8 @@ class Router {
 			this.initRouteControllerAndCallLoadInOrder, this.orderedRoutesToLoad, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runControllerInOrder, this.orderedRoutesToLoad, 0, this);
-		this.loadRouteInOrder(this.orderedRoutesToLoad, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.loadRouteInOrder, this.orderedRoutesToLoad, 0, this);
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -751,12 +752,12 @@ class Router {
 		viewNode.appendChild(newViewNode);
 	}
 
-	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx) {
+	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToLoad[routeIndex];
 		if (!route) {
 				ctx.$powerUi.callInitViews();
 				ctx.removeSpinnerAndShowContent('root-view');
-			return;
+			return _resolve();
 		}
 		if (route.kind === 'secundary' || route.kind === 'hidden') {
 			ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
@@ -776,6 +777,7 @@ class Router {
 			orderedRoutesToLoad: ctx.orderedRoutesToLoad,
 			routeIndex: routeIndex + 1,
 			ctx: ctx,
+			_resolve: _resolve,
 		});
 	}
 
@@ -817,7 +819,7 @@ class Router {
 		}
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx, _resolve}) {
 		const _viewId = this.routes[routeId].viewId || viewId;
 
 		// If have a template to load let's do it
@@ -838,6 +840,7 @@ class Router {
 					orderedRoutesToLoad: orderedRoutesToLoad,
 					routeIndex: routeIndex,
 					ctx: ctx,
+					_resolve: _resolve,
 				});
 			} else if (this.routes[routeId].templateComponent) {
 				this.$powerUi.loadTemplateComponent({
@@ -852,6 +855,7 @@ class Router {
 					orderedRoutesToLoad: orderedRoutesToLoad,
 					routeIndex: routeIndex,
 					ctx: ctx,
+					_resolve: _resolve,
 				});
 			} else {
 				this.$powerUi.loadTemplate({
@@ -865,6 +869,7 @@ class Router {
 					orderedRoutesToLoad: orderedRoutesToLoad,
 					routeIndex: routeIndex,
 					ctx: ctx,
+					_resolve: _resolve,
 				});
 			}
 		}
