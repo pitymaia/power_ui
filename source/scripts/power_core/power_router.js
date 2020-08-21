@@ -539,7 +539,7 @@ class Router {
 		this.buildOrderedRoutesToClose();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.removeControllerInOrder, this.orderedRoutesToClose, 0, this);
+			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.initRouteControllerAndCallLoadInOrder, this.orderedRoutesToLoad, 0, this);
 		await this.resolveWhenListIsPopulated(
@@ -565,15 +565,6 @@ class Router {
 		}
 		ctx.removeView(route.viewId);
 		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
-	}
-
-	removeControllerInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToClose[routeIndex];
-		if (!route) {
-			return _resolve();
-		}
-		ctx.runOnRouteCloseAndRemoveController(route.viewId);
-		ctx.removeControllerInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 	}
 
 	// Run the controller instance for the route
@@ -602,7 +593,9 @@ class Router {
 		ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
 
 		// Run the controller load
-		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance && ctx.$powerUi.controllers[route.viewId].instance.load) {
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.load) {
 			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(ctx.$powerUi.controllers[route.viewId].data);
 			loadPromise.then(function () {
 				ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
@@ -623,34 +616,57 @@ class Router {
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
-				const result = ctx.$powerUi.controllers[route.viewId].instance.ctrl(
-					ctx.$powerUi.controllers[route.viewId].data);
-				if (result && result.promise) {
-					result.promise.then(function () {
-						ctx.runControllerInOrder(
-							ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
-					}).catch(function (error) {
-						window.console.log('Error running CTRL: ', error);
-					});
-				} else {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.ctrl(
+				ctx.$powerUi.controllers[route.viewId].data);
+			if (result && result.promise) {
+				result.promise.then(function () {
 					ctx.runControllerInOrder(
 						ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
-				}
+				}).catch(function (error) {
+					window.console.log('Error running CTRL: ', error);
+				});
+			} else {
+				ctx.runControllerInOrder(
+					ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.runControllerInOrder(
+				ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
-	runOnRouteCloseAndRemoveController(viewId) {
+	runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToClose[routeIndex];
+		if (!route) {
+			return _resolve();
+		}
+
 		// Delete the controller instance of this view if exists
-		if (this.$powerUi.controllers[viewId]) {
-			if(this.$powerUi.controllers[viewId].instance &&
-				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
-				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback) {
+			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback();
+		}
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.onRouteClose();
+
+			if (result && result.promise) {
+				result.promise.then(function () {
+					delete ctx.$powerUi.controllers[route.viewId];
+					ctx.runOnRouteCloseAndRemoveController(
+						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					window.console.log('Error running onRouteClose: ', route.routeId, error);
+				});
+			} else {
+				delete ctx.$powerUi.controllers[route.viewId];
+				ctx.runOnRouteCloseAndRemoveController(
+					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
-			if(this.$powerUi.controllers[viewId].instance &&
-				this.$powerUi.controllers[viewId].instance.onRouteClose) {
-				this.$powerUi.controllers[viewId].instance.onRouteClose();
-			}
-			delete this.$powerUi.controllers[viewId];
+		} else {
+			ctx.runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
