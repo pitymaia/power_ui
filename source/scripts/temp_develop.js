@@ -5389,17 +5389,18 @@ const routes = [
 			title: 'Not found | PowerUi',
 			route: '404',
 			templateUrl: '404.html',
+		},
+		{
+			id: '$root',
+			ctrl: RootScope,
+			templateComponent: RootScopeTemplate,
+			data: {pity: 'Pity o bom'},
 		}
 	];
 
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
-	$root: {
-		templateComponent: RootScopeTemplate,
-		ctrl: RootScope,
-		data: {lock: false},
-	},
 	// services: services,
 	// spinnerLabel: 'carregando',
 	devMode: {iframe: 'http://localhost:3002', main: 'http://localhost:3000'},

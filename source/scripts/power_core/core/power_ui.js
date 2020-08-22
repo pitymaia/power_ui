@@ -198,33 +198,33 @@ class PowerUi extends _PowerUiBase {
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 
-		// Render the rootScope if exists and only boostrap after promise returns
-		if (config.$root) {
-			const viewId = 'root-view';
-			const routeId = '$root';
-			const crtlInstance = new config.$root.ctrl(
-				{$powerUi: this, viewId: viewId, routeId: routeId});
-			const rootTemplate = new config.$root.templateComponent(
-				{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
-			crtlInstance.$tscope = rootTemplate.component;
-			const self = this;
-			rootTemplate.template.then(function (response) {
-				self.loadRootScope({
-					viewId: viewId,
-					routeId: routeId,
-					$root: config.$root,
-					crtlInstance: crtlInstance,
-					template: response,
-					data: config.$root.data,
-				});
-				self.bootstrap(config);
-			}).catch(function (error) {
-				console.log('error', error);
-			});
+		// // Render the rootScope if exists and only boostrap after promise returns
+		// if (config.$root) {
+		// 	const viewId = 'root-view';
+		// 	const routeId = '$root';
+		// 	const crtlInstance = new config.$root.ctrl(
+		// 		{$powerUi: this, viewId: viewId, routeId: routeId});
+		// 	const rootTemplate = new config.$root.templateComponent(
+		// 		{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
+		// 	crtlInstance.$tscope = rootTemplate.component;
+		// 	const self = this;
+		// 	rootTemplate.template.then(function (response) {
+		// 		self.loadRootScope({
+		// 			viewId: viewId,
+		// 			routeId: routeId,
+		// 			$root: config.$root,
+		// 			crtlInstance: crtlInstance,
+		// 			template: response,
+		// 			data: config.$root.data,
+		// 		});
+		// 		self.bootstrap(config);
+		// 	}).catch(function (error) {
+		// 		console.log('error', error);
+		// 	});
 
-		} else {
+		// } else {
 			this.bootstrap(config);
-		}
+		// }
 	}
 
 	bootstrap(config) {

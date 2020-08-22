@@ -27,7 +27,7 @@ class Router {
 				this.add(route);
 			}
 		}
-		this.engine();
+		this.initRootScopeAndRunEngine();
 
 		// call engine if hash change
 		window.onhashchange = this.hashChange.bind(this);
@@ -531,12 +531,44 @@ class Router {
 			currentRoutesTree.hiddenRoutes, 'hiddenRoutes', 'hidden', this.setHiddenRouteState.bind(this));
 	}
 
-	async engine() {
+	// Render the rootScope if exists and only boostrap after promise returns
+	initRootScopeAndRunEngine() {
+		const $root = this.$powerUi.config.routes.find(r=> r.id === '$root');
+		if ($root) {
+			const viewId = 'root-view';
+			const routeId = '$root';
+			const crtlInstance = new $root.ctrl(
+				{$powerUi: this.$powerUi, viewId: viewId, routeId: routeId});
+			const rootTemplate = new $root.templateComponent(
+				{$powerUi: this.$powerUi, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
+			crtlInstance.$tscope = rootTemplate.component;
+			const self = this;
+			rootTemplate.template.then(function (response) {
+				self.$powerUi.loadRootScope({
+					viewId: viewId,
+					routeId: routeId,
+					$root: $root,
+					crtlInstance: crtlInstance,
+					template: response,
+					data: $root.data,
+				});
+				self.engine(true);
+			}).catch(function (error) {
+				console.log('error', error);
+			});
+		} else {
+			this.engine(true);
+		}
+	}
+
+	async engine($root) {
 		this.orderedRoutesToLoad = [];
 		this.orderedRoutesToClose = [];
 		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
+		console.log('orderedRoutesToLoad', this.orderedRoutesToLoad);
+		console.log('orderedRoutesToClose', this.orderedRoutesToClose);
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
