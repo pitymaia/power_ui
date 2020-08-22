@@ -1344,6 +1344,13 @@ class RootScopeTemplate extends PowerTemplate {
 }
 
 class RootScope extends PowerController {
+	load({resolve}) {
+		console.log('Root load');
+		resolve();
+	}
+	onViewLoad() {
+		console.log('Root onViewLoad');
+	}
 	ctrl() {
 		console.log('Root ctrl');
 		this.cats = [
@@ -1411,10 +1418,6 @@ class RootScope extends PowerController {
 				}
 			}
 		});
-	}
-
-	onViewLoad(view) {
-
 	}
 
 	changeCats() {
