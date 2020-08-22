@@ -197,85 +197,10 @@ class PowerUi extends _PowerUiBase {
 		this._events.ready = new UEvent();
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
-
-		// // Render the rootScope if exists and only boostrap after promise returns
-		// if (config.$root) {
-		// 	const viewId = 'root-view';
-		// 	const routeId = '$root';
-		// 	const crtlInstance = new config.$root.ctrl(
-		// 		{$powerUi: this, viewId: viewId, routeId: routeId});
-		// 	const rootTemplate = new config.$root.templateComponent(
-		// 		{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
-		// 	crtlInstance.$tscope = rootTemplate.component;
-		// 	const self = this;
-		// 	rootTemplate.template.then(function (response) {
-		// 		self.loadRootScope({
-		// 			viewId: viewId,
-		// 			routeId: routeId,
-		// 			$root: config.$root,
-		// 			crtlInstance: crtlInstance,
-		// 			template: response,
-		// 			data: config.$root.data,
-		// 		});
-		// 		self.bootstrap(config);
-		// 	}).catch(function (error) {
-		// 		console.log('error', error);
-		// 	});
-
-		// } else {
-			this.bootstrap(config);
-		// }
-	}
-
-	bootstrap(config) {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		// suport ESC qkey
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
-	}
-
-	loadRootScope({viewId, routeId, $root, crtlInstance, template}) {
-		// Register the controller with $powerUi
-		this.controllers[viewId] = {
-			component: $root.component,
-			params: $root.params,
-		};
-		// Instanciate the controller
-		this.controllers[viewId].instance = crtlInstance;
-		this.controllers[viewId].instance._viewId = viewId;
-		this.controllers[viewId].instance._routeId = routeId;
-
-
-		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		this.buildViewTemplateAndMayCallInit({
-			self: this,
-			view: view,
-			template: template,
-			routeId: routeId,
-			viewId: viewId,
-			title: null,
-		});
-
-		// Save the raw template to allow refresh the rootSope view
-		this.registerRootTemplate({
-			template: template,
-			ctrl: crtlInstance,
-			viewId: viewId,
-			view: document.getElementById(viewId),
-		});
-	}
-
-	// Save the raw template to allow refresh the rootSope view
-	registerRootTemplate({template, ctrl, viewId, view}) {
-		this._rootScope = {
-			routeId: '#root',
-			template: template,
-			ctrl: ctrl,
-			viewId: viewId,
-			view: view,
-			title: null,
-			$tscope: ctrl.$tscope,
-		};
 	}
 
 	// Return the "view" controller of any element inside the current view

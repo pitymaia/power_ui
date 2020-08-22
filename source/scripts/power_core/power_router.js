@@ -56,7 +56,11 @@ class Router {
 			route.route = '';
 		}
 
-		route.route = this.config.rootPath + route.route;
+		if (route.id === '$root') {
+			route.route = '';
+		} else {
+			route.route = this.config.rootPath + (route.route || '');
+		}
 
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
@@ -65,9 +69,9 @@ class Router {
 				// the "otherwise" route can be duplicated only if it do not have a template
 				if (this.routes[routeId].route === route.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
 					if (routeId === 'otherwise' || route.id === 'otherwise') {
-						throw new Error(`the route "${route || '/'}" already exists, so "${route.id}" can't use it if you use a template. You can remove the template or use another route.`);
+						throw new Error(`the route "${route.route || '/'}" already exists, so "${route.id}" can't use it if you use a template. You can remove the template or use another route.`);
 					} else {
-						throw new Error(`the route "${route || '/'}" already exists, so "${route.id}" can't use it.`);
+						throw new Error(`the route "${route.route || '/'}" already exists, so "${route.id}" can't use it.`);
 					}
 				}
 			}
@@ -534,41 +538,20 @@ class Router {
 	// Render the rootScope if exists and only boostrap after promise returns
 	initRootScopeAndRunEngine() {
 		const $root = this.$powerUi.config.routes.find(r=> r.id === '$root');
+		const loadRoot = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root"};
 		if ($root) {
-			const viewId = 'root-view';
-			const routeId = '$root';
-			const crtlInstance = new $root.ctrl(
-				{$powerUi: this.$powerUi, viewId: viewId, routeId: routeId});
-			const rootTemplate = new $root.templateComponent(
-				{$powerUi: this.$powerUi, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
-			crtlInstance.$tscope = rootTemplate.component;
-			const self = this;
-			rootTemplate.template.then(function (response) {
-				self.$powerUi.loadRootScope({
-					viewId: viewId,
-					routeId: routeId,
-					$root: $root,
-					crtlInstance: crtlInstance,
-					template: response,
-					data: $root.data,
-				});
-				self.engine(true);
-			}).catch(function (error) {
-				console.log('error', error);
-			});
+			this.engine(loadRoot);
 		} else {
-			this.engine(true);
+			this.engine();
 		}
 	}
 
 	async engine($root) {
-		this.orderedRoutesToLoad = [];
+		this.orderedRoutesToLoad = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
 		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
-		console.log('orderedRoutesToLoad', this.orderedRoutesToLoad);
-		console.log('orderedRoutesToClose', this.orderedRoutesToClose);
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
