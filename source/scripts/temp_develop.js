@@ -806,7 +806,7 @@ class SimpleDialog extends PowerWindow {
 	}
 
 	ctrl({lock, $powerUi}) {
-		console.log('ctrl', this.$tscope.pity);
+		console.log('SimpleDialog ctrl');
 	}
 
 	// onViewLoad(view) {
@@ -4999,33 +4999,30 @@ class JSONViews extends PowerWindow {
 		console.log('ON ROUTE CLOSE!!!');
 	}
 
-	onBeforeClose() {
-		console.log('onBeforeClose');
+	beforeClose(data) {
+		console.log('beforeClose', data);
 		const self = this;
-		if (this._allowClose === undefined) {
-			this._allowClose = false;
-		} else if (this._allowClose === true) {
-			return;
-		}
-		this.$service('widget').confirm({
+		const options = {
 			title: 'This is a confirm',
 			template: `<div>Do you really want close?</div>`,
-			controller: function() {
-				console.log('confirm?');
-			},
+			// controller: function(resolve, reject) {
+			// 	console.log('$$$$ confirm?', resolve, reject);
+			// },
 			onCommit: function(resolve, reject, value) {
-				console.log('Thanks for commiting with me.', value);
-				self._allowClose = true;
-				self.closeCurrentRoute();
-				resolve();
+				console.log('$$$$$$ CARALHO!!!!!!!', resolve, reject, value);
+				resolve(`$$$$$$ CARALHO!!!!!!!${resolve + reject}`);
+				this.closeCurrentRoute();
 			},
 			onCancel: function(resolve) {
 				console.log('This is sad...');
 				resolve();
+				this.closeCurrentRoute();
 			}
-		});
-
-		return this._allowClose;
+		};
+		console.log('options', options);
+		const confirm = this.$service('widget').confirm(options);
+		console.log('promise?', confirm);
+		return {promise: confirm};
 	}
 
 	openModal() {

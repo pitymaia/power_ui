@@ -36,11 +36,13 @@ class PowerYesNo extends PowerDialog {
 	}
 }
 
-function wrapFunctionInsideDialog({controller, kind, params}) {
+function wrapFunctionInsideDialog({controller, kind, params, resolve, reject}) {
 	class _Alert extends PowerAlert {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -53,6 +55,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -65,6 +69,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -77,6 +83,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -88,6 +96,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -100,6 +110,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 		constructor({$powerUi}) {
 			super({$powerUi: $powerUi});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];

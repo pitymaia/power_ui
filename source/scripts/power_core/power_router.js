@@ -17,6 +17,7 @@ class Router {
 		this.config = config || {};
 		this.$powerUi = powerUi;
 		this.routes = {};
+		this.oldRoutesBkp = getEmptyRouteObjetc();
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
 		if (!this.config.rootPath) {
@@ -27,10 +28,13 @@ class Router {
 				this.add(route);
 			}
 		}
-		this.initRootScopeAndRunEngine();
 
+		if (!this.config.phantomMode) {
+			this.initRootScopeAndRunEngine();
+		}
 		// call engine if hash change
 		window.onhashchange = this.hashChange.bind(this);
+
 	}
 
 	add(route) {
@@ -86,6 +90,8 @@ class Router {
 
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
+		// Save the old routes if user abort and need restore it
+		this.oldRoutesBkp = this.cloneRoutes({source: this.oldRoutes});
 		// Save a copy of currentRoutes as oldRoutes
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
@@ -547,11 +553,15 @@ class Router {
 	}
 
 	async engine($root) {
+		this.engineIsRunning = true;
 		this.orderedRoutesToLoad = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
 		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
+		await this.resolveWhenListIsPopulated(
+			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
+		console.log('continuou...', this.currentRoutes, this.orderedRoutesToLoad);
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
@@ -563,6 +573,7 @@ class Router {
 			this.loadRouteInOrder, this.orderedRoutesToLoad, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.callOnViewLoadInOrder, this.orderedRoutesToLoad, 0, this);
+		this.engineIsRunning = false;
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -585,9 +596,39 @@ class Router {
 		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
 	}
 
+	runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToClose[routeIndex];
+		if (!route) {
+			return	_resolve();
+		}
+
+		// Run the controller load
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
+			console.log('result', result);
+			if (result && result.promise) {
+				result.promise.then(function (response) {
+					console.log('beforeClose response', response);
+					ctx.runBeforeCloseInOrder(
+						ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					window.console.log('Error running beforeClose: ', route.routeId, error);
+				});
+			} else {
+				ctx.runBeforeCloseInOrder(
+					ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.runBeforeCloseInOrder(ctx.orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
 	// Run the controller instance for the route
 	initRouteControllerAndCallLoadInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToLoad[routeIndex];
+		console.log('route', route);
 		if (!route) {
 			return	_resolve();
 		}
@@ -607,21 +648,25 @@ class Router {
 		ctx.$powerUi.controllers[route.viewId].instance = new ctrl($data);
 		ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
 		ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
-		ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues({routeId: route.routeId, paramKeys: route.paramKeys}) : {};
+		ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues(
+			{routeId: route.routeId, paramKeys: route.paramKeys}) : {};
 		ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
 
 		// Run the controller load
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.load) {
-			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(ctx.$powerUi.controllers[route.viewId].data);
+			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(
+				ctx.$powerUi.controllers[route.viewId].data);
 			loadPromise.then(function () {
-				ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				ctx.initRouteControllerAndCallLoadInOrder(
+					ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 			}).catch(function (error) {
 				window.console.log('Error load CTRL: ', error);
 			});
 		} else {
-			ctx.initRouteControllerAndCallLoadInOrder(ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			ctx.initRouteControllerAndCallLoadInOrder(
+				ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -962,7 +1007,39 @@ class Router {
 		}
 	}
 
+	openPhantomRoute({routeId, params, currentRouteId, currentViewId, title}) {
+		console.log('%%%%%%', routeId, currentViewId, title, this.routes[routeId]);
+		const newRoute = {
+			routeId: routeId,
+			title: title,
+			isMainView: false,
+			params: params,
+			id: routeId,
+			route: routeId, // the route and routeId is the same
+			viewId: _Unique.domID('view'),
+			data: null,
+		};
+		const route = this.setOtherRouteState(newRoute);
+		this.currentRoutes.hiddenRoutes.push(route);
+		// Add route to ordered list
+		const $fakeRoot = {
+			routeId: routeId,
+			viewId: newRoute.viewId,
+			paramKeys: '',
+			kind: 'hidden',
+		};
+		this.engine($fakeRoot);
+	}
+
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+		if (this.engineIsRunning) {
+			const routes = [this.routes[routeId]];
+			console.log('%%$$ currentRoutes', currentViewId, this.currentRoutes);
+			const phantomRouter = new Router({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
+			console.log('Engine is already running!', phantomRouter);
+			phantomRouter.openPhantomRoute({routeId, params, currentRouteId, currentViewId, title});
+			return;
+		}
 		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
@@ -981,13 +1058,14 @@ class Router {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
-				const newRoute = this.buildNewHash(oldHash, fragment);
+				const newRoute = this.buildNewHash(oldHash);
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
+				console.log('AQUI!!!!', oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {

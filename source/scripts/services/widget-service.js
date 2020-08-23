@@ -1,6 +1,6 @@
 class WidgetService extends PowerServices {
 
-	mayAddCtrlParams({params, onCommit, onCancel, onCancelError, onCommitError}) {
+	mayAddCtrlParams({params, onCommit, onCancel}) {
 		if (params === undefined) {
 			params = {};
 		}
@@ -10,60 +10,57 @@ class WidgetService extends PowerServices {
 		if (onCancel) {
 			params.onCancel = onCancel;
 		}
-		if (onCommitError) {
-			params.onCommitError = onCommitError;
-		}
-		if (onCancelError) {
-			params.onCancelError = onCancelError;
-		}
 
 		return params;
 	}
 
 	alert(options) {
 		options.kind = 'alert';
-		this.open(options);
+		return this.open(options);
 	}
 
 	confirm(options) {
 		options.kind = 'confirm';
-		this.open(options);
+		return this.open(options);
 	}
 
 	yesno(options) {
 		options.kind = 'yesno';
-		this.open(options);
+		return this.open(options);
 	}
 
 	modal(options) {
 		options.kind = 'modal';
-		this.open(options);
+		return this.open(options);
 	}
 	window(options) {
 		options.kind = 'window';
-		this.open(options);
+		return this.open(options);
 	}
 	windowIframe(options) {
 		options.kind = 'windowIframe';
-		this.open(options);
+		return this.open(options);
 	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl, templateComponent, url}) {
-		// Allow to create some empty controller so it can open without define one
-		if (!ctrl && !controller) {
-			controller = function () {};
-		}
-		if (!ctrl && controller && (typeof controller === 'function')) {
-			// Wrap the functions inside an PowerAlert controller
-			params = this.mayAddCtrlParams({
-				params: params,
-				onCommit: onCommit,
-				onCancel: onCancel,
-				onCommitError: onCommitError,
-				onCancelError: onCancelError
-			});
-			ctrl = wrapFunctionInsideDialog({controller: controller, kind: kind, params: params});
-		}
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel, templateUrl, templateComponent, url}) {
+		const self = this;
+		const _promise = new Promise(function (resolve, reject) {
+			// Allow to create some empty controller so it can open without define one
+			if (!ctrl && !controller) {
+				controller = function () {};
+			}
+			if (!ctrl && controller && (typeof controller === 'function')) {
+				// Wrap the functions inside an PowerAlert controller
+				params = self.mayAddCtrlParams({
+					params: params,
+					onCommit: onCommit,
+					onCancel: onCancel,
+				});
+				ctrl = wrapFunctionInsideDialog({controller: controller, kind: kind, params: params, resolve: resolve, reject: reject});
+			}
+		});
+
+
 		// Create a new volatile then open it
 		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;
 		// Register the route for remotion with the controller
@@ -79,6 +76,7 @@ class WidgetService extends PowerServices {
 			ctrl: ctrl,
 			params: params,
 		});
+		return _promise;
 	}
 
 	_open({routeId, params, target, title, template, ctrl, templateUrl, templateComponent, url}) {
