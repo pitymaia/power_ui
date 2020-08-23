@@ -31,9 +31,9 @@ class Router {
 
 		if (!this.config.phantomMode) {
 			this.initRootScopeAndRunEngine();
+			// call engine if hash change
+			window.onhashchange = this.hashChange.bind(this);
 		}
-		// call engine if hash change
-		window.onhashchange = this.hashChange.bind(this);
 
 	}
 
@@ -101,6 +101,8 @@ class Router {
 
 	cloneRouteList(dest, source, listName) {
 		for (const route of source[listName]) {
+			console.log('this', this);
+			console.log('route', route);
 			const list = {
 				id: route.id,
 				viewId: route.viewId,
@@ -556,11 +558,13 @@ class Router {
 		this.engineIsRunning = true;
 		this.orderedRoutesToLoad = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
-		this.addSpinnerAndHideContent('root-view');
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
 		await this.resolveWhenListIsPopulated(
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
+		if (!this.config.phantomMode) {
+			this.addSpinnerAndHideContent('root-view');
+		}
 		console.log('continuou...', this.currentRoutes, this.orderedRoutesToLoad);
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
@@ -574,6 +578,8 @@ class Router {
 		await this.resolveWhenListIsPopulated(
 			this.callOnViewLoadInOrder, this.orderedRoutesToLoad, 0, this);
 		this.engineIsRunning = false;
+		delete this.phantomRouter;
+		console.log('PHANTOM ROUTER', this.phantomRouter);
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -860,7 +866,9 @@ class Router {
 		const route = orderedRoutesToLoad[routeIndex];
 		if (!route) {
 			ctx.$powerUi.callInitViews();
-			ctx.removeSpinnerAndShowContent('root-view');
+			if (!ctx.config.phantomMode) {
+				ctx.removeSpinnerAndShowContent('root-view');
+			}
 			return _resolve();
 		}
 		if (route.kind === 'secundary' || route.kind === 'hidden') {
@@ -1021,6 +1029,7 @@ class Router {
 		};
 		const route = this.setOtherRouteState(newRoute);
 		this.currentRoutes.hiddenRoutes.push(route);
+		this.routes[routeId].viewId = newRoute.viewId;
 		// Add route to ordered list
 		const $fakeRoot = {
 			routeId: routeId,
@@ -1031,13 +1040,18 @@ class Router {
 		this.engine($fakeRoot);
 	}
 
+	closePhantomRoute(routeId) {
+		const currentRoute = this.routes[routeId];
+		this.oldRoutes.hiddenRoutes.push(currentRoute);
+		this.engine();
+		delete this.phantomRouter;
+	}
+
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
 		if (this.engineIsRunning) {
 			const routes = [this.routes[routeId]];
-			console.log('%%$$ currentRoutes', currentViewId, this.currentRoutes);
-			const phantomRouter = new Router({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
-			console.log('Engine is already running!', phantomRouter);
-			phantomRouter.openPhantomRoute({routeId, params, currentRouteId, currentViewId, title});
+			this.phantomRouter = new Router({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
+			this.phantomRouter.openPhantomRoute({routeId, params, currentRouteId, currentViewId, title});
 			return;
 		}
 		const routeKind = this.routeKind(routeId);
@@ -1058,7 +1072,7 @@ class Router {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
-				const newRoute = this.buildNewHash(oldHash);
+				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
