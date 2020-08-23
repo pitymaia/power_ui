@@ -90,13 +90,12 @@ class Router {
 
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
-		console.log("DISPAROU!", event, this.engineIsRunning, this);
 		if (this.engineIsRunning === true) {
 			this.engineIsRunning = false;
 			return;
 		}
-		this.currentUrl = event.newURL;
-		this.previousUrl = event.oldURL;
+		this.currentUrl = event ? event.newURL : window.location.href;
+		this.previousUrl = event ? event.oldURL : window.location.href;
 		// Save the old routes if user abort and need restore it
 		this.oldRoutesBkp = this.cloneRoutes({source: this.oldRoutes});
 		// Save a copy of currentRoutes as oldRoutes

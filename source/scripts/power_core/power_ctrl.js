@@ -69,24 +69,10 @@ class PowerController extends PowerScope {
 		if (callback) {
 			this._$closeCurrentRouteCallback = callback;
 		}
-		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
-		let counter = 0;
-		let newHash = '';
 
-		console.log('close is called', route);
-		for (let part of parts) {
-			if (!part.includes(route.route)) {
-				if (counter !== 0) {
-					part = '?' + part;
-				} else {
-					part = part.replace(this.router.config.rootPath, '');
-				}
-				newHash = newHash + part;
-				counter = counter + 1;
-			}
-		}
-		this._ready = false;
+		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+		const newHash = this.$powerUi.removeRouteFromHash(
+			this.router.locationHashWithHiddenRoutes(), this._routeId, this._viewId);
 		this.router.navigate({hash: newHash, title: route.title || null});
 	}
 

@@ -228,21 +228,55 @@ class PowerUi extends _PowerUiBase {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree, boilerplate: true}).template;
 	}
 
-	closeAllSecundaryRoutes() {
+	removeRouteFromHash(currentHash, routeId, viewId) {
+		const route = this.router.getOpenedRoute({routeId: routeId, viewId: viewId});
+		const parts = decodeURI(currentHash).split('?');
+		let counter = 0;
+		let newHash = '';
+
+		for (let part of parts) {
+			if (!part.includes(route.route)) {
+				if (counter !== 0) {
+					part = '?' + part;
+				} else {
+					part = part.replace(this.router.config.rootPath, '');
+				}
+				newHash = newHash + part;
+				counter = counter + 1;
+			}
+		}
+		return newHash;
+	}
+
+	closeAllSecundaryRoutes(supressNavigate=false) {
+		const original = this.router.locationHashWithHiddenRoutes();
+		let currentHash = original;
 		for (const sr of this.router.currentRoutes.secundaryRoutes) {
-			this.controllers[sr.viewId].instance.closeCurrentRoute();
+			const ctrl = this.controllers[sr.viewId].instance;
+			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+		}
+		if (supressNavigate === false && original !== currentHash) {
+			this.router.navigate({hash: currentHash, title: null});
+		} else {
+			return currentHash;
 		}
 	}
 
-	closeAllHiddenRoutes() {
+	closeAllHiddenRoutes(hashFromSecundary=false) {
+		const original = this.router.locationHashWithHiddenRoutes();
+		let currentHash = hashFromSecundary ? hashFromSecundary : original;
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
-			this.controllers[hr.viewId].instance.closeCurrentRoute();
+			const ctrl = this.controllers[hr.viewId].instance;
+			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+		}
+		if (original !== currentHash) {
+			this.router.navigate({hash: currentHash, title: null});
 		}
 	}
 
 	closeAllRoutes() {
-		this.closeAllSecundaryRoutes();
-		this.closeAllHiddenRoutes();
+		const hash = this.closeAllSecundaryRoutes(true);
+		this.closeAllHiddenRoutes(hash);
 	}
 
 	getCookie(name) {
