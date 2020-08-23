@@ -14,7 +14,6 @@ class PowerDialogBase extends PowerWidget {
 	}
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
-		console.log('CLICK CANCEL');
 		if (this.onCancel) {
 			this.onCancel(this._resolve, this._reject, ...args);
 			const self = this;

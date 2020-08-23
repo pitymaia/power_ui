@@ -751,7 +751,23 @@ class SimpleModal extends PowerModal {
 		];
 	}
 
-	onViewLoad(view) {
+	beforeClose(data) {
+		console.log('beforeClose', data);
+		const self = this;
+		const confirm = this.$service('widget').confirm({
+			title: 'This is a confirm',
+			template: `<div>Do you really want close?</div>`,
+			onCommit: function(resolve, reject, value) {
+				console.log('onCommit', value);
+				resolve();
+			},
+			onCancel: function(resolve, reject) {
+				console.log('This is sad...');
+				reject();
+			}
+		});
+		console.log('promise?', confirm);
+		return {promise: confirm};
 	}
 }
 
@@ -863,6 +879,25 @@ class MyWindow extends PowerWindowIframe {
 	// 	window.console.log('It is confirmed!');
 	// 	resolve();
 	// }
+
+	beforeClose(data) {
+		console.log('beforeClose', data);
+		const self = this;
+		const confirm = this.$service('widget').confirm({
+			title: 'This is a confirm',
+			template: `<div>Do you really want close Window?</div>`,
+			onCommit: function(resolve, reject, value) {
+				console.log('onCommit', value);
+				resolve();
+			},
+			onCancel: function(resolve, reject) {
+				console.log('This is sad...');
+				reject();
+			}
+		});
+		console.log('promise?', confirm);
+		return {promise: confirm};
+	}
 }
 
 class SmallDialog extends PowerTemplate {

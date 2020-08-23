@@ -620,17 +620,16 @@ class Router {
 		if (!route) {
 			return	_resolve();
 		}
-
-		// Run the controller load
+		// Run the controller beforeClose
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
 			if (result && result.promise) {
 				result.promise.then(function (response) {
-					console.log('beforeClose response', response);
+					console.log('beforeClose response', orderedRoutesToClose);
 					ctx.runBeforeCloseInOrder(
-						ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					_resolve('abort');
 					if (error) {
@@ -639,10 +638,10 @@ class Router {
 				});
 			} else {
 				ctx.runBeforeCloseInOrder(
-					ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			ctx.runBeforeCloseInOrder(ctx.orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			ctx.runBeforeCloseInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -680,13 +679,13 @@ class Router {
 				ctx.$powerUi.controllers[route.viewId].data);
 			loadPromise.then(function () {
 				ctx.initRouteControllerAndCallLoadInOrder(
-					ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 			}).catch(function (error) {
 				window.console.log('Error load CTRL: ', error);
 			});
 		} else {
 			ctx.initRouteControllerAndCallLoadInOrder(
-				ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -704,17 +703,17 @@ class Router {
 			if (result && result.promise) {
 				result.promise.then(function () {
 					ctx.runControllerInOrder(
-						ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+						orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					window.console.log('Error running CTRL: ', error);
 				});
 			} else {
 				ctx.runControllerInOrder(
-					ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
 			ctx.runControllerInOrder(
-				ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -895,7 +894,7 @@ class Router {
 			title: ctx.routes[route.routeId].title,
 			data: ctx.routes[route.routeId].data,
 			loadRouteInOrder: ctx.loadRouteInOrder,
-			orderedRoutesToLoad: ctx.orderedRoutesToLoad,
+			orderedRoutesToLoad: orderedRoutesToLoad,
 			routeIndex: routeIndex + 1,
 			ctx: ctx,
 			_resolve: _resolve,
@@ -1037,6 +1036,7 @@ class Router {
 		};
 		const route = this.setOtherRouteState(newRoute);
 		this.currentRoutes.hiddenRoutes.push(route);
+		console.log('newRoute.viewId', newRoute.viewId);
 		this.routes[routeId].viewId = newRoute.viewId;
 		// Add route to ordered list
 		const $fakeRoot = {
@@ -1050,15 +1050,18 @@ class Router {
 
 	closePhantomRoute(routeId) {
 		const currentRoute = this.routes[routeId];
+		console.log('CLOSE', currentRoute, routeId, this.routes);
 		this.oldRoutes.hiddenRoutes.push(currentRoute);
 		this.engine();
-		delete this.phantomRouter;
+		// delete this.phantomRouter;
 	}
 
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
 		if (this.engineIsRunning) {
 			const routes = [this.routes[routeId]];
-			this.phantomRouter = new Router({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
+			if (!this.phantomRouter) {
+				this.phantomRouter = new Router({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
+			}
 			this.phantomRouter.openPhantomRoute({routeId, params, currentRouteId, currentViewId, title});
 			return;
 		}
