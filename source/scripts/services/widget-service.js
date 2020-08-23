@@ -43,23 +43,26 @@ class WidgetService extends PowerServices {
 	}
 
 	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel, templateUrl, templateComponent, url}) {
-		const self = this;
+		let _resolve;
+		let _reject;
 		const _promise = new Promise(function (resolve, reject) {
-			// Allow to create some empty controller so it can open without define one
-			if (!ctrl && !controller) {
-				controller = function () {};
-			}
-			if (!ctrl && controller && (typeof controller === 'function')) {
-				// Wrap the functions inside an PowerAlert controller
-				params = self.mayAddCtrlParams({
-					params: params,
-					onCommit: onCommit,
-					onCancel: onCancel,
-				});
-				ctrl = wrapFunctionInsideDialog({controller: controller, kind: kind, params: params, resolve: resolve, reject: reject});
-			}
+			_resolve = resolve;
+			_reject = reject;
 		});
 
+		// Allow to create some empty controller so it can open without define one
+		if (!ctrl && !controller) {
+			controller = function () {};
+		}
+		if (!ctrl && controller && (typeof controller === 'function')) {
+			// Wrap the functions inside an PowerAlert controller
+			params = this.mayAddCtrlParams({
+				params: params,
+				onCommit: onCommit,
+				onCancel: onCancel,
+			});
+			ctrl = wrapFunctionInsideDialog({controller: controller, kind: kind, params: params, resolve: _resolve, reject: _reject, _promise: _promise});
+		}
 
 		// Create a new volatile then open it
 		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;

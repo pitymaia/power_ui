@@ -69,23 +69,12 @@ class PowerController extends PowerScope {
 		if (callback) {
 			this._$closeCurrentRouteCallback = callback;
 		}
-		// If view not ready set _cancelOpenRoute to close the route after its full loaded
-		if (!this._ready) {
-			this._cancelOpenRoute = true;
-			return;
-		} else {
-			this._cancelOpenRoute = false;
-		}
-		if (this.onBeforeClose) {
-			if (this.onBeforeClose() === false) {
-				return;
-			}
-		}
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
 		let counter = 0;
 		let newHash = '';
 
+		console.log('close is called', route);
 		for (let part of parts) {
 			if (!part.includes(route.route)) {
 				if (counter !== 0) {

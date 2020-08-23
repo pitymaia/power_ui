@@ -854,15 +854,15 @@ class MyWindow extends PowerWindowIframe {
 		window.console.log('Window is here!');
 	}
 
-	onCancel(resolve, reject) {
-		window.console.log('Really cancel?');
-		resolve();
-	}
+	// onCancel(resolve, reject) {
+	// 	window.console.log('Really cancel?');
+	// 	resolve();
+	// }
 
-	onCommit(resolve, reject) {
-		window.console.log('It is confirmed!');
-		resolve();
-	}
+	// onCommit(resolve, reject) {
+	// 	window.console.log('It is confirmed!');
+	// 	resolve();
+	// }
 }
 
 class SmallDialog extends PowerTemplate {
@@ -5002,25 +5002,18 @@ class JSONViews extends PowerWindow {
 	beforeClose(data) {
 		console.log('beforeClose', data);
 		const self = this;
-		const options = {
+		const confirm = this.$service('widget').confirm({
 			title: 'This is a confirm',
 			template: `<div>Do you really want close?</div>`,
-			// controller: function(resolve, reject) {
-			// 	console.log('$$$$ confirm?', resolve, reject);
-			// },
 			onCommit: function(resolve, reject, value) {
-				console.log('$$$$$$ CARALHO!!!!!!!', resolve, reject, value);
-				resolve(`$$$$$$ CARALHO!!!!!!!${resolve + reject}`);
-				this.closeCurrentRoute();
-			},
-			onCancel: function(resolve) {
-				console.log('This is sad...');
+				console.log('onCommit', value);
 				resolve();
-				this.closeCurrentRoute();
+			},
+			onCancel: function(resolve, reject) {
+				console.log('This is sad...');
+				reject();
 			}
-		};
-		console.log('options', options);
-		const confirm = this.$service('widget').confirm(options);
+		});
 		console.log('promise?', confirm);
 		return {promise: confirm};
 	}

@@ -90,6 +90,13 @@ class Router {
 
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
+		console.log("DISPAROU!", event, this.engineIsRunning, this);
+		if (this.engineIsRunning === true) {
+			this.engineIsRunning = false;
+			return;
+		}
+		this.currentUrl = event.newURL;
+		this.previousUrl = event.oldURL;
 		// Save the old routes if user abort and need restore it
 		this.oldRoutesBkp = this.cloneRoutes({source: this.oldRoutes});
 		// Save a copy of currentRoutes as oldRoutes
@@ -99,10 +106,15 @@ class Router {
 		this.engine();
 	}
 
+	abortCicle() {
+		// Restore routes, location and stop engine;
+		this.currentRoutes = this.cloneRoutes({source: this.oldRoutes});
+		this.oldRoutes = this.cloneRoutes({source: this.oldRoutesBkp});
+		window.location.href = this.previousUrl;
+	}
+
 	cloneRouteList(dest, source, listName) {
 		for (const route of source[listName]) {
-			console.log('this', this);
-			console.log('route', route);
 			const list = {
 				id: route.id,
 				viewId: route.viewId,
@@ -560,12 +572,15 @@ class Router {
 		this.orderedRoutesToClose = [];
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
-		await this.resolveWhenListIsPopulated(
+		const abort = await this.resolveWhenListIsPopulated(
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
+		if (abort === 'abort') {
+			this.abortCicle();
+			return
+		}
 		if (!this.config.phantomMode) {
 			this.addSpinnerAndHideContent('root-view');
 		}
-		console.log('continuou...', this.currentRoutes, this.orderedRoutesToLoad);
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
@@ -579,7 +594,6 @@ class Router {
 			this.callOnViewLoadInOrder, this.orderedRoutesToLoad, 0, this);
 		this.engineIsRunning = false;
 		delete this.phantomRouter;
-		console.log('PHANTOM ROUTER', this.phantomRouter);
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -613,14 +627,16 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
-			console.log('result', result);
 			if (result && result.promise) {
 				result.promise.then(function (response) {
 					console.log('beforeClose response', response);
 					ctx.runBeforeCloseInOrder(
 						ctx.orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
-					window.console.log('Error running beforeClose: ', route.routeId, error);
+					_resolve('abort');
+					if (error) {
+						window.console.log('Error running beforeClose: ', route.routeId, error);
+					}
 				});
 			} else {
 				ctx.runBeforeCloseInOrder(
@@ -634,7 +650,6 @@ class Router {
 	// Run the controller instance for the route
 	initRouteControllerAndCallLoadInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToLoad[routeIndex];
-		console.log('route', route);
 		if (!route) {
 			return	_resolve();
 		}
@@ -773,11 +788,6 @@ class Router {
 		if (ctx.$powerUi.controllers[route.viewId].instance._onViewLoad) {
 			ctx.$powerUi.controllers[route.viewId].instance._onViewLoad(
 				ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
-		}
-		ctx.$powerUi.controllers[route.viewId].instance._ready = true;
-		// Close the route if user ask to close before it is ready
-		if (ctx.$powerUi.controllers[route.viewId].instance._cancelOpenRoute) {
-			ctx.$powerUi.controllers[route.viewId].instance.closeCurrentRoute();
 		}
 	}
 
@@ -1016,7 +1026,6 @@ class Router {
 	}
 
 	openPhantomRoute({routeId, params, currentRouteId, currentViewId, title}) {
-		console.log('%%%%%%', routeId, currentViewId, title, this.routes[routeId]);
 		const newRoute = {
 			routeId: routeId,
 			title: title,
@@ -1079,7 +1088,6 @@ class Router {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
-				console.log('AQUI!!!!', oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {

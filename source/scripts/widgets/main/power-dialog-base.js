@@ -14,8 +14,15 @@ class PowerDialogBase extends PowerWidget {
 	}
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
+		console.log('CLICK CANCEL');
 		if (this.onCancel) {
 			this.onCancel(this._resolve, this._reject, ...args);
+			const self = this;
+			this._promise.then(function () {
+				self.closeCurrentRoute();
+			}).catch(function (error) {
+				self.closeCurrentRoute();
+			});
 		} else {
 			this.closeCurrentRoute();
 		}
@@ -24,6 +31,12 @@ class PowerDialogBase extends PowerWidget {
 	_commit(...args) {
 		if (this.onCommit) {
 			this.onCommit(this._resolve, this._reject,...args);
+			const self = this;
+			this._promise.then(function () {
+				self.closeCurrentRoute();
+			}).catch(function (error) {
+				self.closeCurrentRoute();
+			});
 		} else {
 			this.closeCurrentRoute();
 		}
