@@ -422,7 +422,7 @@ class Router {
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
 		if (abort === 'abort') {
 			this.abortCicle();
-			return
+			return;
 		}
 		this.clearPhantomRouters();
 		if (!this.config.phantomMode) {
@@ -582,6 +582,7 @@ class Router {
 
 			if (result && result.promise) {
 				result.promise.then(function () {
+					ctx.removeVolatileViews(route.viewId);
 					delete ctx.$powerUi.controllers[route.viewId];
 					ctx.runOnRouteCloseAndRemoveController(
 						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
@@ -589,12 +590,24 @@ class Router {
 					window.console.log('Error running onRouteClose: ', route.routeId, error);
 				});
 			} else {
+				ctx.removeVolatileViews(route.viewId);
 				delete ctx.$powerUi.controllers[route.viewId];
 				ctx.runOnRouteCloseAndRemoveController(
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
 			ctx.runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
+	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
+	// One route are create for each instante, so we need remove it when the controller are distroyed
+	removeVolatileViews({viewId}) {
+		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
+			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
+				console.log("this.routes[volatileId]", this.routes[volatileId]);
+				delete this.routes[volatileId];
+			}
 		}
 	}
 
