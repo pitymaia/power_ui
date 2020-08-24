@@ -1,6 +1,6 @@
 class PowerModal extends PowerDialogBase {
-	constructor({$powerUi, classList}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, classList, promise=false}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.isModal = true;
 
 		if (classList) {

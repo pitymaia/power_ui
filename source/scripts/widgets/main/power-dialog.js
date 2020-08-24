@@ -1,6 +1,6 @@
 class PowerDialog extends PowerDialogBase {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 	}
 
 	template({$title}) {
@@ -13,23 +13,23 @@ class PowerDialog extends PowerDialogBase {
 }
 
 class PowerAlert extends PowerDialog {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.commitBt = true;
 	}
 }
 
 class PowerConfirm extends PowerDialog {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.commitBt = true;
 		this.cancelBt = true;
 	}
 }
 
 class PowerYesNo extends PowerDialog {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.commitBt = true;
 		this.noBt = true;
 		this.cancelBt = true;
@@ -39,7 +39,7 @@ class PowerYesNo extends PowerDialog {
 function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _promise}) {
 	class _Alert extends PowerAlert {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
 			this._resolve = resolve;
 			this._reject = reject;
@@ -54,7 +54,7 @@ function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _p
 
 	class _Confirm extends PowerConfirm {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
 			this._resolve = resolve;
 			this._reject = reject;
@@ -69,7 +69,7 @@ function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _p
 
 	class _YesNo extends PowerYesNo {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
 			this._resolve = resolve;
 			this._reject = reject;
@@ -84,7 +84,7 @@ function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _p
 
 	class _Modal extends PowerModal {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
 			this._resolve = resolve;
 			this._reject = reject;
@@ -98,7 +98,7 @@ function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _p
 	}
 	class _Window extends PowerWindow {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
 			this._resolve = resolve;
 			this._reject = reject;
@@ -113,7 +113,7 @@ function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _p
 
 	class _WindowIframe extends PowerWindowIframe {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
 			this._resolve = resolve;
 			this._reject = reject;

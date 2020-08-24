@@ -806,6 +806,9 @@ class SimpleTemplate extends PowerTemplate {
 }
 
 class SimpleDialog extends PowerWindow {
+	constructor({$powerUi}) {
+		super({$powerUi: $powerUi, promise: true});
+	}
 
 	init() {
 		this.commitBt = {

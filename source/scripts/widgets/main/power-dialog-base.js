@@ -1,11 +1,18 @@
 class PowerDialogBase extends PowerWidget {
-	constructor({$powerUi, noEsc}) {
+	constructor({$powerUi, noEsc, promise}) {
 		super({$powerUi: $powerUi});
+		const self = this;
+		if (promise) {
+			this._promise = new Promise(function (resolve, reject) {
+				self._resolve = resolve;
+				self._reject = reject;
+			});
+		}
 
 		if (noEsc) {
 			return;
 		}
-		const self = this;
+
 		this._closeWindow = function() {
 			self._cancel();
 		}

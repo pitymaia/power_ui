@@ -1,6 +1,6 @@
 class PowerWindow extends PowerDialogBase {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi, noEsc: true});
+	constructor({$powerUi, promise=false}) {
+		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
 
 		// Add it to _resizeWindow allow remove the listner
@@ -265,8 +265,8 @@ class PowerWindow extends PowerDialogBase {
 }
 
 class PowerWindowIframe extends PowerWindow {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi, noEsc: true});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
 	}
 
