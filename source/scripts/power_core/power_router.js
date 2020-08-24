@@ -62,12 +62,20 @@ class EngineCommands {
 	}
 
 	buildCicleCommands() {
-		console.log('to close', this.router.orderedRoutesToClose);
+		this.buildCloseCommands();
 		this.buildOpenCommands();
+	}
+
+	buildCloseCommands() {
+		for (const route of this.router.orderedRoutesToClose) {
+			route.commands = this.default.close;
+			console.log('to close', route);
+		}
 	}
 
 	buildOpenCommands() {
 		for (const route of this.router.orderedRoutesToOpen) {
+			route.commands = this.default.open;
 			console.log('to open', route);
 		}
 	}
@@ -530,7 +538,8 @@ class Router {
 			return	_resolve();
 		}
 		// Run the controller beforeClose
-		if (ctx.$powerUi.controllers[route.viewId] &&
+		if (route.commands.runBeforeClose === true &&
+			ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
@@ -559,28 +568,29 @@ class Router {
 		if (!route) {
 			return	_resolve();
 		}
-
-		const $data = ctx.routes[route.routeId].data || {};
-		const ctrl = ctx.routes[route.routeId].ctrl;
-		// Register the controller with $powerUi
-		ctx.$powerUi.controllers[route.viewId] = {
-			component: ctrl,
-			data: $data,
-		};
-		// Instanciate the controller
-		$data.$powerUi = ctx.$powerUi;
-		$data.viewId = route.viewId;
-		$data.routeId = route.routeId;
-		$data.title = ctx.routes[route.routeId].title;
-		ctx.$powerUi.controllers[route.viewId].instance = new ctrl($data);
-		ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
-		ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
-		ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues(
-			{routeId: route.routeId, paramKeys: route.paramKeys}) : {};
-		ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
-
+		if (route.commands.addCtrl) {
+			const $data = ctx.routes[route.routeId].data || {};
+			const ctrl = ctx.routes[route.routeId].ctrl;
+			// Register the controller with $powerUi
+			ctx.$powerUi.controllers[route.viewId] = {
+				component: ctrl,
+				data: $data,
+			};
+			// Instanciate the controller
+			$data.$powerUi = ctx.$powerUi;
+			$data.viewId = route.viewId;
+			$data.routeId = route.routeId;
+			$data.title = ctx.routes[route.routeId].title;
+			ctx.$powerUi.controllers[route.viewId].instance = new ctrl($data);
+			ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
+			ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
+			ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues(
+				{routeId: route.routeId, paramKeys: route.paramKeys}) : {};
+			ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
+		}
 		// Run the controller load
-		if (ctx.$powerUi.controllers[route.viewId] &&
+		if (route.commands.addCtrl && route.commands.runLoad &&
+			ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.load) {
 			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(
@@ -603,7 +613,8 @@ class Router {
 			return	_resolve();
 		}
 
-		if (ctx.$powerUi.controllers[route.viewId] &&
+		if (route.commands.runCtrl &&
+			ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.ctrl(
@@ -638,22 +649,25 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback();
 		}
 		if (ctx.$powerUi.controllers[route.viewId] &&
-			ctx.$powerUi.controllers[route.viewId].instance &&
-			ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) {
-			const result = ctx.$powerUi.controllers[route.viewId].instance.onRouteClose();
+			ctx.$powerUi.controllers[route.viewId].instance) {
+			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
 
 			if (result && result.promise) {
 				result.promise.then(function () {
-					ctx.removeVolatileViews(route.viewId);
-					delete ctx.$powerUi.controllers[route.viewId];
+					if (route.commands.removeCtrl) {
+						ctx.removeVolatileViews(route.viewId);
+						delete ctx.$powerUi.controllers[route.viewId];
+					}
 					ctx.runOnRouteCloseAndRemoveController(
 						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					window.console.log('Error running onRouteClose: ', route.routeId, error);
 				});
 			} else {
-				ctx.removeVolatileViews(route.viewId);
-				delete ctx.$powerUi.controllers[route.viewId];
+				if (route.commands.removeCtrl) {
+					ctx.removeVolatileViews(route.viewId);
+					delete ctx.$powerUi.controllers[route.viewId];
+				}
 				ctx.runOnRouteCloseAndRemoveController(
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
@@ -679,7 +693,9 @@ class Router {
 			return _resolve();
 		}
 
-		if (ctx.$powerUi.controllers[route.viewId] && ctx.$powerUi.controllers[route.viewId].instance) {
+		if (route.commands.runOnViewLoad &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance) {
 			if (ctx.$powerUi.controllers[route.viewId].instance.onViewLoad) {
 				const result = ctx.$powerUi.controllers[route.viewId].instance.onViewLoad(
 					ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
@@ -800,26 +816,30 @@ class Router {
 			}
 			return _resolve();
 		}
-		if (route.kind === 'secundary' || route.kind === 'hidden') {
-			ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
-		} else if (route.kind === 'child') {
-			// Add the new node inside it's main route power-view node
-			ctx.addNewViewNode(route.viewId, route.powerViewNodeId);
-		}
+		if (route.commands.addView) {
+			if (route.kind === 'secundary' || route.kind === 'hidden') {
+				ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
+			} else if (route.kind === 'child') {
+				// Add the new node inside it's main route power-view node
+				ctx.addNewViewNode(route.viewId, route.powerViewNodeId);
+			}
 
-		ctx.loadRoute({
-			routeId: route.routeId,
-			paramKeys: route.paramKeys,
-			viewId: route.viewId,
-			ctrl: ctx.routes[route.routeId].ctrl,
-			title: ctx.routes[route.routeId].title,
-			data: ctx.routes[route.routeId].data,
-			loadViewInOrder: ctx.loadViewInOrder,
-			orderedRoutesToOpen: orderedRoutesToOpen,
-			routeIndex: routeIndex + 1,
-			ctx: ctx,
-			_resolve: _resolve,
-		});
+			ctx.loadRoute({
+				routeId: route.routeId,
+				paramKeys: route.paramKeys,
+				viewId: route.viewId,
+				ctrl: ctx.routes[route.routeId].ctrl,
+				title: ctx.routes[route.routeId].title,
+				data: ctx.routes[route.routeId].data,
+				loadViewInOrder: ctx.loadViewInOrder,
+				orderedRoutesToOpen: orderedRoutesToOpen,
+				routeIndex: routeIndex + 1,
+				ctx: ctx,
+				_resolve: _resolve,
+			});
+		} else {
+			ctx.loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve);
+		}
 	}
 
 	matchRouteAndGetIdAndParamKeys(route) {
