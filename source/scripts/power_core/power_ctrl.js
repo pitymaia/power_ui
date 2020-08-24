@@ -61,7 +61,7 @@ class PowerController extends PowerScope {
 	}
 
 	closeCurrentRoute(callback) {
-		if (this.router.engineIsRunning) {
+		if (this.router.engineIsRunning || this.router.phantomRouters[this._routeId]) {
 			this.router.phantomRouters[this._routeId].closePhantomRoute(this._routeId, this);
 			return;
 		}

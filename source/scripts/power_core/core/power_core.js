@@ -736,7 +736,7 @@ class PowerTree {
 			const selectorToTest = document.querySelectorAll(`[id=${id}]`);
 			if (selectorToTest.length > 1) {
 				// Check if there is some duplicated ID
-				console.error('DUPLICATED IDs:', selectorToTest);
+				window.console.error('DUPLICATED IDs:', selectorToTest);
 				throw `HTML element can't have duplicated IDs: ${id}`;
 			}
 		}

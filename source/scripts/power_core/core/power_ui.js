@@ -363,7 +363,6 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initAll() {
-		const t0 = performance.now();
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
 		if (this.initAlreadyRun) {
 			this.powerTree.removeAllEvents();
@@ -381,20 +380,14 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 		this.waitingInit = [];
-		const t1 = performance.now();
-		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
 	initNodes() {
-		const t0 = performance.now();
 		for (const item of this.waitingInit) {
 			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
 		}
-
-		const t1 = performance.now();
-		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
 	}
 

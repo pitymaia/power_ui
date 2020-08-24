@@ -752,11 +752,10 @@ class SimpleModal extends PowerModal {
 	}
 
 	beforeClose(data) {
-		console.log('beforeClose', data);
 		const self = this;
 		const confirm = this.$service('widget').confirm({
-			title: 'This is a confirm',
-			template: `<div>Do you really want close?</div>`,
+			title: 'This is a simple modal',
+			template: `<div>Really want close simple modal?</div>`,
 			onCommit: function(resolve, reject, value) {
 				console.log('onCommit', value);
 				resolve();
@@ -766,7 +765,6 @@ class SimpleModal extends PowerModal {
 				reject();
 			}
 		});
-		console.log('promise?', confirm);
 		return {promise: confirm};
 	}
 }
@@ -884,7 +882,6 @@ class MyWindow extends PowerWindowIframe {
 	// }
 
 	beforeClose(data) {
-		console.log('beforeClose', data);
 		const self = this;
 		const confirm = this.$service('widget').confirm({
 			title: 'This is a confirm',
@@ -898,7 +895,6 @@ class MyWindow extends PowerWindowIframe {
 				reject();
 			}
 		});
-		console.log('promise?', confirm);
 		return {promise: confirm};
 	}
 }
@@ -5038,7 +5034,6 @@ class JSONViews extends PowerWindow {
 	}
 
 	beforeClose(data) {
-		console.log('beforeClose', data);
 		const self = this;
 		const confirm = this.$service('widget').confirm({
 			title: 'This is a confirm',
@@ -5052,7 +5047,6 @@ class JSONViews extends PowerWindow {
 				reject();
 			}
 		});
-		console.log('promise?', confirm);
 		return {promise: confirm};
 	}
 
