@@ -398,7 +398,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// Templates for views with controllers
-	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx, _resolve}) {
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
@@ -414,8 +414,8 @@ class PowerUi extends _PowerUiBase {
 				routeId: routeId,
 				viewId: viewId,
 				title: title,
-				loadRouteInOrder: loadRouteInOrder,
-				orderedRoutesToLoad: orderedRoutesToLoad,
+				loadViewInOrder: loadViewInOrder,
+				orderedRoutesToOpen: orderedRoutesToOpen,
 				routeIndex: routeIndex,
 				ctx: ctx,
 				_resolve: _resolve,
@@ -433,7 +433,7 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 	// PowerTemplate (before run any controller)
-	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx, _resolve}) {
+	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: $ctrl});
@@ -450,8 +450,8 @@ class PowerUi extends _PowerUiBase {
 				routeId: routeId,
 				viewId: viewId,
 				title: title,
-				loadRouteInOrder: loadRouteInOrder,
-				orderedRoutesToLoad: orderedRoutesToLoad,
+				loadViewInOrder: loadViewInOrder,
+				orderedRoutesToOpen: orderedRoutesToOpen,
 				routeIndex: routeIndex,
 				ctx: ctx,
 				_resolve: _resolve,
@@ -461,7 +461,7 @@ class PowerUi extends _PowerUiBase {
 		});
 	}
 
-	loadTemplate({template, viewId, currentRoutes, routeId, routes, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx, _resolve}) {
+	loadTemplate({template, viewId, currentRoutes, routeId, routes, title, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		// Add $tscope to controller if have a saved $tscope
 		if (routes[routeId].$tscope) {
@@ -474,8 +474,8 @@ class PowerUi extends _PowerUiBase {
 			routeId: routeId,
 			viewId: viewId,
 			title: title,
-			loadRouteInOrder: loadRouteInOrder,
-			orderedRoutesToLoad: orderedRoutesToLoad,
+			loadViewInOrder: loadViewInOrder,
+			orderedRoutesToOpen: orderedRoutesToOpen,
 			routeIndex: routeIndex,
 			ctx: ctx,
 			_resolve: _resolve,
@@ -492,7 +492,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx, _resolve}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		// TODO: Why widget has init?
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
 			if (self.controllers[viewId].instance.init) {
@@ -516,8 +516,8 @@ class PowerUi extends _PowerUiBase {
 		} else {
 			view.innerHTML = template;
 		}
-		if (orderedRoutesToLoad) {
-			loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve);
+		if (orderedRoutesToOpen) {
+			loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve);
 		}
 	}
 

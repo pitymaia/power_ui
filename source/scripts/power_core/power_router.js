@@ -12,6 +12,66 @@ function getEmptyRouteObjetc() {
 	};
 }
 
+class EngineCommands {
+	constructor(router) {
+		this.bootstraping = true;
+		this.router = router;
+		this.routes = {};
+		this.default = {
+			close: {
+				runBeforeClose: true,
+				removeView: true,
+				runOnRouteClose: true,
+				removeCtrl: true,
+			},
+			open: {
+				addCtrl: true,
+				runLoad: true,
+				runCtrl: true,
+				addView: true,
+				runOnViewLoad: true,
+			},
+			mainView: {
+				close: {
+					rootView: {refresh: true},
+				},
+			},
+			childView: {
+				close: {
+					parentView: {refresh: true},
+				},
+			},
+		};
+		this.command = {
+			refresh: {
+				close: {
+					runBeforeClose: false,
+					removeView: true,
+					runOnRouteClose: false,
+					removeCtrl: false,
+				},
+				open: {
+					addCtrl: false,
+					runLoad: false,
+					runCtrl: false,
+					addView: true,
+					runOnViewLoad: false,
+				},
+			}
+		}
+	}
+
+	buildCicleCommands() {
+		console.log('to close', this.router.orderedRoutesToClose);
+		this.buildOpenCommands();
+	}
+
+	buildOpenCommands() {
+		for (const route of this.router.orderedRoutesToOpen) {
+			console.log('to open', route);
+		}
+	}
+}
 
 class Router {
 	constructor(config, powerUi) {
@@ -22,6 +82,7 @@ class Router {
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
 		this.phantomRouters = {};
+		this.engineCommands = new EngineCommands(this);
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
 		}
@@ -297,7 +358,7 @@ class Router {
 				if (childViewId === false) {
 					childViewId = _Unique.domID('view');
 					// Add child route to ordered list
-					this.orderedRoutesToLoad.push({
+					this.orderedRoutesToOpen.push({
 						routeId: childRoute.routeId,
 						viewId: childViewId,
 						paramKeys: childRoute.paramKeys,
@@ -331,7 +392,7 @@ class Router {
 			// Add main route to ordered list
 			// Load main route only if it is a new route
 			if (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
-				this.orderedRoutesToLoad.push({
+				this.orderedRoutesToOpen.push({
 					routeId: mainRoute.routeId,
 					viewId: this.config.routerMainViewId,
 					paramKeys: mainRoute.paramKeys,
@@ -367,7 +428,7 @@ class Router {
 					// Create route viewId
 					viewId = _Unique.domID('view');
 					// Add route to ordered list
-					this.orderedRoutesToLoad.push({
+					this.orderedRoutesToOpen.push({
 						routeId: currentRoute.routeId,
 						viewId: viewId,
 						paramKeys: currentRoute.paramKeys,
@@ -414,10 +475,11 @@ class Router {
 
 	async engine($root) {
 		this.engineIsRunning = true;
-		this.orderedRoutesToLoad = $root ? [$root] : [];
+		this.orderedRoutesToOpen = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
+		this.engineCommands.buildCicleCommands();
 		const abort = await this.resolveWhenListIsPopulated(
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
 		if (abort === 'abort') {
@@ -432,13 +494,13 @@ class Router {
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.initRouteControllerAndCallLoadInOrder, this.orderedRoutesToLoad, 0, this);
+			this.initRouteControllerAndRunLoadInOrder, this.orderedRoutesToOpen, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.runControllerInOrder, this.orderedRoutesToLoad, 0, this);
+			this.runControllerInOrder, this.orderedRoutesToOpen, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.loadRouteInOrder, this.orderedRoutesToLoad, 0, this);
+			this.loadViewInOrder, this.orderedRoutesToOpen, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.callOnViewLoadInOrder, this.orderedRoutesToLoad, 0, this);
+			this.runOnViewLoadInOrder, this.orderedRoutesToOpen, 0, this);
 		this.engineIsRunning = false;
 	}
 
@@ -492,8 +554,8 @@ class Router {
 	}
 
 	// Run the controller instance for the route
-	initRouteControllerAndCallLoadInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToLoad[routeIndex];
+	initRouteControllerAndRunLoadInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
 		if (!route) {
 			return	_resolve();
 		}
@@ -524,19 +586,19 @@ class Router {
 			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(
 				ctx.$powerUi.controllers[route.viewId].data);
 			loadPromise.then(function () {
-				ctx.initRouteControllerAndCallLoadInOrder(
-					orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				ctx.initRouteControllerAndRunLoadInOrder(
+					orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 			}).catch(function (error) {
 				window.console.log('Error load CTRL: ', error);
 			});
 		} else {
-			ctx.initRouteControllerAndCallLoadInOrder(
-				orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			ctx.initRouteControllerAndRunLoadInOrder(
+				orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
-	runControllerInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToLoad[routeIndex];
+	runControllerInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
 		if (!route) {
 			return	_resolve();
 		}
@@ -549,17 +611,17 @@ class Router {
 			if (result && result.promise) {
 				result.promise.then(function () {
 					ctx.runControllerInOrder(
-						orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+						orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					window.console.log('Error running CTRL: ', error);
 				});
 			} else {
 				ctx.runControllerInOrder(
-					orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
 			ctx.runControllerInOrder(
-				orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -602,7 +664,7 @@ class Router {
 
 	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
 	// One route are create for each instante, so we need remove it when the controller are distroyed
-	removeVolatileViews({viewId}) {
+	removeVolatileViews(viewId) {
 		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
 			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
 				console.log("this.routes[volatileId]", this.routes[volatileId]);
@@ -611,8 +673,8 @@ class Router {
 		}
 	}
 
-	callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToLoad[routeIndex];
+	runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
 		if (!route) {
 			return _resolve();
 		}
@@ -624,20 +686,20 @@ class Router {
 				if (result && result.promise) {
 					result.promise.then(function () {
 						ctx.afterOnViewLoad(ctx, route);
-						ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+						ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 					}).catch(function (error) {
 						window.console.log('Error running onViewLoad: ', route.routeId, error);
 					});
 				} else {
 					ctx.afterOnViewLoad(ctx, route);
-					ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+					ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 				}
 			} else {
 				ctx.afterOnViewLoad(ctx, route);
-				ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+				ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			ctx.callOnViewLoadInOrder(orderedRoutesToLoad, routeIndex + 1, ctx, _resolve);
+			ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -729,8 +791,8 @@ class Router {
 		viewNode.appendChild(newViewNode);
 	}
 
-	loadRouteInOrder(orderedRoutesToLoad, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToLoad[routeIndex];
+	loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
 		if (!route) {
 			ctx.$powerUi.callInitViews();
 			if (!ctx.config.phantomMode) {
@@ -752,8 +814,8 @@ class Router {
 			ctrl: ctx.routes[route.routeId].ctrl,
 			title: ctx.routes[route.routeId].title,
 			data: ctx.routes[route.routeId].data,
-			loadRouteInOrder: ctx.loadRouteInOrder,
-			orderedRoutesToLoad: orderedRoutesToLoad,
+			loadViewInOrder: ctx.loadViewInOrder,
+			orderedRoutesToOpen: orderedRoutesToOpen,
 			routeIndex: routeIndex + 1,
 			ctx: ctx,
 			_resolve: _resolve,
@@ -798,7 +860,7 @@ class Router {
 		}
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadRouteInOrder, orderedRoutesToLoad, routeIndex, ctx, _resolve}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const _viewId = this.routes[routeId].viewId || viewId;
 
 		// If have a template to load let's do it
@@ -815,8 +877,8 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
-					loadRouteInOrder: loadRouteInOrder,
-					orderedRoutesToLoad: orderedRoutesToLoad,
+					loadViewInOrder: loadViewInOrder,
+					orderedRoutesToOpen: orderedRoutesToOpen,
 					routeIndex: routeIndex,
 					ctx: ctx,
 					_resolve: _resolve,
@@ -830,8 +892,8 @@ class Router {
 					routes: this.routes,
 					title: title,
 					$ctrl: this.$powerUi.controllers[_viewId].instance,
-					loadRouteInOrder: loadRouteInOrder,
-					orderedRoutesToLoad: orderedRoutesToLoad,
+					loadViewInOrder: loadViewInOrder,
+					orderedRoutesToOpen: orderedRoutesToOpen,
 					routeIndex: routeIndex,
 					ctx: ctx,
 					_resolve: _resolve,
@@ -844,8 +906,8 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
-					loadRouteInOrder: loadRouteInOrder,
-					orderedRoutesToLoad: orderedRoutesToLoad,
+					loadViewInOrder: loadViewInOrder,
+					orderedRoutesToOpen: orderedRoutesToOpen,
 					routeIndex: routeIndex,
 					ctx: ctx,
 					_resolve: _resolve,
