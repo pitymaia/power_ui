@@ -21,7 +21,7 @@ class PowerDialogBase extends PowerWidget {
 	}
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
-		if (this.onCancel) {
+		if (this.onCancel && this._promise) {
 			this.onCancel(this._resolve, this._reject, ...args);
 			const self = this;
 			this._promise.then(function () {
@@ -29,13 +29,16 @@ class PowerDialogBase extends PowerWidget {
 			}).catch(function (error) {
 				self.closeCurrentRoute();
 			});
+		} else if (this.onCancel) {
+			this.onCancel(...args);
+			this.closeCurrentRoute();
 		} else {
 			this.closeCurrentRoute();
 		}
 	}
 	// Allow async calls to implement onCommit
 	_commit(...args) {
-		if (this.onCommit) {
+		if (this.onCommit && this._promise) {
 			this.onCommit(this._resolve, this._reject,...args);
 			const self = this;
 			this._promise.then(function () {
@@ -43,6 +46,9 @@ class PowerDialogBase extends PowerWidget {
 			}).catch(function (error) {
 				self.closeCurrentRoute();
 			});
+		} else if (this.onCommit) {
+			this.onCommit(...args);
+			this.closeCurrentRoute();
 		} else {
 			this.closeCurrentRoute();
 		}

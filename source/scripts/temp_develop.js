@@ -259,6 +259,10 @@ class SecundaryMainCtrl extends PowerModal {
 		console.log('Secundary main ctrl');
 	}
 
+	onCancel() {
+		console.log('rodou');
+	}
+
 	openChild() {
 		this.openRoute({
 			routeId: 'secchild',
