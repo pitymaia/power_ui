@@ -501,21 +501,8 @@ class PowerUi extends _PowerUiBase {
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
 
-		// Save main-view and secundary-view innerHTML before refresh so can restore it after replace the template
-		if (routeId === '#root') {
-			let mainView = document.getElementById('main-view');
-			const mainViewInnerHTML = mainView.innerHTML;
-			let secundaryView = document.getElementById('secundary-view');
-			const secundaryViewInnerHTML = secundaryView.innerHTML;
+		view.innerHTML = template;
 
-			view.innerHTML = template;
-
-			mainView = document.getElementById('main-view');
-			mainView.innerHTML = mainViewInnerHTML;
-			secundaryView.innerHTML = secundaryViewInnerHTML;
-		} else {
-			view.innerHTML = template;
-		}
 		if (orderedRoutesToOpen) {
 			loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve);
 		}

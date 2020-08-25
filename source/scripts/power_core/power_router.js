@@ -71,9 +71,11 @@ class EngineCommands {
 			// May need refresh parentRoute
 			if (!this.bootstraping && route.commands.parentView && route.commands.parentView.refresh === true && route.parentRouteId) {
 				// Only refresh if not removing the parent and if it is still on currentRoutes list
-				const parent = this.router.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId});
+				let parent = this.router.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId});
+				if (!parent && route.parentRouteId === '$root') {
+					parent = {id: '$root', viewId: 'root-view', params: null, kind: 'root', parentRouteId: null, parentViewId: null, powerViewNodeId: 'root-view'};
+				}
 				if (!this.router.orderedRoutesToClose.find(r => r.routeId === route.parentRouteId) && parent) {
-					console.log(route.parentRouteId, 'SHOULD REFRESH !!!!!!', route);
 					const add = {
 						routeId: parent.id,
 						viewId: parent.viewId,
@@ -96,8 +98,6 @@ class EngineCommands {
 		for (const route of this.routesToAdd) {
 			this.router.orderedRoutesToClose.splice(route.index + 1, 0, route.route_close);
 		}
-		console.log('ADD !!!!!!', this.routesToAdd);
-		// console.log('to close', route, this.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId}));
 	}
 
 	buildOpenCommands() {
@@ -108,7 +108,6 @@ class EngineCommands {
 			const index = this.router.orderedRoutesToOpen.findIndex(r=> r.parentRouteId === route.route_open.routeId);
 			this.router.orderedRoutesToOpen.splice(index, 0, route.route_open);
 		}
-		console.log('orderedRoutesToOpen', this.router.orderedRoutesToOpen)
 	}
 }
 
@@ -416,6 +415,7 @@ class Router {
 					kind: 'main',
 					parentRouteId: this.hasRoot ? '$root' : null,
 					parentViewId: this.hasRoot ? 'root-view' : null,
+					powerViewNodeId: 'root-view',
 				});
 			}
 			// Register main route on currentRoutes list
@@ -428,6 +428,7 @@ class Router {
 				data: this.routes[mainRoute.routeId].data,
 				parentRouteId: this.hasRoot ? '$root' : null,
 				parentViewId: this.hasRoot ? 'root-view' : null,
+				powerViewNodeId: 'root-view',
 				kind: 'main',
 			});
 			// Add any main child route to ordered list
@@ -760,12 +761,14 @@ class Router {
 			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
 			if (viewId === 'main-view') {
 				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
+			} else if (viewId === 'root-view') {
+				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
 			} else {
 				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeElementAndInnersFromPower(powerViewNode)
 			}
 		}
 		// Remove the node it self if not main-view
-		if (viewId !== 'main-view' && powerViewNode) {
+		if (viewId !== 'main-view' && viewId !== 'root-view' && powerViewNode) {
 			powerViewNode.parentNode.removeChild(powerViewNode);
 		}
 
@@ -786,7 +789,7 @@ class Router {
 				kind: 'main',
 				parentRouteId: this.oldRoutes.parentRouteId,
 				parentViewId: this.oldRoutes.parentViewId,
-				powerViewNodeId: this.routes[this.oldRoutes.parentRouteId] ? this.routes[this.oldRoutes.parentRouteId].powerViewNodeId : null,
+				powerViewNodeId: 'root-view',
 			});
 		}
 		// Add old child route from main route if have some
@@ -826,7 +829,6 @@ class Router {
 	}
 
 	addNewViewNode(viewId, routeViewNodeId) {
-		console.log('addNewViewNode', viewId, routeViewNodeId);
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		newViewNode.id = viewId;
@@ -837,7 +839,6 @@ class Router {
 
 	loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToOpen[routeIndex];
-		console.log('ROUTE TO LOAD', route, orderedRoutesToOpen, routeIndex);
 		if (!route) {
 			ctx.$powerUi.callInitViews();
 			if (!ctx.config.phantomMode) {
