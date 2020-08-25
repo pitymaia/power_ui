@@ -1417,6 +1417,7 @@ class RootScope extends PowerController {
 
 	rootValue() {
 		this.rootCounter = this.rootCounter + 1;
+		this.changeCats();
 		return this.rootCounter;
 	}
 

@@ -68,30 +68,9 @@ class EngineCommands {
 		this.routesToAdd = [];
 		for (const route of this.router.orderedRoutesToClose) {
 			route.commands = this.default.close;
-			// May need refresh parentRoute
-			if (!this.bootstraping && route.commands.parentView && route.commands.parentView.refresh === true && route.parentRouteId) {
-				// Only refresh if not removing the parent and if it is still on currentRoutes list
-				let parent = this.router.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId});
-				if (!parent && route.parentRouteId === '$root') {
-					parent = {id: '$root', viewId: 'root-view', params: null, kind: 'root', parentRouteId: null, parentViewId: null, powerViewNodeId: 'root-view'};
-				}
-				if (!this.router.orderedRoutesToClose.find(r => r.routeId === route.parentRouteId) && parent) {
-					const add = {
-						routeId: parent.id,
-						viewId: parent.viewId,
-						params: parent.params,
-						kind: parent.kind,
-						parentRouteId: parent.parentRouteId,
-						parentViewId: parent.parentViewId,
-						powerViewNodeId: this.router.routes[parent.parentRouteId] ? this.router.routes[parent.parentRouteId].powerViewNodeId : null,
-					};
-					const close = Object.assign({}, add);
-					close.commands = Object.assign({}, this.command.refresh.close);
-					const open = Object.assign({}, add);
-					open.commands = Object.assign({}, this.command.refresh.open);
-					this.routesToAdd.push({index: index, route_close: close, route_open: open});
-				}
-				index = index + 1;
+			// May need apply parentView commands
+			if (!this.bootstraping && route.parentRouteId && route.commands.parentView && route.commands.parentView.refresh === true) {
+				this.parentCommands(route, index);
 			}
 		}
 
@@ -108,6 +87,50 @@ class EngineCommands {
 			const index = this.router.orderedRoutesToOpen.findIndex(r=> r.parentRouteId === route.route_open.routeId);
 			this.router.orderedRoutesToOpen.splice(index, 0, route.route_open);
 		}
+	}
+
+	applyCommands(open, close, command) {
+		for (const index of Object.keys(command.close)) {
+			if (close.commands[index] === undefined || command.close[index] === true) {
+				close.commands[index] = command.close[index];
+			}
+		}
+		for (const index of Object.keys(command.open)) {
+			if (open.commands[index] === undefined || command.open[index] === true) {
+				open.commands[index] = command.open[index];
+			}
+		}
+	}
+
+	parentCommands(route, index) {
+		// Only refresh if not removing the parent and if it is still on currentRoutes list
+		let parent = this.router.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId});
+		if (!parent && route.parentRouteId === '$root') {
+			parent = {id: '$root', viewId: 'root-view', params: null, kind: 'root', parentRouteId: null, parentViewId: null, powerViewNodeId: 'root-view'};
+		}
+		if (!this.router.orderedRoutesToClose.find(r => r.routeId === route.parentRouteId) && parent) {
+			const newRoute = {
+				routeId: parent.id,
+				viewId: parent.viewId,
+				params: parent.params,
+				kind: parent.kind,
+				parentRouteId: parent.parentRouteId,
+				parentViewId: parent.parentViewId,
+				powerViewNodeId: this.router.routes[parent.parentRouteId] ? this.router.routes[parent.parentRouteId].powerViewNodeId : null,
+			};
+			const open = Object.assign({}, newRoute);
+			open.commands = {};
+			const close = Object.assign({}, newRoute);
+			close.commands = {};
+
+			for (const index of Object.keys(route.commands.parentView)) {
+				if (this.command[index]) {
+					this.applyCommands(open, close, this.command[index]);
+				}
+			}
+			this.routesToAdd.push({index: index, route_close: close, route_open: open});
+		}
+		index = index + 1;
 	}
 }
 
