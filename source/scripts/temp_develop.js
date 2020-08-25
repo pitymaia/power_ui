@@ -138,9 +138,9 @@ class FrontPage extends PowerController {
 
 class PowerMidTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Mid template');
+		// console.log('Mid template');
 		resolve(`<div>
-			<h1>This is the mid page</h1>
+			<h1>This is the mid page {{ getvalue() }}</h1>
 			<div class="power-view" id="power-mid-view"></div>
 		</div>`);
 	}
@@ -148,17 +148,22 @@ class PowerMidTemplate extends PowerTemplate {
 
 class PowerMidCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
-		console.log('PowerMidCtrl LOAD', viewId);
+		// console.log('PowerMidCtrl LOAD', viewId);
 		resolve();
 	}
 	ctrl() {
-		console.log('MID ctrl');
+		// console.log('MID ctrl');
+		this.$root.value = 0;
+		this.$root.getvalue = function () {
+			this.value = this.value + 1;
+			return this.value;
+		}
 	}
 }
 
 class PowerThirdTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Third template');
+		// console.log('Third template');
 		resolve(`<div>
 			<h1>Third page HERE!</h1>
 			<div>THIS IS SO COOL!</div>
@@ -168,17 +173,17 @@ class PowerThirdTemplate extends PowerTemplate {
 
 class PowerThirdCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
-		console.log('PowerThirdCtrl LOAD', viewId);
+		// console.log('PowerThirdCtrl LOAD', viewId);
 		resolve();
 	}
 	ctrl() {
-		console.log('Third ctrl');
+		// console.log('Third ctrl');
 	}
 }
 
 class PowerThirdTemplate2 extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Third 2 template');
+		// console.log('Third 2 template');
 		resolve(`<div>
 			<h1>This is the Third 2 page</h1>
 			<div>LOL, THIS IS AWESOME!</div>
@@ -188,13 +193,13 @@ class PowerThirdTemplate2 extends PowerTemplate {
 
 class PowerThirdCtrl2 extends PowerController {
 	ctrl() {
-		console.log('Third 2 ctrl');
+		// console.log('Third 2 ctrl');
 	}
 }
 
 class SecundaryMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Secundary main template');
+		// console.log('Secundary main template');
 		let newTmpl = `<div>
 			<div class="power-view" id="secundary-child-views"></div>
 		</div>`
@@ -256,11 +261,11 @@ class SecundaryMainTemplate extends PowerTemplate {
 
 class SecundaryMainCtrl extends PowerModal {
 	ctrl() {
-		console.log('Secundary main ctrl');
+		// console.log('Secundary main ctrl');
 	}
 
 	onCancel() {
-		console.log('rodou');
+		// console.log('rodou');
 	}
 
 	openChild() {
@@ -287,7 +292,7 @@ class SecundaryMainCtrl extends PowerModal {
 
 class SecundaryChildTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Secundary child template');
+		// console.log('Secundary child template');
 		resolve(`<div>
 			<h1>This is the child page</h1>
 			<div>LOL, THIS IS AWESOME!</div>
@@ -297,13 +302,13 @@ class SecundaryChildTemplate extends PowerTemplate {
 
 class SecundaryChildCtrl extends PowerController {
 	ctrl() {
-		console.log('Secundary child ctrl');
+		// console.log('Secundary child ctrl');
 	}
 }
 
 class SecundaryChildTemplate2 extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Secundary child 2 template');
+		// console.log('Secundary child 2 template');
 		resolve(`<div>
 			<h1>This is the child page 2</h1>
 			<div>SO GREAT FRAMEWORK!</div>
@@ -313,15 +318,15 @@ class SecundaryChildTemplate2 extends PowerTemplate {
 
 class SecundaryChildCtrl2 extends PowerController {
 	ctrl() {
-		console.log('Secundary child 2 ctrl');
+		// console.log('Secundary child 2 ctrl');
 	}
 }
 
 class SecundaryChildMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Secundary child MAIN template');
+		// console.log('Secundary child MAIN template', this.$ctrl.$root.getvalue());
 		resolve(`<div>
-			<h1>This is the MAIN of a CHILD</h1>
+			<h1>This is the MAIN of a CHILD {{ getvalue() }}</h1>
 			<div>And I Love it!!!!</div>
 			<div class="power-view" id="secundary-child-another"></div>
 		</div>`);
@@ -330,13 +335,19 @@ class SecundaryChildMainTemplate extends PowerTemplate {
 
 class SecundaryChildMainCtrl extends PowerController {
 	ctrl() {
-		console.log('Secundary child MAIN ctrl');
+		// console.log('Secundary child MAIN ctrl');
+		this.$root.value = 0;
+		this.$root.getvalue = function () {
+			this.value = this.value + 1;
+			return this.value;
+		}
 	}
+
 }
 
 class SecundaryChildOfChildTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('This a Secundary child of a child template');
+		// console.log('This a Secundary child of a child template');
 		resolve(`<div>
 			<h1>This is the CHIL of a CHILD</h1>
 			<div>And I Love it A LOT!!!!</div>
@@ -348,7 +359,7 @@ class SecundaryChildOfChildTemplate extends PowerTemplate {
 
 class SecundaryChildOfChildCtrl extends PowerController {
 	ctrl() {
-		console.log('Secundary child of a child ctrl');
+		// console.log('Secundary child of a child ctrl');
 	}
 	openChildOfChild2() {
 		this.openRoute({
@@ -357,13 +368,13 @@ class SecundaryChildOfChildCtrl extends PowerController {
 		});
 	}
 	onViewLoad() {
-		console.log('SecundaryChildOfChildCtrl onViewLoad');
+		// console.log('SecundaryChildOfChildCtrl onViewLoad');
 	}
 }
 
 class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('This a Secundary child of a child template 2');
+		// console.log('This a Secundary child of a child template 2');
 		resolve(`<div>
 			<h1>This is the CHIL of a CHILD 2</h1>
 			<div>This is a lot of work to do...</div>
@@ -373,15 +384,15 @@ class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 
 class SecundaryChildOfChildCtrl2 extends PowerController {
 	ctrl() {
-		console.log('Secundary child of a child ctrl 2');
+		// console.log('Secundary child of a child ctrl 2');
 	}
 }
 
 class PowerMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Main template');
+		// console.log('Main template');
 		resolve(`<div>
-			<h1>This is the main page</h1>
+			<h1>This is the main page! {{ getvalue() }}</h1>
 			<div class="power-view" id="power-main-child-view"></div>
 		</div>`);
 	}
@@ -389,20 +400,25 @@ class PowerMainTemplate extends PowerTemplate {
 
 class PowerMainCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
-		console.log('PowerMainCtrl LOAD', viewId);
+		// console.log('PowerMainCtrl LOAD', viewId);
 		resolve();
 	}
 	ctrl() {
-		console.log('Main ctrl');
+		// console.log('Main ctrl');
+		this.value = 0;
+		this.getvalue = function () {
+			this.value = this.value + 1;
+			return this.value;
+		}
 	}
 	onViewLoad() {
-		console.log('PowerMainCtrl onViewLoad');
+		// console.log('PowerMainCtrl onViewLoad');
 	}
 }
 
 class PowerMainChildTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('Child template');
+		// console.log('Child template');
 		resolve(`<div>
 			<h1>This is the Child page 2</h1>
 			<div>VIVA!</div>
@@ -412,14 +428,14 @@ class PowerMainChildTemplate extends PowerTemplate {
 
 class PowerMainChildCtrl extends PowerController {
 	load({resolve, reject, viewId}) {
-		console.log('PowerMainChildCtrl LOAD', viewId);
+		// console.log('PowerMainChildCtrl LOAD', viewId);
 		resolve();
 	}
 	ctrl() {
-		console.log('Child ctrl');
+		// console.log('Child ctrl');
 	}
 	onViewLoad() {
-		console.log('PowerMainChildCtrl onViewLoad');
+		// console.log('PowerMainChildCtrl onViewLoad');
 	}
 }
 
@@ -430,14 +446,14 @@ class PowerOnlyPage extends PowerController {
 		this.oldName = this.myName;
 	}
 	load({resolve, reject, viewId}) {
-		console.log('PowerOnlyPage LOAD :)', viewId);
+		// console.log('PowerOnlyPage LOAD :)', viewId);
 		resolve();
 	}
 	onViewLoad() {
-		console.log('PowerOnlyPage onViewLoad');
+		// console.log('PowerOnlyPage onViewLoad');
 	}
 	ctrl({lock, $powerUi}) {
-		console.log('PowerOnlyPage CTRL @');
+		// console.log('PowerOnlyPage CTRL @');
 		this.next = 0;
 		this.cats = [
 			{name: 'Sol', gender: 'female'},
@@ -567,7 +583,7 @@ class PowerOnlyPage extends PowerController {
 			title: 'This is an alert',
 			template: '<p>Be aware of some information!</p>',
 			controller: function() {
-				console.log('alert');
+				// console.log('alert');
 			}
 		});
 	}
@@ -577,7 +593,7 @@ class PowerOnlyPage extends PowerController {
 			title: 'This is a modal',
 			templateComponent: SimpleTemplate,
 			controller: function() {
-				console.log('modal');
+				// console.log('modal');
 			}
 		});
 	}
@@ -587,7 +603,7 @@ class PowerOnlyPage extends PowerController {
 			title: 'This is a window',
 			templateComponent: SimpleTemplate,
 			controller: function() {
-				console.log('window');
+				// console.log('window');
 			}
 		});
 	}
@@ -605,14 +621,14 @@ class PowerOnlyPage extends PowerController {
 			title: 'This is a confirm',
 			template: `<div>Do you really want this?</div>`,
 			controller: function() {
-				console.log('confirm?');
+				// console.log('confirm?');
 			},
 			onCommit: function(resolve, reject, value) {
-				console.log('Thanks for commiting with me.', value);
+				// console.log('Thanks for commiting with me.', value);
 				resolve();
 			},
 			onCancel: function(resolve) {
-				console.log('This is sad...');
+				// console.log('This is sad...');
 				resolve();
 			}
 		});
@@ -639,18 +655,18 @@ class PowerOnlyPage extends PowerController {
 				]
 			},
 			onCommit: function(resolve, reject, value) {
-				console.log('Thanks for commiting with me.', value);
+				// console.log('Thanks for commiting with me.', value);
 				resolve();
 			},
 			onCancel: function(resolve) {
-				console.log('This is sad...');
+				// console.log('This is sad...');
 				resolve();
 			}
 		});
 	}
 
 	test() {
-		console.log('mouseover!');
+		// console.log('mouseover!');
 	}
 
 	gotoIndex() {
@@ -761,11 +777,11 @@ class SimpleModal extends PowerModal {
 			title: 'This is a simple modal',
 			template: `<div>Really want close simple modal?</div>`,
 			onCommit: function(resolve, reject, value) {
-				console.log('onCommit', value);
+				// console.log('onCommit', value);
 				resolve();
 			},
 			onCancel: function(resolve, reject) {
-				console.log('This is sad...');
+				// console.log('This is sad...');
 				reject();
 			}
 		});
@@ -788,7 +804,7 @@ class SimpleTemplate extends PowerTemplate {
 			self.pity = "Pity o bom";
 			resolve(tmpEl.innerHTML);
 		}).catch(function (response, xhr) {
-			console.log('SimpleTemplate', response, xhr);
+			// console.log('SimpleTemplate', response, xhr);
 			reject();
 		});
 	}
@@ -801,7 +817,7 @@ class SimpleTemplate extends PowerTemplate {
 		}).then(function (response, xhr) {
 			resolve(response.css);
 		}).catch(function (response, xhr) {
-			window.console.log('css', response, xhr);
+			// window.console.log('css', response, xhr);
 			reject();
 		});
 	}
@@ -827,14 +843,14 @@ class SimpleDialog extends PowerWindow {
 	}
 
 	ctrl({lock, $powerUi}) {
-		console.log('SimpleDialog ctrl');
+		// console.log('SimpleDialog ctrl');
 	}
 
 	// onViewLoad(view) {
 	// 	console.log('aqui', view);
 	// }
 	onCancel(resolve, reject, ...args) {
-		console.log('Really cancel?', args);
+		// console.log('Really cancel?', args);
 		resolve();
 		// this.$powerUi.request({
 		// 		url: 'somecomponent.html',
@@ -850,16 +866,16 @@ class SimpleDialog extends PowerWindow {
 	}
 
 	onCommit(resolve, reject, ...args) {
-		console.log('It is confirmed!', args);
+		// console.log('It is confirmed!', args);
 		resolve();
 	}
 
 	onCancelError() {
-		console.log('cancel fails');
+		// console.log('cancel fails');
 	}
 
 	onCommitError() {
-		console.log('confirm fails');
+		// console.log('confirm fails');
 	}
 }
 
@@ -871,8 +887,8 @@ class MyWindow extends PowerWindowIframe {
 
 	ctrl() {
 		this.$powerUi.controllers['main-view'].instance.next = this.$powerUi.controllers['main-view'].instance.next +1;
-		window.console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
-		window.console.log('Window is here!');
+		// window.console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
+		// window.console.log('Window is here!');
 	}
 
 	// onCancel(resolve, reject) {
@@ -891,11 +907,11 @@ class MyWindow extends PowerWindowIframe {
 			title: 'This is a confirm',
 			template: `<div>Do you really want close Window?</div>`,
 			onCommit: function(resolve, reject, value) {
-				console.log('onCommit', value);
+				// console.log('onCommit', value);
 				resolve();
 			},
 			onCancel: function(resolve, reject) {
-				console.log('This is sad...');
+				// console.log('This is sad...');
 				reject();
 			}
 		});
@@ -926,7 +942,7 @@ class SmallDialog extends PowerTemplate {
 
 class RootScopeTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		console.log('ROOT template');
+		// console.log('ROOT template');
 		let newTmpl = `<br /><br /><br /><br />
 			<div>Antes</div>
 			<div class="power-view" id="main-view"></div>
@@ -1242,7 +1258,7 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu1);
 
-		newTmpl = newTmpl + `<h1>Cats list</h1>
+		newTmpl = newTmpl + `<h1>Cats list {{ rootValue() }}</h1>
 			<div data-pow-for="cat of cats">
 				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_ft">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
 				</div>
@@ -1268,7 +1284,7 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button);
 		if (this.$ctrl.cats) {
-			console.log('cats', this.$ctrl.cats.length);
+			// console.log('cats', this.$ctrl.cats.length);
 		}
 		if (!this.$ctrl.cats || this.$ctrl.cats.length <= 2) {
 			const button2 = {
@@ -1383,19 +1399,25 @@ class RootScopeTemplate extends PowerTemplate {
 
 class RootScope extends PowerController {
 	load({resolve}) {
-		console.log('Root load');
+		// console.log('Root load');
 		resolve();
 	}
 	onViewLoad() {
-		console.log('Root onViewLoad');
+		// console.log('Root onViewLoad');
 	}
 	ctrl() {
-		console.log('Root ctrl');
+		this.rootCounter = 0;
+		// console.log('Root ctrl');
 		this.cats = [
 			{name: 'Penny', gender: 'female'},
 			{name: 'Riquinho', gender: 'male'},
 		];
 		this.name = 'Pity o bom!';
+	}
+
+	rootValue() {
+		this.rootCounter = this.rootCounter + 1;
+		return this.rootCounter;
 	}
 
 	goGrid() {
@@ -1472,7 +1494,7 @@ class RootScope extends PowerController {
 				{name: 'Tico', gender: 'male'},
 			];
 		}
-		window.console.log('changed cats', this.cats);
+		// window.console.log('changed cats', this.cats);
 	}
 
 	changeAndRefresh() {
@@ -2019,11 +2041,11 @@ class GridPageCtrl extends PowerController {
 	}
 
 	onCarChange() {
-		window.console.log('car', this.car);
+		// window.console.log('car', this.car);
 	}
 
 	onWiiChange() {
-		window.console.log('wii', this.wii);
+		// window.console.log('wii', this.wii);
 	}
 }
 
@@ -5004,7 +5026,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 class JSONViews extends PowerWindow {
 	ctrl() {
-		window.console.log('JSONViews CTRL', this.$tscope);
+		// window.console.log('JSONViews CTRL', this.$tscope);
 		this.name = 'Pity';
 		this.form = {
 			user_name: 'NadaSei',
@@ -5034,7 +5056,7 @@ class JSONViews extends PowerWindow {
 	}
 
 	onRouteClose() {
-		console.log('ON ROUTE CLOSE!!!');
+		// console.log('ON ROUTE CLOSE!!!');
 	}
 
 	beforeClose(data) {
@@ -5043,11 +5065,11 @@ class JSONViews extends PowerWindow {
 			title: 'This is a confirm',
 			template: `<div>Do you really want close?</div>`,
 			onCommit: function(resolve, reject, value) {
-				console.log('onCommit', value);
+				// console.log('onCommit', value);
 				resolve();
 			},
 			onCancel: function(resolve, reject) {
-				console.log('This is sad...');
+				// console.log('This is sad...');
 				reject();
 			}
 		});
@@ -5081,7 +5103,7 @@ class JSONViews extends PowerWindow {
 	}
 
 	clickTree(ctx, element, params) {
-		window.console.log('path', params.path);
+		// window.console.log('path', params.path);
 	}
 }
 
@@ -5195,7 +5217,7 @@ class FakeModal extends PowerModal {
 		} else if (kind === 'softRefresh') {
 			this.refresh();
 		}
-		console.log('this.cats.length', this.cats.length);
+		// console.log('this.cats.length', this.cats.length);
 	}
 
 	openSimpleModal() {

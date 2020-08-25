@@ -4,6 +4,9 @@ function getEmptyRouteObjetc() {
 		id: '',
 		viewId: '',
 		route: '',
+		parentRouteId: null,
+		parentViewId: null,
+		kind: '',
 		secundaryRoutes: [],
 		hiddenRoutes: [],
 		mainChildRoutes: [],
@@ -19,6 +22,7 @@ class EngineCommands {
 		this.routes = {};
 		this.default = {
 			close: {
+				parentView: {refresh: true},
 				runBeforeClose: true,
 				removeView: true,
 				runOnRouteClose: true,
@@ -30,16 +34,6 @@ class EngineCommands {
 				runCtrl: true,
 				addView: true,
 				runOnViewLoad: true,
-			},
-			mainView: {
-				close: {
-					rootView: {refresh: true},
-				},
-			},
-			childView: {
-				close: {
-					parentView: {refresh: true},
-				},
 			},
 		};
 		this.command = {
@@ -64,20 +58,57 @@ class EngineCommands {
 	buildCicleCommands() {
 		this.buildCloseCommands();
 		this.buildOpenCommands();
+		if (this.bootstraping) {
+			this.bootstraping = false;
+		}
 	}
 
 	buildCloseCommands() {
+		let index = 0;
+		this.routesToAdd = [];
 		for (const route of this.router.orderedRoutesToClose) {
 			route.commands = this.default.close;
-			console.log('to close', route);
+			// May need refresh parentRoute
+			if (!this.bootstraping && route.commands.parentView && route.commands.parentView.refresh === true && route.parentRouteId) {
+				// Only refresh if not removing the parent and if it is still on currentRoutes list
+				const parent = this.router.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId});
+				if (!this.router.orderedRoutesToClose.find(r => r.routeId === route.parentRouteId) && parent) {
+					console.log(route.parentRouteId, 'SHOULD REFRESH !!!!!!', route);
+					const add = {
+						routeId: parent.id,
+						viewId: parent.viewId,
+						params: parent.params,
+						kind: parent.kind,
+						parentRouteId: parent.parentRouteId,
+						parentViewId: parent.parentViewId,
+						powerViewNodeId: this.router.routes[parent.parentRouteId] ? this.router.routes[parent.parentRouteId].powerViewNodeId : null,
+					};
+					const close = Object.assign({}, add);
+					close.commands = Object.assign({}, this.command.refresh.close);
+					const open = Object.assign({}, add);
+					open.commands = Object.assign({}, this.command.refresh.open);
+					this.routesToAdd.push({index: index, route_close: close, route_open: open});
+				}
+				index = index + 1;
+			}
 		}
+
+		for (const route of this.routesToAdd) {
+			this.router.orderedRoutesToClose.splice(route.index + 1, 0, route.route_close);
+		}
+		console.log('ADD !!!!!!', this.routesToAdd);
+		// console.log('to close', route, this.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId}));
 	}
 
 	buildOpenCommands() {
 		for (const route of this.router.orderedRoutesToOpen) {
 			route.commands = this.default.open;
-			console.log('to open', route);
 		}
+		for (const route of this.routesToAdd) {
+			const index = this.router.orderedRoutesToOpen.findIndex(r=> r.parentRouteId === route.route_open.routeId);
+			this.router.orderedRoutesToOpen.splice(index, 0, route.route_open);
+		}
+		console.log('orderedRoutesToOpen', this.router.orderedRoutesToOpen)
 	}
 }
 
@@ -99,13 +130,11 @@ class Router {
 				this.add(route);
 			}
 		}
-
 		if (!this.config.phantomMode) {
 			this.initRootScopeAndRunEngine();
 			// call engine if hash change
 			window.onhashchange = this.hashChange.bind(this);
 		}
-
 	}
 
 	add(route) {
@@ -196,6 +225,9 @@ class Router {
 				id: route.id,
 				viewId: route.viewId,
 				route: route.route,
+				parentRouteId: route.parentRouteId,
+				parentViewId: route.parentViewId,
+				kind: route.kind,
 				params: [],
 			};
 			for (const param of route.params) {
@@ -211,6 +243,9 @@ class Router {
 			id: source.id,
 			viewId: source.viewId,
 			route: source.route,
+			parentRouteId: source.parentRouteId,
+			parentViewId: source.parentViewId,
+			kind: source.kind,
 			secundaryRoutes: [],
 			hiddenRoutes: [],
 			mainChildRoutes: [],
@@ -226,39 +261,6 @@ class Router {
 		this.cloneRouteList(dest, source, 'secundaryChildRoutes');
 		this.cloneRouteList(dest, source, 'hiddenChildRoutes');
 		return dest;
-	}
-
-	getOpenedRoutesRefreshData() {
-		const viewsList = [];
-		viewsList.push({
-			view: document.getElementById(this.currentRoutes.viewId),
-			routeId: this.currentRoutes.id,
-			viewId: this.currentRoutes.viewId,
-			title: this.currentRoutes.title,
-			template: this.routes[this.currentRoutes.id].template,
-			$tscope: this.routes[this.currentRoutes.id].$tscope || null,
-		});
-		for (const route of this.currentRoutes.secundaryRoutes) {
-			viewsList.push({
-				view: document.getElementById(route.viewId),
-				routeId: route.id,
-				viewId: route.viewId,
-				title: route.title,
-				template: this.routes[route.id].template,
-				$tscope: this.routes[route.id].$tscope || null,
-			});
-		}
-		for (const route of this.currentRoutes.hiddenRoutes) {
-			viewsList.push({
-				view: document.getElementById(route.viewId),
-				routeId: route.id,
-				viewId: route.viewId,
-				title: route.title,
-				template: this.routes[route.id].template,
-				$tscope: this.routes[route.id].$tscope || null,
-			});
-		}
-		return viewsList;
 	}
 
 	locationHashWithHiddenRoutes() {
@@ -356,12 +358,13 @@ class Router {
 		return route;
 	}
 
-	recursivelyAddChildRoute(route, mainKind, powerViewNodeId) {
+	recursivelyAddChildRoute(route, mainKind, powerViewNodeId, parentRouteId, parentViewId) {
 		const routesListName = `${mainKind}ChildRoutes`;
 		if (route && route.childRoute) {
 			const childRoute = this.matchRouteAndGetIdAndParamKeys(route.childRoute);
+			let childViewId = false;
 			if (childRoute) {
-				let childViewId = this.getVewIdIfRouteExists(route.childRoute.path, routesListName);
+				childViewId = this.getVewIdIfRouteExists(route.childRoute.path, routesListName);
 				// Load child route only if it's a new route
 				if (childViewId === false) {
 					childViewId = _Unique.domID('view');
@@ -372,6 +375,8 @@ class Router {
 						paramKeys: childRoute.paramKeys,
 						kind: 'child',
 						powerViewNodeId: powerViewNodeId,
+						parentRouteId: parentRouteId,
+						parentViewId: parentViewId,
 					});
 				}
 				// Register child route on currentRoutes list
@@ -383,11 +388,15 @@ class Router {
 					title: this.routes[childRoute.routeId].title,
 					data: this.routes[childRoute.routeId].data,
 					mainKind: mainKind,
+					parentRouteId: parentRouteId,
+					parentViewId: parentViewId,
+					kind: 'child',
 				});
 			}
 
 			if (route.childRoute.childRoute) {
-				this.recursivelyAddChildRoute(route.childRoute, mainKind, childRoute.powerViewNodeId);
+				this.recursivelyAddChildRoute(
+					route.childRoute, mainKind, childRoute.powerViewNodeId, (childRoute ? childRoute.routeId : null), (childViewId ? childViewId : null));
 			}
 		}
 	}
@@ -405,6 +414,8 @@ class Router {
 					viewId: this.config.routerMainViewId,
 					paramKeys: mainRoute.paramKeys,
 					kind: 'main',
+					parentRouteId: this.hasRoot ? '$root' : null,
+					parentViewId: this.hasRoot ? 'root-view' : null,
 				});
 			}
 			// Register main route on currentRoutes list
@@ -415,9 +426,13 @@ class Router {
 				viewId: this.config.routerMainViewId,
 				title: this.routes[mainRoute.routeId].title,
 				data: this.routes[mainRoute.routeId].data,
+				parentRouteId: this.hasRoot ? '$root' : null,
+				parentViewId: this.hasRoot ? 'root-view' : null,
+				kind: 'main',
 			});
 			// Add any main child route to ordered list
-			this.recursivelyAddChildRoute(currentRoutesTree.mainRoute, 'main', mainRoute.powerViewNodeId);
+			this.recursivelyAddChildRoute(
+				currentRoutesTree.mainRoute, 'main', mainRoute.powerViewNodeId, mainRoute.routeId, 'main-view');
 		} else {
 			// otherwise if do not mach a route
 			const newRoute = this.routes.otherwise ? this.routes.otherwise.route : this.config.rootPath;
@@ -441,6 +456,8 @@ class Router {
 						viewId: viewId,
 						paramKeys: currentRoute.paramKeys,
 						kind: kind,
+						parentRouteId: null,
+						parentViewId: null,
 					});
 				}
 				// Register route on currentRoutes list
@@ -451,9 +468,13 @@ class Router {
 					viewId: viewId,
 					title: this.routes[currentRoute.routeId].title,
 					data: this.routes[currentRoute.routeId].data,
+					parentRouteId: null,
+					parentViewId: null,
+					kind: kind,
 				});
 				// Add any child route to ordered list
-				this.recursivelyAddChildRoute(route, kind, currentRoute.powerViewNodeId);
+				this.recursivelyAddChildRoute(
+					route, kind, currentRoute.powerViewNodeId, currentRoute.routeId, (viewId ? viewId : null));
 			}
 		}
 	}
@@ -475,6 +496,7 @@ class Router {
 		const $root = this.$powerUi.config.routes.find(r=> r.id === '$root');
 		const loadRoot = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root"};
 		if ($root) {
+			this.hasRoot = true;
 			this.engine(loadRoot);
 		} else {
 			this.engine();
@@ -681,7 +703,6 @@ class Router {
 	removeVolatileViews(viewId) {
 		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
 			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
-				console.log("this.routes[volatileId]", this.routes[volatileId]);
 				delete this.routes[volatileId];
 			}
 		}
@@ -763,6 +784,9 @@ class Router {
 				viewId: this.oldRoutes.viewId,
 				params: this.oldRoutes.params,
 				kind: 'main',
+				parentRouteId: this.oldRoutes.parentRouteId,
+				parentViewId: this.oldRoutes.parentViewId,
+				powerViewNodeId: this.routes[this.oldRoutes.parentRouteId] ? this.routes[this.oldRoutes.parentRouteId].powerViewNodeId : null,
 			});
 		}
 		// Add old child route from main route if have some
@@ -783,6 +807,9 @@ class Router {
 					viewId: old.viewId,
 					params: old.params,
 					kind: kind,
+					parentRouteId: old.parentRouteId,
+					parentViewId: old.parentViewId,
+					powerViewNodeId: this.routes[old.parentRouteId] ? this.routes[old.parentRouteId].powerViewNodeId : null,
 				});
 			}
 		}
@@ -799,6 +826,7 @@ class Router {
 	}
 
 	addNewViewNode(viewId, routeViewNodeId) {
+		console.log('addNewViewNode', viewId, routeViewNodeId);
 		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
 		const newViewNode = document.createElement('div');
 		newViewNode.id = viewId;
@@ -809,6 +837,7 @@ class Router {
 
 	loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToOpen[routeIndex];
+		console.log('ROUTE TO LOAD', route, orderedRoutesToOpen, routeIndex);
 		if (!route) {
 			ctx.$powerUi.callInitViews();
 			if (!ctx.config.phantomMode) {
@@ -838,7 +867,7 @@ class Router {
 				_resolve: _resolve,
 			});
 		} else {
-			ctx.loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve);
+			ctx.loadViewInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -1105,14 +1134,17 @@ class Router {
 		return exists;
 	}
 
-	setMainRouteState({routeId, paramKeys, route, viewId, title, data}) {
+	setMainRouteState({routeId, paramKeys, route, viewId, title, data, parentRouteId, parentViewId}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootPath, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
+		this.currentRoutes.kind = 'main';
 		this.currentRoutes.title = title;
 		this.currentRoutes.data = data;
+		this.currentRoutes.parentRouteId = parentRouteId;
+		this.currentRoutes.parentViewId = parentViewId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -1120,7 +1152,7 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setOtherRouteState({routeId, paramKeys, route, viewId, title, data}) {
+	setOtherRouteState({routeId, paramKeys, route, viewId, title, data, parentRouteId, parentViewId, kind}) {
 		const newRoute = {
 			title: title,
 			isMainView: false,
@@ -1129,6 +1161,9 @@ class Router {
 			route: route.replace(this.config.rootPath, ''), // remove #!/
 			viewId: this.routes[routeId].viewId || viewId,
 			data: data || null,
+			parentRouteId: parentRouteId,
+			parentViewId: parentViewId,
+			kind: kind,
 		};
 		// Register current route id
 		newRoute.id = routeId;
@@ -1214,18 +1249,51 @@ class Router {
 	}
 
 	getOpenedRoute({routeId, viewId}) {
-		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
-			return this.currentRoutes;
+		return this.getRouteOnList({
+			routeId: routeId,
+			viewId: viewId,
+			listName: 'currentRoutes',
+		});
+	}
+
+	getOldRoute({routeId, viewId}) {
+		return this.getRouteOnList({
+			routeId: routeId,
+			viewId: viewId,
+			listName: 'oldRoutes',
+		});
+	}
+
+	getRouteOnList({routeId, viewId, listName}) {
+		if (this[listName].id === routeId && this[listName].viewId) {
+			return this[listName];
 		} else {
-			for (const route of this.currentRoutes.secundaryRoutes.concat(
-				this.currentRoutes.hiddenRoutes).concat(
-				this.currentRoutes.mainChildRoutes).concat(
-				this.currentRoutes.secundaryChildRoutes).concat(
-				this.currentRoutes.hiddenChildRoutes)) {
+			for (const route of this[listName].mainChildRoutes) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
 			}
+			for (const route of this[listName].secundaryRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			for (const route of this[listName].secundaryChildRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			for (const route of this[listName].hiddenRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			for (const route of this[listName].hiddenChildRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			return null;
 		}
 	}
 
@@ -1268,6 +1336,7 @@ class PhantomRouter extends Router {
 			routeId: routeId,
 			title: title,
 			isMainView: false,
+			kind: 'hidden',
 			params: params,
 			id: routeId,
 			route: routeId, // the route and routeId is the same
@@ -1284,6 +1353,8 @@ class PhantomRouter extends Router {
 			viewId: newRoute.viewId,
 			paramKeys: '',
 			kind: 'hidden',
+			parentRouteId: null,
+			parentViewId: null,
 		};
 		this.engine($fakeRoot);
 	}
