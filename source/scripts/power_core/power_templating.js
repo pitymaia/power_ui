@@ -11,7 +11,29 @@ class PowerInterpolation {
 			// The scope controller of the view of this element
 			scope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
 		}
+		// console.log('COMPILE', scope);
+		if (template.includes('power-view')) {
+			const tmp = document.createElement("div");
+			tmp.innerHTML = template;
+			this.interpolateInOrder(tmp);
+			template = tmp.innerHTML;
+		}
+		// console.log('COMPILE', template);
 		return this.replaceInterpolation(template, scope);
+	}
+	// Interpolate views and root scope in the right order
+	interpolateInOrder(node) {
+		const powerViews = node ? node.getElementsByClassName('power-view') : document.getElementsByClassName('power-view');
+		// Interpolate using view controller scope
+		let index = powerViews.length - 1;
+		while (index >= 0) {
+			const view = powerViews[index];
+			if (this.$powerUi.controllers[view.id] && this.$powerUi.controllers[view.id].instance) {
+				const scope = this.$powerUi.controllers[view.id].instance;
+				view.innerHTML = this.replaceInterpolation(view.innerHTML, scope);
+			}
+			index = index - 1;
+		}
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template, scope) {

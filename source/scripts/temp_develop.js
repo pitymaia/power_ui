@@ -250,6 +250,13 @@ class SecundaryMainTemplate extends PowerTemplate {
 						],
 					},
 				},
+				{
+					"item": {
+						"id": "my-item-4",
+						"label": `${this.$ctrl.getMainvalue()}`,
+						// "icon": "icon-food-carot",
+					},
+				},
 			]
 		};
 
@@ -262,11 +269,12 @@ class SecundaryMainTemplate extends PowerTemplate {
 class SecundaryMainCtrl extends PowerModal {
 	ctrl() {
 		// console.log('Secundary main ctrl');
+		this.mainValue = -1;
 	}
 
-	onCancel() {
-		// console.log('rodou');
-	}
+	// onCancel() {
+	// 	console.log('rodou');
+	// }
 
 	openChild() {
 		this.openRoute({
@@ -287,6 +295,11 @@ class SecundaryMainCtrl extends PowerModal {
 			routeId: 'secmainchild',
 			target: '_self',
 		});
+	}
+
+	getMainvalue = function () {
+		this.mainValue = this.mainValue + 1;
+		return this.mainValue;
 	}
 }
 
@@ -326,8 +339,8 @@ class SecundaryChildMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		// console.log('Secundary child MAIN template', this.$ctrl.$root.getvalue());
 		resolve(`<div>
-			<h1>This is the MAIN of a CHILD {{ getvalue() }}</h1>
-			<div>And I Love it!!!!</div>
+			<h1>This is the MAIN of a CHILD {{ getSecValue() }}</h1>
+			<div>And I Love it!!!! {{ pity }}</div>
 			<div class="power-view" id="secundary-child-another"></div>
 		</div>`);
 	}
@@ -335,14 +348,15 @@ class SecundaryChildMainTemplate extends PowerTemplate {
 
 class SecundaryChildMainCtrl extends PowerController {
 	ctrl() {
-		// console.log('Secundary child MAIN ctrl');
-		this.$root.value = 0;
-		this.$root.getvalue = function () {
-			this.value = this.value + 1;
-			return this.value;
-		}
+		console.log('SecundaryChildMainCtrl rodou');
+		this.secValue = -1;
+		this.pity = 'Pity o bom';
 	}
 
+	getSecValue() {
+		this.secValue = this.secValue + 1;
+		return this.secValue;
+	}
 }
 
 class SecundaryChildOfChildTemplate extends PowerTemplate {
@@ -378,6 +392,7 @@ class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 		resolve(`<div>
 			<h1>This is the CHIL of a CHILD 2</h1>
 			<div>This is a lot of work to do...</div>
+			<h1>On scope: {{ pity }}</h1>
 		</div>`);
 	}
 }
@@ -385,6 +400,7 @@ class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 class SecundaryChildOfChildCtrl2 extends PowerController {
 	ctrl() {
 		// console.log('Secundary child of a child ctrl 2');
+		this.pity = 'Pity is here!';
 	}
 }
 
@@ -392,7 +408,7 @@ class PowerMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		// console.log('Main template');
 		resolve(`<div>
-			<h1>This is the main page! {{ getvalue() }}</h1>
+			<h1>This is the main page! {{ getMvalue() }}</h1>
 			<div class="power-view" id="power-main-child-view"></div>
 		</div>`);
 	}
@@ -405,11 +421,11 @@ class PowerMainCtrl extends PowerController {
 	}
 	ctrl() {
 		// console.log('Main ctrl');
-		this.value = 0;
-		this.getvalue = function () {
-			this.value = this.value + 1;
-			return this.value;
-		}
+		this.mvalue = -1;
+	}
+	getMvalue() {
+		this.mvalue = this.mvalue + 1;
+		return this.mvalue;
 	}
 	onViewLoad() {
 		// console.log('PowerMainCtrl onViewLoad');

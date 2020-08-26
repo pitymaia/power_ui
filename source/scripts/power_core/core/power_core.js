@@ -459,7 +459,7 @@ class PowerTree {
 		return false;
 	}
 	// This is the main function to sweep the DOM and instanciate powerObjetcs from it
-	buildAndInterpolate(node, refresh) {
+	buildAndInterpolate(node) {
 		this.sweepDOM({
 			entryNode: node,
 			callback: this.buildPowerObjects.bind(this),
@@ -467,13 +467,11 @@ class PowerTree {
 		});
 
 		// Evaluate and replace any {{}} from template
-		if (!refresh) {
-			// Interpolete views and root scope in the right order
-			this.interpolateInOrder();
+		// Interpolete views and root scope in the right order
+		this.$powerUi.interpolation.interpolateInOrder();
 
-			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
-		}
+		const body = document.getElementsByTagName('BODY')[0];
+		body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
 	}
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
@@ -632,28 +630,6 @@ class PowerTree {
 			isInnerCompiler: isInnerCompiler,
 			rootCompiler: currentRootCompilerElement,
 		};
-	}
-
-	// Interpolete views and root scope in the right order
-	interpolateInOrder() {
-		const powerViews = document.getElementsByClassName('power-view');
-
-		let rootView = false;
-		// Interpolate using view controller scope
-		for (const view of powerViews) {
-			// root-view goes after all other views
-			if (view.id === 'root-view') {
-				rootView = view;
-			} else if (view.id !== 'secundary-view') {
-				const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
-				view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
-			}
-		}
-		// Interpolate using root controller scope
-		if (rootView) {
-			const scope = this.$powerUi.controllers[rootView.id] ? this.$powerUi.controllers[rootView.id].instance : this.$powerUi;
-			rootView.innerHTML = this.$powerUi.interpolation.replaceInterpolation(rootView.innerHTML, scope);
-		}
 	}
 
 	createAndInitObjectsFromCurrentNode({id}) {

@@ -540,10 +540,10 @@ class Router {
 			this.abortCicle();
 			return;
 		}
-		this.clearPhantomRouters();
 		if (!this.config.phantomMode) {
 			this.addSpinnerAndHideContent('root-view');
 		}
+		this.clearPhantomRouters();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
