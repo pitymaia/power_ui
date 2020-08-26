@@ -589,8 +589,8 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance &&
 			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
-			if (result && result.promise) {
-				result.promise.then(function (response) {
+			if (result && result.then) {
+				result.then(function (response) {
 					ctx.runBeforeCloseInOrder(
 						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
@@ -665,8 +665,8 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.ctrl(
 				ctx.$powerUi.controllers[route.viewId].data);
-			if (result && result.promise) {
-				result.promise.then(function () {
+			if (result && result.then) {
+				result.then(function () {
 					ctx.runControllerInOrder(
 						orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
@@ -698,8 +698,8 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance) {
 			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
 
-			if (result && result.promise) {
-				result.promise.then(function () {
+			if (result && result.then) {
+				result.then(function () {
 					if (route.commands.removeCtrl) {
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
@@ -744,8 +744,8 @@ class Router {
 			if (ctx.$powerUi.controllers[route.viewId].instance.onViewLoad) {
 				const result = ctx.$powerUi.controllers[route.viewId].instance.onViewLoad(
 					ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
-				if (result && result.promise) {
-					result.promise.then(function () {
+				if (result && result.then) {
+					result.then(function () {
 						ctx.afterOnViewLoad(ctx, route);
 						ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 					}).catch(function (error) {

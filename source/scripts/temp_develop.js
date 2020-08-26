@@ -461,7 +461,7 @@ class PowerOnlyPage extends PowerController {
 		this.myName = 'My name is Pity the best!';
 		this.oldName = this.myName;
 	}
-	load({resolve, reject, viewId}) {
+	load(resolve, reject, data) {
 		// console.log('PowerOnlyPage LOAD :)', viewId);
 		resolve();
 	}
@@ -801,7 +801,7 @@ class SimpleModal extends PowerModal {
 				reject();
 			}
 		});
-		return {promise: confirm};
+		return confirm;
 	}
 }
 
@@ -931,7 +931,7 @@ class MyWindow extends PowerWindowIframe {
 				reject();
 			}
 		});
-		return {promise: confirm};
+		return confirm;
 	}
 }
 
@@ -1414,7 +1414,7 @@ class RootScopeTemplate extends PowerTemplate {
 }
 
 class RootScope extends PowerController {
-	load({resolve}) {
+	load(resolve) {
 		// console.log('Root load');
 		resolve();
 	}
@@ -5074,6 +5074,20 @@ class JSONViews extends PowerWindow {
 
 	onRouteClose() {
 		// console.log('ON ROUTE CLOSE!!!');
+		const promise = new Promise(function (resolve, reject) {
+			setTimeout(function () {
+				resolve();
+			}, 100);
+		});
+
+		return promise;
+	}
+
+	load(resolve, reject) {
+		setTimeout(function () {
+			console.log('LOAD!!!');
+			resolve();
+		}, 100);
 	}
 
 	beforeClose(data) {
@@ -5090,7 +5104,7 @@ class JSONViews extends PowerWindow {
 				reject();
 			}
 		});
-		return {promise: confirm};
+		return confirm;
 	}
 
 	openModal() {

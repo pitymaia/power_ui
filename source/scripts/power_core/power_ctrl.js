@@ -9,9 +9,7 @@ class PowerController extends PowerScope {
 		const self = this;
 		return new Promise(
 			function (resolve, reject) {
-				data.resolve = resolve;
-				data.reject = reject;
-				self.load(data);
+				self.load(resolve, reject, data);
 			});
 	}
 
