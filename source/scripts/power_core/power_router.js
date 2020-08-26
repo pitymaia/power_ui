@@ -63,6 +63,8 @@ class EngineCommands {
 		}
 		this.buildPendingCloseCommands();
 		this.buildPendingOpenCommands();
+		this.buildPendingListCommands();
+		this.pending = {};
 	}
 
 	buildRouteOpenCommands(viewId) {
@@ -97,6 +99,15 @@ class EngineCommands {
 		for (const route of this.routesToAdd) {
 			const index = this.router.orderedRoutesToOpen.findIndex(r=> r.parentRouteId === route.route_open.routeId);
 			this.router.orderedRoutesToOpen.splice(index, 0, route.route_open);
+		}
+	}
+
+	buildPendingListCommands() {
+		// May need apply some pending $root commands (root commands goes as last in close list)
+		const _rootCommands = this.pending.$root || this.pending['root-view'];
+		if (_rootCommands) {
+			this.rootCommands(_rootCommands);
+			console.log('rootCommand', _rootCommands);
 		}
 	}
 
@@ -142,6 +153,23 @@ class EngineCommands {
 			this.routesToAdd.push({index: index, route_close: close, route_open: open});
 		}
 		index = index + 1;
+	}
+
+	rootCommands(commands) {
+		const newRoute = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root"};
+		const open = Object.assign({}, newRoute);
+		open.commands = {};
+		const close = Object.assign({}, newRoute);
+		close.commands = {};
+
+		for (const index of Object.keys(commands)) {
+			if (this.command[index]) {
+				this.overrideCommands(open, close, this.command[index]);
+			}
+		}
+
+		this.router.orderedRoutesToOpen.unshift(open);
+		this.router.orderedRoutesToClose.push(close);
 	}
 }
 
@@ -552,6 +580,8 @@ class Router {
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
 		this.engineCommands.buildOtherCicleCommands();
+		console.log('orderedRoutesToClose', this.orderedRoutesToClose);
+		console.log('orderedRoutesToOpen', this.orderedRoutesToOpen);
 		const abort = await this.resolveWhenListIsPopulated(
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
 		if (abort === 'abort') {
