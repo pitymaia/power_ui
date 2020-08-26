@@ -273,7 +273,7 @@ class SecundaryMainCtrl extends PowerModal {
 	}
 
 	onCancel() {
-		return [{'root-view': {refresh: true}}];
+		return [{'$root': {refresh: true}}];
 	}
 
 	openChild() {
@@ -424,7 +424,7 @@ class PowerMainCtrl extends PowerController {
 		resolve();
 	}
 	ctrl() {
-		// console.log('Main ctrl');
+		console.log('Main ctrl');
 		this.mvalue = -1;
 	}
 	getMvalue() {
