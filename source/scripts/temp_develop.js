@@ -147,7 +147,7 @@ class PowerMidTemplate extends PowerTemplate {
 }
 
 class PowerMidCtrl extends PowerController {
-	load({resolve, reject, viewId}) {
+	load(resolve, reject, viewId) {
 		// console.log('PowerMidCtrl LOAD', viewId);
 		resolve();
 	}
@@ -172,7 +172,7 @@ class PowerThirdTemplate extends PowerTemplate {
 }
 
 class PowerThirdCtrl extends PowerController {
-	load({resolve, reject, viewId}) {
+	load(resolve, reject, data) {
 		// console.log('PowerThirdCtrl LOAD', viewId);
 		resolve();
 	}
@@ -309,6 +309,9 @@ class SecundaryChildTemplate extends PowerTemplate {
 		resolve(`<div>
 			<h1>This is the child page</h1>
 			<div>LOL, THIS IS AWESOME!</div>
+			<div data-pow-for="cat of myCats">
+				<div>{{ cat }}</div>
+			</div>
 		</div>`);
 	}
 }
@@ -316,6 +319,7 @@ class SecundaryChildTemplate extends PowerTemplate {
 class SecundaryChildCtrl extends PowerController {
 	ctrl() {
 		// console.log('Secundary child ctrl');
+		this.myCats = ['Princesa', 'Sol', 'Penny', 'Riquinho', 'Drew'];
 	}
 }
 
@@ -415,7 +419,7 @@ class PowerMainTemplate extends PowerTemplate {
 }
 
 class PowerMainCtrl extends PowerController {
-	load({resolve, reject, viewId}) {
+	load(resolve, reject, data) {
 		// console.log('PowerMainCtrl LOAD', viewId);
 		resolve();
 	}
@@ -443,7 +447,7 @@ class PowerMainChildTemplate extends PowerTemplate {
 }
 
 class PowerMainChildCtrl extends PowerController {
-	load({resolve, reject, viewId}) {
+	load(resolve, reject, data) {
 		// console.log('PowerMainChildCtrl LOAD', viewId);
 		resolve();
 	}
@@ -5072,23 +5076,23 @@ class JSONViews extends PowerWindow {
 		};
 	}
 
-	onRouteClose() {
-		// console.log('ON ROUTE CLOSE!!!');
-		const promise = new Promise(function (resolve, reject) {
-			setTimeout(function () {
-				resolve();
-			}, 100);
-		});
+	// onRouteClose() {
+	// 	// console.log('ON ROUTE CLOSE!!!');
+	// 	const promise = new Promise(function (resolve, reject) {
+	// 		setTimeout(function () {
+	// 			resolve();
+	// 		}, 100);
+	// 	});
 
-		return promise;
-	}
+	// 	return promise;
+	// }
 
-	load(resolve, reject) {
-		setTimeout(function () {
-			console.log('LOAD!!!');
-			resolve();
-		}, 100);
-	}
+	// load(resolve, reject) {
+	// 	setTimeout(function () {
+	// 		console.log('LOAD!!!');
+	// 		resolve();
+	// 	}, 100);
+	// }
 
 	beforeClose(data) {
 		const self = this;

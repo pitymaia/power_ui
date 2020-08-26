@@ -18,6 +18,7 @@ function getEmptyRouteObjetc() {
 class EngineCommands {
 	constructor(router) {
 		this.bootstraping = true;
+		this.pending = {};
 		this.router = router;
 		this.routes = {};
 		this.default = {
@@ -55,21 +56,31 @@ class EngineCommands {
 		}
 	}
 
-	buildCicleCommands() {
-		this.buildCloseCommands();
-		this.buildOpenCommands();
+	buildOtherCicleCommands() {
 		if (this.bootstraping) {
 			this.bootstraping = false;
+			return;
 		}
+		this.buildPendingCloseCommands();
+		this.buildPendingOpenCommands();
 	}
 
-	buildCloseCommands() {
+	buildRouteOpenCommands(viewId) {
+		// First apply default commands
+		return this.default.open;
+	}
+
+	buildRouteCloseCommands(viewId) {
+		// First apply default commands
+		return this.default.close;
+	}
+
+	buildPendingCloseCommands() {
 		let index = 0;
 		this.routesToAdd = [];
 		for (const route of this.router.orderedRoutesToClose) {
-			route.commands = this.default.close;
 			// May need apply parentView commands
-			if (!this.bootstraping && route.parentRouteId && route.commands.parentView && route.commands.parentView.refresh === true) {
+			if (route.parentRouteId && route.commands.parentView && route.commands.parentView.refresh === true) {
 				this.parentCommands(route, index);
 			}
 		}
@@ -79,7 +90,7 @@ class EngineCommands {
 		}
 	}
 
-	buildOpenCommands() {
+	buildPendingOpenCommands() {
 		for (const route of this.router.orderedRoutesToOpen) {
 			route.commands = this.default.open;
 		}
@@ -89,7 +100,7 @@ class EngineCommands {
 		}
 	}
 
-	applyCommands(open, close, command) {
+	overrideCommands(open, close, command) {
 		for (const index of Object.keys(command.close)) {
 			if (close.commands[index] === undefined || command.close[index] === true) {
 				close.commands[index] = command.close[index];
@@ -125,7 +136,7 @@ class EngineCommands {
 
 			for (const index of Object.keys(route.commands.parentView)) {
 				if (this.command[index]) {
-					this.applyCommands(open, close, this.command[index]);
+					this.overrideCommands(open, close, this.command[index]);
 				}
 			}
 			this.routesToAdd.push({index: index, route_close: close, route_open: open});
@@ -399,6 +410,7 @@ class Router {
 						powerViewNodeId: powerViewNodeId,
 						parentRouteId: parentRouteId,
 						parentViewId: parentViewId,
+						commands: this.engineCommands.buildRouteOpenCommands(childViewId),
 					});
 				}
 				// Register child route on currentRoutes list
@@ -429,8 +441,8 @@ class Router {
 		// Second recursively add main route child and any level of child of childs
 		if (mainRoute) {
 			// Add main route to ordered list
-			// Load main route only if it is a new route
-			if (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
+			// Load main route only if it is a new route or if has some pending command to run
+			if (this.engineCommands.pending[this.config.routerMainViewId] || !this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path)) {
 				this.orderedRoutesToOpen.push({
 					routeId: mainRoute.routeId,
 					viewId: this.config.routerMainViewId,
@@ -439,6 +451,7 @@ class Router {
 					parentRouteId: this.hasRoot ? '$root' : null,
 					parentViewId: this.hasRoot ? 'root-view' : null,
 					powerViewNodeId: 'root-view',
+					commands: this.engineCommands.buildRouteOpenCommands(this.config.routerMainViewId),
 				});
 			}
 			// Register main route on currentRoutes list
@@ -471,9 +484,9 @@ class Router {
 			if (currentRoute) {
 				let viewId = this.getVewIdIfRouteExists(route.path, routesListName);
 				// Load route only if it's a new route
-				if (viewId === false) {
+				if (viewId === false || this.engineCommands.pending[viewId]) {
 					// Create route viewId
-					viewId = _Unique.domID('view');
+					viewId = viewId || _Unique.domID('view');
 					// Add route to ordered list
 					this.orderedRoutesToOpen.push({
 						routeId: currentRoute.routeId,
@@ -482,6 +495,7 @@ class Router {
 						kind: kind,
 						parentRouteId: null,
 						parentViewId: null,
+						commands: this.engineCommands.buildRouteOpenCommands(viewId),
 					});
 				}
 				// Register route on currentRoutes list
@@ -518,7 +532,11 @@ class Router {
 	// Render the rootScope if exists and only boostrap after promise returns
 	initRootScopeAndRunEngine() {
 		const $root = this.$powerUi.config.routes.find(r=> r.id === '$root');
-		const loadRoot = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root"};
+		const openCommands = this.engineCommands.buildRouteOpenCommands("root-view");
+		const closeCommands = this.engineCommands.buildRouteCloseCommands("root-view");
+		const commands = Object.assign(openCommands, closeCommands);
+		delete commands.parentView;
+		const loadRoot = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root", commands: commands};
 		if ($root) {
 			this.hasRoot = true;
 			this.engine(loadRoot);
@@ -533,7 +551,7 @@ class Router {
 		this.orderedRoutesToClose = [];
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
-		this.engineCommands.buildCicleCommands();
+		this.engineCommands.buildOtherCicleCommands();
 		const abort = await this.resolveWhenListIsPopulated(
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
 		if (abort === 'abort') {
@@ -813,6 +831,7 @@ class Router {
 				parentRouteId: this.oldRoutes.parentRouteId,
 				parentViewId: this.oldRoutes.parentViewId,
 				powerViewNodeId: 'root-view',
+				commands: this.engineCommands.buildRouteCloseCommands(this.oldRoutes.viewId),
 			});
 		}
 		// Add old child route from main route if have some
@@ -836,6 +855,7 @@ class Router {
 					parentRouteId: old.parentRouteId,
 					parentViewId: old.parentViewId,
 					powerViewNodeId: this.routes[old.parentRouteId] ? this.routes[old.parentRouteId].powerViewNodeId : null,
+					commands: this.engineCommands.buildRouteCloseCommands(old.viewId),
 				});
 			}
 		}
