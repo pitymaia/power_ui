@@ -22,16 +22,16 @@ class PowerDialogBase extends PowerWidget {
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
 		if (this.onCancel && this._promise) {
-			this.onCancel(this._resolve, this._reject, ...args);
+			const commands = this.onCancel(this._resolve, this._reject, ...args) || [];
 			const self = this;
 			this._promise.then(function () {
-				self.closeCurrentRoute();
+				self.closeCurrentRoute({commands: commands});
 			}).catch(function (error) {
 				self.closeCurrentRoute();
 			});
 		} else if (this.onCancel) {
-			this.onCancel(...args);
-			this.closeCurrentRoute();
+			const commands = this.onCancel(...args) || [];
+			this.closeCurrentRoute({commands: commands});
 		} else {
 			this.closeCurrentRoute();
 		}
@@ -39,27 +39,27 @@ class PowerDialogBase extends PowerWidget {
 	// Allow async calls to implement onCommit
 	_commit(...args) {
 		if (this.onCommit && this._promise) {
-			this.onCommit(this._resolve, this._reject,...args);
+			const commands = this.onCommit(this._resolve, this._reject,...args) || [];
 			const self = this;
 			this._promise.then(function () {
-				self.closeCurrentRoute();
+				self.closeCurrentRoute({commands: commands});
 			}).catch(function (error) {
 				self.closeCurrentRoute();
 			});
 		} else if (this.onCommit) {
-			this.onCommit(...args);
-			this.closeCurrentRoute();
+			const commands = this.onCommit(...args) || [];
+			this.closeCurrentRoute({commands: commands});
 		} else {
 			this.closeCurrentRoute();
 		}
 	}
 
-	closeCurrentRoute(callback) {
+	closeCurrentRoute({commands=[], callback=null}={}) {
 		// Only close if is opened, if not just remove the event
 		const view = document.getElementById(this._viewId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
 		if (view) {
-			super.closeCurrentRoute(callback);
+			super.closeCurrentRoute({commands: commands, callback: callback});
 		} else {
 			// If not opened, call the next in the queue
 			this.$powerUi._events['Escape'].broadcast();

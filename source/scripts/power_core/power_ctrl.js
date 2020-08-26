@@ -58,7 +58,13 @@ class PowerController extends PowerScope {
 		});
 	}
 
-	closeCurrentRoute(callback) {
+	runInNextCicle(command) {
+		for (const index in command) {
+			this.$powerUi.router.engineCommands.pending[index] = command[index];
+		}
+	}
+
+	closeCurrentRoute({callback, commands}) {
 		if (this.router.engineIsRunning || this.router.phantomRouters[this._routeId]) {
 			this.router.phantomRouters[this._routeId].closePhantomRoute(this._routeId, this);
 			return;
@@ -66,6 +72,12 @@ class PowerController extends PowerScope {
 		// Save the callback to run after view is removed
 		if (callback) {
 			this._$closeCurrentRouteCallback = callback;
+		}
+		// Save the callback to run after view is removed
+		if (commands.length) {
+			for (const command of commands) {
+				this.runInNextCicle(command);
+			}
 		}
 
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});

@@ -272,9 +272,9 @@ class SecundaryMainCtrl extends PowerModal {
 		this.mainValue = -1;
 	}
 
-	// onCancel() {
-	// 	console.log('rodou');
-	// }
+	onCancel() {
+		return [{'root-view': {refresh: true}}];
+	}
 
 	openChild() {
 		this.openRoute({

@@ -1391,6 +1391,11 @@ class PhantomRouter extends Router {
 		this.currentRoutes.hiddenRoutes = [];
 		this.currentRoutes.hiddenRoutes.push(route);
 		this.routes[routeId].viewId = newRoute.viewId;
+
+		const openCommands = this.engineCommands.buildRouteOpenCommands(newRoute.viewId);
+		const closeCommands = this.engineCommands.buildRouteCloseCommands(newRoute.viewId);
+		const commands = Object.assign(openCommands, closeCommands);
+		delete commands.parentView;
 		// Add route to ordered list
 		const $fakeRoot = {
 			routeId: routeId,
@@ -1399,6 +1404,7 @@ class PhantomRouter extends Router {
 			kind: 'hidden',
 			parentRouteId: null,
 			parentViewId: null,
+			commands: commands,
 		};
 		this.engine($fakeRoot);
 	}
