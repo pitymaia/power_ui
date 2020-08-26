@@ -637,9 +637,15 @@ class PowerTree {
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
+		// Interpolate a multiple inner power-view first if have it
+		if (node.innerHTML.includes('power-view')) {
+			this.$powerUi.interpolation.interpolateInOrder(node);
+		}
+
 		// Interpolate using controller scope
 		const scope = this.$powerUi.controllers[node.id] ? this.$powerUi.controllers[node.id].instance : this.$powerUi;
 		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, scope);
+
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
 	}

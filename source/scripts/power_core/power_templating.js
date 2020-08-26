@@ -18,7 +18,6 @@ class PowerInterpolation {
 			this.interpolateInOrder(tmp);
 			template = tmp.innerHTML;
 		}
-		// console.log('COMPILE', template);
 		return this.replaceInterpolation(template, scope);
 	}
 	// Interpolate views and root scope in the right order
