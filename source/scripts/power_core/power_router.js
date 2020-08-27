@@ -109,6 +109,20 @@ class EngineCommands {
 			this.pending[routeId] = {};
 		}
 		this.pending[routeId][command.name] = command.value;
+		console.log('this.pending[routeId]', this.pending[routeId]);
+	}
+
+	addCommands(commands) {
+		for (const item of Object.keys(commands)) {
+			for (const routeId of Object.keys(commands[item])) {
+				for (const name of Object.keys(commands[item][routeId])) {
+					const command = {};
+					command.name = name;
+					command.value = commands[item][routeId][name];
+					this.addPendingComand(routeId, command);
+				}
+			}
+		}
 	}
 
 	override(commandsList, routeId, source) {
@@ -238,6 +252,7 @@ class Router {
 		this.config = config || {};
 		this.$powerUi = powerUi;
 		this.routes = {};
+		this.routeData = {};
 		this.oldRoutesBkp = getEmptyRouteObjetc();
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
@@ -1204,14 +1219,15 @@ class Router {
 		this.phantomRouter.closePhantomRoute(routeId, ctx);
 	}
 
-	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+	openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands}) {
 		if (this.engineIsRunning) {
 			const routes = [this.routes[routeId]];
 			const newRouter = new PhantomRouter({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
 			this.phantomRouter = newRouter;
-			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title});
+			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
 			return;
 		}
+
 
 		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
@@ -1232,16 +1248,16 @@ class Router {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
-				this.navigate({hash: newRoute, title: title});
+				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
-				this.navigate({hash: newRoute, title: title});
+				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true});
+				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
 			}
 		}
 	}
@@ -1260,7 +1276,7 @@ class Router {
 		return oldHash;
 	}
 
-	navigate({hash, title, isMainView}) {
+	navigate({hash, title, isMainView, data={}, commands=[], routeId=null}) {
 		const newHashParts = this.extractRouteParts(hash);
 		let newHash = newHashParts.path || '';
 		let newHiddenHash = '';
@@ -1271,18 +1287,30 @@ class Router {
 			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootPath, '')}`;
 		}
 
-		this.hiddenLocationHash = encodeURI(newHiddenHash);
-		// If there is some new secundary or main route
-		if (window.location.hash !== encodeURI(this.config.rootPath + newHash)) {
-			window.history.pushState(null, title, window.location.href);
-			window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
-			if (isMainView){
-				window.scrollTo(0, 0);
+		const newLoacationHash = encodeURI(this.config.rootPath + newHash);
+
+		if ((newLoacationHash + encodeURI(newHiddenHash) || '') !== this.locationHashWithHiddenRoutes()) {
+			this.hiddenLocationHash = encodeURI(newHiddenHash);
+			// Pass data to new route and add pending commands before navigate
+			if (routeId) {
+				this.routeData[routeId] = data;
 			}
-		} else {
-			// If there is only a new hidden rote
-			// Only the hiddenLocationHash change, manually call hasChange
-			this.hashChange();
+			if (commands.length) {
+				this.engineCommands.addCommands(commands);
+			}
+
+			// If there is some new secundary or main route
+			if (window.location.hash !== newLoacationHash) {
+				window.history.pushState(null, title, window.location.href);
+				window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
+				if (isMainView){
+					window.scrollTo(0, 0);
+				}
+			} else {
+				// If there is only a new hidden rote
+				// Only the hiddenLocationHash change, manually call hasChange
+				this.hashChange();
+			}
 		}
 	}
 

@@ -48,7 +48,7 @@ class PowerController extends PowerScope {
 		return this.$powerUi.getRouteCtrl(routeId);
 	}
 
-	openRoute({routeId, params, target}) {
+	openRoute({routeId, params, target, data={}, commands=[]}) {
 		// If is open from $root pretend it is from current main-view
 		const currentViewId = this._viewId === 'root-view' ? 'main-view' : this._viewId;
 		const currentRouteId = this._routeId === '$root' ? this.$powerUi.controllers['main-view'].instance._routeId : this._routeId;
@@ -61,13 +61,13 @@ class PowerController extends PowerScope {
 			params: params,
 			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,
+			data: data,
+			commands: commands,
 		});
 	}
 
-	runInNextCicle(command) {
-		for (const index in command) {
-			this.$powerUi.router.engineCommands.pending[index] = command[index];
-		}
+	addCommands(commands) {
+		this.router.engineCommands.addCommands(commands);
 	}
 
 	closeCurrentRoute({callback, commands}) {
@@ -81,9 +81,7 @@ class PowerController extends PowerScope {
 		}
 		// Save the callback to run after view is removed
 		if (commands.length) {
-			for (const command of commands) {
-				this.runInNextCicle(command);
-			}
+			this.addCommands(commands);
 		}
 
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});

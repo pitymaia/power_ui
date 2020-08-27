@@ -243,6 +243,7 @@ class SecundaryMainCtrl extends PowerModal {
 		this.openRoute({
 			routeId: 'secchild',
 			target: '_self',
+			commands: [{'secundary-main': {refresh: true}}],
 		});
 	}
 
@@ -360,7 +361,7 @@ class SecundaryChildOfChildCtrl extends PowerController {
 		});
 	}
 	onViewLoad() {
-		// console.log('SecundaryChildOfChildCtrl onViewLoad');
+		console.log('SecundaryChildOfChildCtrl onViewLoad');
 	}
 }
 
@@ -388,7 +389,7 @@ class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 
 class SecundaryChildOfChildCtrl2 extends PowerController {
 	ctrl() {
-		// console.log('Secundary child of a child ctrl 2');
+		console.log('Secundary child of a child ctrl 2');
 		this.pity = 'Pity is here!';
 	}
 }
