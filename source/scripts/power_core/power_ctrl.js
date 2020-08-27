@@ -17,7 +17,7 @@ class PowerController extends PowerScope {
 		return this.$powerUi.router;
 	}
 
-	refresh(viewId, reloadCtrl) {
+	keepScrollPosition() {
 		const view = document.getElementById(this._viewId);
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
@@ -30,12 +30,18 @@ class PowerController extends PowerScope {
 			this._bodyScrollTop = body.scrollTop || 0;
 			this._bodyScrollLeft = body.scrollLeft || 0;
 		}
-
-		this.router._refresh(viewId, reloadCtrl);
 	}
 
-	reload(viewId) {
-		this.refresh(viewId, true);
+	refresh(routeId) {
+		this.keepScrollPosition();
+		this.router.engineCommands.addPendingComand(routeId || this._routeId, {name: 'refresh', value: true});
+		this.router.cloneRoutesAndRunEngine();
+	}
+
+	reload(routeId) {
+		this.keepScrollPosition();
+		this.router.engineCommands.addPendingComand(routeId || this._routeId, {name: 'reload', value: true});
+		this.router.cloneRoutesAndRunEngine();
 	}
 
 	getRouteCtrl(routeId) {

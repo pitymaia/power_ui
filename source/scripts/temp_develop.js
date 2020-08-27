@@ -40,43 +40,17 @@ const someViewTemplate = `<h1>Cats list</h1>
 			</div>
 			<hr>
 			<h1>Ice cream list</h1>
-			<div data-pow-for="icecream of [
-				{
-					flavor: 'Flakes',
-					color: 'light-yellow'
-				},
-				{
-					flavor: 'Chocolatte',
-					color: 'Brown',
-					isFavorite: true
-				},
-				{
-					flavor: 'Lemon',
-					color: 'Green',
-					isFavorite: false
-				}
-			]">
+			<div data-pow-for="icecream of icecreamList">
 				<div class="some{{2+3}}" data-pow-css-hover="pw-blue" id="ice{{3*(3 + $pwIndex)}}_f">{{$pwIndex + 1}} - My delicious icecream of {{icecream.flavor }} is {{ icecream.color }} <span data-pow-if="icecream.isFavorite === true">(My favorite!)</span>
 				</div>
 			</div>
-			<button class="pw-btn-default" data-pow-event onclick="refresh()">Refresh</button>`;
+			<button class="pw-btn-default" data-pow-event onclick="changeAndRefresh()">New Refresh</button>
+			<button class="pw-btn-danger" data-pow-event onclick="reload()">Reload</button>`;
 var teste = 'MARAVILHA!';
 
 class FrontPage extends PowerController {
 
 	ctrl() {
-		// const parser = new PowerTemplateParser({text: 'a() === 1 || 1 * 2 === 0 ? "teste" : (50 + 5 + (100/3))'});
-		// const parser = new PowerTemplateParser({text: 'pity.teste().teste(pity.testador(2+2), pity[a])[dd[f]].teste'});
-		// const parser = new PowerTemplateParser({text: '2.5+2.5*5-2+3-3*2*8/2+3*(5+2*(1+1)+3)+a()+p.teste+p[3]()().p'});
-		// const princesa = '2.5+2.5*5-20+3-3*2*8/2+3*5+2*1+1+3-15*2+30';
-		// const princesa = '2.5*2.5 + 5 + 1 * 2 + 13.75 - 27';
-		// const princesa = 'fofa[(a ? b : c)]';
-		// const princesa = 'teste(princesa( { teste: beleza({key: value1, key2: value2}), number: 2+2, dict: pity[teste]["novo"].pity(2+2), "fim": end } ), 2+5, teste())';
-		// const princesa = 'princesa ? fofa : linda';
-		// const princesa = 'princesa ? fofa ? gatinha : amorosa : linda';
-		// const princesa = 'princesa ? fofa : linda ? amorosa : dengosa';
-		// const princesa = 'princesa ? fofa ? gatinha ? lindinha : fofinha : amorosa[a?b:c] : linda ? sdfsd : ss';
-
 		this.pitanga = 'olha';
 		this.morango = 'pen';
 		this.amora = 'inha';
@@ -87,23 +61,6 @@ class FrontPage extends PowerController {
 		this.sdfs = false;
 		this.falso = false;
 		this.pArray = [1,2,3,4,5];
-
-		// const princesa = '2.5*2.5 + (5 - 2) + (1 * (2 + 5) + 5.75)';
-		// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6)';
-		// const princesa = 'j + j - h * j + (j*j*j)*h + 2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - nov.nSum(20, 10)';
-		// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)}) - j + j - h * j + -+-+-(j*j*j)*-+-+-h *+-2 + num(16) + nSum(2, 3) * nMult(5, 2 , 6) - +-+-+- +-+- +-+-nov.nSum(20, 10) + pita["teste"].pi10 + nov.nSum(20, 10) + pita["teste"].func()().aqui + pita["teste"].func()().nossa.cool["final"]+-+-+-+-+-309';
-		// const princesa = '+-j*-h+j-h+-2*+20+-35 - + 2 + -pita["teste"].pi10 +-+-+-+-+-+-+-nov.nSum(20, 10) + " pity o bom"';
-		// const princesa = '-pita["teste"].pi10 +-+-+-+-+-nov.nSum(20, 10)';
-		// const princesa = 'sdfs || falso || 2 < 1 || 2 === 1 || pitanga';
-		// const princesa = '2 > 2 && 2 === 2 || 2 === 2 && (j + h) === 6 - 2 || "pity"';
-		// const princesa = 'getValue({value: 2+2+4+4-2 + (5+5)})';
-		// const princesa = '[[1,2,3], [j,h,pity], ["pity", "andre", "bred"], [pita, pita.teste, {a: 1, b: 2}, {a: {cor: "verde", preço: 1.25}, b: {cor: "amarelo", preço: 2}, c: [1,2,3,4,5,6],}]]';
-		// const princesa = 'getValue2(pita["teste"]["pi10"])';
-		// const princesa = 'getValue2([{a: [1,2,3,4,5,6], b: [3,2,1]}, [], {}])';
-		// this.final = [{flavor: 'Flakes', color: 'light-yellow'}, {flavor: 'Chocolatte', color: 'Brown', isFavorite: true}];
-		// this.princesa = '2+2-1+(2*3)+10';
-
-		// const value = this.safeEval(princesa);
 	}
 
 	getValue({value}) {
@@ -543,7 +500,7 @@ class PowerOnlyPage extends PowerController {
 			this.$powerUi.hardRefresh(document);
 		} else if (kind === 'softRefresh') {
 			this.$root.changeCats();
-			this.refresh();
+			this.refresh('$root');
 		}
 	}
 
@@ -800,6 +757,36 @@ class SimpleModal extends PowerModal {
 			{name: 'Lindinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
+		this.icecreamList = [
+			{
+				flavor: 'Flakes',
+				color: 'light-yellow'
+			},
+			{
+				flavor: 'Chocolatte',
+				color: 'Brown',
+				isFavorite: true,
+			},
+			{
+				flavor: 'Lemon',
+				color: 'Green',
+				isFavorite: false,
+			}
+		];
+	}
+
+	changeAndRefresh() {
+		console.log('@@@@@@@@@@@@@@@@@@@@@@@ changeAndRefresh');
+		if (this.icecreamList.length === 3) {
+			this.icecreamList.push({
+				flavor: 'Strawberry',
+				color: 'Red',
+				isFavorite: true,
+			});
+		} else {
+			this.icecreamList.pop();
+		}
+		this.refresh();
 	}
 
 	beforeClose(data) {
@@ -5480,6 +5467,7 @@ const routes = [
 			hidden: false,
 			ctrl: SimpleModal,
 			params: {lock: false},
+			avoidCacheTemplate: false,
 		},
 		{
 			id: 'otherwise',

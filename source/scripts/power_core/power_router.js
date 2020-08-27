@@ -324,6 +324,18 @@ class Router {
 		this.engine();
 	}
 
+	cloneRoutesAndRunEngine() {
+		this.currentUrl = window.location.href;
+		this.previousUrl = window.location.href;
+		// Save the old routes if user abort and need restore it
+		this.oldRoutesBkp = this.cloneRoutes({source: this.oldRoutes});
+		// Save a copy of currentRoutes as oldRoutes
+		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
+		// Clean current routes
+		this.currentRoutes = getEmptyRouteObjetc();
+		this.engine();
+	}
+
 	abortCicle() {
 		// Restore routes, location and stop engine;
 		this.currentRoutes = this.cloneRoutes({source: this.oldRoutes});
@@ -970,10 +982,12 @@ class Router {
 	}
 
 	markToRemoveRouteViews(routesListName, kind, forceRefresh) {
+		console.log(routesListName, this.oldRoutes[routesListName], this.currentRoutes[routesListName]);
 		for (const old of this.oldRoutes[routesListName]) {
 			const current = this.currentRoutes[routesListName].find(r=>r.id === old.id && r.viewId === old.viewId) || null;
 			// Will keep the route and only apply commands
 			const shouldUpdate = (current !== null && this.engineCommands.pending[old.id] !== undefined);
+			console.log('CURRENT', shouldUpdate, current);
 			if (forceRefresh || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
 				this.orderedRoutesToClose.unshift({
 					routeId: old.id,
@@ -995,7 +1009,7 @@ class Router {
 		if (!oldRoute && !newRoute) {
 			return false;
 		} else {
-			return oldRoute.viewId;
+			return oldRoute ? oldRoute.viewId : newRoute.viewId;
 		}
 	}
 
