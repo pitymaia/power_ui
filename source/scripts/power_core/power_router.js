@@ -675,7 +675,14 @@ class Router {
 
 	setDefaultCommands() {
 		if (this.engineCommands.default.close.rootView && this.engineCommands.default.close.rootView.refresh) {
-			this.engineCommands.addPendingComand('$root', {name: 'refresh', value: true});
+			// Only refresh when some route changes or closes, but not when opens a secundary route.
+			if (this.previousUrl && this.currentUrl) {
+				const c_secundaryParts = this.currentUrl.split('?');
+				const p_secundaryParts = this.previousUrl.split('?');
+				if (c_secundaryParts.length < p_secundaryParts.length || (c_secundaryParts.length === p_secundaryParts.length && (this.previousUrl !== this.currentUrl))) {
+					this.engineCommands.addPendingComand('$root', {name: 'refresh', value: true});
+				}
+			}
 		}
 	}
 
