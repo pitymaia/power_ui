@@ -186,14 +186,20 @@ class PowerThirdTemplate2 extends PowerTemplate {
 		// console.log('Third 2 template');
 		resolve(`<div>
 			<h1>This is the Third 2 page</h1>
-			<div>LOL, THIS IS AWESOME!</div>
+			<div>LOL, THIS IS AWESOME! <strong>{{getvalue()}}</strong></div>
 		</div>`);
 	}
 }
 
 class PowerThirdCtrl2 extends PowerController {
 	ctrl() {
-		// console.log('Third 2 ctrl');
+		console.log('Third 2 ctrl');
+		this.value = 0;
+	}
+
+	getvalue() {
+		this.value = this.value + 1;
+		return this.value;
 	}
 }
 
@@ -273,7 +279,7 @@ class SecundaryMainCtrl extends PowerModal {
 	}
 
 	onCancel() {
-		return [{'$root': {refresh: true}}];
+		return [{'third-level2': {refresh: true}}];
 	}
 
 	openChild() {
@@ -489,6 +495,11 @@ class PowerOnlyPage extends PowerController {
 			{name: 'Florzinha', gender: 'female'},
 			{name: 'Laylita', gender: 'female'},
 		];
+	}
+
+	getNext() {
+		this.next = this.next + 1;
+		return this.next;
 	}
 
 	jsonViews() {

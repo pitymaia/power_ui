@@ -64,25 +64,25 @@ class EngineCommands {
 		this.buildPendingCloseCommands();
 		this.buildPendingOpenCommands();
 		this.buildPendingListCommands();
-		this.ensureRootIsLastToClose();
+		// this.ensureRootIsLastToClose();
 		this.pending = {};
 	}
 
-	ensureRootIsLastToClose() {
-		let root = false;
-		this.router.orderedRoutesToClose = this.router.orderedRoutesToClose.filter(
-			function (route) {
-				if (route.routeId === '$root') {
-					root = route;
-				} else {
-					return true;
-				}
-		});
+	// ensureRootIsLastToClose() {
+	// 	let root = false;
+	// 	this.router.orderedRoutesToClose = this.router.orderedRoutesToClose.filter(
+	// 		function (route) {
+	// 			if (route.routeId === '$root') {
+	// 				root = route;
+	// 			} else {
+	// 				return true;
+	// 			}
+	// 	});
 
-		if (root) {
-			this.router.orderedRoutesToClose.push(root);
-		}
-	}
+	// 	if (root) {
+	// 		this.router.orderedRoutesToClose.push(root);
+	// 	}
+	// }
 
 	addPendingComand(routeId, command) {
 		if (!this.pending[routeId]) {
@@ -388,8 +388,9 @@ class Router {
 
 	removeSpinnerAndShowContent(viewId) {
 		const spinner = document.getElementById('_power-spinner');
-		// return;
-		spinner.parentNode.removeChild(spinner);
+		if (spinner) {
+			spinner.parentNode.removeChild(spinner);
+		}
 		if (viewId) {
 			const view = document.getElementById(viewId);
 			view.style.visibility = null;
@@ -628,6 +629,11 @@ class Router {
 	}
 
 	async engine($root) {
+		if (!this.config.phantomMode) {
+			this.addSpinnerAndHideContent('root-view');
+		} else {
+			this.removeSpinnerAndShowContent('root-view');
+		}
 		this.engineIsRunning = true;
 		this.orderedRoutesToOpen = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
@@ -641,9 +647,6 @@ class Router {
 		if (abort === 'abort') {
 			this.abortCicle();
 			return;
-		}
-		if (!this.config.phantomMode) {
-			this.addSpinnerAndHideContent('root-view');
 		}
 		this.clearPhantomRouters();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
@@ -931,16 +934,20 @@ class Router {
 		// Add old child route from main route if have some
 		this.markToRemoveRouteViews('mainChildRoutes', 'child', forceRefresh);
 		// Add old child route and secundary routes if have some
-		this.markToRemoveRouteViews('secundaryChildRoutes', 'child');
-		this.markToRemoveRouteViews('secundaryRoutes', 'secundary');
+		this.markToRemoveRouteViews('secundaryChildRoutes', 'child', forceRefresh);
+		this.markToRemoveRouteViews('secundaryRoutes', 'secundary', forceRefresh);
 		// Add old child route from hidden routes if have some
-		this.markToRemoveRouteViews('hiddenChildRoutes', 'child');
-		this.markToRemoveRouteViews('hiddenRoutes', 'hidden');
+		this.markToRemoveRouteViews('hiddenChildRoutes', 'child', forceRefresh);
+		this.markToRemoveRouteViews('hiddenRoutes', 'hidden', forceRefresh);
 	}
 
-	markToRemoveRouteViews(routesListName, kind, shouldUpdate=false) {
+	markToRemoveRouteViews(routesListName, kind, forceRefresh) {
 		for (const old of this.oldRoutes[routesListName]) {
-			if (!this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
+			const current = this.currentRoutes[routesListName].find(r=>r.id === old.id && r.viewId === old.viewId) || null;
+			// Will keep the route and only apply commands
+			const shouldUpdate = (current !== null && this.engineCommands.pending[old.id] !== undefined);
+			console.log('current', current, this.engineCommands.pending);
+			if (forceRefresh || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
 				this.orderedRoutesToClose.unshift({
 					routeId: old.id,
 					viewId: old.viewId,
