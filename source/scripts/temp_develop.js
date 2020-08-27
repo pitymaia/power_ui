@@ -5486,6 +5486,7 @@ const routes = [
 const t0 = performance.now();
 let app = new PowerUi({
 	routes: routes,
+	routerMode: 'root',
 	// services: services,
 	// spinnerLabel: 'carregando',
 	devMode: {iframe: 'http://localhost:3002', main: 'http://localhost:3000'},

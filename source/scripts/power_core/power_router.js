@@ -23,7 +23,6 @@ class EngineCommands {
 		this.routes = {};
 		this.default = {
 			close: {
-				parentView: {refresh: true},
 				runBeforeClose: true,
 				removeView: true,
 				runOnRouteClose: true,
@@ -69,6 +68,12 @@ class EngineCommands {
 				},
 			}
 		};
+
+		if (this.router.config.routerMode === 'root') {
+			this.default.close.rootView = {refresh: true};
+		} else if (this.router.config.routerMode === 'parent') {
+			this.default.close.parentView = {refresh: true};
+		}
 	}
 
 	buildOtherCicleCommands() {
@@ -107,7 +112,6 @@ class EngineCommands {
 	}
 
 	override(commandsList, routeId, source) {
-		console.log('this.pending[routeId]', routeId, this.pending[routeId]);
 		for (const command of Object.keys(this.pending[routeId])) {
 			for (const index of Object.keys(this.command[command][source])) {
 				commandsList[index] = this.command[command][source][index];
@@ -659,6 +663,7 @@ class Router {
 		const closeCommands = this.engineCommands.buildRouteCloseCommands('$root', 'root-view', false);
 		const commands = Object.assign(openCommands, closeCommands);
 		delete commands.parentView;
+		delete commands.rootView;
 		const loadRoot = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root", commands: commands};
 		if ($root) {
 			this.hasRoot = true;
@@ -668,9 +673,16 @@ class Router {
 		}
 	}
 
+	setDefaultCommands() {
+		if (this.engineCommands.default.close.rootView && this.engineCommands.default.close.rootView.refresh) {
+			this.engineCommands.addPendingComand('$root', {name: 'refresh', value: true});
+		}
+	}
+
 	async engine($root) {
 		if (!this.config.phantomMode) {
 			this.addSpinnerAndHideContent('root-view');
+			this.setDefaultCommands();
 		} else {
 			this.removeSpinnerAndShowContent('root-view');
 		}
@@ -982,12 +994,10 @@ class Router {
 	}
 
 	markToRemoveRouteViews(routesListName, kind, forceRefresh) {
-		console.log(routesListName, this.oldRoutes[routesListName], this.currentRoutes[routesListName]);
 		for (const old of this.oldRoutes[routesListName]) {
 			const current = this.currentRoutes[routesListName].find(r=>r.id === old.id && r.viewId === old.viewId) || null;
 			// Will keep the route and only apply commands
 			const shouldUpdate = (current !== null && this.engineCommands.pending[old.id] !== undefined);
-			console.log('CURRENT', shouldUpdate, current);
 			if (forceRefresh || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
 				this.orderedRoutesToClose.unshift({
 					routeId: old.id,
@@ -1537,6 +1547,7 @@ class PhantomRouter extends Router {
 		const closeCommands = this.engineCommands.buildRouteCloseCommands(routeId, newRoute.viewId, false);
 		const commands = Object.assign(openCommands, closeCommands);
 		delete commands.parentView;
+		delete commands.rootView;
 		// Add route to ordered list
 		const $fakeRoot = {
 			routeId: routeId,
