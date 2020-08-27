@@ -52,6 +52,21 @@ class EngineCommands {
 					addView: true,
 					runOnViewLoad: false,
 				},
+			},
+			reload: {
+				close: {
+					runBeforeClose: true,
+					removeView: true,
+					runOnRouteClose: true,
+					removeCtrl: true,
+				},
+				open: {
+					addCtrl: true,
+					runLoad: true,
+					runCtrl: true,
+					addView: true,
+					runOnViewLoad: true,
+				},
 			}
 		};
 	}
@@ -91,21 +106,34 @@ class EngineCommands {
 		this.pending[routeId][command.name] = command.value;
 	}
 
+	override(commandsList, routeId, source) {
+		console.log('this.pending[routeId]', routeId, this.pending[routeId]);
+		for (const command of Object.keys(this.pending[routeId])) {
+			for (const index of Object.keys(this.command[command][source])) {
+				commandsList[index] = this.command[command][source][index];
+			}
+		}
+	}
+
 	buildRouteOpenCommands(routeId, viewId, shouldUpdate) {
-		console.log('OPEN', routeId, viewId, shouldUpdate);
+		console.log('OPEN', this.pending);
 		// Only apply default commands if the route is new
 		if (shouldUpdate) {
-			return this.command.refresh.open;
+			const commandsList = {};
+			this.override(commandsList, routeId, 'open');
+			return commandsList;
 		} else {
 			return this.default.open;
 		}
 	}
 
 	buildRouteCloseCommands(routeId, viewId, shouldUpdate) {
-		console.log('CLOSE', routeId, viewId, shouldUpdate);
+		console.log('CLOSE', this.pending);
 		// Only apply default commands if the route is new
 		if (shouldUpdate) {
-			return this.command.refresh.close;
+			const commandsList = {};
+			this.override(commandsList, routeId, 'close');
+			return commandsList;
 		} else {
 			return this.default.close;
 		}
@@ -928,7 +956,7 @@ class Router {
 				parentViewId: this.oldRoutes.parentViewId,
 				powerViewNodeId: 'root-view',
 				commands: this.engineCommands.buildRouteCloseCommands(
-					this.oldRoutes.viewId, this.oldRoutes.viewId, shouldUpdate),
+					this.oldRoutes.id, this.oldRoutes.viewId, shouldUpdate),
 			});
 		}
 		// Add old child route from main route if have some
@@ -946,7 +974,6 @@ class Router {
 			const current = this.currentRoutes[routesListName].find(r=>r.id === old.id && r.viewId === old.viewId) || null;
 			// Will keep the route and only apply commands
 			const shouldUpdate = (current !== null && this.engineCommands.pending[old.id] !== undefined);
-			console.log('current', current, this.engineCommands.pending);
 			if (forceRefresh || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
 				this.orderedRoutesToClose.unshift({
 					routeId: old.id,
@@ -1056,8 +1083,6 @@ class Router {
 
 	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const _viewId = this.routes[routeId].viewId || viewId;
-		console.log(viewId, _viewId);
-
 		// If have a template to load let's do it
 		if (this.routes[routeId].template && !this.config.noRouterViews) {
 			// If user defines a custom viewId to this route, but the router don't find it alert the user

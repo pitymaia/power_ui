@@ -274,12 +274,12 @@ class SecundaryMainTemplate extends PowerTemplate {
 
 class SecundaryMainCtrl extends PowerModal {
 	ctrl() {
-		// console.log('Secundary main ctrl');
+		console.log('Secundary main ctrl');
 		this.mainValue = -1;
 	}
 
 	onCancel() {
-		return [{'third-level2': {refresh: true}}];
+		return [{'power-only': {refresh: true}}];
 	}
 
 	openChild() {
