@@ -120,7 +120,6 @@ class EngineCommands {
 	}
 
 	buildRouteOpenCommands(routeId, viewId, shouldUpdate) {
-		console.log('OPEN', this.pending);
 		// Only apply default commands if the route is new
 		if (shouldUpdate) {
 			const commandsList = {};
@@ -132,7 +131,6 @@ class EngineCommands {
 	}
 
 	buildRouteCloseCommands(routeId, viewId, shouldUpdate) {
-		console.log('CLOSE', this.pending);
 		// Only apply default commands if the route is new
 		if (shouldUpdate) {
 			const commandsList = {};
@@ -698,8 +696,6 @@ class Router {
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
 		this.engineCommands.buildOtherCicleCommands();
-		console.log('orderedRoutesToClose', this.orderedRoutesToClose);
-		console.log('orderedRoutesToOpen', this.orderedRoutesToOpen);
 		const abort = await this.resolveWhenListIsPopulated(
 			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
 		if (abort === 'abort') {

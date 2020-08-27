@@ -459,7 +459,7 @@ class PowerTree {
 		return false;
 	}
 	// This is the main function to sweep the DOM and instanciate powerObjetcs from it
-	buildAndInterpolate(node, refresh) {
+	buildAndInterpolate(node) {
 		this.sweepDOM({
 			entryNode: node,
 			callback: this.buildPowerObjects.bind(this),
@@ -467,13 +467,11 @@ class PowerTree {
 		});
 
 		// Evaluate and replace any {{}} from template
-		if (!refresh) {
-			// Interpolete views and root scope in the right order
-			this.interpolateInOrder();
+		// Interpolete views and root scope in the right order
+		this.$powerUi.interpolation.interpolateInOrder();
 
-			const body = document.getElementsByTagName('BODY')[0];
-			body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
-		}
+		const body = document.getElementsByTagName('BODY')[0];
+		body.innerHTML = this.$powerUi.interpolation.replaceInterpolation(body.innerHTML, this.$powerUi);
 	}
 
 	buildPowerObjects({currentNode, main, view, isInnerCompiler, saved, rootCompiler, parent}) {
@@ -634,36 +632,20 @@ class PowerTree {
 		};
 	}
 
-	// Interpolete views and root scope in the right order
-	interpolateInOrder() {
-		const powerViews = document.getElementsByClassName('power-view');
-
-		let rootView = false;
-		// Interpolate using view controller scope
-		for (const view of powerViews) {
-			// root-view goes after all other views
-			if (view.id === 'root-view') {
-				rootView = view;
-			} else if (view.id !== 'secundary-view') {
-				const scope = this.$powerUi.controllers[view.id] ? this.$powerUi.controllers[view.id].instance : this.$powerUi;
-				view.innerHTML = this.$powerUi.interpolation.replaceInterpolation(view.innerHTML, scope);
-			}
-		}
-		// Interpolate using root controller scope
-		if (rootView) {
-			const scope = this.$powerUi.controllers[rootView.id] ? this.$powerUi.controllers[rootView.id].instance : this.$powerUi;
-			rootView.innerHTML = this.$powerUi.interpolation.replaceInterpolation(rootView.innerHTML, scope);
-		}
-	}
-
 	createAndInitObjectsFromCurrentNode({id}) {
 		const entryAndConfig = this.getEntryNodeWithParentsAndConfig(id);
 		this.buildPowerObjects(entryAndConfig);
 		// Evaluate and replace any {{}} from template
 		const node = document.getElementById(id);
+		// Interpolate a multiple inner power-view first if have it
+		if (node.innerHTML.includes('power-view')) {
+			this.$powerUi.interpolation.interpolateInOrder(node);
+		}
+
 		// Interpolate using controller scope
 		const scope = this.$powerUi.controllers[node.id] ? this.$powerUi.controllers[node.id].instance : this.$powerUi;
 		node.innerHTML = this.$powerUi.interpolation.replaceInterpolation(node.innerHTML, scope);
+
 		// Call init for this object and all inner objects
 		this._callInitForObjectAndInners(document.getElementById(id));
 	}
@@ -736,7 +718,7 @@ class PowerTree {
 			const selectorToTest = document.querySelectorAll(`[id=${id}]`);
 			if (selectorToTest.length > 1) {
 				// Check if there is some duplicated ID
-				console.error('DUPLICATED IDs:', selectorToTest);
+				window.console.error('DUPLICATED IDs:', selectorToTest);
 				throw `HTML element can't have duplicated IDs: ${id}`;
 			}
 		}
@@ -1676,92 +1658,18 @@ class PowerUi extends _PowerUiBase {
 		this.waitingViews = 0;
 		this.waitingInit = [];
 		this.initAlreadyRun = false;
-		this._services = config.services || {}; // TODO this is done, we just need document it with the format 'widget', {component: WidgetService, params: {foo: 'bar'}}
+		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
-		this._events['ready'] = new UEvent();
-		this._events['Escape'] = new UEvent();
+		this._events.ready = new UEvent();
+		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
-
-		// Render the rootScope if exists and only boostrap after promise returns
-		if (config.$root) {
-			const viewId = 'root-view';
-			const routeId = '$root';
-			const crtlInstance = new config.$root.component(
-				{$powerUi: this, viewId: viewId, routeId: routeId});
-			const rootTemplate = new config.$root.templateComponent(
-				{$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: crtlInstance});
-			crtlInstance.$tscope = rootTemplate.component;
-			const self = this;
-			rootTemplate.template.then(function (response) {
-				self.loadRootScope({
-					viewId: viewId,
-					routeId: routeId,
-					$root: config.$root,
-					crtlInstance: crtlInstance,
-					template: response,
-				});
-				self.bootstrap(config);
-			}).catch(function (error) {
-				console.log('error', error);
-			});
-
-		} else {
-			this.bootstrap(config);
-		}
-	}
-
-	bootstrap(config) {
 		this.router = new Router(config, this); // Router calls this.init();
 
 		// suport ESC qkey
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
-	}
-
-	loadRootScope({viewId, routeId, $root, crtlInstance, template}) {
-		// Register the controller with $powerUi
-		this.controllers[viewId] = {
-			component: $root.component,
-			params: $root.params,
-		};
-		// Instanciate the controller
-		this.controllers[viewId].instance = crtlInstance;
-		this.controllers[viewId].instance._viewId = viewId;
-		this.controllers[viewId].instance._routeId = routeId;
-
-
-		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
-		this.buildViewTemplateAndMayCallInit({
-			self: this,
-			view: view,
-			template: template,
-			routeId: routeId,
-			viewId: viewId,
-			title: null,
-		});
-
-		// Save the raw template to allow refresh the rootSope view
-		this.registerRootTemplate({
-			template: template,
-			ctrl: crtlInstance,
-			viewId: viewId,
-			view: document.getElementById(viewId),
-		});
-	}
-
-	// Save the raw template to allow refresh the rootSope view
-	registerRootTemplate({template, ctrl, viewId, view}) {
-		this._rootScope = {
-			routeId: '#root',
-			template: template,
-			ctrl: ctrl,
-			viewId: viewId,
-			view: view,
-			title: null,
-			$tscope: ctrl.$tscope,
-		};
 	}
 
 	// Return the "view" controller of any element inside the current view
@@ -1789,21 +1697,55 @@ class PowerUi extends _PowerUiBase {
 		return new PowerTreeTemplate({$powerUi: this, tree: tree, boilerplate: true}).template;
 	}
 
-	closeAllSecundaryRoutes() {
+	removeRouteFromHash(currentHash, routeId, viewId) {
+		const route = this.router.getOpenedRoute({routeId: routeId, viewId: viewId});
+		const parts = decodeURI(currentHash).split('?');
+		let counter = 0;
+		let newHash = '';
+
+		for (let part of parts) {
+			if (!part.includes(route.route)) {
+				if (counter !== 0) {
+					part = '?' + part;
+				} else {
+					part = part.replace(this.router.config.rootPath, '');
+				}
+				newHash = newHash + part;
+				counter = counter + 1;
+			}
+		}
+		return newHash;
+	}
+
+	closeAllSecundaryRoutes(supressNavigate=false) {
+		const original = this.router.locationHashWithHiddenRoutes();
+		let currentHash = original;
 		for (const sr of this.router.currentRoutes.secundaryRoutes) {
-			this.controllers[sr.viewId].instance.closeCurrentRoute();
+			const ctrl = this.controllers[sr.viewId].instance;
+			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+		}
+		if (supressNavigate === false && original !== currentHash) {
+			this.router.navigate({hash: currentHash, title: null});
+		} else {
+			return currentHash;
 		}
 	}
 
-	closeAllHiddenRoutes() {
+	closeAllHiddenRoutes(hashFromSecundary=false) {
+		const original = this.router.locationHashWithHiddenRoutes();
+		let currentHash = hashFromSecundary ? hashFromSecundary : original;
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
-			this.controllers[hr.viewId].instance.closeCurrentRoute();
+			const ctrl = this.controllers[hr.viewId].instance;
+			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+		}
+		if (original !== currentHash) {
+			this.router.navigate({hash: currentHash, title: null});
 		}
 	}
 
 	closeAllRoutes() {
-		this.closeAllSecundaryRoutes();
-		this.closeAllHiddenRoutes();
+		const hash = this.closeAllSecundaryRoutes(true);
+		this.closeAllHiddenRoutes(hash);
 	}
 
 	getCookie(name) {
@@ -1889,14 +1831,12 @@ class PowerUi extends _PowerUiBase {
 		return new ParserEval({text: text, scope: scope, $powerUi: this}).currentValue;
 	}
 
-	initAll({template, routeId, viewId}) {
-		const t0 = performance.now();
+	initAll() {
 		// If initAlreadyRun is true that is not the first time this initiate, so wee need clean the events
 		if (this.initAlreadyRun) {
 			this.powerTree.removeAllEvents();
 		}
 		this._createPowerTree();
-		this.truth = {};
 		this.tmp = {dropmenu: {}};
 		// Detect if is touchdevice (Phones, Ipads, etc)
 		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
@@ -1909,123 +1849,31 @@ class PowerUi extends _PowerUiBase {
 			document.getElementById(item.node.id).style.visibility = null;
 		}
 		this.waitingInit = [];
-
-		for (const key of Object.keys(this.controllers || {})) {
-			this.callOnViewLoad(this, key);
-		}
-		const t1 = performance.now();
-		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.');
 	}
 
-	// pwReload() {
-	// 	this.initAlreadyRun = false;
-	// 	this.router._reload();
-	// }
-
-	callOnViewLoad(self, viewId) {
-		if (self.controllers[viewId] && self.controllers[viewId].instance) {
-			if (self.controllers[viewId].instance.onViewLoad) {
-				self.controllers[viewId].instance.onViewLoad(
-					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
-			}
-			if (self.controllers[viewId].instance._onViewLoad) {
-				self.controllers[viewId].instance._onViewLoad(
-					self.powerTree.allPowerObjsById[viewId].$shared.element); // passing the view element
-			}
-			self.controllers[viewId].instance._ready = true;
-			// Close the route if user ask to close before it is ready
-			if (self.controllers[viewId].instance._cancelOpenRoute) {
-				self.controllers[viewId].instance.closeCurrentRoute();
-			}
-		}
-	}
-
-	initNodes({template, routeId, viewId, refreshing}) {
-		const t0 = performance.now();
+	initNodes() {
 		for (const item of this.waitingInit) {
 			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
 			document.getElementById(item.node.id).style.visibility = null;
-			this.callOnViewLoad(this, item.node.id);
 		}
-		// this.callOnViewLoad(this, viewId);
-
-		const t1 = performance.now();
-		// console.log('PowerUi init run in ' + (t1 - t0) + ' milliseconds.', this.waitingInit);
 		this.waitingInit = [];
 	}
 
 	prepareViewToLoad({viewId, routeId}) {
 		const view = document.getElementById(viewId);
-		this.addSpinnerAndHideView(view);
 		this.waitingInit.push({node: view, viewId: viewId});
 		return view;
 	}
 
-	// To use as loading service
-	addSpinner(viewId) {
-		const view = document.getElementById(viewId);
-		this.addSpinnerAndHideView(view, true);
-	}
-
-	removeSpinner(viewId) {
-		const spinner = document.getElementById('_power-spinner');
-		spinner.parentNode.removeChild(spinner);
-		if (viewId) {
-			const view = document.getElementById(viewId);
-			view.style.visibility = null;
-		}
-	}
-
-	addSpinnerAndHideView(view, doNotWait) {
-		// Only add one spinner when the first view is added to waitingViews
-		if (!document.getElementById('_power-spinner')) {
-			// Backdrop
-			const spinnerBackdrop = document.createElement('div');
-			spinnerBackdrop.classList.add('pw-spinner-backdrop');
-			spinnerBackdrop.id = '_power-spinner';
-
-			// Spinner label
-			const spinnerLabel = document.createElement('p');
-			spinnerLabel.classList.add('pw-spinner-label');
-			spinnerLabel.innerText = this.config.spinnerLabel || 'LOADING';
-			spinnerBackdrop.appendChild(spinnerLabel);
-
-			// Spinner
-			const spinner = document.createElement('div');
-			spinner.classList.add('pw-spinner');
-			spinnerBackdrop.appendChild(spinner);
-
-			// Add to body
-			document.body.appendChild(spinnerBackdrop);
-		}
-		// Avoid blink uninterpolated data before call compile and interpolate
-		if (view) {
-			// Hidding a view is optional
-			view.style.visibility = 'hidden';
-			if (!doNotWait) {
-				this.waitingViews = this.waitingViews + 1;
-			}
-		}
-	}
-
-	// Run the controller instance for the route
-	runRouteController() {
-		for (const ctrl of this.ctrlWaitingToRun) {
-			if (this.controllers[ctrl.viewId] && this.controllers[ctrl.viewId].instance && this.controllers[ctrl.viewId].instance.ctrl) {
-				this.controllers[ctrl.viewId].instance.ctrl(this.controllers[ctrl.viewId].params);
-			}
-		}
-		this.ctrlWaitingToRun = [];
-	}
 	// Templates for views with controllers
-	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title}) {
+	loadTemplateUrl({template, viewId, currentRoutes, routeId, routes, title, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		this.request({
 				url: template,
 				method: 'GET',
-				status: "Loading page",
+				status: 'Loading page',
 		}).then(function (response, xhr) {
 			template = xhr.responseText;
 			self.buildViewTemplateAndMayCallInit({
@@ -2035,6 +1883,11 @@ class PowerUi extends _PowerUiBase {
 				routeId: routeId,
 				viewId: viewId,
 				title: title,
+				loadViewInOrder: loadViewInOrder,
+				orderedRoutesToOpen: orderedRoutesToOpen,
+				routeIndex: routeIndex,
+				ctx: ctx,
+				_resolve: _resolve,
 			});
 			// Cache this template for new requests if avoidCacheTemplate not setted as true
 			const routeConfig = routes[routeId];
@@ -2045,11 +1898,11 @@ class PowerUi extends _PowerUiBase {
 				routeConfig.templateIsCached = false;
 			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			window.console.log('ERROR loading templateURL:', response);
 		});
 	}
 	// PowerTemplate (before run any controller)
-	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl}) {
+	loadTemplateComponent({template, viewId, currentRoutes, routeId, routes, title, $ctrl, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const self = this;
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		const component = new template({$powerUi: this, viewId: viewId, routeId: routeId, $ctrl: $ctrl});
@@ -2066,21 +1919,18 @@ class PowerUi extends _PowerUiBase {
 				routeId: routeId,
 				viewId: viewId,
 				title: title,
+				loadViewInOrder: loadViewInOrder,
+				orderedRoutesToOpen: orderedRoutesToOpen,
+				routeIndex: routeIndex,
+				ctx: ctx,
+				_resolve: _resolve,
 			});
-			// Cache this template for new requests if avoidCacheTemplate not setted as true
-			const routeConfig = routes[routeId];
-			if (routeConfig.avoidCacheTemplate !== true) {
-				routeConfig.template = template;
-				routeConfig.templateIsCached = true;
-			} else {
-				routeConfig.templateIsCached = false;
-			}
 		}).catch(function (response, xhr) {
-			self.ifNotWaitingServerCallInit({template: response, routeId: routeId, viewId: viewId});
+			window.console.log('ERROR loading templateComponent:', response);
 		});
 	}
 
-	loadTemplate({template, viewId, currentRoutes, routeId, routes, title}) {
+	loadTemplate({template, viewId, currentRoutes, routeId, routes, title, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const view = this.prepareViewToLoad({viewId: viewId, routeId: routeId});
 		// Add $tscope to controller if have a saved $tscope
 		if (routes[routeId].$tscope) {
@@ -2093,74 +1943,38 @@ class PowerUi extends _PowerUiBase {
 			routeId: routeId,
 			viewId: viewId,
 			title: title,
+			loadViewInOrder: loadViewInOrder,
+			orderedRoutesToOpen: orderedRoutesToOpen,
+			routeIndex: routeIndex,
+			ctx: ctx,
+			_resolve: _resolve,
 		});
 	}
 
+	callInitViews() {
+		if (this.initAlreadyRun) {
+			this.initNodes();
+		} else {
+			this.initAll();
+		}
+		this._events.ready.broadcast('ready');
+	}
+
 	// When a view is loaded built it's template, may call init() and may Init all views when all loaded
-	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, refreshing, reloadCtrl, initAll}) {
+	buildViewTemplateAndMayCallInit({self, view, template, routeId, viewId, title, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		// TODO: Why widget has init?
 		if (self.controllers[viewId] && self.controllers[viewId].instance && self.controllers[viewId].instance.isWidget) {
-			if (!refreshing && self.controllers[viewId].instance.init) {
+			if (self.controllers[viewId].instance.init) {
 				self.controllers[viewId].instance.init();
 			}
 			template = self.controllers[viewId].instance.$buildTemplate({template: template, title: title});
 		}
 
-		// Save main-view and secundary-view innerHTML before refresh so can restore it after replace the template
-		if (routeId === '#root' && refreshing) {
-			let mainView = document.getElementById('main-view');
-			const mainViewInnerHTML = mainView.innerHTML;
-			let secundaryView = document.getElementById('secundary-view');
-			const secundaryViewInnerHTML = secundaryView.innerHTML;
+		view.innerHTML = template;
 
-			view.innerHTML = template;
-
-			mainView = document.getElementById('main-view');
-			mainView.innerHTML = mainViewInnerHTML;
-			secundaryView.innerHTML = secundaryViewInnerHTML;
-		} else {
-			view.innerHTML = template;
+		if (orderedRoutesToOpen) {
+			loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve);
 		}
-
-		self.ifNotWaitingServerCallInit({
-			template: template,
-			routeId: routeId,
-			viewId: viewId,
-			refreshing: refreshing,
-			reloadCtrl: reloadCtrl,
-			initAll: initAll,
-		});
-	}
-
-	ifNotWaitingServerCallInit({template, routeId, viewId, refreshing, reloadCtrl, initAll}) {
-		const self = this;
-		if (!refreshing || (refreshing && reloadCtrl)) {
-			self.ctrlWaitingToRun.push({viewId: viewId, routeId: routeId});
-		}
-		setTimeout(function () {
-			self.waitingViews = self.waitingViews - 1;
-			if (self.waitingViews === 0) {
-				if (!refreshing || (refreshing && reloadCtrl)) {
-					self.runRouteController();
-				}
-				if (self.initAlreadyRun && !initAll) {
-					self.initNodes({
-						template: template,
-						routeId: routeId,
-						viewId: viewId,
-						refreshing: refreshing,
-					});
-				} else {
-					self.initAll({
-						template: template,
-						routeId: routeId,
-						viewId: viewId,
-					});
-				}
-				self.removeSpinner();
-				self._events.ready.broadcast('ready');
-			}
-		}, 10);
 	}
 
 	removeCss(id, css) {
@@ -4180,7 +3994,7 @@ class JSONSchemaService extends PowerServices {
 
 class WidgetService extends PowerServices {
 
-	mayAddCtrlParams({params, onCommit, onCancel, onCancelError, onCommitError}) {
+	mayAddCtrlParams({params, onCommit, onCancel}) {
 		if (params === undefined) {
 			params = {};
 		}
@@ -4190,45 +4004,46 @@ class WidgetService extends PowerServices {
 		if (onCancel) {
 			params.onCancel = onCancel;
 		}
-		if (onCommitError) {
-			params.onCommitError = onCommitError;
-		}
-		if (onCancelError) {
-			params.onCancelError = onCancelError;
-		}
 
 		return params;
 	}
 
 	alert(options) {
 		options.kind = 'alert';
-		this.open(options);
+		return this.open(options);
 	}
 
 	confirm(options) {
 		options.kind = 'confirm';
-		this.open(options);
+		return this.open(options);
 	}
 
 	yesno(options) {
 		options.kind = 'yesno';
-		this.open(options);
+		return this.open(options);
 	}
 
 	modal(options) {
 		options.kind = 'modal';
-		this.open(options);
+		return this.open(options);
 	}
 	window(options) {
 		options.kind = 'window';
-		this.open(options);
+		return this.open(options);
 	}
 	windowIframe(options) {
 		options.kind = 'windowIframe';
-		this.open(options);
+		return this.open(options);
 	}
 
-	open({title, template, ctrl, target, params, controller, kind, onCommit, onCommitError, onCancel, onCancelError, templateUrl, templateComponent, url}) {
+	open({title, template, ctrl, target, params, controller, kind, onCommit, onCancel, templateUrl, templateComponent, url}) {
+		let _resolve;
+		let _reject;
+		const _promise = new Promise(function (resolve, reject) {
+			_resolve = resolve;
+			_reject = reject;
+		});
+
 		// Allow to create some empty controller so it can open without define one
 		if (!ctrl && !controller) {
 			controller = function () {};
@@ -4239,16 +4054,10 @@ class WidgetService extends PowerServices {
 				params: params,
 				onCommit: onCommit,
 				onCancel: onCancel,
-				onCommitError: onCommitError,
-				onCancelError: onCancelError
 			});
-			ctrl = {
-				component: wrapFunctionInsideDialog({controller: controller, kind: kind, params: params}),
-			};
+			ctrl = wrapFunctionInsideDialog({controller: controller, kind: kind, params: params, resolve: _resolve, reject: _reject, _promise: _promise});
 		}
-		if (ctrl.params === undefined) {
-			ctrl.params = {};
-		}
+
 		// Create a new volatile then open it
 		const routeId = `pow_route_${this.$powerUi._Unique.next()}`;
 		// Register the route for remotion with the controller
@@ -4264,6 +4073,7 @@ class WidgetService extends PowerServices {
 			ctrl: ctrl,
 			params: params,
 		});
+		return _promise;
 	}
 
 	_open({routeId, params, target, title, template, ctrl, templateUrl, templateComponent, url}) {
@@ -4277,7 +4087,7 @@ class WidgetService extends PowerServices {
 			templateComponent: templateComponent,
 			hidden: true,
 			ctrl: ctrl,
-			isVolatile: true,
+			isHidden: true,
 		};
 
 		this.$powerUi.router.routes[routeId] = newRoute;
@@ -4301,11 +4111,19 @@ class PowerController extends PowerScope {
 		this.volatileRouteIds = [];
 	}
 
+	_load(data) {
+		const self = this;
+		return new Promise(
+			function (resolve, reject) {
+				self.load(resolve, reject, data);
+			});
+	}
+
 	get router() {
 		return this.$powerUi.router;
 	}
 
-	refresh(viewId, reloadCtrl) {
+	keepScrollPosition() {
 		const view = document.getElementById(this._viewId);
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
@@ -4318,12 +4136,18 @@ class PowerController extends PowerScope {
 			this._bodyScrollTop = body.scrollTop || 0;
 			this._bodyScrollLeft = body.scrollLeft || 0;
 		}
-
-		this.router._refresh(viewId, reloadCtrl);
 	}
 
-	reload(viewId) {
-		this.refresh(viewId, true);
+	refresh(routeId) {
+		this.keepScrollPosition();
+		this.router.engineCommands.addPendingComand(routeId || this._routeId, {name: 'refresh', value: true});
+		this.router.cloneRoutesAndRunEngine();
+	}
+
+	reload(routeId) {
+		this.keepScrollPosition();
+		this.router.engineCommands.addPendingComand(routeId || this._routeId, {name: 'reload', value: true});
+		this.router.cloneRoutesAndRunEngine();
 	}
 
 	getRouteCtrl(routeId) {
@@ -4346,40 +4170,31 @@ class PowerController extends PowerScope {
 		});
 	}
 
-	closeCurrentRoute(callback) {
+	runInNextCicle(command) {
+		for (const index in command) {
+			this.$powerUi.router.engineCommands.pending[index] = command[index];
+		}
+	}
+
+	closeCurrentRoute({callback, commands}) {
+		if (this.router.engineIsRunning || this.router.phantomRouter) {
+			this.router.closePhantomRoute(this._routeId, this);
+			return;
+		}
 		// Save the callback to run after view is removed
 		if (callback) {
 			this._$closeCurrentRouteCallback = callback;
 		}
-		// If view not ready set _cancelOpenRoute to close the route after its full loaded
-		if (!this._ready) {
-			this._cancelOpenRoute = true;
-			return;
-		} else {
-			this._cancelOpenRoute = false;
-		}
-		if (this.onBeforeClose) {
-			if (this.onBeforeClose() === false) {
-				return;
+		// Save the callback to run after view is removed
+		if (commands.length) {
+			for (const command of commands) {
+				this.runInNextCicle(command);
 			}
 		}
-		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
-		const parts = decodeURI(this.router.locationHashWithHiddenRoutes()).split('?');
-		let counter = 0;
-		let newHash = '';
 
-		for (let part of parts) {
-			if (!part.includes(route.route)) {
-				if (counter !== 0) {
-					part = '?' + part;
-				} else {
-					part = part.replace(this.router.config.rootPath, '');
-				}
-				newHash = newHash + part;
-				counter = counter + 1;
-			}
-		}
-		this._ready = false;
+		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+		const newHash = this.$powerUi.removeRouteFromHash(
+			this.router.locationHashWithHiddenRoutes(), this._routeId, this._viewId);
 		this.router.navigate({hash: newHash, title: route.title || null});
 	}
 
@@ -4532,18 +4347,245 @@ function getEmptyRouteObjetc() {
 		id: '',
 		viewId: '',
 		route: '',
+		parentRouteId: null,
+		parentViewId: null,
+		kind: '',
 		secundaryRoutes: [],
 		hiddenRoutes: [],
+		mainChildRoutes: [],
+		secundaryChildRoutes: [],
+		hiddenChildRoutes: [],
 	};
 }
 
+class EngineCommands {
+	constructor(router) {
+		this.bootstraping = true;
+		this.pending = {};
+		this.router = router;
+		this.routes = {};
+		this.default = {
+			close: {
+				runBeforeClose: true,
+				removeView: true,
+				runOnRouteClose: true,
+				removeCtrl: true,
+			},
+			open: {
+				addCtrl: true,
+				runLoad: true,
+				runCtrl: true,
+				addView: true,
+				runOnViewLoad: true,
+			},
+		};
+		this.command = {
+			refresh: {
+				close: {
+					runBeforeClose: false,
+					removeView: true,
+					runOnRouteClose: false,
+					removeCtrl: false,
+				},
+				open: {
+					addCtrl: false,
+					runLoad: false,
+					runCtrl: false,
+					addView: true,
+					runOnViewLoad: false,
+				},
+			},
+			reload: {
+				close: {
+					runBeforeClose: true,
+					removeView: true,
+					runOnRouteClose: true,
+					removeCtrl: true,
+				},
+				open: {
+					addCtrl: true,
+					runLoad: true,
+					runCtrl: true,
+					addView: true,
+					runOnViewLoad: true,
+				},
+			}
+		};
+
+		if (this.router.config.routerMode === 'root') {
+			this.default.close.rootView = {refresh: true};
+		} else if (this.router.config.routerMode === 'parent') {
+			this.default.close.parentView = {refresh: true};
+		}
+	}
+
+	buildOtherCicleCommands() {
+		if (this.bootstraping) {
+			this.bootstraping = false;
+			return;
+		}
+		this.buildPendingCloseCommands();
+		this.buildPendingOpenCommands();
+		this.buildPendingListCommands();
+		// this.ensureRootIsLastToClose();
+		this.pending = {};
+	}
+
+	// ensureRootIsLastToClose() {
+	// 	let root = false;
+	// 	this.router.orderedRoutesToClose = this.router.orderedRoutesToClose.filter(
+	// 		function (route) {
+	// 			if (route.routeId === '$root') {
+	// 				root = route;
+	// 			} else {
+	// 				return true;
+	// 			}
+	// 	});
+
+	// 	if (root) {
+	// 		this.router.orderedRoutesToClose.push(root);
+	// 	}
+	// }
+
+	addPendingComand(routeId, command) {
+		if (!this.pending[routeId]) {
+			this.pending[routeId] = {};
+		}
+		this.pending[routeId][command.name] = command.value;
+	}
+
+	override(commandsList, routeId, source) {
+		for (const command of Object.keys(this.pending[routeId])) {
+			for (const index of Object.keys(this.command[command][source])) {
+				commandsList[index] = this.command[command][source][index];
+			}
+		}
+	}
+
+	buildRouteOpenCommands(routeId, viewId, shouldUpdate) {
+		// Only apply default commands if the route is new
+		if (shouldUpdate) {
+			const commandsList = {};
+			this.override(commandsList, routeId, 'open');
+			return commandsList;
+		} else {
+			return this.default.open;
+		}
+	}
+
+	buildRouteCloseCommands(routeId, viewId, shouldUpdate) {
+		// Only apply default commands if the route is new
+		if (shouldUpdate) {
+			const commandsList = {};
+			this.override(commandsList, routeId, 'close');
+			return commandsList;
+		} else {
+			return this.default.close;
+		}
+	}
+
+	buildPendingCloseCommands() {
+		let index = 0;
+		this.routesToAdd = [];
+		for (const route of this.router.orderedRoutesToClose) {
+			// May need apply parentView commands
+			if (route.parentRouteId && route.commands.parentView && route.commands.parentView.refresh === true) {
+				this.parentCommands(route, index);
+			}
+		}
+
+		for (const route of this.routesToAdd) {
+			this.router.orderedRoutesToClose.splice(route.index + 1, 0, route.route_close);
+		}
+	}
+
+	buildPendingOpenCommands() {
+		for (const route of this.routesToAdd) {
+			const index = this.router.orderedRoutesToOpen.findIndex(r=> r.parentRouteId === route.route_open.routeId);
+			this.router.orderedRoutesToOpen.splice(index, 0, route.route_open);
+		}
+	}
+
+	buildPendingListCommands() {
+		// May need apply some pending $root commands (root commands goes as last in close list)
+		const _rootCommands = this.pending.$root;
+		if (_rootCommands) {
+			this.rootCommands(_rootCommands);
+		}
+	}
+
+	overrideCommands(open, close, command) {
+		for (const index of Object.keys(command.close)) {
+			if (close.commands[index] === undefined || command.close[index] === true) {
+				close.commands[index] = command.close[index];
+			}
+		}
+		for (const index of Object.keys(command.open)) {
+			if (open.commands[index] === undefined || command.open[index] === true) {
+				open.commands[index] = command.open[index];
+			}
+		}
+	}
+
+	parentCommands(route, index) {
+		// Only refresh if not removing the parent and if it is still on currentRoutes list
+		let parent = this.router.getOpenedRoute({routeId: route.parentRouteId, viewId: route.parentViewId});
+		if (!parent && route.parentRouteId === '$root') {
+			parent = {id: '$root', viewId: 'root-view', params: null, kind: 'root', parentRouteId: null, parentViewId: null, powerViewNodeId: 'root-view'};
+		}
+		if (!this.router.orderedRoutesToClose.find(r => r.routeId === route.parentRouteId) && parent) {
+			const newRoute = {
+				routeId: parent.id,
+				viewId: parent.viewId,
+				params: parent.params,
+				kind: parent.kind,
+				parentRouteId: parent.parentRouteId,
+				parentViewId: parent.parentViewId,
+				powerViewNodeId: this.router.routes[parent.parentRouteId] ? this.router.routes[parent.parentRouteId].powerViewNodeId : null,
+			};
+			const open = Object.assign({}, newRoute);
+			open.commands = {};
+			const close = Object.assign({}, newRoute);
+			close.commands = {};
+
+			for (const index of Object.keys(route.commands.parentView)) {
+				if (this.command[index]) {
+					this.overrideCommands(open, close, this.command[index]);
+				}
+			}
+			this.routesToAdd.push({index: index, route_close: close, route_open: open});
+		}
+		index = index + 1;
+	}
+
+	rootCommands(commands) {
+		const newRoute = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root"};
+		const open = Object.assign({}, newRoute);
+		open.commands = {};
+		const close = Object.assign({}, newRoute);
+		close.commands = {};
+
+		for (const index of Object.keys(commands)) {
+			if (this.command[index]) {
+				this.overrideCommands(open, close, this.command[index]);
+			}
+		}
+
+		this.router.orderedRoutesToOpen.unshift(open);
+		this.router.orderedRoutesToClose.push(close);
+	}
+}
+
 class Router {
-	constructor(config={}, powerUi) {
-		this.config = config;
+	constructor(config, powerUi) {
+		this.config = config || {};
 		this.$powerUi = powerUi;
 		this.routes = {};
+		this.oldRoutesBkp = getEmptyRouteObjetc();
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
+		this.phantomRouter = null;
+		this.engineCommands = new EngineCommands(this);
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
 		}
@@ -4552,99 +4594,122 @@ class Router {
 				this.add(route);
 			}
 		}
-		this.init();
-
-		// call init if hash change
-		window.onhashchange = this.hashChange.bind(this);
+		if (!this.config.phantomMode) {
+			this.initRootScopeAndRunEngine();
+			// call engine if hash change
+			window.onhashchange = this.hashChange.bind(this);
+		}
 	}
 
-	add({id, route, template, templateUrl, templateComponent, url, avoidCacheTemplate, callback, viewId, ctrl, title, hidden}) {
-		template = templateUrl || template || templateComponent || url;
-		// Ensure user have a element to render the main view
-		// If the user doesn't define an id to use as main view, "main-view" will be used as id
-		if (!this.config.routerMainViewId && this.config.routerMainViewId !== false) {
-			this.config.routerMainViewId = 'main-view';
-			// If there are no element with the id defined to render the main view throw an error
-			if (!document.getElementById(this.config.routerMainViewId)) {
-				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "main-view" or set your on id in the config using the key "routerMainViewId" with the choosen id. If you not want render any view in a main view, set the config key "routerMainViewId" to false and a "viewId" flag to each route with a view.');
-			}
-		}
-		// If the user doesn't define an id to use as secundary view, "secundary-view" will be used as id
-		if (!this.config.routerSecundaryViewId && this.config.routerSecundaryViewId !== false) {
-			this.config.routerSecundaryViewId = 'secundary-view';
-			// If there are no element with the id defined to render the secundary view throw an error
-			if (!document.getElementById(this.config.routerSecundaryViewId)) {
-				throw new Error('The router needs a element with an ID to render views, you can define some HTML element with the id "secundary-view" or set your on id in the config using the key "routerSecundaryViewId" with the choosen id. If you not want render any view in a secundary view, set the config key "routerSecundaryViewId" to false and a "viewId" flag to each route with a view.');
-			}
-		}
+	add(route) {
+		route.template = route.templateUrl || route.template || route.templateComponent || route.url;
+		// main route and secundary routes view id
+		this.config.routerMainViewId = 'main-view';
+		this.config.routerSecundaryViewId = 'secundary-view';
 		// Ensure that the parameters are not empty
-		if (!id) {
+		if (!route.id) {
 			throw new Error('A route ID must be given');
 		}
-		if (!route && !template && !callback) {
-			throw new Error('route, template, templateUrl or callback must be given');
-		}
-		if (this.config.routerMainViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerMainViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
-		}
-		if (this.config.routerSecundaryViewId === false && template && !viewId) {
-			throw new Error(`You set the config flag "routerSecundaryViewId" to false, but do not provide a custom "viewId" to the route "${route}" and id "${id}". Please define some element with some id to render the template, templateUrl, and pass it as "viewId" paramenter to the router.`);
+		if (!route.ctrl && route.id !== 'otherwise') {
+			window.console.log('route missing ctrl:', route);
+			throw new Error('A route "ctrl" must be given');
 		}
 		// Ensure that the parameters have the correct types
-		if (typeof route !== "string" && id !== '$root') {
+		if (typeof route.route !== "string" && route.id !== '$root') {
 			throw new TypeError('typeof route must be a string');
-		}
-		if (callback && (typeof callback !== "function")) {
-			throw new TypeError('typeof callback must be a function');
 		}
 
 		// Rewrite root route difined as '/' to an empty string so the final route can be '#!/'
-		if (route === '/') {
-			route = '';
+		if (route.route === '/') {
+			route.route = '';
 		}
 
-		const entry = {
-			title: title,
-			route: this.config.rootPath + route,
-			callback: callback || null,
-			template: template || null,
-			templateUrl: templateUrl || null,
-			templateComponent: templateComponent || null,
-			avoidCacheTemplate: avoidCacheTemplate === true ? true : false,
-			templateIsCached: (templateUrl || templateComponent) ? false : true,
-			viewId: viewId || null,
-			ctrl: ctrl || null,
-			hidden: hidden || null,
-		};
+		if (route.id === '$root') {
+			route.route = '';
+		} else {
+			route.route = this.config.rootPath + (route.route || '');
+		}
+
 		// throw an error if the route already exists to avoid confilicting routes
 		// the "otherwise" route can be duplicated only if it do not have a template
-		if (id !== 'otherwise' || template) {
+		if (route.id !== 'otherwise' || route.template) {
 			for (const routeId of Object.keys(this.routes || {})) {
 				// the "otherwise" route can be duplicated only if it do not have a template
-				if (this.routes[routeId].route === entry.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
-					if (routeId === 'otherwise' || id === 'otherwise') {
-						throw new Error(`the route "${route || '/'}" already exists, so "${id}" can't use it if you use a template. You can remove the template or use another route.`);
+				if (this.routes[routeId].route === route.route && (routeId !== 'otherwise' || this.routes[routeId].template)) {
+					if (routeId === 'otherwise' || route.id === 'otherwise') {
+						throw new Error(`the route "${route.route || '/'}" already exists, so "${route.id}" can't use it if you use a template. You can remove the template or use another route.`);
 					} else {
-						throw new Error(`the route "${route || '/'}" already exists, so "${id}" can't use it.`);
+						throw new Error(`the route "${route.route || '/'}" already exists, so "${route.id}" can't use it.`);
 					}
 				}
 			}
 		}
 		// throw an error if the route id already exists to avoid confilicting routes
-		if (this.routes[id]) {
+		if (this.routes[route.id]) {
 			throw new Error(`the id ${route.id} already exists`);
 		} else {
-			this.routes[id] = entry;
+			this.routes[route.id] = route;
 		}
 	}
 
 	// Copy the current open secundary route, and init the router with the new route
-	hashChange(event, reloading) {
+	hashChange(event) {
+		if (this.engineIsRunning === true) {
+			this.engineIsRunning = false;
+			return;
+		}
+		this.currentUrl = event ? event.newURL : window.location.href;
+		this.previousUrl = event ? event.oldURL : window.location.href;
+		// Save the old routes if user abort and need restore it
+		this.oldRoutesBkp = this.cloneRoutes({source: this.oldRoutes});
 		// Save a copy of currentRoutes as oldRoutes
 		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
 		// Clean current routes
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.init({onHashChange: event, reloading: reloading});
+		this.engine();
+	}
+
+	cloneRoutesAndRunEngine() {
+		this.currentUrl = window.location.href;
+		this.previousUrl = window.location.href;
+		// Save the old routes if user abort and need restore it
+		this.oldRoutesBkp = this.cloneRoutes({source: this.oldRoutes});
+		// Save a copy of currentRoutes as oldRoutes
+		this.oldRoutes = this.cloneRoutes({source: this.currentRoutes});
+		// Clean current routes
+		this.currentRoutes = getEmptyRouteObjetc();
+		this.engine();
+	}
+
+	abortCicle() {
+		// Restore routes, location and stop engine;
+		this.currentRoutes = this.cloneRoutes({source: this.oldRoutes});
+		this.oldRoutes = this.cloneRoutes({source: this.oldRoutesBkp});
+		this.clearPhantomRouter();
+		window.location.href = this.previousUrl;
+	}
+
+	clearPhantomRouter() {
+		delete this.phantomRouter;
+		this.phantomRouter = null;
+	}
+
+	cloneRouteList(dest, source, listName) {
+		for (const route of source[listName]) {
+			const list = {
+				id: route.id,
+				viewId: route.viewId,
+				route: route.route,
+				parentRouteId: route.parentRouteId,
+				parentViewId: route.parentViewId,
+				kind: route.kind,
+				params: [],
+			};
+			for (const param of route.params) {
+				list.params.push({key: param.key, value: param.value});
+			}
+			dest[listName].push(list);
+		}
 	}
 
 	cloneRoutes({source}) {
@@ -4653,434 +4718,734 @@ class Router {
 			id: source.id,
 			viewId: source.viewId,
 			route: source.route,
+			parentRouteId: source.parentRouteId,
+			parentViewId: source.parentViewId,
+			kind: source.kind,
 			secundaryRoutes: [],
 			hiddenRoutes: [],
+			mainChildRoutes: [],
+			secundaryChildRoutes: [],
+			hiddenChildRoutes: [],
 		};
 		for (const param of source.params) {
 			dest.params.push({key: param.key, value: param.value});
 		}
-		for (const route of source.secundaryRoutes) {
-			const secundaryRoutes = {
-				id: route.id,
-				viewId: route.viewId,
-				route: route.route,
-				params: [],
-			}
-			for (const param of route.params) {
-				secundaryRoutes.params.push({key: param.key, value: param.value});
-			}
-			dest.secundaryRoutes.push(secundaryRoutes);
-		}
-		for (const route of source.hiddenRoutes) {
-			const hiddenRoutes = {
-				id: route.id,
-				viewId: route.viewId,
-				route: route.route,
-				params: [],
-			}
-			for (const param of route.params) {
-				hiddenRoutes.params.push({key: param.key, value: param.value});
-			}
-			dest.hiddenRoutes.push(hiddenRoutes);
-		}
+		this.cloneRouteList(dest, source, 'secundaryRoutes');
+		this.cloneRouteList(dest, source, 'hiddenRoutes');
+		this.cloneRouteList(dest, source, 'mainChildRoutes');
+		this.cloneRouteList(dest, source, 'secundaryChildRoutes');
+		this.cloneRouteList(dest, source, 'hiddenChildRoutes');
 		return dest;
-	}
-
-	// _reload() {
-	// 	const viewId = this.currentRoutes.viewId;
-	// 	this.savedOldRoutes = this.cloneRoutes({source: this.oldRoutes});
-	// 	this.oldRoutes = this.cloneRoutes({source: this.currentRoutes}); // close and remove views use the oldRoutes, this allow remove the current routes
-	// 	this.currentRoutes = getEmptyRouteObjetc();
-	// 	this.removeMainView({viewId: viewId, reloading: true});
-	// 	this.closeOldSecundaryAndHiddenViews({reloading: true});
-	// 	this.hashChange(null, true); // true for the reloading flag and null for the event
-	// 	this.oldRoutes = this.cloneRoutes({source: this.savedOldRoutes});
-	// 	delete this.savedOldRoutes;
-	// }
-
-	_refresh(viewId, reloadCtrl) {
-		// If have a rootScope and need refresh it or refresh all views user _refreshAll()
-		if (viewId === 'root-view' || (!viewId && this.$powerUi._rootScope)) {
-			this._refreshAll(reloadCtrl);
-			return;
-		}
-
-		// This refresh a single view or multiple views if do not have a rootScope
-		let openedRoutes = this.getOpenedRoutesRefreshData();
-
-		if (viewId) {
-			openedRoutes = openedRoutes.filter((r)=> r.viewId === viewId);
-		}
-
-		for (const route of openedRoutes) {
-			if (route.$tscope) {
-				const self = this;
-				route.$tscope._template().then(function (response) {
-					const template = response;
-
-					self.replaceViewContent({
-						view: route.view,
-						viewId: route.viewId,
-						routeId: route.routeId,
-						title: route.title,
-						template: template,
-						reloadCtrl: reloadCtrl,
-					});
-				}).catch(function (response, xhr) {
-					window.console.log('_refresh fails', route);
-				});
-			} else {
-				this.replaceViewContent({
-					view: route.view,
-					viewId: route.viewId,
-					routeId: route.routeId,
-					title: route.title,
-					template: route.template,
-					reloadCtrl: reloadCtrl,
-				});
-			}
-
-		}
-	}
-
-
-	_removeElementsAndEvents(openedRoutes) {
-		const openedRoutesWithRoot = [];
-		for (const route of openedRoutes) {
-			openedRoutesWithRoot.push(route);
-		}
-
-		openedRoutesWithRoot.unshift(this.$powerUi._rootScope);
-
-		for (const route of openedRoutesWithRoot) {
-			// delete all inner elements and events from this.allPowerObjsById[id]
-			if (this.$powerUi.powerTree.allPowerObjsById[route.viewId]) {
-				this.$powerUi.powerTree.allPowerObjsById[route.viewId]['$shared'].removeInnerElementsFromPower();
-			}
-		}
-	}
-
-	_refreshRootThanOthers(openedRoutes, reloadCtrl) {
-		const self = this;
-		const route = this.$powerUi._rootScope;
-		let view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
-
-		if (route.$tscope) {
-			route.$tscope._template().then(function (response) {
-				const template = response;
-
-				self.$powerUi.buildViewTemplateAndMayCallInit({
-					self: self.$powerUi,
-					view: view,
-					template: template,
-					routeId: route.routeId,
-					viewId: route.viewId,
-					title: route.title,
-					refreshing: true,
-					reloadCtrl: reloadCtrl,
-					initAll: true,
-				});
-
-				self._refreshAllOthers(reloadCtrl, openedRoutes);
-			}).catch(function (response, xhr) {
-				window.console.log('_rootScope fails', response, route);
-			});
-		}
-	}
-	_refreshAllOthers(reloadCtrl, openedRoutes) {
-		// Second prepare and load
-		for (const route of openedRoutes) {
-			if (!document.getElementById(route.view.id)) {
-				const secundary = document.getElementById('secundary-view');
-				secundary.appendChild(route.view);
-			}
-			let view = this.$powerUi.prepareViewToLoad({viewId: route.viewId, routeId: route.routeId});
-
-			if (route.$tscope) {
-				const self = this;
-				route.$tscope._template().then(function (response) {
-					const template = response;
-
-					self.$powerUi.buildViewTemplateAndMayCallInit({
-						self: self.$powerUi,
-						view: view,
-						template: template,
-						routeId: route.routeId,
-						viewId: route.viewId,
-						title: route.title,
-						refreshing: true,
-						reloadCtrl: reloadCtrl,
-						initAll: true,
-					});
-				}).catch(function (response, xhr) {
-					window.console.log('_refreshAll fails', response, route);
-				});
-			} else {
-				this.$powerUi.buildViewTemplateAndMayCallInit({
-					self: this.$powerUi,
-					view: view,
-					template: route.template,
-					routeId: route.routeId,
-					viewId: route.viewId,
-					title: route.title,
-					refreshing: true,
-					reloadCtrl: reloadCtrl,
-					initAll: true,
-				});
-			}
-		}
-	}
-
-	// Refresh with root-view
-	_refreshAll(reloadCtrl) {
-		let openedRoutes = this.getOpenedRoutesRefreshData();
-
-		// TODO: Check this
-		// First remove elements and events
-		// this._removeElementsAndEvents(openedRoutes);
-		this._refreshRootThanOthers(openedRoutes, reloadCtrl);
-	}
-
-	replaceViewContent({view, viewId, routeId, title, template, reloadCtrl}) {
-		// delete all inner elements and events from this.allPowerObjsById[id]
-		if (this.$powerUi.powerTree.allPowerObjsById[viewId]) {
-			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
-		}
-		this.$powerUi.addSpinnerAndHideView(view);
-		this.$powerUi.waitingInit.push({node: view, viewId: viewId});
-
-		this.$powerUi.buildViewTemplateAndMayCallInit({
-			self: this.$powerUi,
-			view: view,
-			template: template,
-			routeId: routeId,
-			viewId: viewId,
-			title: title,
-			refreshing: true,
-			reloadCtrl: reloadCtrl,
-		});
-	}
-
-	getOpenedRoutesRefreshData() {
-		const viewsList = [];
-		viewsList.push({
-			view: document.getElementById(this.currentRoutes.viewId),
-			routeId: this.currentRoutes.id,
-			viewId: this.currentRoutes.viewId,
-			title: this.currentRoutes.title,
-			template: this.routes[this.currentRoutes.id].template,
-			$tscope: this.routes[this.currentRoutes.id].$tscope || null,
-		});
-		for (const route of this.currentRoutes.secundaryRoutes) {
-			viewsList.push({
-				view: document.getElementById(route.viewId),
-				routeId: route.id,
-				viewId: route.viewId,
-				title: route.title,
-				template: this.routes[route.id].template,
-				$tscope: this.routes[route.id].$tscope || null,
-			});
-		}
-		for (const route of this.currentRoutes.hiddenRoutes) {
-			viewsList.push({
-				view: document.getElementById(route.viewId),
-				routeId: route.id,
-				viewId: route.viewId,
-				title: route.title,
-				template: this.routes[route.id].template,
-				$tscope: this.routes[route.id].$tscope || null,
-			});
-		}
-		return viewsList;
 	}
 
 	locationHashWithHiddenRoutes() {
 		const hash = decodeURI(window.location.hash + (this.hiddenLocationHash || ''));
 		return hash;
 	}
-	// Match the current window.location to a route and call the necessary template and callback
-	// If location doesn't have a hash, redirect to rootPath
-	// the secundaryRoute param allows to manually match secundary routes
-	init({secundaryRoute, hiddenRoute, reloading, onHashChange}={}) {
-		const routeParts = this.extractRouteParts(secundaryRoute || hiddenRoute || this.locationHashWithHiddenRoutes() || this.config.rootPath);
-		for (const routeId of Object.keys(this.routes || {})) {
-			// Only run if not otherwise or if the otherwise have a template
-			if (routeId !== 'otherwise' || this.routes[routeId].template) {
-				// If the route have some parameters get it /some_page/:page_id/syfy/:title
-				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
-				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
-				// our route logic is true,
-				if (routeParts.path.match(regEx)) {
-					if (this.routes[routeId] && this.routes[routeId].title) {
-						document.title = this.routes[routeId].title;
+
+	addSpinnerAndHideContent(viewId) {
+		// Only add one spinner when the first view is added to waitingViews
+		if (!document.getElementById('_power-spinner')) {
+			// Backdrop
+			const spinnerBackdrop = document.createElement('div');
+			spinnerBackdrop.classList.add('pw-spinner-backdrop');
+			spinnerBackdrop.id = '_power-spinner';
+
+			// Spinner label
+			const spinnerLabel = document.createElement('p');
+			spinnerLabel.classList.add('pw-spinner-label');
+			spinnerLabel.innerText = this.config.spinnerLabel || 'LOADING';
+			spinnerBackdrop.appendChild(spinnerLabel);
+
+			// Spinner
+			const spinner = document.createElement('div');
+			spinner.classList.add('pw-spinner');
+			spinnerBackdrop.appendChild(spinner);
+
+			// Add to body
+			document.body.appendChild(spinnerBackdrop);
+		}
+		// Avoid blink uninterpolated data before call compile and interpolate
+		const node = document.getElementById(viewId) || document.getElementById('main-view').parentNode;
+		node.style.visibility = 'hidden';
+	}
+
+	removeSpinnerAndShowContent(viewId) {
+		const spinner = document.getElementById('_power-spinner');
+		if (spinner) {
+			spinner.parentNode.removeChild(spinner);
+		}
+		if (viewId) {
+			const view = document.getElementById(viewId);
+			view.style.visibility = null;
+		}
+	}
+
+	buildRoutesTree(path) {
+		const routeParts = {
+			full_path: path,
+			mainRoute: {path: path},
+			secundaryRoutes: [],
+			hiddenRoutes: [],
+		};
+		if (path.includes('?')) {
+			const splited = path.split('?');
+			routeParts.mainRoute = this.buildPathAndChildRoute(splited[0]);
+			for (const part of splited) {
+				if (part.includes('sr=')) {
+					for (const fragment of part.split('sr=')) {
+						if (fragment) {
+							const sroute = this.buildPathAndChildRoute(
+								this.config.rootPath + fragment);
+							routeParts.secundaryRoutes.push(sroute);
+						}
 					}
-					if (!secundaryRoute && !hiddenRoute) {
-						// Load main route only if it is a new route
-						if (!this.oldRoutes.id || this.oldRoutes.route !== routeParts.path.replace(this.config.rootPath, '')) {
-							this.removeMainView({viewId: this.routes[routeId].viewId || this.config.routerMainViewId, reloading: reloading});
-							this.loadRoute({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								viewId: this.config.routerMainViewId,
-								ctrl: this.routes[routeId].ctrl,
-								title: this.routes[routeId].title,
-							});
-						}
-						this.setMainRouteState({
-							routeId: routeId,
-							paramKeys: paramKeys,
-							route: routeParts.path,
-							viewId: this.config.routerMainViewId,
-							title: this.routes[routeId].title,
-						});
-						// Recursively run the init for each possible secundaryRoute
-						for (const compRoute of routeParts.secundaryRoutes) {
-							this.init({secundaryRoute: compRoute, reloading: reloading});
-						}
-						// Recursively run the init for each possible hiddenRoute
-						for (const compRoute of routeParts.hiddenRoutes) {
-							this.init({hiddenRoute: compRoute, reloading: reloading});
-						}
-						// Remove all the old views if needed
-						this.closeOldSecundaryAndHiddenViews({reloading: reloading});
-						return true;
-					} else if (secundaryRoute) {
-						// Load secundary route if not already open
-						// Check if the route already open as old route or as new route
-						const thisRoute = secundaryRoute.replace(this.config.rootPath, '');
-						const oldSecundaryRoute = this.oldRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
-						const newSecundaryRoute = this.currentRoutes.secundaryRoutes.find(r=>r && r.route === thisRoute);
-						if (!oldSecundaryRoute && !newSecundaryRoute) {
-							const secundaryViewId = this.loadSecundaryOrHiddenRoute({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								routeViewId: this.config.routerSecundaryViewId,
-								ctrl: this.routes[routeId].ctrl,
-							});
-							this.currentRoutes.secundaryRoutes.push(this.setSecundaryOrHiddenRouteState({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								route: secundaryRoute,
-								viewId: secundaryViewId,
-								title: this.routes[routeId].title,
-							}));
-						} else {
-							// If the newSecundaryRoute is already on the list do nothing
-							// Only add if it is only on oldSecundaryRoute list
-							if (!newSecundaryRoute) {
-								this.currentRoutes.secundaryRoutes.push(oldSecundaryRoute);
-							}
-						}
-					} else if (hiddenRoute) {
-						// Load hidden route if not already open
-						// Check if the route already open as old route or as new route
-						const thisRoute = hiddenRoute.replace(this.config.rootPath, '');
-						const oldHiddenRoute = this.oldRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
-						const newHiddenRoute = this.currentRoutes.hiddenRoutes.find(r=>r && r.route === thisRoute);
-						if (!oldHiddenRoute && !newHiddenRoute) {
-							const hiddenViewId = this.loadSecundaryOrHiddenRoute({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								routeViewId: this.config.routerSecundaryViewId,
-								ctrl: this.routes[routeId].ctrl,
-							});
-							this.currentRoutes.hiddenRoutes.push(this.setSecundaryOrHiddenRouteState({
-								routeId: routeId,
-								paramKeys: paramKeys,
-								route: hiddenRoute,
-								viewId: hiddenViewId,
-								title: this.routes[routeId].title,
-							}));
-						} else {
-							// If the newHiddenRoute is already on the list do nothing
-							// Only add if it is only on oldHiddenRoute list
-							if (!newHiddenRoute) {
-								this.currentRoutes.hiddenRoutes.push(oldHiddenRoute);
-							}
+				} else	if (part.includes('hr=')) {
+					for (const fragment of part.split('hr=')) {
+						if (fragment) {
+							const hroute = this.buildPathAndChildRoute(
+								this.config.rootPath + fragment);
+							routeParts.hiddenRoutes.push(hroute);
 						}
 					}
 				}
 			}
+		} else {
+			routeParts.mainRoute = this.buildPathAndChildRoute(path);
 		}
-		// otherwise
-		// (doesn't run otherwise for secundary routes)
-		if (!secundaryRoute && !hiddenRoute) {
-			const newRoute = this.routes['otherwise'] ? this.routes['otherwise'].route : this.config.rootPath;
+		return routeParts;
+	}
+
+	buildPathAndChildRoute(fragment) {
+		fragment = fragment.replace(this.config.rootPath, '');
+		const route = {};
+		let current = route;
+		const parts = fragment.split('&ch=');
+		if (fragment.includes('&ch=')) {
+			for (const child of parts) {
+				// Jump the first entry becouse it's not a child route
+				if (child !== parts[0]) {
+					current.childRoute = {path: child};
+					current = current.childRoute;
+				}
+			}
+		}
+		route.path = parts[0];
+		return route;
+	}
+
+	recursivelyAddChildRoute(route, mainKind, powerViewNodeId, parentRouteId, parentViewId, forceRefresh) {
+		const routesListName = `${mainKind}ChildRoutes`;
+		if (route && route.childRoute) {
+			const childRoute = this.matchRouteAndGetIdAndParamKeys(route.childRoute);
+			let childViewId = false;
+			if (childRoute) {
+				if (forceRefresh) {
+					this.engineCommands.addPendingComand(childRoute.routeId, {name: 'refresh', value: true});
+				}
+				childViewId = this.getVewIdIfRouteExists(route.childRoute.path, routesListName);
+				const routeIsNew = (childViewId === false);
+				const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[childRoute.routeId] !== undefined);
+				// Load child route only if it's a new route
+				if (routeIsNew === true || shouldUpdate || forceRefresh) {
+					childViewId = childViewId || _Unique.domID('view');
+					// Add child route to ordered list
+					this.orderedRoutesToOpen.push({
+						routeId: childRoute.routeId,
+						viewId: childViewId,
+						paramKeys: childRoute.paramKeys,
+						kind: 'child',
+						powerViewNodeId: powerViewNodeId,
+						parentRouteId: parentRouteId,
+						parentViewId: parentViewId,
+						commands: this.engineCommands.buildRouteOpenCommands(childRoute.routeId, childViewId, shouldUpdate),
+					});
+				}
+				// Register child route on currentRoutes list
+				this.setChildRouteState({
+					routeId: childRoute.routeId,
+					paramKeys: childRoute.paramKeys,
+					route: route.childRoute.path,
+					viewId: childViewId,
+					title: this.routes[childRoute.routeId].title,
+					data: this.routes[childRoute.routeId].data,
+					mainKind: mainKind,
+					parentRouteId: parentRouteId,
+					parentViewId: parentViewId,
+					kind: 'child',
+				});
+			}
+
+			if (route.childRoute.childRoute) {
+				this.recursivelyAddChildRoute(
+					route.childRoute, mainKind, childRoute.powerViewNodeId, (childRoute ? childRoute.routeId : null), (childViewId ? childViewId : null), forceRefresh);
+			}
+		}
+	}
+
+	setMainRouteAndAddToOrderedRoutesToLoad(currentRoutesTree) {
+		// First check main route
+		const mainRoute = this.matchRouteAndGetIdAndParamKeys(currentRoutesTree.mainRoute);
+		// Second recursively add main route child and any level of child of childs
+		if (mainRoute) {
+			let forceRefresh = false;
+			// If root has pending commands forces all routes to refresh
+			if (this.engineCommands.pending['$root']) {
+				forceRefresh = true;
+				this.engineCommands.addPendingComand(mainRoute.routeId, {name: 'refresh', value: true});
+			}
+			// Add main route to ordered list
+			// Load main route only if it is a new route or if has some pending command to run
+			const routeIsNew = (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path));
+			const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[mainRoute.routeId] !== undefined);
+			if (forceRefresh || shouldUpdate || (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path))) {
+				this.orderedRoutesToOpen.push({
+					routeId: mainRoute.routeId,
+					viewId: this.config.routerMainViewId,
+					paramKeys: mainRoute.paramKeys,
+					kind: 'main',
+					parentRouteId: this.hasRoot ? '$root' : null,
+					parentViewId: this.hasRoot ? 'root-view' : null,
+					powerViewNodeId: 'root-view',
+					commands: this.engineCommands.buildRouteOpenCommands(
+						mainRoute.routeId, this.config.routerMainViewId, shouldUpdate),
+				});
+			}
+			// Register main route on currentRoutes list
+			this.setMainRouteState({
+				routeId: mainRoute.routeId,
+				paramKeys: mainRoute.paramKeys,
+				route: currentRoutesTree.mainRoute.path,
+				viewId: this.config.routerMainViewId,
+				title: this.routes[mainRoute.routeId].title,
+				data: this.routes[mainRoute.routeId].data,
+				parentRouteId: this.hasRoot ? '$root' : null,
+				parentViewId: this.hasRoot ? 'root-view' : null,
+				powerViewNodeId: 'root-view',
+				kind: 'main',
+			});
+			// Add any main child route to ordered list
+			this.recursivelyAddChildRoute(
+				currentRoutesTree.mainRoute, 'main', mainRoute.powerViewNodeId, mainRoute.routeId, 'main-view', forceRefresh);
+		} else {
+			// otherwise if do not mach a route
+			const newRoute = this.routes.otherwise ? this.routes.otherwise.route : this.config.rootPath;
 			window.location.replace(encodeURI(newRoute));
-		}
-	}
-
-	// Only close the old secundary and hidden views that are not also in the currentRoutes.secundaryRoutes
-	closeOldSecundaryAndHiddenViews({reloading}) {
-		for (const route of this.oldRoutes.secundaryRoutes) {
-			if (!this.currentRoutes.secundaryRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
-			}
-		}
-		for (const route of this.oldRoutes.hiddenRoutes) {
-			if (!this.currentRoutes.hiddenRoutes.find(r=>r.route === route.route)) {
-				this.removeSecundaryOrHiddenView({viewId: route.viewId, routeId: route.id, reloading: reloading});
-			}
-		}
-		// Remove 'modal-open' css class from body if all modals are closed
-		const modals = document.body.getElementsByClassName('pw-backdrop');
-		if (modals.length === 0) {
-			document.body.classList.remove('modal-open');
-		}
-	}
-
-	removeSecundaryOrHiddenView({viewId, routeId, reloading}) {
-		// If this is a volatile route remove it from routes
-		if (!reloading && this.routes[routeId] && this.routes[routeId].isVolatile) {
-			delete this.routes[routeId];
-		}
-		// Remove all view power Objects and events
-		if (this.$powerUi.powerTree.allPowerObjsById[viewId] && this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared']) {
-			this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeElementAndInnersFromPower();
-		}
-		// Remove view node
-		const node = document.getElementById(viewId);
-		node.parentNode.removeChild(node);
-		// Remove custom css of this view if exists
-		this.removeCustomCssNode(viewId);
-
-		// Delete the controller instance of this view if exists
-		if (this.$powerUi.controllers[viewId]) {
-			if (!reloading) {
-				this.removeVolatileViews({viewId: viewId});
-			}
-			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback) {
-				this.$powerUi.controllers[viewId].instance._$closeCurrentRouteCallback();
-			}
-			if(this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.onRouteClose) {
-				this.$powerUi.controllers[viewId].instance.onRouteClose();
-			}
-			delete this.$powerUi.controllers[viewId];
-		}
-	}
-
-	removeMainView({viewId, reloading}) {
-		if (!this.$powerUi.powerTree) {
 			return;
 		}
-		if (!reloading) {
-			this.removeVolatileViews({viewId: viewId});
+	}
+	// Secundary and hidden routes
+	setOtherRoutesAndAddToOrderedRoutesToLoad(routesList, routesListName, kind, setRouteState) {
+		for (const route of routesList) {
+			const currentRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			if (currentRoute) {
+				let forceRefresh = false;
+				// If root has pending commands forces all routes to refresh
+				if (this.engineCommands.pending['$root']) {
+					forceRefresh = true;
+					this.engineCommands.addPendingComand(currentRoute.routeId, {name: 'refresh', value: true});
+				}
+
+				let viewId = this.getVewIdIfRouteExists(route.path, routesListName);
+				const routeIsNew = (viewId === false);
+				const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[currentRoute.routeId] !== undefined);
+				// Load route only if it's a new route
+				if (viewId === false || shouldUpdate || forceRefresh) {
+					// Create route viewId
+					viewId = viewId || _Unique.domID('view');
+					// Add route to ordered list
+					this.orderedRoutesToOpen.push({
+						routeId: currentRoute.routeId,
+						viewId: viewId,
+						paramKeys: currentRoute.paramKeys,
+						kind: kind,
+						parentRouteId: null,
+						parentViewId: null,
+						commands: this.engineCommands.buildRouteOpenCommands(
+							currentRoute.routeId, viewId, shouldUpdate),
+					});
+				}
+				// Register route on currentRoutes list
+				setRouteState({
+					routeId: currentRoute.routeId,
+					paramKeys: currentRoute.paramKeys,
+					route: route.path,
+					viewId: viewId,
+					title: this.routes[currentRoute.routeId].title,
+					data: this.routes[currentRoute.routeId].data,
+					parentRouteId: null,
+					parentViewId: null,
+					kind: kind,
+				});
+				// Add any child route to ordered list
+				this.recursivelyAddChildRoute(
+					route, kind, currentRoute.powerViewNodeId, currentRoute.routeId, (viewId ? viewId : null), forceRefresh);
+			}
+		}
+	}
+
+	setNewRoutesAndbuildOrderedRoutesToLoad() {
+		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
+		// First mach any main route and its children
+		this.setMainRouteAndAddToOrderedRoutesToLoad(currentRoutesTree);
+		// Second mach any secundary route and its children
+		this.setOtherRoutesAndAddToOrderedRoutesToLoad(
+			currentRoutesTree.secundaryRoutes, 'secundaryRoutes', 'secundary', this.setSecundaryRouteState.bind(this));
+		// Third mach any hidden route and its children
+		this.setOtherRoutesAndAddToOrderedRoutesToLoad(
+			currentRoutesTree.hiddenRoutes, 'hiddenRoutes', 'hidden', this.setHiddenRouteState.bind(this));
+	}
+
+	// Render the rootScope if exists and only boostrap after promise returns
+	initRootScopeAndRunEngine() {
+		const $root = this.$powerUi.config.routes.find(r=> r.id === '$root');
+		const openCommands = this.engineCommands.buildRouteOpenCommands('$root', 'root-view', false);
+		const closeCommands = this.engineCommands.buildRouteCloseCommands('$root', 'root-view', false);
+		const commands = Object.assign(openCommands, closeCommands);
+		delete commands.parentView;
+		delete commands.rootView;
+		const loadRoot = {routeId: "$root", viewId: "root-view", paramKeys: null, kind: "root", commands: commands};
+		if ($root) {
+			this.hasRoot = true;
+			this.engine(loadRoot);
+		} else {
+			this.engine();
+		}
+	}
+
+	setDefaultCommands() {
+		if (this.engineCommands.default.close.rootView && this.engineCommands.default.close.rootView.refresh) {
+			// Only refresh when some route changes or closes, but not when opens a secundary route.
+			if (this.previousUrl && this.currentUrl) {
+				const c_secundaryParts = this.currentUrl.split('?');
+				const p_secundaryParts = this.previousUrl.split('?');
+				if (c_secundaryParts.length < p_secundaryParts.length || (c_secundaryParts.length === p_secundaryParts.length && (this.previousUrl !== this.currentUrl))) {
+					this.engineCommands.addPendingComand('$root', {name: 'refresh', value: true});
+				}
+			}
+		}
+	}
+
+	async engine($root) {
+		if (!this.config.phantomMode) {
+			this.addSpinnerAndHideContent('root-view');
+			this.setDefaultCommands();
+		} else {
+			this.removeSpinnerAndShowContent('root-view');
+		}
+		this.engineIsRunning = true;
+		this.orderedRoutesToOpen = $root ? [$root] : [];
+		this.orderedRoutesToClose = [];
+		this.setNewRoutesAndbuildOrderedRoutesToLoad();
+		this.buildOrderedRoutesToClose();
+		this.engineCommands.buildOtherCicleCommands();
+		const abort = await this.resolveWhenListIsPopulated(
+			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
+		if (abort === 'abort') {
+			this.abortCicle();
+			return;
+		}
+		this.clearPhantomRouter();
+		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.initRouteControllerAndRunLoadInOrder, this.orderedRoutesToOpen, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.runControllerInOrder, this.orderedRoutesToOpen, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.loadViewInOrder, this.orderedRoutesToOpen, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.runOnViewLoadInOrder, this.orderedRoutesToOpen, 0, this);
+		this.engineIsRunning = false;
+	}
+
+	// This is the first link in a chain of recursive loop with promises
+	// We are calling recursive functions that may contain promises
+	// When the function detects it's done it calls the this function resolve
+	resolveWhenListIsPopulated(fn, orderedList, index, ctx) {
+		const _promise = new Promise(function(resolve) {
+			const _resolve = resolve;
+			fn(orderedList, index, ctx, _resolve);
+		});
+		return _promise;
+	}
+
+	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx) {
+		const route = orderedRoutesToClose[routeIndex];
+		if (!route) {
+			return;
+		}
+		ctx.removeView(route.viewId);
+		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
+	}
+
+	callNextLinkWhenReady(runInOrder, orderedList, index, ctx, _resolve) {
+		if (ctx.phantomRouter) {
+			ctx.phantomRouter.ready.subscribe(function () {
+				runInOrder(orderedList, index, ctx, _resolve);
+			});
+		} else {
+			runInOrder(orderedList, index, ctx, _resolve);
+		}
+	}
+
+	runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToClose[routeIndex];
+		if (!route) {
+			return	_resolve();
+		}
+		// Run the controller beforeClose
+		if (route.commands.runBeforeClose === true &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
+			if (result && result.then) {
+				result.then(function (response) {
+					ctx.callNextLinkWhenReady(
+						ctx.runBeforeCloseInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					_resolve('abort');
+					if (error) {
+						window.console.log('Error running beforeClose: ', route.routeId, error);
+					}
+				});
+			} else {
+				ctx.runBeforeCloseInOrder(
+					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.runBeforeCloseInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
+	// Run the controller instance for the route
+	initRouteControllerAndRunLoadInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
+		if (!route) {
+			return	_resolve();
+		}
+		if (route.commands.addCtrl) {
+			const $data = ctx.routes[route.routeId].data || {};
+			const ctrl = ctx.routes[route.routeId].ctrl;
+			// Register the controller with $powerUi
+			ctx.$powerUi.controllers[route.viewId] = {
+				component: ctrl,
+				data: $data,
+			};
+			// Instanciate the controller
+			$data.$powerUi = ctx.$powerUi;
+			$data.viewId = route.viewId;
+			$data.routeId = route.routeId;
+			$data.title = ctx.routes[route.routeId].title;
+			ctx.$powerUi.controllers[route.viewId].instance = new ctrl($data);
+			ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
+			ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
+			ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues(
+				{routeId: route.routeId, paramKeys: route.paramKeys}) : {};
+			ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
+		}
+		// Run the controller load
+		if (route.commands.runLoad &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.load) {
+			const loadPromise = ctx.$powerUi.controllers[route.viewId].instance._load(
+				ctx.$powerUi.controllers[route.viewId].data);
+			loadPromise.then(function () {
+				ctx.initRouteControllerAndRunLoadInOrder(
+					orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+			}).catch(function (error) {
+				window.console.log('Error load CTRL: ', error);
+			});
+		} else {
+			ctx.initRouteControllerAndRunLoadInOrder(
+				orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
+	runControllerInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
+		if (!route) {
+			return	_resolve();
 		}
 
-		// Remove custom css of this view if exists
-		this.removeCustomCssNode(viewId);
-
-		// delete all inner elements and events from this.allPowerObjsById[id]
-		this.$powerUi.powerTree.allPowerObjsById[viewId]['$shared'].removeInnerElementsFromPower();
+		if (route.commands.runCtrl &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.ctrl) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.ctrl(
+				ctx.$powerUi.controllers[route.viewId].data);
+			if (result && result.then) {
+				result.then(function () {
+					ctx.callNextLinkWhenReady(
+						ctx.runControllerInOrder, orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					window.console.log('Error running CTRL: ', error);
+				});
+			} else {
+				ctx.runControllerInOrder(
+					orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.runControllerInOrder(
+				orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+		}
 	}
+
+	runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToClose[routeIndex];
+		if (!route) {
+			return _resolve();
+		}
+
+		// Delete the controller instance of this view if exists
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback) {
+			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback();
+		}
+		if (ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance) {
+			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
+
+			if (result && result.then) {
+				result.then(function () {
+					if (route.commands.removeCtrl) {
+						ctx.removeVolatileViews(route.viewId);
+						delete ctx.$powerUi.controllers[route.viewId];
+					}
+					ctx.callNextLinkWhenReady(
+						ctx.runOnRouteCloseAndRemoveController, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					window.console.log('Error running onRouteClose: ', route.routeId, error);
+				});
+			} else {
+				if (route.commands.removeCtrl) {
+					ctx.removeVolatileViews(route.viewId);
+					delete ctx.$powerUi.controllers[route.viewId];
+				}
+				ctx.runOnRouteCloseAndRemoveController(
+					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
 	// Dialogs and modals with a hidden route opened throw a widget service are volatile routes
 	// One route are create for each instante, so we need remove it when the controller are distroyed
-	removeVolatileViews({viewId}) {
+	removeVolatileViews(viewId) {
 		if (this.$powerUi.controllers[viewId] && this.$powerUi.controllers[viewId].instance && this.$powerUi.controllers[viewId].instance.volatileRouteIds && this.$powerUi.controllers[viewId].instance.volatileRouteIds.length) {
 			for (const volatileId of this.$powerUi.controllers[viewId].instance.volatileRouteIds) {
 				delete this.routes[volatileId];
 			}
 		}
+	}
+
+	runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
+		if (!route) {
+			return _resolve();
+		}
+
+		if (route.commands.runOnViewLoad &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance) {
+			if (ctx.$powerUi.controllers[route.viewId].instance.onViewLoad) {
+				const result = ctx.$powerUi.controllers[route.viewId].instance.onViewLoad(
+					ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
+				if (result && result.then) {
+					result.then(function () {
+						ctx.afterOnViewLoad(ctx, route);
+						ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+					}).catch(function (error) {
+						window.console.log('Error running onViewLoad: ', route.routeId, error);
+					});
+				} else {
+					ctx.afterOnViewLoad(ctx, route);
+					ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+				}
+			} else {
+				ctx.afterOnViewLoad(ctx, route);
+				ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
+	afterOnViewLoad(ctx, route) {
+		if (ctx.$powerUi.controllers[route.viewId].instance._onViewLoad) {
+			ctx.$powerUi.controllers[route.viewId].instance._onViewLoad(
+				ctx.$powerUi.powerTree.allPowerObjsById[route.viewId].$shared.element); // passing the view element
+		}
+	}
+
+	removeView(viewId) {
+		if (!this.$powerUi.powerTree) {
+			return;
+		}
+		// Remove custom css of this view if exists
+		this.removeCustomCssNode(viewId);
+
+		const powerViewNode = document.getElementById(viewId);
+		// delete all inner elements and events from this.allPowerObjsById[id]
+		if (this.$powerUi.powerTree.allPowerObjsById[viewId] &&
+			this.$powerUi.powerTree.allPowerObjsById[viewId].$shared) {
+			if (viewId === 'main-view') {
+				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
+			} else if (viewId === 'root-view') {
+				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeInnerElementsFromPower();
+			} else {
+				this.$powerUi.powerTree.allPowerObjsById[viewId].$shared.removeElementAndInnersFromPower(powerViewNode)
+			}
+		}
+		// Remove the node it self if not main-view
+		if (viewId !== 'main-view' && viewId !== 'root-view' && powerViewNode) {
+			powerViewNode.parentNode.removeChild(powerViewNode);
+		}
+
+		// Remove 'modal-open' css class from body if all modals are closed
+		const modals = document.body.getElementsByClassName('pw-backdrop');
+		if (modals && modals.length === 0) {
+			document.body.classList.remove('modal-open');
+		}
+	}
+
+	buildOrderedRoutesToClose() {
+		let forceRefresh = false;
+		// If root has pending commands forces all routes to refresh
+		if (this.engineCommands.pending['$root']) {
+			forceRefresh = true;
+			this.engineCommands.addPendingComand(this.oldRoutes.id, {name: 'refresh', value: true});
+		}
+		// Will keep the route and only apply commands
+		const routeIsNew = (this.oldRoutes.id !== this.currentRoutes.id);
+		const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[this.oldRoutes.id] !== undefined);
+		// Add the old main route if have one
+		if (forceRefresh || shouldUpdate || (this.oldRoutes.id && (this.oldRoutes.route !== this.currentRoutes.route))) {
+			this.orderedRoutesToClose.unshift({
+				routeId: this.oldRoutes.id,
+				viewId: this.oldRoutes.viewId,
+				params: this.oldRoutes.params,
+				kind: 'main',
+				parentRouteId: this.oldRoutes.parentRouteId,
+				parentViewId: this.oldRoutes.parentViewId,
+				powerViewNodeId: 'root-view',
+				commands: this.engineCommands.buildRouteCloseCommands(
+					this.oldRoutes.id, this.oldRoutes.viewId, shouldUpdate),
+			});
+		}
+		// Add old child route from main route if have some
+		this.markToRemoveRouteViews('mainChildRoutes', 'child', forceRefresh);
+		// Add old child route and secundary routes if have some
+		this.markToRemoveRouteViews('secundaryChildRoutes', 'child', forceRefresh);
+		this.markToRemoveRouteViews('secundaryRoutes', 'secundary', forceRefresh);
+		// Add old child route from hidden routes if have some
+		this.markToRemoveRouteViews('hiddenChildRoutes', 'child', forceRefresh);
+		this.markToRemoveRouteViews('hiddenRoutes', 'hidden', forceRefresh);
+	}
+
+	markToRemoveRouteViews(routesListName, kind, forceRefresh) {
+		for (const old of this.oldRoutes[routesListName]) {
+			const current = this.currentRoutes[routesListName].find(r=>r.id === old.id && r.viewId === old.viewId) || null;
+			// Will keep the route and only apply commands
+			const shouldUpdate = (current !== null && this.engineCommands.pending[old.id] !== undefined);
+			if (forceRefresh || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
+				this.orderedRoutesToClose.unshift({
+					routeId: old.id,
+					viewId: old.viewId,
+					params: old.params,
+					kind: kind,
+					parentRouteId: old.parentRouteId,
+					parentViewId: old.parentViewId,
+					powerViewNodeId: this.routes[old.parentRouteId] ? this.routes[old.parentRouteId].powerViewNodeId : null,
+					commands: this.engineCommands.buildRouteCloseCommands(old.id, old.viewId, shouldUpdate),
+				});
+			}
+		}
+	}
+
+	getVewIdIfRouteExists(route, listName) {
+		const oldRoute = this.oldRoutes[listName].find(r=>r && r.route === route);
+		const newRoute = this.currentRoutes[listName].find(r=>r && r.route === route);
+		if (!oldRoute && !newRoute) {
+			return false;
+		} else {
+			return oldRoute ? oldRoute.viewId : newRoute.viewId;
+		}
+	}
+
+	addNewViewNode(viewId, routeViewNodeId) {
+		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
+		const newViewNode = document.createElement('div');
+		newViewNode.id = viewId;
+		newViewNode.classList.add('power-view');
+		const viewNode = document.getElementById(routeViewNodeId);
+		viewNode.appendChild(newViewNode);
+	}
+
+	loadViewInOrder(orderedRoutesToOpen, routeIndex, ctx, _resolve) {
+		const route = orderedRoutesToOpen[routeIndex];
+		if (!route) {
+			ctx.$powerUi.callInitViews();
+			if (!ctx.config.phantomMode) {
+				ctx.removeSpinnerAndShowContent('root-view');
+			}
+			return _resolve();
+		}
+		if (route.commands.addView) {
+			if (route.kind === 'secundary' || route.kind === 'hidden') {
+				ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
+			} else if (route.kind === 'child') {
+				// Add the new node inside it's main route power-view node
+				ctx.addNewViewNode(route.viewId, route.powerViewNodeId);
+			}
+
+			ctx.loadRoute({
+				routeId: route.routeId,
+				paramKeys: route.paramKeys,
+				viewId: route.viewId,
+				ctrl: ctx.routes[route.routeId].ctrl,
+				title: ctx.routes[route.routeId].title,
+				data: ctx.routes[route.routeId].data,
+				loadViewInOrder: ctx.loadViewInOrder,
+				orderedRoutesToOpen: orderedRoutesToOpen,
+				routeIndex: routeIndex + 1,
+				ctx: ctx,
+				_resolve: _resolve,
+			});
+		} else {
+			ctx.loadViewInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+		}
+	}
+
+	matchRouteAndGetIdAndParamKeys(route) {
+		let found = false;
+		for (const routeId of Object.keys(this.routes || {})) {
+			// Only run if not otherwise or if the otherwise have a template
+			if (routeId !== 'otherwise') {
+				// If the route have some parameters get it /some_page/:page_id/syfy/:title
+				const paramKeys = this.getRouteParamKeys(this.routes[routeId].route);
+				let regEx = this.buildRegExPatternToRoute(routeId, paramKeys);
+				// our route logic is true,
+				const checkRoute = this.config.rootPath + route.path;
+				if (checkRoute.match(regEx)) {
+					if (this.routes[routeId] && this.routes[routeId].title) {
+						document.title = this.routes[routeId].title;
+					}
+
+					if (routeId !== 'otherwise') {
+						found = {routeId: routeId, paramKeys: paramKeys, powerViewNodeId: this.routes[routeId].powerViewNodeId || null};
+					}
+					break;
+				}
+			}
+		}
+
+		return found;
 	}
 
 	removeCustomCssNode(viewId) {
@@ -5095,27 +5460,8 @@ class Router {
 		}
 	}
 
-	loadRoute({routeId, paramKeys, viewId, ctrl, title}) {
+	loadRoute({routeId, paramKeys, viewId, ctrl, title, data, loadViewInOrder, orderedRoutesToOpen, routeIndex, ctx, _resolve}) {
 		const _viewId = this.routes[routeId].viewId || viewId;
-		if (ctrl) {
-			// Register the controller with $powerUi
-			this.$powerUi.controllers[_viewId] = {
-				component: ctrl.component,
-				params: ctrl.params,
-			};
-			// Instanciate the controller
-			const $params = ctrl.params || {};
-			$params.$powerUi = this.$powerUi;
-			$params.viewId = _viewId;
-			$params.routeId = routeId;
-			$params.title = title;
-			this.$powerUi.controllers[_viewId].instance = new ctrl.component($params);
-			this.$powerUi.controllers[_viewId].instance._viewId = _viewId;
-			this.$powerUi.controllers[_viewId].instance._routeId = routeId;
-			this.$powerUi.controllers[_viewId].instance._routeParams = paramKeys ? this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys}) : {};
-			this.$powerUi.controllers[_viewId].instance.$root = (this.$powerUi.controllers['root-view'] && this.$powerUi.controllers['root-view'].instance) ? this.$powerUi.controllers['root-view'].instance : null;
-		}
-
 		// If have a template to load let's do it
 		if (this.routes[routeId].template && !this.config.noRouterViews) {
 			// If user defines a custom viewId to this route, but the router don't find it alert the user
@@ -5130,6 +5476,11 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
+					loadViewInOrder: loadViewInOrder,
+					orderedRoutesToOpen: orderedRoutesToOpen,
+					routeIndex: routeIndex,
+					ctx: ctx,
+					_resolve: _resolve,
 				});
 			} else if (this.routes[routeId].templateComponent) {
 				this.$powerUi.loadTemplateComponent({
@@ -5140,6 +5491,11 @@ class Router {
 					routes: this.routes,
 					title: title,
 					$ctrl: this.$powerUi.controllers[_viewId].instance,
+					loadViewInOrder: loadViewInOrder,
+					orderedRoutesToOpen: orderedRoutesToOpen,
+					routeIndex: routeIndex,
+					ctx: ctx,
+					_resolve: _resolve,
 				});
 			} else {
 				this.$powerUi.loadTemplate({
@@ -5149,38 +5505,57 @@ class Router {
 					routeId: routeId,
 					routes: this.routes,
 					title: title,
+					loadViewInOrder: loadViewInOrder,
+					orderedRoutesToOpen: orderedRoutesToOpen,
+					routeIndex: routeIndex,
+					ctx: ctx,
+					_resolve: _resolve,
 				});
 			}
 		}
-		// If have a callback run it
-		if (this.routes[routeId].callback) {
-			return this.routes[routeId].callback.call(this, this.routes[routeId]);
-		}
-	}
-	loadSecundaryOrHiddenRoute({routeId, paramKeys, routeViewId, ctrl, title}) {
-		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
-		const newViewNode = document.createElement('div');
-		const viewId = getIdAndCreateIfDontHave(newViewNode);
-		newViewNode.id = viewId;
-		newViewNode.classList.add('power-view');
-		document.getElementById(routeViewId).appendChild(newViewNode);
-		// Load the route inside the new element view
-		this.loadRoute({
-			title: title,
-			routeId: routeId,
-			paramKeys: paramKeys,
-			viewId: viewId,
-			ctrl: this.routes[routeId].ctrl,
-			title: this.routes[routeId].title,
-		});
-		return viewId;
 	}
 
 	routeKind(routeId) {
 		return this.routes[routeId].hidden ? 'hr' : 'sr';
 	}
 
+	buildNewHash(oldHash, fragment) {
+		const splitedChild = fragment.split('&ch=');
+		const splitedOld = oldHash.split('?');
+		const splitedFragment = fragment.split('?');
+		// If the fragment is already in old hash do not change it
+		if (splitedOld.includes(splitedFragment[1])) {
+			return oldHash;
+		} else if (splitedChild.length > 1 && oldHash.includes(splitedChild[0])) {
+			// Secundary or hidden route with a new child must be replaced
+			const newEntry = splitedChild[0].split('?')[1];
+			let index = 0;
+			for (const item of splitedOld) {
+				const oldMain = item.split('&ch=')[0];
+				if (oldMain === newEntry) {
+					splitedOld[index] = splitedFragment[1];
+					return splitedOld.join('?');
+				}
+				index = index + 1;
+			}
+		} else {
+			return oldHash + fragment;
+		}
+	}
+
+	closePhantomRoute(routeId, ctx) {
+		this.phantomRouter.closePhantomRoute(routeId, ctx);
+	}
+
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+		if (this.engineIsRunning) {
+			const routes = [this.routes[routeId]];
+			const newRouter = new PhantomRouter({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
+			this.phantomRouter = newRouter;
+			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title});
+			return;
+		}
+
 		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
@@ -5191,19 +5566,21 @@ class Router {
 			}
 		}
 
-		if (this.routeExists({routeId, params})) {
+		if (this.routeNotExists({routeId, params})) {
 			return;
 		} else {
 			// Close the current view and open the route in a new secundary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
-				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
-				const newRoute = oldHash + `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
+				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title});
 			// Close all secundary views and open the route in the main view
 			} else {
@@ -5254,16 +5631,21 @@ class Router {
 
 	buildHash({routeId, params, paramKeys}) {
 		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
-
 		if (params && paramKeys.length) {
 			for (const key of paramKeys) {
-				route = route.replace(`:${key}`, params[key]);
+				if (params[key]) {
+					route = route.replace(`:${key}`, params[key]);
+				}
 			}
+		}
+		// If it's a child view recursively get the main view route
+		if (this.routes[routeId].mainRouteId) {
+			route = `${this.buildHash({routeId: this.routes[routeId].mainRouteId, params: params, paramKeys: paramKeys})}&ch=${route}`;
 		}
 		return route;
 	}
 
-	routeExists({routeId, params}) {
+	routeNotExists({routeId, params}) {
 		let exists = false;
 		// Test the main route
 		if (routeId === this.currentRoutes.id) {
@@ -5303,17 +5685,20 @@ class Router {
 				}
 			}
 		}
-
-	return exists;
+		return exists;
 	}
 
-	setMainRouteState({routeId, paramKeys, route, viewId, title}) {
+	setMainRouteState({routeId, paramKeys, route, viewId, title, data, parentRouteId, parentViewId}) {
 		// Register current route id
 		this.currentRoutes.id = routeId;
 		this.currentRoutes.route = route.replace(this.config.rootPath, ''); // remove #!/
 		this.currentRoutes.viewId = this.routes[routeId].viewId || viewId;
 		this.currentRoutes.isMainView = true;
+		this.currentRoutes.kind = 'main';
 		this.currentRoutes.title = title;
+		this.currentRoutes.data = data;
+		this.currentRoutes.parentRouteId = parentRouteId;
+		this.currentRoutes.parentViewId = parentViewId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
 			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
@@ -5321,7 +5706,7 @@ class Router {
 			this.currentRoutes.params = [];
 		}
 	}
-	setSecundaryOrHiddenRouteState({routeId, paramKeys, route, viewId, title}) {
+	setOtherRouteState({routeId, paramKeys, route, viewId, title, data, parentRouteId, parentViewId, kind}) {
 		const newRoute = {
 			title: title,
 			isMainView: false,
@@ -5329,6 +5714,10 @@ class Router {
 			id: '',
 			route: route.replace(this.config.rootPath, ''), // remove #!/
 			viewId: this.routes[routeId].viewId || viewId,
+			data: data || null,
+			parentRouteId: parentRouteId,
+			parentViewId: parentViewId,
+			kind: kind,
 		};
 		// Register current route id
 		newRoute.id = routeId;
@@ -5337,6 +5726,26 @@ class Router {
 			newRoute.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, route: route});
 		}
 		return newRoute;
+	}
+	setSecundaryRouteState(params) {
+		this.currentRoutes.secundaryRoutes.push(
+			this.setOtherRouteState(params));
+	}
+	setHiddenRouteState(params) {
+		this.currentRoutes.hiddenRoutes.push(
+			this.setOtherRouteState(params));
+	}
+	setChildRouteState(params) {
+		if (params.mainKind === 'main') {
+			this.currentRoutes.mainChildRoutes.push(
+				this.setOtherRouteState(params));
+		} else if (params.mainKind === 'secundary') {
+			this.currentRoutes.secundaryChildRoutes.push(
+				this.setOtherRouteState(params));
+		} else {
+			this.currentRoutes.hiddenChildRoutes.push(
+				this.setOtherRouteState(params));
+		}
 	}
 
 	extractRouteParts(path) {
@@ -5394,14 +5803,51 @@ class Router {
 	}
 
 	getOpenedRoute({routeId, viewId}) {
-		if (this.currentRoutes.id === routeId && this.currentRoutes.viewId) {
-			return this.currentRoutes;
+		return this.getRouteOnList({
+			routeId: routeId,
+			viewId: viewId,
+			listName: 'currentRoutes',
+		});
+	}
+
+	getOldRoute({routeId, viewId}) {
+		return this.getRouteOnList({
+			routeId: routeId,
+			viewId: viewId,
+			listName: 'oldRoutes',
+		});
+	}
+
+	getRouteOnList({routeId, viewId, listName}) {
+		if (this[listName].id === routeId && this[listName].viewId) {
+			return this[listName];
 		} else {
-			for (const route of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
+			for (const route of this[listName].mainChildRoutes) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
 			}
+			for (const route of this[listName].secundaryRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			for (const route of this[listName].secundaryChildRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			for (const route of this[listName].hiddenRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			for (const route of this[listName].hiddenChildRoutes) {
+				if (route.id === routeId && route.viewId === viewId) {
+					return route;
+				}
+			}
+			return null;
 		}
 	}
 
@@ -5434,6 +5880,52 @@ class Router {
 	getParamValue(key) {
 		const param = this.currentRoutes.params.find(p => p.key === key);
 		return param ? param.value : null;
+	}
+}
+
+
+class PhantomRouter extends Router {
+	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+		this.ready = new UEvent('phantomRouter');
+		const newRoute = {
+			routeId: routeId,
+			title: title,
+			isMainView: false,
+			kind: 'hidden',
+			params: params,
+			id: routeId,
+			route: routeId, // the route and routeId is the same
+			viewId: _Unique.domID('view'),
+			data: null,
+		};
+		const route = this.setOtherRouteState(newRoute);
+		this.currentRoutes.hiddenRoutes = [];
+		this.currentRoutes.hiddenRoutes.push(route);
+		this.routes[routeId].viewId = newRoute.viewId;
+
+		const openCommands = this.engineCommands.buildRouteOpenCommands(routeId, newRoute.viewId, false);
+		const closeCommands = this.engineCommands.buildRouteCloseCommands(routeId, newRoute.viewId, false);
+		const commands = Object.assign(openCommands, closeCommands);
+		delete commands.parentView;
+		delete commands.rootView;
+		// Add route to ordered list
+		const $fakeRoot = {
+			routeId: routeId,
+			viewId: newRoute.viewId,
+			paramKeys: '',
+			kind: 'hidden',
+			parentRouteId: null,
+			parentViewId: null,
+			commands: commands,
+		};
+		this.engine($fakeRoot);
+	}
+
+	closePhantomRoute(routeId, ctx) {
+		const currentRoute = this.routes[routeId];
+		this.oldRoutes.hiddenRoutes.push(currentRoute);
+		this.engine();
+		this.ready.broadcast();
 	}
 }
 
@@ -5486,7 +5978,28 @@ class PowerInterpolation {
 			// The scope controller of the view of this element
 			scope = (view && view.id && this.$powerUi.controllers[view.id]) ? this.$powerUi.controllers[view.id].instance : false;
 		}
+		// console.log('COMPILE', scope);
+		if (template.includes('power-view')) {
+			const tmp = document.createElement("div");
+			tmp.innerHTML = template;
+			this.interpolateInOrder(tmp);
+			template = tmp.innerHTML;
+		}
 		return this.replaceInterpolation(template, scope);
+	}
+	// Interpolate views and root scope in the right order
+	interpolateInOrder(node) {
+		const powerViews = node ? node.getElementsByClassName('power-view') : document.getElementsByClassName('power-view');
+		// Interpolate using view controller scope
+		let index = powerViews.length - 1;
+		while (index >= 0) {
+			const view = powerViews[index];
+			if (this.$powerUi.controllers[view.id] && this.$powerUi.controllers[view.id].instance) {
+				const scope = this.$powerUi.controllers[view.id].instance;
+				view.innerHTML = this.replaceInterpolation(view.innerHTML, scope);
+			}
+			index = index - 1;
+		}
 	}
 	// Add the {{ }} to pow interpolation values
 	getDatasetResult(template, scope) {
@@ -7977,13 +8490,20 @@ class PowerWidget extends PowerController {
 export { PowerWidget };
 
 class PowerDialogBase extends PowerWidget {
-	constructor({$powerUi, noEsc}) {
+	constructor({$powerUi, noEsc, promise}) {
 		super({$powerUi: $powerUi});
+		const self = this;
+		if (promise) {
+			this._promise = new Promise(function (resolve, reject) {
+				self._resolve = resolve;
+				self._reject = reject;
+			});
+		}
 
 		if (noEsc) {
 			return;
 		}
-		const self = this;
+
 		this._closeWindow = function() {
 			self._cancel();
 		}
@@ -7992,37 +8512,45 @@ class PowerDialogBase extends PowerWidget {
 	}
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
-		if (this.onCancel) {
+		if (this.onCancel && this._promise) {
+			const commands = this.onCancel(this._resolve, this._reject, ...args) || [];
 			const self = this;
-			new Promise(function (resolve, reject) {
-				self.onCancel(resolve, reject, ...args);
-			}).then(
-				this.closeCurrentRoute.bind(this)
-			).catch(()=> (this.onCancelError) ? this.onCancelError() : null);
+			this._promise.then(function () {
+				self.closeCurrentRoute({commands: commands});
+			}).catch(function (error) {
+				self.closeCurrentRoute();
+			});
+		} else if (this.onCancel) {
+			const commands = this.onCancel(...args) || [];
+			this.closeCurrentRoute({commands: commands});
 		} else {
 			this.closeCurrentRoute();
 		}
 	}
 	// Allow async calls to implement onCommit
 	_commit(...args) {
-		if (this.onCommit) {
+		if (this.onCommit && this._promise) {
+			const commands = this.onCommit(this._resolve, this._reject,...args) || [];
 			const self = this;
-			new Promise(function (resolve, reject) {
-				self.onCommit(resolve, reject, ...args);
-			}).then(
-				this.closeCurrentRoute.bind(this)
-			).catch(()=> (this.onCommitError) ? this.onCommitError() : null);
+			this._promise.then(function () {
+				self.closeCurrentRoute({commands: commands});
+			}).catch(function (error) {
+				self.closeCurrentRoute();
+			});
+		} else if (this.onCommit) {
+			const commands = this.onCommit(...args) || [];
+			this.closeCurrentRoute({commands: commands});
 		} else {
 			this.closeCurrentRoute();
 		}
 	}
 
-	closeCurrentRoute(callback) {
+	closeCurrentRoute({commands=[], callback=null}={}) {
 		// Only close if is opened, if not just remove the event
 		const view = document.getElementById(this._viewId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
 		if (view) {
-			super.closeCurrentRoute(callback);
+			super.closeCurrentRoute({commands: commands, callback: callback});
 		} else {
 			// If not opened, call the next in the queue
 			this.$powerUi._events['Escape'].broadcast();
@@ -8110,8 +8638,8 @@ class PowerDialogBase extends PowerWidget {
 export { PowerDialogBase };
 
 class PowerDialog extends PowerDialogBase {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 	}
 
 	template({$title}) {
@@ -8124,34 +8652,37 @@ class PowerDialog extends PowerDialogBase {
 }
 
 class PowerAlert extends PowerDialog {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.commitBt = true;
 	}
 }
 
 class PowerConfirm extends PowerDialog {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.commitBt = true;
 		this.cancelBt = true;
 	}
 }
 
 class PowerYesNo extends PowerDialog {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.commitBt = true;
 		this.noBt = true;
 		this.cancelBt = true;
 	}
 }
 
-function wrapFunctionInsideDialog({controller, kind, params}) {
+function wrapFunctionInsideDialog({controller, kind, params, resolve, reject, _promise}) {
 	class _Alert extends PowerAlert {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
+			this._promise = _promise;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -8162,8 +8693,11 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 
 	class _Confirm extends PowerConfirm {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
+			this._promise = _promise;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -8174,8 +8708,11 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 
 	class _YesNo extends PowerYesNo {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
+			this._promise = _promise;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -8186,8 +8723,11 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 
 	class _Modal extends PowerModal {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
+			this._promise = _promise;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -8197,8 +8737,11 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 	}
 	class _Window extends PowerWindow {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
+			this._promise = _promise;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -8209,8 +8752,11 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 
 	class _WindowIframe extends PowerWindowIframe {
 		constructor({$powerUi}) {
-			super({$powerUi: $powerUi});
+			super({$powerUi: $powerUi, promise: false});
 			this.ctrl = controller;
+			this._resolve = resolve;
+			this._reject = reject;
+			this._promise = _promise;
 			if (params) {
 				for (const key of Object.keys(params || {})) {
 					this[key] = params[key];
@@ -8237,8 +8783,8 @@ function wrapFunctionInsideDialog({controller, kind, params}) {
 export { PowerDialog, PowerAlert, PowerConfirm };
 
 class PowerModal extends PowerDialogBase {
-	constructor({$powerUi, classList}) {
-		super({$powerUi: $powerUi});
+	constructor({$powerUi, classList, promise=false}) {
+		super({$powerUi: $powerUi, promise: promise});
 		this.isModal = true;
 
 		if (classList) {
@@ -8312,8 +8858,8 @@ class PowerTreeTemplate {
 // export { PowerTreeTemplate };
 
 class PowerWindow extends PowerDialogBase {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi, noEsc: true});
+	constructor({$powerUi, promise=false}) {
+		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
 
 		// Add it to _resizeWindow allow remove the listner
@@ -8578,8 +9124,8 @@ class PowerWindow extends PowerDialogBase {
 }
 
 class PowerWindowIframe extends PowerWindow {
-	constructor({$powerUi}) {
-		super({$powerUi: $powerUi, noEsc: true});
+	constructor({$powerUi, promise=true}) {
+		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
 	}
 
