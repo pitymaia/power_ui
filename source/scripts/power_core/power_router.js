@@ -243,7 +243,7 @@ class Router {
 		this.oldRoutesBkp = getEmptyRouteObjetc();
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
-		this.phantomRouters = {};
+		this.phantomRouter = null;
 		this.engineCommands = new EngineCommands(this);
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
@@ -344,14 +344,13 @@ class Router {
 		// Restore routes, location and stop engine;
 		this.currentRoutes = this.cloneRoutes({source: this.oldRoutes});
 		this.oldRoutes = this.cloneRoutes({source: this.oldRoutesBkp});
-		this.clearPhantomRouters();
+		this.clearPhantomRouter();
 		window.location.href = this.previousUrl;
 	}
 
-	clearPhantomRouters() {
-		for (const index of Object.keys(this.phantomRouters)) {
-			delete this.phantomRouters[index];
-		}
+	clearPhantomRouter() {
+		delete this.phantomRouter;
+		this.phantomRouter = null;
 	}
 
 	cloneRouteList(dest, source, listName) {
@@ -707,7 +706,7 @@ class Router {
 			this.abortCicle();
 			return;
 		}
-		this.clearPhantomRouters();
+		this.clearPhantomRouter();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
@@ -742,6 +741,16 @@ class Router {
 		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
 	}
 
+	callNextLinkWhenReady(runInOrder, orderedList, index, ctx, _resolve) {
+		if (ctx.phantomRouter) {
+			ctx.phantomRouter.ready.subscribe(function () {
+				runInOrder(orderedList, index, ctx, _resolve);
+			});
+		} else {
+			runInOrder(orderedList, index, ctx, _resolve);
+		}
+	}
+
 	runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
@@ -755,8 +764,8 @@ class Router {
 			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
 			if (result && result.then) {
 				result.then(function (response) {
-					ctx.runBeforeCloseInOrder(
-						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+					ctx.callNextLinkWhenReady(
+						ctx.runBeforeCloseInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					_resolve('abort');
 					if (error) {
@@ -831,8 +840,8 @@ class Router {
 				ctx.$powerUi.controllers[route.viewId].data);
 			if (result && result.then) {
 				result.then(function () {
-					ctx.runControllerInOrder(
-						orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
+					ctx.callNextLinkWhenReady(
+						ctx.runControllerInOrder, orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					window.console.log('Error running CTRL: ', error);
 				});
@@ -868,8 +877,8 @@ class Router {
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
 					}
-					ctx.runOnRouteCloseAndRemoveController(
-						orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+					ctx.callNextLinkWhenReady(
+						ctx.runOnRouteCloseAndRemoveController, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					window.console.log('Error running onRouteClose: ', route.routeId, error);
 				});
@@ -1195,11 +1204,15 @@ class Router {
 		}
 	}
 
+	closePhantomRoute(routeId, ctx) {
+		this.phantomRouter.closePhantomRoute(routeId, ctx);
+	}
+
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
 		if (this.engineIsRunning) {
 			const routes = [this.routes[routeId]];
 			const newRouter = new PhantomRouter({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
-			this.phantomRouters[routeId] = newRouter;
+			this.phantomRouter = newRouter;
 			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title});
 			return;
 		}
@@ -1534,6 +1547,7 @@ class Router {
 
 class PhantomRouter extends Router {
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+		this.ready = new UEvent('phantomRouter');
 		const newRoute = {
 			routeId: routeId,
 			title: title,
@@ -1572,5 +1586,6 @@ class PhantomRouter extends Router {
 		const currentRoute = this.routes[routeId];
 		this.oldRoutes.hiddenRoutes.push(currentRoute);
 		this.engine();
+		this.ready.broadcast();
 	}
 }

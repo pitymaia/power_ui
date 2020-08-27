@@ -1518,7 +1518,7 @@ class RootScope extends PowerController {
 
 	changeAndRefresh() {
 		this.changeCats();
-		this.refresh(this._viewId);
+		this.refresh('$root');
 	}
 }
 

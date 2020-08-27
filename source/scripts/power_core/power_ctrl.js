@@ -71,8 +71,8 @@ class PowerController extends PowerScope {
 	}
 
 	closeCurrentRoute({callback, commands}) {
-		if (this.router.engineIsRunning || this.router.phantomRouters[this._routeId]) {
-			this.router.phantomRouters[this._routeId].closePhantomRoute(this._routeId, this);
+		if (this.router.engineIsRunning || this.router.phantomRouter) {
+			this.router.closePhantomRoute(this._routeId, this);
 			return;
 		}
 		// Save the callback to run after view is removed
