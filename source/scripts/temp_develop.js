@@ -327,14 +327,25 @@ class SecundaryChildMainCtrl extends PowerController {
 }
 
 class SecundaryChildOfChildTemplate extends PowerTemplate {
-	template(resolve, reject) {
+	async css(resolve, reject) {
+		const _css = await this.import('css/tmp_dev_snipet.css');
+		resolve(_css);
+	}
+
+	async template(resolve, reject) {
 		// console.log('This a Secundary child of a child template');
-		resolve(`<div>
+		const header = await this.import('header.html');
+		const footer = await this.import('footer.html');
+
+		const content = `<div>
 			<h1>This is the CHIL of a CHILD</h1>
 			<div>And I Love it A LOT!!!!</div>
 			<button id="childofchild2" class="pw-btn-warning" data-pow-event="" onclick="openChildOfChild2()" type="button">
 				<span class="pw-icon icon-disc-back"></span><span class="pw-label">Open another</span></button>
-		</div>`);
+		</div>`;
+
+		const page = header + content + footer;
+		resolve(page);
 	}
 }
 
@@ -354,13 +365,24 @@ class SecundaryChildOfChildCtrl extends PowerController {
 }
 
 class SecundaryChildOfChildTemplate2 extends PowerTemplate {
-	template(resolve, reject) {
-		// console.log('This a Secundary child of a child template 2');
-		resolve(`<div>
+	async css(resolve, reject) {
+		const _css = await this.import('css/tmp_dev_snipet.css');
+		resolve(_css);
+	}
+
+	async template(resolve, reject) {
+		const header = await this.import('header.html');
+		const footer = await this.import('footer.html');
+
+		const content = `<div>
 			<h1>This is the CHIL of a CHILD 2</h1>
 			<div>This is a lot of work to do...</div>
 			<h1>On scope: {{ pity }}</h1>
-		</div>`);
+		</div>`;
+
+		const page = header + content + footer;
+
+		resolve(page);
 	}
 }
 

@@ -23,6 +23,23 @@ class PowerTemplate extends PowerScope {
 		return new Promise(this.template.bind(this));
 	}
 
+	import(filePath) {
+		const self = this;
+		return new Promise(function (resolve, reject) {
+			self.$powerUi.request({
+					url: filePath,
+					body: {},
+					method: 'GET',
+					status: 'Loading file',
+			}).then(function (response) {
+				resolve(response);
+			}).catch(function (error) {
+				window.console.log('Error importing file:', error);
+				reject(error);
+			});
+		});
+	}
+
 	appendCss() {
 		const head = document.getElementsByTagName('head')[0];
 		let style = document.createElement('style');
