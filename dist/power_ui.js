@@ -5592,6 +5592,7 @@ class Router {
 		} else if (this.engineIsRunning && routeKind !== 'hr') {
 			const self = this;
 			this.cicleEnds.subscribe(function () {
+				console.log('SUBSCRIBED');
 				self.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
 			});
 		}
