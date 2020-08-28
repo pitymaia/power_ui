@@ -77,7 +77,7 @@ class PowerController extends PowerScope {
 		}
 		// Save the callback to run after view is removed
 		if (callback) {
-			this._$closeCurrentRouteCallback = callback;
+			this.router.pendingCallbacks.push(callback.bind(this));
 		}
 		// Save the callback to run after view is removed
 		if (commands.length) {

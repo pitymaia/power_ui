@@ -236,7 +236,16 @@ class SecundaryMainCtrl extends PowerModal {
 	}
 
 	onCancel() {
-		return [{'power-only': {refresh: true}}];
+		this.closeCurrentRoute({
+			commands: [{'power-only': {refresh: true}}],
+			callback: function () {
+				console.log('CALLBACK IS HERE!!!!', this.getMainvalue());
+				this.$service('widget').alert({
+					title: 'The route has closed',
+					template: '<p>The secondary route closed!</p>',
+				});
+			},
+		})
 	}
 
 	openChild() {

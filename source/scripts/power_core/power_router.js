@@ -109,7 +109,6 @@ class EngineCommands {
 			this.pending[routeId] = {};
 		}
 		this.pending[routeId][command.name] = command.value;
-		console.log('this.pending[routeId]', this.pending[routeId]);
 	}
 
 	addCommands(commands) {
@@ -253,6 +252,7 @@ class Router {
 		this.$powerUi = powerUi;
 		this.routes = {};
 		this.routeData = {};
+		this.pendingCallbacks = [];
 		this.oldRoutesBkp = getEmptyRouteObjetc();
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
@@ -730,6 +730,13 @@ class Router {
 		await this.resolveWhenListIsPopulated(
 			this.runOnViewLoadInOrder, this.orderedRoutesToOpen, 0, this);
 		this.engineIsRunning = false;
+
+		if (this.pendingCallbacks.length) {
+			for (const callback of this.pendingCallbacks) {
+				callback();
+			}
+			this.pendingCallbacks = [];
+		}
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -799,10 +806,12 @@ class Router {
 			return	_resolve();
 		}
 		if (route.commands.addCtrl) {
-			const $data = ctx.routes[route.routeId].data || {};
+			let $data = {};
 			if (ctx.routeData[route.routeId]) {
-				Object.assign($data, ctx.routeData[route.routeId]);
+				$data = Object.assign(ctx.routeData[route.routeId], ctx.routes[route.routeId].data || {});
 				delete ctx.routeData[route.routeId];
+			} else {
+				$data = Object.assign({}, ctx.routes[route.routeId].data || {});
 			}
 			const ctrl = ctx.routes[route.routeId].ctrl;
 			// Register the controller with $powerUi
@@ -876,12 +885,6 @@ class Router {
 			return _resolve();
 		}
 
-		// Delete the controller instance of this view if exists
-		if (ctx.$powerUi.controllers[route.viewId] &&
-			ctx.$powerUi.controllers[route.viewId].instance &&
-			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback) {
-			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback();
-		}
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance) {
 			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
