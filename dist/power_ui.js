@@ -4604,6 +4604,7 @@ class Router {
 		this.currentRoutes = getEmptyRouteObjetc();
 		this.phantomRouter = null;
 		this.engineCommands = new EngineCommands(this);
+		this.cicleEnds = new UEvent('cicleEnds');
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
 		}
@@ -4672,6 +4673,7 @@ class Router {
 
 	// Copy the current open secundary route, and init the router with the new route
 	hashChange(event) {
+		// This support the abort a cicle
 		if (this.engineIsRunning === true) {
 			this.engineIsRunning = false;
 			return;
@@ -4705,6 +4707,7 @@ class Router {
 		this.oldRoutes = this.cloneRoutes({source: this.oldRoutesBkp});
 		this.clearPhantomRouter();
 		window.location.href = this.previousUrl;
+		this.engineIsRunning = false;
 	}
 
 	clearPhantomRouter() {
@@ -5082,6 +5085,9 @@ class Router {
 				callback();
 			}
 			this.pendingCallbacks = [];
+		}
+		if (!this.config.phantomMode) {
+			this.cicleEnds.broadcast();
 		}
 	}
 
@@ -5573,16 +5579,23 @@ class Router {
 	}
 
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands}) {
-		if (this.engineIsRunning) {
+		const routeKind = this.routeKind(routeId);
+		console.log('routeKind', routeKind);
+		// Only hidden route can open a second router (This is for dialog messages only)
+		if (this.engineIsRunning && routeKind === 'hr') {
 			const routes = [this.routes[routeId]];
 			const newRouter = new PhantomRouter({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
 			this.phantomRouter = newRouter;
 			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
 			return;
+		} else if (this.engineIsRunning && routeKind !== 'hr') {
+			const self = this;
+			this.cicleEnds.subscribe(function () {
+				self.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
+			});
 		}
 
 
-		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
