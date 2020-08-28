@@ -4154,7 +4154,7 @@ class PowerController extends PowerScope {
 		return this.$powerUi.getRouteCtrl(routeId);
 	}
 
-	openRoute({routeId, params, target}) {
+	openRoute({routeId, params, target, data={}, commands=[]}) {
 		// If is open from $root pretend it is from current main-view
 		const currentViewId = this._viewId === 'root-view' ? 'main-view' : this._viewId;
 		const currentRouteId = this._routeId === '$root' ? this.$powerUi.controllers['main-view'].instance._routeId : this._routeId;
@@ -4167,13 +4167,13 @@ class PowerController extends PowerScope {
 			params: params,
 			target: target, // '_blank' cannot be default like in target: target || '_blank' to allow pages navigation
 			title: route.title || null,
+			data: data,
+			commands: commands,
 		});
 	}
 
-	runInNextCicle(command) {
-		for (const index in command) {
-			this.$powerUi.router.engineCommands.pending[index] = command[index];
-		}
+	addCommands(commands) {
+		this.router.engineCommands.addCommands(commands);
 	}
 
 	closeCurrentRoute({callback, commands}) {
@@ -4183,13 +4183,11 @@ class PowerController extends PowerScope {
 		}
 		// Save the callback to run after view is removed
 		if (callback) {
-			this._$closeCurrentRouteCallback = callback;
+			this.router.pendingCallbacks.push(callback.bind(this));
 		}
 		// Save the callback to run after view is removed
 		if (commands.length) {
-			for (const command of commands) {
-				this.runInNextCicle(command);
-			}
+			this.addCommands(commands);
 		}
 
 		const route = this.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
@@ -4454,6 +4452,19 @@ class EngineCommands {
 		this.pending[routeId][command.name] = command.value;
 	}
 
+	addCommands(commands) {
+		for (const item of Object.keys(commands)) {
+			for (const routeId of Object.keys(commands[item])) {
+				for (const name of Object.keys(commands[item][routeId])) {
+					const command = {};
+					command.name = name;
+					command.value = commands[item][routeId][name];
+					this.addPendingComand(routeId, command);
+				}
+			}
+		}
+	}
+
 	override(commandsList, routeId, source) {
 		for (const command of Object.keys(this.pending[routeId])) {
 			for (const index of Object.keys(this.command[command][source])) {
@@ -4581,6 +4592,8 @@ class Router {
 		this.config = config || {};
 		this.$powerUi = powerUi;
 		this.routes = {};
+		this.routeData = {};
+		this.pendingCallbacks = [];
 		this.oldRoutesBkp = getEmptyRouteObjetc();
 		this.oldRoutes = getEmptyRouteObjetc();
 		this.currentRoutes = getEmptyRouteObjetc();
@@ -5058,6 +5071,13 @@ class Router {
 		await this.resolveWhenListIsPopulated(
 			this.runOnViewLoadInOrder, this.orderedRoutesToOpen, 0, this);
 		this.engineIsRunning = false;
+
+		if (this.pendingCallbacks.length) {
+			for (const callback of this.pendingCallbacks) {
+				callback();
+			}
+			this.pendingCallbacks = [];
+		}
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -5127,7 +5147,13 @@ class Router {
 			return	_resolve();
 		}
 		if (route.commands.addCtrl) {
-			const $data = ctx.routes[route.routeId].data || {};
+			let $data = {};
+			if (ctx.routeData[route.routeId]) {
+				$data = Object.assign(ctx.routeData[route.routeId], ctx.routes[route.routeId].data || {});
+				delete ctx.routeData[route.routeId];
+			} else {
+				$data = Object.assign({}, ctx.routes[route.routeId].data || {});
+			}
 			const ctrl = ctx.routes[route.routeId].ctrl;
 			// Register the controller with $powerUi
 			ctx.$powerUi.controllers[route.viewId] = {
@@ -5200,12 +5226,6 @@ class Router {
 			return _resolve();
 		}
 
-		// Delete the controller instance of this view if exists
-		if (ctx.$powerUi.controllers[route.viewId] &&
-			ctx.$powerUi.controllers[route.viewId].instance &&
-			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback) {
-			ctx.$powerUi.controllers[route.viewId].instance._$closeCurrentRouteCallback();
-		}
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance) {
 			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
@@ -5547,14 +5567,15 @@ class Router {
 		this.phantomRouter.closePhantomRoute(routeId, ctx);
 	}
 
-	openRoute({routeId, params, target, currentRouteId, currentViewId, title}) {
+	openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands}) {
 		if (this.engineIsRunning) {
 			const routes = [this.routes[routeId]];
 			const newRouter = new PhantomRouter({rootPath: window.location.hash, routes: routes, phantomMode: true}, this.$powerUi);
 			this.phantomRouter = newRouter;
-			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title});
+			newRouter.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
 			return;
 		}
+
 
 		const routeKind = this.routeKind(routeId);
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
@@ -5575,16 +5596,16 @@ class Router {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
-				this.navigate({hash: newRoute, title: title});
+				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
 			// Open the route in a new secundary view without closing any view
 			} else if (target === '_blank') {
 				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
-				this.navigate({hash: newRoute, title: title});
+				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true});
+				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
 			}
 		}
 	}
@@ -5603,7 +5624,7 @@ class Router {
 		return oldHash;
 	}
 
-	navigate({hash, title, isMainView}) {
+	navigate({hash, title, isMainView, data={}, commands=[], routeId=null}) {
 		const newHashParts = this.extractRouteParts(hash);
 		let newHash = newHashParts.path || '';
 		let newHiddenHash = '';
@@ -5614,18 +5635,30 @@ class Router {
 			newHiddenHash = `${newHiddenHash}?hr=${part.replace(this.config.rootPath, '')}`;
 		}
 
-		this.hiddenLocationHash = encodeURI(newHiddenHash);
-		// If there is some new secundary or main route
-		if (window.location.hash !== encodeURI(this.config.rootPath + newHash)) {
-			window.history.pushState(null, title, window.location.href);
-			window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
-			if (isMainView){
-				window.scrollTo(0, 0);
+		const newLoacationHash = encodeURI(this.config.rootPath + newHash);
+		// If route has change
+		if ((newLoacationHash + encodeURI(newHiddenHash) || '') !== this.locationHashWithHiddenRoutes()) {
+			this.hiddenLocationHash = encodeURI(newHiddenHash);
+			// Pass data to new route and add pending commands before navigate
+			if (routeId) {
+				this.routeData[routeId] = data;
 			}
-		} else {
-			// If there is only a new hidden rote
-			// Only the hiddenLocationHash change, manually call hasChange
-			this.hashChange();
+			if (commands.length) {
+				this.engineCommands.addCommands(commands);
+			}
+
+			// If there is some new secundary or main route
+			if (window.location.hash !== newLoacationHash) {
+				window.history.pushState(null, title, window.location.href);
+				window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
+				if (isMainView){
+					window.scrollTo(0, 0);
+				}
+			} else {
+				// If there is only a new hidden rote
+				// Only the hiddenLocationHash change, manually call hasChange
+				this.hashChange();
+			}
 		}
 	}
 
@@ -5952,6 +5985,23 @@ class PowerTemplate extends PowerScope {
 
 	_template() {
 		return new Promise(this.template.bind(this));
+	}
+
+	import(filePath) {
+		const self = this;
+		return new Promise(function (resolve, reject) {
+			self.$powerUi.request({
+					url: filePath,
+					body: {},
+					method: 'GET',
+					status: 'Loading file',
+			}).then(function (response) {
+				resolve(response);
+			}).catch(function (error) {
+				window.console.log('Error importing file:', error);
+				reject(error);
+			});
+		});
 	}
 
 	appendCss() {
