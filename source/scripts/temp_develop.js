@@ -244,6 +244,7 @@ class SecundaryMainCtrl extends PowerModal {
 			routeId: 'secchild',
 			target: '_self',
 			commands: [{'secundary-main': {refresh: true}}],
+			data: {princesa: 'favorita', moreCats: ['Kid', 'Tico']},
 		});
 	}
 
@@ -281,9 +282,13 @@ class SecundaryChildTemplate extends PowerTemplate {
 }
 
 class SecundaryChildCtrl extends PowerController {
-	ctrl() {
+	ctrl(data) {
+		console.log('DATA:', data);
 		// console.log('Secundary child ctrl');
 		this.myCats = ['Princesa', 'Sol', 'Penny', 'Riquinho', 'Drew'];
+		if (data.moreCats) {
+			this.myCats = this.myCats.concat(data.moreCats);
+		}
 	}
 }
 
@@ -299,7 +304,6 @@ class SecundaryChildTemplate2 extends PowerTemplate {
 
 class SecundaryChildCtrl2 extends PowerController {
 	ctrl() {
-		// console.log('Secundary child 2 ctrl');
 	}
 }
 

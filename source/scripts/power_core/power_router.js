@@ -800,6 +800,10 @@ class Router {
 		}
 		if (route.commands.addCtrl) {
 			const $data = ctx.routes[route.routeId].data || {};
+			if (ctx.routeData[route.routeId]) {
+				Object.assign($data, ctx.routeData[route.routeId]);
+				delete ctx.routeData[route.routeId];
+			}
 			const ctrl = ctx.routes[route.routeId].ctrl;
 			// Register the controller with $powerUi
 			ctx.$powerUi.controllers[route.viewId] = {
@@ -1288,7 +1292,7 @@ class Router {
 		}
 
 		const newLoacationHash = encodeURI(this.config.rootPath + newHash);
-
+		// If route has change
 		if ((newLoacationHash + encodeURI(newHiddenHash) || '') !== this.locationHashWithHiddenRoutes()) {
 			this.hiddenLocationHash = encodeURI(newHiddenHash);
 			// Pass data to new route and add pending commands before navigate
