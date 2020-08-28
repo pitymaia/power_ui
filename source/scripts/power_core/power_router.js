@@ -1234,7 +1234,6 @@ class Router {
 
 	openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands}) {
 		const routeKind = this.routeKind(routeId);
-		console.log('routeKind', routeKind);
 		// Only hidden route can open a second router (This is for dialog messages only)
 		if (this.engineIsRunning && routeKind === 'hr') {
 			const routes = [this.routes[routeId]];
