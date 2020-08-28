@@ -48,6 +48,10 @@ class PowerController extends PowerScope {
 		return this.$powerUi.getRouteCtrl(routeId);
 	}
 
+	getRouteParam(key) {
+		return parseInt(this._routeParams.find((p)=> p.key === key).value);
+	}
+
 	openRoute({routeId, params, target, data={}, commands=[]}) {
 		// If is open from $root pretend it is from current main-view
 		const currentViewId = this._viewId === 'root-view' ? 'main-view' : this._viewId;
