@@ -5089,7 +5089,7 @@ class Router {
 		if (!this.config.phantomMode) {
 			this.cicleEnds.broadcast();
 			// Clear observers to call only a single time
-			this.this.observers = [];
+			this.observers = [];
 		}
 	}
 
