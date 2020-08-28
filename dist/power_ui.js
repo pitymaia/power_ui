@@ -4155,7 +4155,8 @@ class PowerController extends PowerScope {
 	}
 
 	getRouteParam(key) {
-		return parseInt(this._routeParams.find((p)=> p.key === key).value);
+		const param = this._routeParams.find((p)=> p.key === key);
+		return param ? parseInt(this._routeParams.find((p)=> p.key === key).value) : null;
 	}
 
 	openRoute({routeId, params, target, data={}, commands=[]}) {
