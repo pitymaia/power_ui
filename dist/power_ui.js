@@ -5089,7 +5089,7 @@ class Router {
 		if (!this.config.phantomMode) {
 			this.cicleEnds.broadcast();
 			// Clear observers to call only a single time
-			this.observers = [];
+			this.cicleEnds.observers = [];
 		}
 	}
 
@@ -5592,7 +5592,6 @@ class Router {
 		} else if (this.engineIsRunning && routeKind !== 'hr') {
 			const self = this;
 			this.cicleEnds.subscribe(function () {
-				console.log('SUBSCRIBED');
 				self.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
 			});
 		}
