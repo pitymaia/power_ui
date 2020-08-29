@@ -4159,6 +4159,10 @@ class PowerController extends PowerScope {
 		return param ? parseInt(this._routeParams.find((p)=> p.key === key).value) : null;
 	}
 
+	request(options) {
+		return this.$powerUi.request(options);
+	}
+
 	openRoute({routeId, params, target, data={}, commands=[]}) {
 		// If is open from $root pretend it is from current main-view
 		const currentViewId = this._viewId === 'root-view' ? 'main-view' : this._viewId;
