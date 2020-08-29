@@ -40,6 +40,10 @@ class PowerTemplate extends PowerScope {
 		});
 	}
 
+	request(options) {
+		return this.$powerUi.request(options);
+	}
+
 	appendCss() {
 		const head = document.getElementsByTagName('head')[0];
 		let style = document.createElement('style');
