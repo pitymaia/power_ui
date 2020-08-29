@@ -252,8 +252,13 @@ class PowerUi extends _PowerUiBase {
 		const original = this.router.locationHashWithHiddenRoutes();
 		let currentHash = original;
 		for (const sr of this.router.currentRoutes.secundaryRoutes) {
-			const ctrl = this.controllers[sr.viewId].instance;
-			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			const ctrl = this.controllers[sr.viewId] && this.controllers[sr.viewId].instance ? this.controllers[sr.viewId].instance : null;
+			if (ctrl) {
+				currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			} else {
+				window.location.hash = '!/';
+				return;
+			}
 		}
 		if (supressNavigate === false && original !== currentHash) {
 			this.router.navigate({hash: currentHash, title: null});
@@ -266,8 +271,13 @@ class PowerUi extends _PowerUiBase {
 		const original = this.router.locationHashWithHiddenRoutes();
 		let currentHash = hashFromSecundary ? hashFromSecundary : original;
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
-			const ctrl = this.controllers[hr.viewId].instance;
-			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			const ctrl = this.controllers[hr.viewId] && this.controllers[hr.viewId].instance ? this.controllers[hr.viewId].instance : null;
+			if (ctrl) {
+				currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			} else {
+				window.location.hash = '!/';
+				return;
+			}
 		}
 		if (original !== currentHash) {
 			this.router.navigate({hash: currentHash, title: null});

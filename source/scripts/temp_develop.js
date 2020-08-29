@@ -237,14 +237,14 @@ class SecundaryMainCtrl extends PowerModal {
 
 	onCancel() {
 		this.closeCurrentRoute({
-			commands: [{'power-only': {refresh: true}}],
-			callback: function () {
-				console.log('CALLBACK IS HERE!!!!', this.getMainvalue());
-				this.$service('widget').alert({
-					title: 'The route has closed',
-					template: '<p>The secondary route closed!</p>',
-				});
-			},
+			commands: [{'$root': {refresh: true}}],
+			// callback: function () {
+			// 	console.log('CALLBACK IS HERE!!!!', this.getMainvalue());
+			// 	this.$service('widget').alert({
+			// 		title: 'The route has closed',
+			// 		template: '<p>The secondary route closed!</p>',
+			// 	});
+			// },
 		})
 	}
 
@@ -252,7 +252,7 @@ class SecundaryMainCtrl extends PowerModal {
 		this.openRoute({
 			routeId: 'secchild',
 			target: '_self',
-			commands: [{'secundary-main': {refresh: true}}],
+			commands: [{'$root': {refresh: true}}],
 			data: {princesa: 'favorita', moreCats: ['Kid', 'Tico']},
 		});
 	}
