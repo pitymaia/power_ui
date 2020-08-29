@@ -1721,8 +1721,13 @@ class PowerUi extends _PowerUiBase {
 		const original = this.router.locationHashWithHiddenRoutes();
 		let currentHash = original;
 		for (const sr of this.router.currentRoutes.secundaryRoutes) {
-			const ctrl = this.controllers[sr.viewId].instance;
-			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			const ctrl = this.controllers[sr.viewId] && this.controllers[sr.viewId].instance ? this.controllers[sr.viewId].instance : null;
+			if (ctrl) {
+				currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			} else {
+				window.location.hash = '!/';
+				return;
+			}
 		}
 		if (supressNavigate === false && original !== currentHash) {
 			this.router.navigate({hash: currentHash, title: null});
@@ -1735,8 +1740,13 @@ class PowerUi extends _PowerUiBase {
 		const original = this.router.locationHashWithHiddenRoutes();
 		let currentHash = hashFromSecundary ? hashFromSecundary : original;
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
-			const ctrl = this.controllers[hr.viewId].instance;
-			currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			const ctrl = this.controllers[hr.viewId] && this.controllers[hr.viewId].instance ? this.controllers[hr.viewId].instance : null;
+			if (ctrl) {
+				currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
+			} else {
+				window.location.hash = '!/';
+				return;
+			}
 		}
 		if (original !== currentHash) {
 			this.router.navigate({hash: currentHash, title: null});
@@ -4485,10 +4495,17 @@ class EngineCommands {
 		this.pending[routeId][command.name] = command.value;
 	}
 
+	propagateCommand({currentRouteId, sourceRouteId}) {
+		for (const name of Object.keys(this.pending[sourceRouteId] || {})) {
+			const value = this.pending[sourceRouteId][name];
+			this.addPendingComand(currentRouteId, {name: name, value: value});
+		}
+	}
+
 	addCommands(commands) {
-		for (const item of Object.keys(commands)) {
-			for (const routeId of Object.keys(commands[item])) {
-				for (const name of Object.keys(commands[item][routeId])) {
+		for (const item of Object.keys(commands || {})) {
+			for (const routeId of Object.keys(commands[item] || {})) {
+				for (const name of Object.keys(commands[item][routeId] || {})) {
 					const command = {};
 					command.name = name;
 					command.value = commands[item][routeId][name];
@@ -4499,8 +4516,8 @@ class EngineCommands {
 	}
 
 	override(commandsList, routeId, source) {
-		for (const command of Object.keys(this.pending[routeId])) {
-			for (const index of Object.keys(this.command[command][source])) {
+		for (const command of Object.keys(this.pending[routeId] || {})) {
+			for (const index of Object.keys(this.command[command][source] || {})) {
 				commandsList[index] = this.command[command][source][index];
 			}
 		}
@@ -4559,12 +4576,12 @@ class EngineCommands {
 	}
 
 	overrideCommands(open, close, command) {
-		for (const index of Object.keys(command.close)) {
+		for (const index of Object.keys(command.close || {})) {
 			if (close.commands[index] === undefined || command.close[index] === true) {
 				close.commands[index] = command.close[index];
 			}
 		}
-		for (const index of Object.keys(command.open)) {
+		for (const index of Object.keys(command.open || {})) {
 			if (open.commands[index] === undefined || command.open[index] === true) {
 				open.commands[index] = command.open[index];
 			}
@@ -4592,7 +4609,7 @@ class EngineCommands {
 			const close = Object.assign({}, newRoute);
 			close.commands = {};
 
-			for (const index of Object.keys(route.commands.parentView)) {
+			for (const index of Object.keys(route.commands.parentView || {})) {
 				if (this.command[index]) {
 					this.overrideCommands(open, close, this.command[index]);
 				}
@@ -4609,7 +4626,7 @@ class EngineCommands {
 		const close = Object.assign({}, newRoute);
 		close.commands = {};
 
-		for (const index of Object.keys(commands)) {
+		for (const index of Object.keys(commands || {})) {
 			if (this.command[index]) {
 				this.overrideCommands(open, close, this.command[index]);
 			}
@@ -4883,20 +4900,24 @@ class Router {
 		return route;
 	}
 
-	recursivelyAddChildRoute(route, mainKind, powerViewNodeId, parentRouteId, parentViewId, forceRefresh) {
+	recursivelyAddChildRoute(route, mainKind, powerViewNodeId, parentRouteId, parentViewId, propagateCommandsFromRouteId) {
 		const routesListName = `${mainKind}ChildRoutes`;
 		if (route && route.childRoute) {
 			const childRoute = this.matchRouteAndGetIdAndParamKeys(route.childRoute);
 			let childViewId = false;
 			if (childRoute) {
-				if (forceRefresh) {
-					this.engineCommands.addPendingComand(childRoute.routeId, {name: 'refresh', value: true});
+				if (propagateCommandsFromRouteId) {
+					this.engineCommands.propagateCommand({
+						currentRouteId: childRoute.routeId,
+						sourceRouteId: propagateCommandsFromRouteId,
+					});
+					propagateCommandsFromRouteId = childRoute.routeId;
 				}
 				childViewId = this.getVewIdIfRouteExists(route.childRoute.path, routesListName);
 				const routeIsNew = (childViewId === false);
 				const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[childRoute.routeId] !== undefined);
 				// Load child route only if it's a new route
-				if (routeIsNew === true || shouldUpdate || forceRefresh) {
+				if (routeIsNew === true || shouldUpdate || propagateCommandsFromRouteId) {
 					childViewId = childViewId || _Unique.domID('view');
 					// Add child route to ordered list
 					this.orderedRoutesToOpen.push({
@@ -4927,7 +4948,7 @@ class Router {
 
 			if (route.childRoute.childRoute) {
 				this.recursivelyAddChildRoute(
-					route.childRoute, mainKind, childRoute.powerViewNodeId, (childRoute ? childRoute.routeId : null), (childViewId ? childViewId : null), forceRefresh);
+					route.childRoute, mainKind, childRoute.powerViewNodeId, (childRoute ? childRoute.routeId : null), (childViewId ? childViewId : null), propagateCommandsFromRouteId);
 			}
 		}
 	}
@@ -4937,17 +4958,20 @@ class Router {
 		const mainRoute = this.matchRouteAndGetIdAndParamKeys(currentRoutesTree.mainRoute);
 		// Second recursively add main route child and any level of child of childs
 		if (mainRoute) {
-			let forceRefresh = false;
+			let propagateCommandsFromRouteId = false;
 			// If root has pending commands forces all routes to refresh
 			if (this.engineCommands.pending['$root']) {
-				forceRefresh = true;
-				this.engineCommands.addPendingComand(mainRoute.routeId, {name: 'refresh', value: true});
+				this.engineCommands.propagateCommand({
+					currentRouteId: mainRoute.routeId,
+					sourceRouteId: '$root',
+				});
+				propagateCommandsFromRouteId = mainRoute.routeId;
 			}
 			// Add main route to ordered list
 			// Load main route only if it is a new route or if has some pending command to run
 			const routeIsNew = (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path));
 			const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[mainRoute.routeId] !== undefined);
-			if (forceRefresh || shouldUpdate || (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path))) {
+			if (propagateCommandsFromRouteId || shouldUpdate || (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path))) {
 				this.orderedRoutesToOpen.push({
 					routeId: mainRoute.routeId,
 					viewId: this.config.routerMainViewId,
@@ -4975,7 +4999,7 @@ class Router {
 			});
 			// Add any main child route to ordered list
 			this.recursivelyAddChildRoute(
-				currentRoutesTree.mainRoute, 'main', mainRoute.powerViewNodeId, mainRoute.routeId, 'main-view', forceRefresh);
+				currentRoutesTree.mainRoute, 'main', mainRoute.powerViewNodeId, mainRoute.routeId, 'main-view', propagateCommandsFromRouteId);
 		} else {
 			// otherwise if do not mach a route
 			const newRoute = this.routes.otherwise ? this.routes.otherwise.route : this.config.rootPath;
@@ -4988,18 +5012,21 @@ class Router {
 		for (const route of routesList) {
 			const currentRoute = this.matchRouteAndGetIdAndParamKeys(route);
 			if (currentRoute) {
-				let forceRefresh = false;
+				let propagateCommandsFromRouteId = false;
 				// If root has pending commands forces all routes to refresh
 				if (this.engineCommands.pending['$root']) {
-					forceRefresh = true;
-					this.engineCommands.addPendingComand(currentRoute.routeId, {name: 'refresh', value: true});
+					this.engineCommands.propagateCommand({
+						currentRouteId: currentRoute.routeId,
+						sourceRouteId: '$root',
+					});
+					propagateCommandsFromRouteId = currentRoute.routeId;
 				}
 
 				let viewId = this.getVewIdIfRouteExists(route.path, routesListName);
 				const routeIsNew = (viewId === false);
 				const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[currentRoute.routeId] !== undefined);
 				// Load route only if it's a new route
-				if (viewId === false || shouldUpdate || forceRefresh) {
+				if (viewId === false || shouldUpdate || propagateCommandsFromRouteId) {
 					// Create route viewId
 					viewId = viewId || _Unique.domID('view');
 					// Add route to ordered list
@@ -5028,7 +5055,7 @@ class Router {
 				});
 				// Add any child route to ordered list
 				this.recursivelyAddChildRoute(
-					route, kind, currentRoute.powerViewNodeId, currentRoute.routeId, (viewId ? viewId : null), forceRefresh);
+					route, kind, currentRoute.powerViewNodeId, currentRoute.routeId, (viewId ? viewId : null), propagateCommandsFromRouteId);
 			}
 		}
 	}
@@ -5357,7 +5384,7 @@ class Router {
 			}
 			// Add a list of css selectors to routes view
 			if (tscope.$routeClassList) {
-				for (const routeId of Object.keys(tscope.$routeClassList)) {
+				for (const routeId of Object.keys(tscope.$routeClassList || {})) {
 					const routeScope = tscope.$ctrl.getRouteCtrl(routeId);
 					const routeViewId = routeScope ? routeScope._viewId : null;
 					const routeViewNode = routeViewId ? document.getElementById(routeViewId) : null;
@@ -5404,17 +5431,20 @@ class Router {
 	}
 
 	buildOrderedRoutesToClose() {
-		let forceRefresh = false;
+		let propagateCommandsFromRouteId = false;
 		// If root has pending commands forces all routes to refresh
 		if (this.engineCommands.pending['$root']) {
-			forceRefresh = true;
-			this.engineCommands.addPendingComand(this.oldRoutes.id, {name: 'refresh', value: true});
+			this.engineCommands.propagateCommand({
+				currentRouteId: this.oldRoutes.id,
+				sourceRouteId: '$root',
+			});
+			propagateCommandsFromRouteId = this.oldRoutes.id;
 		}
 		// Will keep the route and only apply commands
 		const routeIsNew = (this.oldRoutes.id !== this.currentRoutes.id);
 		const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[this.oldRoutes.id] !== undefined);
 		// Add the old main route if have one
-		if (forceRefresh || shouldUpdate || (this.oldRoutes.id && (this.oldRoutes.route !== this.currentRoutes.route))) {
+		if (propagateCommandsFromRouteId || shouldUpdate || (this.oldRoutes.id && (this.oldRoutes.route !== this.currentRoutes.route))) {
 			this.orderedRoutesToClose.unshift({
 				routeId: this.oldRoutes.id,
 				viewId: this.oldRoutes.viewId,
@@ -5428,21 +5458,21 @@ class Router {
 			});
 		}
 		// Add old child route from main route if have some
-		this.markToRemoveRouteViews('mainChildRoutes', 'child', forceRefresh);
+		this.markToRemoveRouteViews('mainChildRoutes', 'child', propagateCommandsFromRouteId);
 		// Add old child route and secundary routes if have some
-		this.markToRemoveRouteViews('secundaryChildRoutes', 'child', forceRefresh);
-		this.markToRemoveRouteViews('secundaryRoutes', 'secundary', forceRefresh);
+		this.markToRemoveRouteViews('secundaryChildRoutes', 'child', propagateCommandsFromRouteId);
+		this.markToRemoveRouteViews('secundaryRoutes', 'secundary', propagateCommandsFromRouteId);
 		// Add old child route from hidden routes if have some
-		this.markToRemoveRouteViews('hiddenChildRoutes', 'child', forceRefresh);
-		this.markToRemoveRouteViews('hiddenRoutes', 'hidden', forceRefresh);
+		this.markToRemoveRouteViews('hiddenChildRoutes', 'child', propagateCommandsFromRouteId);
+		this.markToRemoveRouteViews('hiddenRoutes', 'hidden', propagateCommandsFromRouteId);
 	}
 
-	markToRemoveRouteViews(routesListName, kind, forceRefresh) {
+	markToRemoveRouteViews(routesListName, kind, propagateCommandsFromRouteId) {
 		for (const old of this.oldRoutes[routesListName]) {
 			const current = this.currentRoutes[routesListName].find(r=>r.id === old.id && r.viewId === old.viewId) || null;
 			// Will keep the route and only apply commands
 			const shouldUpdate = (current !== null && this.engineCommands.pending[old.id] !== undefined);
-			if (forceRefresh || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
+			if (propagateCommandsFromRouteId || shouldUpdate || !this.currentRoutes[routesListName].find(o=> o.route === old.route)) {
 				this.orderedRoutesToClose.unshift({
 					routeId: old.id,
 					viewId: old.viewId,
