@@ -763,7 +763,7 @@ class Router {
 		if (!route) {
 			return;
 		}
-		ctx.removeView(route.viewId);
+		ctx.removeView(route.viewId, ctx);
 		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
 	}
 
@@ -970,12 +970,40 @@ class Router {
 		}
 	}
 
-	removeView(viewId) {
+	removeViewAndRouteViewCss(viewId, ctx) {
+		const tscope = (ctx.$powerUi.controllers[viewId].instance && ctx.$powerUi.controllers[viewId].instance.$tscope) ? ctx.$powerUi.controllers[viewId].instance && ctx.$powerUi.controllers[viewId].instance.$tscope : null;
+		const viewNode = document.getElementById(viewId);
+
+		if (tscope && viewNode) {
+			// Add a list of css selectors to current view
+			if (tscope.$classList && tscope.$classList.length) {
+				for (const css of tscope.$classList) {
+					viewNode.classList.remove(css);
+				}
+			}
+			// Add a list of css selectors to routes view
+			if (tscope.$routeClassList) {
+				for (const routeId of Object.keys(tscope.$routeClassList)) {
+					const routeScope = tscope.$ctrl.getRouteCtrl(routeId);
+					const routeViewId = routeScope ? routeScope._viewId : null;
+					const routeViewNode = routeViewId ? document.getElementById(routeViewId) : null;
+					if (routeViewNode) {
+						for (const css of tscope.$routeClassList[routeId]) {
+							routeViewNode.classList.remove(css);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	removeView(viewId, ctx) {
 		if (!this.$powerUi.powerTree) {
 			return;
 		}
 		// Remove custom css of this view if exists
 		this.removeCustomCssNode(viewId);
+		this.removeViewAndRouteViewCss(viewId, ctx);
 
 		const powerViewNode = document.getElementById(viewId);
 		// delete all inner elements and events from this.allPowerObjsById[id]

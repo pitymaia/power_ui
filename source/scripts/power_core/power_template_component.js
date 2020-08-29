@@ -4,6 +4,7 @@ class PowerTemplate extends PowerScope {
 		this._viewId = viewId;
 		this._routeId = routeId;
 		this.$ctrl = $ctrl;
+		this.$routeClassList = {};
 
 		if (this.css) {
 			const self = this;

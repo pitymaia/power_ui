@@ -279,6 +279,7 @@ class SecundaryMainCtrl extends PowerModal {
 
 class SecundaryChildTemplate extends PowerTemplate {
 	template(resolve, reject) {
+		this.$routeClassList['secundary-main'] = ['blue-bg'];
 		// console.log('Secundary child template');
 		resolve(`<div>
 			<h1>This is the child page</h1>
@@ -303,6 +304,7 @@ class SecundaryChildCtrl extends PowerController {
 
 class SecundaryChildTemplate2 extends PowerTemplate {
 	template(resolve, reject) {
+		this.$routeClassList['secundary-main'] = ['orange-bg'];
 		// console.log('Secundary child 2 template');
 		resolve(`<div>
 			<h1>This is the child page 2</h1>
@@ -318,6 +320,7 @@ class SecundaryChildCtrl2 extends PowerController {
 
 class SecundaryChildMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
+		this.$routeClassList['secundary-main'] = ['red-bg'];
 		// console.log('Secundary child MAIN template', this.$ctrl.$root.getvalue());
 		resolve(`<div>
 			<h1>This is the MAIN of a CHILD {{ getSecValue() }}</h1>
@@ -2106,6 +2109,7 @@ class GridPageCtrl extends PowerController {
 
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
+		this.$routeClassList['power-only'] = ['red-bg'];
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',

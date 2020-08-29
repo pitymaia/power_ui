@@ -142,3 +142,13 @@ html {
     border-width: 15px;
     width: 2000px;
 }*/
+
+.blue-bg .pw-title-bar {
+    background-color: blue;
+}
+.orange-bg .pw-title-bar {
+    background-color: orange;
+}
+.red-bg .pw-title-bar, .red-bg #powerui-top {
+    background-color: red;
+}
