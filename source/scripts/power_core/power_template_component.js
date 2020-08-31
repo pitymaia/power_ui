@@ -81,6 +81,14 @@ class PowerTemplate extends PowerScope {
 	}
 
 	appendCss(css) {
+		// Concatenate if is an array
+		if (css.length) {
+			let _new = '';
+			for (const _css of css) {
+				_new = _new + _css;
+			}
+			css = _new;
+		}
 		const head = document.getElementsByTagName('head')[0];
 		let style = document.createElement('style');
 		style.innerHTML = css;
