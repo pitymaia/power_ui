@@ -345,7 +345,8 @@ class SecundaryChildMainCtrl extends PowerController {
 
 class SecundaryChildOfChildTemplate extends PowerTemplate {
 	async css(resolve, reject) {
-		const _css = await this.import('css/tmp_dev_snipet.css');
+		// const _css = await this.import('css/tmp_dev_snipet.css');
+		const _css = await this.import(['css/tmp_dev_snipet.css', 'css/tmp_dev_snipet.css'], '\n');
 		resolve(_css);
 	}
 
