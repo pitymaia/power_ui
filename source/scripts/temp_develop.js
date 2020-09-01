@@ -1009,7 +1009,9 @@ class RootScopeTemplate extends PowerTemplate {
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-12',
-			"brand": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			"brand": {
+				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			},
 			"mirrored": false,
 			"position": "top-right",
 			// "orientation": "vertical",
@@ -2113,7 +2115,15 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
-			"brand": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+			"brand": {
+				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+				"events": [
+					{
+						"event": "onclick",
+						"fn": "brand()"
+					}
+				]
+			},
 			"mirrored": false,
 			// "position": "bottom-left",
 			// "orientation": "vertical",
@@ -4099,7 +4109,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const menu2 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-2',
-			"brand": "PowerUi",
+			"brand": {"content": "PowerUi"},
 			"mirrored": false,
 			"position": "top-right",
 			// "orientation": "vertical",
@@ -5084,6 +5094,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 }
 
 class JSONViews extends PowerWindow {
+	brand() {
+		console.log('oi');
+	}
 	ctrl() {
 		// window.console.log('JSONViews CTRL', this.$tscope);
 		this.name = 'Pity';

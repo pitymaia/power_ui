@@ -581,12 +581,24 @@ class JSONSchemaService extends PowerServices {
 
 			// Brand
 			if (menu.brand) {
+				if (menu.brand.events) {
+					const result = this._validateEvents(menu.brand.events, menu.brand, 'brand');
+					if ( result !== true) {
+						throw result;
+					}
+				}
 				// Add horizontal style
 				menuEl.classList.add('pw-horizontal');
 
-				// Add hamburger menu toggle
+				// Add menu brand
 				const brandHolderEl = document.createElement('div');
-				brandHolderEl.innerHTML = `<div class="power-brand">${menu.brand}</div>`;
+				if (!menu.brand.classList) {
+					menu.brand.classList = [];
+				}
+				if (!menu.brand.classList.includes('power-brand')) {
+					menu.brand.classList.push('power-brand');
+				}
+				brandHolderEl.innerHTML = `<div ${this._getHtmlBasicTmpl(menu.brand)}>${menu.brand.content}</div>`;
 				const brandEl = brandHolderEl.children[0];
 				menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
 			}
