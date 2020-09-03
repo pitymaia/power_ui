@@ -316,6 +316,13 @@ class SecundaryChildTemplate2 extends PowerTemplate {
 class SecundaryChildCtrl2 extends PowerController {
 	ctrl() {
 	}
+
+	onViewLoad() {
+	}
+
+	onCycleEnds() {
+		console.log('CYCLE ENDS!', this);
+	}
 }
 
 class SecundaryChildMainTemplate extends PowerTemplate {

@@ -3,6 +3,10 @@ class PowerController extends PowerScope {
 		// Add $powerUi to controller
 		super({$powerUi: $powerUi});
 		this.volatileRouteIds = [];
+		// Allow user subscribe a method to onCycleEnds router event
+		if (this.onCycleEnds) {
+			this.$powerUi.router.onCycleEnds.subscribe(this.onCycleEnds.bind(this));
+		}
 	}
 
 	_load(data) {

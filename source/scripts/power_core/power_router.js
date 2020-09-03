@@ -265,7 +265,7 @@ class Router {
 		this.currentRoutes = getEmptyRouteObjetc();
 		this.phantomRouter = null;
 		this.engineCommands = new EngineCommands(this);
-		this.cicleEnds = new UEvent('cicleEnds');
+		this.onCycleEnds = new UEvent('onCycleEnds');
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
 		}
@@ -758,9 +758,9 @@ class Router {
 			this.pendingCallbacks = [];
 		}
 		if (!this.config.phantomMode) {
-			this.cicleEnds.broadcast();
+			this.onCycleEnds.broadcast();
 			// Clear observers to call only a single time
-			this.cicleEnds.observers = [];
+			this.onCycleEnds.observers = [];
 		}
 	}
 
@@ -1293,7 +1293,7 @@ class Router {
 			return;
 		} else if (this.engineIsRunning && routeKind !== 'hr') {
 			const self = this;
-			this.cicleEnds.subscribe(function () {
+			this.onCycleEnds.subscribe(function () {
 				self.openRoute({routeId, params, target, currentRouteId, currentViewId, title, data, commands});
 			});
 		}
