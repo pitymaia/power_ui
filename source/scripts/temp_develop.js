@@ -1326,14 +1326,18 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + `<h1>Cats list {{ rootValue() }}</h1>
 			<div data-pow-for="cat of cats">
-				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_ft">{{$pwIndex + 1}} - Minha linda <span data-pow-eval="cat.name"></span> <span data-pow-if="cat.name === 'Princesa'">(Favorita!)</span>
+				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_ft">{{$pwIndex + 1}} - Minha linda cat is <span data-pow-eval="cat.cat"></span> <span data-pow-if="cat.cat === 'Princesa'">(Favorita!)</span>
 				</div>
-				<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_mt">{{$pwIndex + 1}} - Meu lindo {{ cat.name }} <span data-pow-if="cat.name === 'Riquinho'">(Favorito!)</span>
+				<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_mt">{{$pwIndex + 1}} - Meu lindo cat is {{ cat.cat }} <span data-pow-if="cat.cat === 'Riquinho'">(Favorito!)</span>
 				</div>
-				<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_ut">{{$pwIndex + 1}} - São lindos meus {{ cat.name }}
+				<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_ut">{{$pwIndex + 1}} - São lindos meus {{ cat.cat }}
 				</div>
 			</div>
-			<p>{{ name }}</p>`;
+			<p>{{ name }}</p>
+			<button id="get-obj" class="pw-btn-highlight" data-pow-event="" onclick="getCatsObj({{cats[0]}})" type="button">
+				<span class="pw-icon icon-power-logo"></span>
+				<span class="pw-label">Get cats</span>
+			</button>`;
 
 		const button = {
 			"id": "modal-root",
@@ -1475,12 +1479,14 @@ class RootScope extends PowerController {
 		this.rootCounter = 0;
 		// console.log('Root ctrl');
 		this.cats = [
-			{name: 'Penny', gender: 'female'},
-			{name: 'Riquinho', gender: 'male'},
+			{cat: 'Penny', gender: 'female'},
+			{cat: 'Riquinho', gender: 'male'},
 		];
 		this.name = 'Pity o bom!';
 	}
-
+	getCatsObj(value) {
+		console.log('getCatsObj', value);
+	}
 	rootValue() {
 		this.rootCounter = this.rootCounter + 1;
 		this.changeCats();
@@ -1548,17 +1554,17 @@ class RootScope extends PowerController {
 	}
 
 	changeCats() {
-		if (this.cats[0].name !== 'Penny') {
+		if (this.cats[0].cat !== 'Penny') {
 			this.cats = [
-				{name: 'Penny', gender: 'female'},
-				{name: 'Riquinho', gender: 'male'},
+				{cat: 'Penny', gender: 'female'},
+				{cat: 'Riquinho', gender: 'male'},
 			];
 		} else {
 			this.cats = [
-				{name: 'Pincesa', gender: 'female'},
-				{name: 'Penny', gender: 'female'},
-				{name: 'Riquinho', gender: 'male'},
-				{name: 'Tico', gender: 'male'},
+				{cat: 'Pincesa', gender: 'female'},
+				{cat: 'Penny', gender: 'female'},
+				{cat: 'Riquinho', gender: 'male'},
+				{cat: 'Tico', gender: 'male'},
 			];
 		}
 		// window.console.log('changed cats', this.cats);

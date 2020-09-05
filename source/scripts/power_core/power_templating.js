@@ -106,7 +106,14 @@ class PowerInterpolation {
 		for (const child of tmp.children) {
 			for (const attr of child.attributes) {
 				if (attr.name.includes('data-pow') || attr.name.includes('data-pwc')) {
-					attr.value = attr.value.replace(regexOldValue, newValue);
+					// Only replace the first element of a dict
+					if (attr.value.includes('.')) {
+						const parts = attr.value.split('.');
+						parts[0] = parts[0].replace(regexOldValue, newValue);
+						attr.value = parts.join('.');
+					} else {
+						attr.value = attr.value.replace(regexOldValue, newValue);
+					}
 				}
 			}
 			if (child.id) {
