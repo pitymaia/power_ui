@@ -80,17 +80,23 @@ class PowerInterpolation {
 		const match = entry.match(this.standardRegex());
 		if (match) {
 			for (const item of match) {
-				let newItem = item.replace(regexOldValue, newValue);
+				let newItem = '';
+				// Only replace the first element of a dict
+				if (item.includes('.')) {
+					const parts = item.split('.');
+					parts[0] = parts[0].replace(regexOldValue, newValue);
+					newItem = parts.join('.');
+				} else {
+					newItem = item.replace(regexOldValue, newValue);
+				}
 				entry = entry.replace(item, newItem);
 			}
 		}
-
 		entry = this.replaceIdsAndRemoveInterpolationSymbol({
 			entry: entry,
 			regexOldValue: regexOldValue,
 			newValue: newValue
 		});
-
 		return entry;
 	}
 
