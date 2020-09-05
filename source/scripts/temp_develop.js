@@ -1326,15 +1326,21 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + `<h1>Cats list {{ rootValue() }}</h1>
 			<div data-pow-for="cat of cats">
-				<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_ft">{{$pwIndex + 1}} - Minha linda cat is <span data-pow-eval="cat.cat"></span> <span data-pow-if="cat.cat === 'Princesa'">(Favorita!)</span>
+				<div data-pow-event="" onclick="getCatsObj(cat)">
+					<div data-pow-css-hover="pw-blue" data-pow-if="cat.gender === 'female'" id="cat_b{{$pwIndex}}_ft">{{$pwIndex + 1}} - Minha linda cat is <span data-pow-eval="cat.cat"></span> <span data-pow-if="cat.cat === 'Princesa'">(Favorita!)</span>
+					</div>
 				</div>
-				<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_mt">{{$pwIndex + 1}} - Meu lindo cat is {{ cat.cat }} <span data-pow-if="cat.cat === 'Riquinho'">(Favorito!)</span>
+				<div data-pow-event="" onclick="getCatsObj(cat)">
+					<div data-pow-css-hover="pw-orange" data-pow-if="cat.gender === 'male'" id="cat_b{{$pwIndex}}_mt">{{$pwIndex + 1}} - Meu lindo cat is {{ cat.cat }} <span data-pow-if="cat.cat === 'Riquinho'">(Favorito!)</span>
+					</div>
 				</div>
-				<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_ut">{{$pwIndex + 1}} - São lindos meus {{ cat.cat }}
+				<div data-pow-event="" onclick="getCatsObj(cat)">
+					<div data-pow-css-hover="pw-yellow" data-pow-if="cat.gender === 'unknow'" id="cat_b{{$pwIndex}}_ut">{{$pwIndex + 1}} - São lindos meus {{ cat.cat }}
+					</div>
 				</div>
 			</div>
 			<p>{{ name }}</p>
-			<button id="get-obj" class="pw-btn-highlight" data-pow-event="" onclick="getCatsObj({{cats[0]}})" type="button">
+			<button id="get-obj" class="pw-btn-highlight" data-pow-event="" onclick="getCatsObj(cats[0])" type="button">
 				<span class="pw-icon icon-power-logo"></span>
 				<span class="pw-label">Get cats</span>
 			</button>`;

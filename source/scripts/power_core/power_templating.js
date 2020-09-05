@@ -114,6 +114,15 @@ class PowerInterpolation {
 					} else {
 						attr.value = attr.value.replace(regexOldValue, newValue);
 					}
+				} else if (child.hasAttribute("data-pow-event") && attr.name.includes('on') && !attr.name.includes('data')) {
+					// Only replace the first element of a dict
+					if (attr.value.includes('.')) {
+						const parts = attr.value.split('.');
+						parts[0] = parts[0].replace(regexOldValue, newValue);
+						attr.value = parts.join('.');
+					} else {
+						attr.value = attr.value.replace(regexOldValue, newValue);
+					}
 				}
 			}
 			if (child.id) {
