@@ -4682,7 +4682,7 @@ class Router {
 	}
 
 	add(route) {
-		route.template = route.templateUrl || route.template || route.templateComponent || route.url;
+		route.template = route.templateUrl || route.template || route.templateComponent || route.url || (route.dynamicUrl ? 'dynamicUrl' : false);
 		// main route and secundary routes view id
 		this.config.routerMainViewId = 'main-view';
 		this.config.routerSecundaryViewId = 'secundary-view';
@@ -5633,6 +5633,15 @@ class Router {
 					_resolve: _resolve,
 				});
 			} else {
+				// If users dynamicUrl set the current url as template
+				if (this.routes[routeId].dynamicUrl === true) {
+					const tmpCtrl = this.$powerUi.getRouteCtrl(routeId);
+					if (!tmpCtrl.getDynamicUrl) {
+						throw `The "${routeId}" route controller is missing the "getDynamicUrl" method to return the current URL.`;
+						return;
+					}
+					this.routes[routeId].template = tmpCtrl.getDynamicUrl();
+				}
 				this.$powerUi.loadTemplate({
 					template: this.routes[routeId].template,
 					viewId: _viewId,

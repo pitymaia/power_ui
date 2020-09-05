@@ -949,7 +949,18 @@ class MyWindow extends PowerWindowIframe {
 		// this.commitBt = true;
 	}
 
+	getDynamicUrl() {
+		if (this.$powerUi.powerIde) {
+			this.$powerUi.powerIde = false;
+			return 'http://poweride.powereasy.com:8001/#!/';
+		} else {
+			this.$powerUi.powerIde = true;
+			return 'http://powereasy.com:8000/#!/';
+		}
+	}
+
 	ctrl() {
+		console.log('MyWindow', this);
 		this.$powerUi.controllers['main-view'].instance.next = this.$powerUi.controllers['main-view'].instance.next +1;
 		// window.console.log("this.$powerUi.controllers['main-view'].instance.next", this.$powerUi.controllers['main-view'].instance.next);
 		// window.console.log('Window is here!');
@@ -5518,7 +5529,8 @@ const routes = [
 			id: 'some-window',
 			route: 'window/:id',
 			title: 'My Window',
-			url: 'http://localhost:3002',
+			// url: 'http://localhost:3002',
+			dynamicUrl: true,
 			ctrl: MyWindow,
 		},
 		{
