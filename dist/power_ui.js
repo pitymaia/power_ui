@@ -6266,17 +6266,23 @@ class PowerInterpolation {
 		const match = entry.match(this.standardRegex());
 		if (match) {
 			for (const item of match) {
-				let newItem = item.replace(regexOldValue, newValue);
+				let newItem = '';
+				// Only replace the first element of a dict
+				if (item.includes('.')) {
+					const parts = item.split('.');
+					parts[0] = parts[0].replace(regexOldValue, newValue);
+					newItem = parts.join('.');
+				} else {
+					newItem = item.replace(regexOldValue, newValue);
+				}
 				entry = entry.replace(item, newItem);
 			}
 		}
-
 		entry = this.replaceIdsAndRemoveInterpolationSymbol({
 			entry: entry,
 			regexOldValue: regexOldValue,
 			newValue: newValue
 		});
-
 		return entry;
 	}
 
@@ -6286,7 +6292,23 @@ class PowerInterpolation {
 		for (const child of tmp.children) {
 			for (const attr of child.attributes) {
 				if (attr.name.includes('data-pow') || attr.name.includes('data-pwc')) {
-					attr.value = attr.value.replace(regexOldValue, newValue);
+					// Only replace the first element of a dict
+					if (attr.value.includes('.')) {
+						const parts = attr.value.split('.');
+						parts[0] = parts[0].replace(regexOldValue, newValue);
+						attr.value = parts.join('.');
+					} else {
+						attr.value = attr.value.replace(regexOldValue, newValue);
+					}
+				} else if (child.hasAttribute("data-pow-event") && attr.name.includes('on') && !attr.name.includes('data')) {
+					// Only replace the first element of a dict
+					if (attr.value.includes('.')) {
+						const parts = attr.value.split('.');
+						parts[0] = parts[0].replace(regexOldValue, newValue);
+						attr.value = parts.join('.');
+					} else {
+						attr.value = attr.value.replace(regexOldValue, newValue);
+					}
 				}
 			}
 			if (child.id) {
