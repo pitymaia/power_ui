@@ -60,6 +60,7 @@ class PowerWindow extends PowerDialogBase {
 		this._window = _window;
 		_window.onmousemove = this.onMouseMoveBorder.bind(this);
 		_window.onmouseout = this.onMouseOutBorder.bind(this);
+		_window.onmousedown = this.onMouseDownBorder.bind(this);
 	}
 
 	onMouseMoveBorder(e) {
@@ -67,7 +68,11 @@ class PowerWindow extends PowerDialogBase {
 			return;
 		}
 
-		const rect = e.target.getBoundingClientRect();
+		window.onmouseup = this.onMouseUp.bind(this);
+		window.onmousemove = this.changeWindowSize.bind(this);
+
+		e.preventDefault();
+		const rect = this._window.getBoundingClientRect();
 		const x = e.clientX - rect.left; //x position within the element.
 		const y = e.clientY - rect.top;  //y position within the element.
 		const width = this._window.offsetWidth;
@@ -96,6 +101,32 @@ class PowerWindow extends PowerDialogBase {
 
 	onMouseOutBorder() {
 		this.removeAllCursorClasses();
+	}
+
+	onMouseDownBorder(e) {
+		e.preventDefault();
+		console.log('mouse down', e);
+		this.allowResize = true;
+		this._initialX = e.clientX;
+		this._initialOffsetWidth = this._window.offsetWidth + this._window.offsetLeft;
+	}
+
+	changeWindowSize(e) {
+		e.preventDefault();
+		const rect = this._window.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const y = e.clientY - rect.top;
+
+		if (this.allowResize) {
+			this._window.style.width = this._initialOffsetWidth + (x - this._initialX) + 'px';
+			console.log('resize', this._window.style.width);
+		}
+	}
+
+	onMouseUp() {
+		this.allowResize = false;
+		window.onmousemove = null;
+		window.onmouseup = null;
 	}
 
 	removeAllCursorClasses() {
