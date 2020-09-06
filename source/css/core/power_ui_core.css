@@ -221,16 +221,16 @@
     z-index: 3000 !important;
 }
 
-.window-left-top .pw-window {
+.window-left-top {
     cursor: nwse-resize;
 }
-.window-left-botton .pw-window {
+.window-left-botton {
     cursor: nesw-resize;
 }
-.window-width .pw-window {
+.window-width {
     cursor: ew-resize;
 }
-.window-height .pw-window {
+.window-height {
     cursor: ns-resize;
 }
 .pw-window  {
@@ -256,6 +256,11 @@
     min-width: 250px;
     min-height: 250px;
     /*text-align: center;*/
+}
+
+.pw-window .pw-window-resizable, .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window .pw-body-iframe, .pw-window iframe {
+    min-width: 100%;
+    max-width: 100%;
 }
 .pw-window.pw-touchdevice .pw-body, .pw-window.pw-touchdevice .pw-window-resizable {
     top: 0;
