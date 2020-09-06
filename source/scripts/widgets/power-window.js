@@ -32,25 +32,26 @@ class PowerWindow extends PowerDialogBase {
 
 		// Make it resizable
 		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
-		this.resizableEl = this.currentView.getElementsByClassName('pw-window-resizable')[0];
 		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
+
+		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		// this.resizeElement();
 
-		if (this._width && this._height) {
-			// Keep the size if user refresh the window
-			this.bodyEl.style.width = this._width;
-			this.bodyEl.style.height = this._bodyHeight;
-			this.resizableEl.style.width = this._width;
-			this.resizableEl.style.height = this._height;
-		} else {
-			// Makes an initial adjustiment on window size to avoid it starts with a scrollbar
-			const height = (this.bodyEl.offsetHeight + 50) + 'px';
-			const width = (this.bodyEl.offsetWidth + 50) + 'px';
-			this.bodyEl.style.height = height;
-			this.resizableEl.style.height = height;
-			this.bodyEl.style.width = width;
-			this.resizableEl.style.width = width;
-		}
+		// if (this._width && this._height) {
+		// 	// Keep the size if user refresh the window
+		// 	this.bodyEl.style.width = this._width;
+		// 	this.bodyEl.style.height = this._bodyHeight;
+		// 	this.resizableEl.style.width = this._width;
+		// 	this.resizableEl.style.height = this._height;
+		// } else {
+		// 	// Makes an initial adjustiment on window size to avoid it starts with a scrollbar
+		// 	const height = (this.bodyEl.offsetHeight + 50) + 'px';
+		// 	const width = (this.bodyEl.offsetWidth + 50) + 'px';
+		// 	this.bodyEl.style.height = height;
+		// 	this.resizableEl.style.height = height;
+		// 	this.bodyEl.style.width = width;
+		// 	this.resizableEl.style.width = width;
+		// }
 		this.addOnMouseBorderEvents();
 		// this.resizeWindow();
 
@@ -140,25 +141,32 @@ class PowerWindow extends PowerDialogBase {
 		this._mouseIsDown = true;
 		this.allowResize = true;
 		this._initialX = e.clientX;
+		this._initialY = e.clientY;
 		this._initialLeft = this._left;
-		this._initialOffsetWidth = this._window.offsetWidth + this._window.offsetLeft;
+		this._initialTop = this._top;
+		this._initialOffsetWidth = this._window.offsetWidth;
+		this._initialOffsetHeight = this._window.offsetHeight;
 	}
 
 	changeWindowSize(e) {
 		e.preventDefault();
-		const rect = this._window.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-
-		const minWidth = 130;
-		const minHeight = 130;
-
 
 		if (this.allowResize) {
+			const rect = this._window.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const y = e.clientY - rect.top;
+
+			const minWidth = 130;
+			const minHeight = 130;
+
 			if (this._window.cursor === 'right') {
 				this.resizeRightBorder(x);
 			} else if (this._window.cursor === 'left') {
 				this.resizeLeftBorder(x);
+			} else if (this._window.cursor === 'top') {
+				this.resizeTopBorder(y);
+			} else if (this._window.cursor === 'botton') {
+				this.resizeBottonBorder(y);
 			}
 
 			if (this._width < minWidth) {
@@ -169,7 +177,10 @@ class PowerWindow extends PowerDialogBase {
 			}
 
 			this._window.style.width =  this._width + 'px';
+			this._window.style.height =  this._height + 'px';
+			this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 			this._window.style.left = this._left + 'px';
+			this._window.style.top = this._top + 'px';
 			// console.log('resize', this._window.style.width);
 
 			// Add the classes to create a css "midia query" for the window
@@ -185,12 +196,20 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	resizeLeftBorder(x) {
-		// This avoid cursor inside the window (if it is over the scroll the cursor changes to pointer)
-		const adjust = 10;
 		const diff = (x - this._initialX);
 		this._left = this._initialLeft + this._left + diff;
 		this._width = this._width - (this._initialLeft + diff);
-		console.log(this._left, diff);
+	}
+
+	resizeTopBorder(y) {
+		const diff = (y - this._initialY);
+		this._top = this._initialTop + this._top + diff;
+		this._height = this._height - (this._initialTop + diff);
+	}
+
+	resizeBottonBorder(y) {
+		const adjust = 0;
+		this._height = this._initialOffsetHeight + (y - this._initialY) + adjust;
 	}
 
 	onMouseUp() {
@@ -216,9 +235,7 @@ class PowerWindow extends PowerDialogBase {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
 		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
-					<div class="pw-window-resizable">
-						${super.template({$title})}
-					</div>
+					${super.template({$title})}
 				</div>`;
 	}
 

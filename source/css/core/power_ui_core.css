@@ -250,7 +250,7 @@
     /*resize: both;*/
     overflow: auto;
 }
-.pw-window, .pw-window-resizable, .pw-window .pw-body {
+.pw-window, .pw-window .pw-body {
     max-width: 95vw;
     max-height: 98vh;
     min-width: 250px;
@@ -258,11 +258,11 @@
     /*text-align: center;*/
 }
 
-.pw-window .pw-window-resizable, .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window .pw-body-iframe, .pw-window iframe {
+.pw-window .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window .pw-body-iframe, .pw-window iframe {
     min-width: 100%;
     max-width: 100%;
 }
-.pw-window.pw-touchdevice .pw-body, .pw-window.pw-touchdevice .pw-window-resizable {
+.pw-window.pw-touchdevice .pw-body {
     top: 0;
     left: 0;
     width: 100vw;
@@ -270,9 +270,7 @@
     max-width: 100vw;
     max-height: 100vh;
 }
-.pw-window-resizable {
-    overflow: hidden;
-}
+
 .pw-window .pw-title-bar {
     cursor: grabbing;
     text-align: center;
@@ -291,7 +289,7 @@
     width: 50em;
     max-width: 95vw;
 }
-.pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window-resizable {
+.pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
 
