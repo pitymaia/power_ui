@@ -47,12 +47,62 @@ class PowerWindow extends PowerDialogBase {
 			this.bodyEl.style.width = width;
 			this.resizableEl.style.width = width;
 		}
-
+		this.addOnMouseBorderEvents();
 		this.resizeWindow();
 
 		this.windowsOrder();
 
 		super._onViewLoad(this.currentView);
+	}
+
+	addOnMouseBorderEvents() {
+		const _window = this.currentView.getElementsByClassName('pw-window')[0];
+		this._window = _window;
+		_window.onmousemove = this.onMouseMoveBorder.bind(this);
+		_window.onmouseout = this.onMouseOutBorder.bind(this);
+	}
+
+	onMouseMoveBorder(e) {
+		if (e.target !== e.currentTarget) {
+			return;
+		}
+
+		const rect = e.target.getBoundingClientRect();
+		const x = e.clientX - rect.left; //x position within the element.
+		const y = e.clientY - rect.top;  //y position within the element.
+		const width = this._window.offsetWidth;
+		const height = this._window.offsetHeight;
+		this.removeAllCursorClasses();
+		if ((x <= 15 && y <= 15)) {
+			// top left corner
+			this.$powerUi.addCss(this._viewId, 'window-left-top');
+		} else if (x <= 15 && (y > 15 && y >= height - 15)) {
+			// botton left corner
+			this.$powerUi.addCss(this._viewId, 'window-left-botton');
+		} else if (x >= width - 15 && y <= 15) {
+			// top right corner
+			this.$powerUi.addCss(this._viewId, 'window-left-botton');
+		} else if (x > width - 15 && y > height - 15) {
+			// botton left corner
+			this.$powerUi.addCss(this._viewId, 'window-left-top');
+		} else if (y > 15 && y <= height - 15) {
+			// left or right
+			this.$powerUi.addCss(this._viewId, 'window-width');
+		} else if (x <= width - 15) {
+			// top or botton
+			this.$powerUi.addCss(this._viewId, 'window-height');
+		}
+	}
+
+	onMouseOutBorder() {
+		this.removeAllCursorClasses();
+	}
+
+	removeAllCursorClasses() {
+		this.$powerUi.removeCss(this._viewId, 'window-left-top');
+		this.$powerUi.removeCss(this._viewId, 'window-left-botton');
+		this.$powerUi.removeCss(this._viewId, 'window-width');
+		this.$powerUi.removeCss(this._viewId, 'window-height');
 	}
 
 	template({$title}) {
@@ -294,11 +344,11 @@ class PowerWindowIframe extends PowerWindow {
 							<span class="pw-title-bar-label">${this.$title}</span>
 							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
 						</div>
-						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
-						</div>
 						<div class="pw-body pw-body-iframe">
 							<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
 							</iframe>
+						</div>
+						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 						</div>
 					</div>
 				</div>`;

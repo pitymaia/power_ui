@@ -221,18 +221,33 @@
     z-index: 3000 !important;
 }
 
+.window-left-top .pw-window {
+    cursor: nwse-resize;
+}
+.window-left-botton .pw-window {
+    cursor: nesw-resize;
+}
+.window-width .pw-window {
+    cursor: ew-resize;
+}
+.window-height .pw-window {
+    cursor: ns-resize;
+}
 .pw-window  {
     position: fixed;
     top: 10px;
     left: 10px;
+    padding: 5px;
     z-index: 1001;
+    background-color: #000000;
+    /*overflow: hidden;*/
 }
 .pw-window.pw-touchdevice {
     top: 0;
     left: 0;
 }
 .pw-window .pw-body {
-    resize: both;
+    /*resize: both;*/
     overflow: auto;
 }
 .pw-window, .pw-window-resizable, .pw-window .pw-body {
