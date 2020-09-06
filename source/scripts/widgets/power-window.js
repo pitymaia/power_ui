@@ -190,9 +190,9 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	resizeRightBorder(x) {
-		// This avoid cursor inside the window (if it is over the scroll the cursor changes to pointer)
-		const adjust = 10;
-		this._width = this._initialOffsetWidth + (x - this._initialX) - adjust;
+		// this._width = this._initialOffsetWidth + (x - this._initialX);
+		this._width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
+		console.log('x', x, 'this._width', this._width);
 	}
 
 	resizeLeftBorder(x) {
@@ -208,8 +208,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	resizeBottonBorder(y) {
-		const adjust = 0;
-		this._height = this._initialOffsetHeight + (y - this._initialY) + adjust;
+		this._height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
 	}
 
 	onMouseUp() {
