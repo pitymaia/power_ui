@@ -126,14 +126,14 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	onMouseDownBorder(e) {
+		// Re-order the windows z-index
+		this.windowsOrder(true);
 		// Return if click in inner elements, not in the border itself
 		if (e.target !== e.currentTarget) {
 			return;
 		}
 		e.preventDefault();
 
-		// Re-order the windows z-index
-		this.windowsOrder(true);
 		this._mouseIsDown = true;
 		this.allowResize = true;
 		this._initialX = e.clientX;
