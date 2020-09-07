@@ -29,8 +29,10 @@ class PowerWindow extends PowerDialogBase {
 		this._height = this._window.offsetHeight;
 		this._top = this._window.offsetTop;
 		this._left = this._window.offsetLeft;
+		this._lastHeight = 0;
+		this._lastwidth = 0;
 		// Make it draggable
-		this.dragElement();
+		this.addDragWindow();
 
 		// Make it resizable
 		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
@@ -192,12 +194,31 @@ class PowerWindow extends PowerDialogBase {
 		if (this._top < 0) {
 			this._top = 0;
 		}
+		// Left limits
 		if (this._width === this._minWidth && this._window.cursor.includes('left')) {
 			this._left = this._left + widthFix;
+		} else if (this._left <= 0 && this._lastWidth < this._width && this._window.cursor.includes('left')) {
+			this._width = this._lastWidth;
 		}
+		// Top limits
 		if (this._height === this._minHeight && this._window.cursor.includes('top')) {
 			this._top = this._top + heightFix;
+		} else if (this._top <= 0 && this._lastHeight < this._height && this._window.cursor.includes('top')) {
+			this._height = this._lastHeight;
 		}
+		// Right limits
+		if (this._left + this._width + 10 > window.innerWidth) {
+			this._width = window.innerWidth - this._left - 10;
+		}
+		// Bottom limits
+		if (this._top + this._height + 10 > window.innerHeight) {
+			this._height = window.innerHeight - this._top - 10;
+		}
+
+		this._lastHeight = this._height;
+		this._lastWidth = this._width;
+		this._lastTop = this._top;
+		this._lastLeft = this._left;
 	}
 
 	setAllWindowElements() {
@@ -238,7 +259,7 @@ class PowerWindow extends PowerDialogBase {
 		window.onmouseup = null;
 		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
-		this.closeDragElement();
+		this.endDragWindow();
 		if (this.onResize) {
 			this.onResize();
 		}
@@ -315,7 +336,7 @@ class PowerWindow extends PowerDialogBase {
 		this._window.classList.remove('pw-menu-break');
 	}
 
-	dragElement() {
+	addDragWindow() {
 		this.pos1 = 0;
 		this.pos2 = 0;
 		this.pos3 = 0;
@@ -341,7 +362,7 @@ class PowerWindow extends PowerDialogBase {
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
 		// Cancel if user giveup
-		window.onmouseup = this.closeDragElement.bind(this);
+		window.onmouseup = this.endDragWindow.bind(this);
 		// call a function when the cursor moves
 		window.onmousemove = this.elementDrag.bind(this);
 	}
@@ -355,21 +376,33 @@ class PowerWindow extends PowerDialogBase {
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
 		// set the _window's new position
-		let top = this._window.offsetTop - this.pos2;
-		let left = this._window.offsetLeft - this.pos1;
-		if (top < 0) {
-			top = 0;
-		}
-		if (left < 0) {
-			left = 0;
-		}
-		this._window.style.top = top + 'px';
-		this._window.style.left = left + 'px';
+		this._top = this._window.offsetTop - this.pos2;
+		this._left = this._window.offsetLeft - this.pos1;
+
+		this.avoidDragOutOfScreen();
+
+		this._window.style.top = this._top + 'px';
+		this._window.style.left = this._left + 'px';
 		this._top = this._window.offsetTop;
 		this._left = this._window.offsetLeft;
 	}
 
-	closeDragElement() {
+	avoidDragOutOfScreen() {
+		if (this._top + this._height + 10 > window.innerHeight) {
+			this._top = window.innerHeight - this._height - 10;
+		}
+		if (this._top < 0) {
+			this._top = 0;
+		}
+		if (this._left + this._width + 10 >= window.innerWidth) {
+			this._left = window.innerWidth - this._width - 10;
+		}
+		if (this._left < 0) {
+			this._left = 0;
+		}
+	}
+
+	endDragWindow() {
 		this._window.classList.add('pw-active');
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
