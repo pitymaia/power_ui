@@ -8,8 +8,6 @@ class PowerWindow extends PowerDialogBase {
 
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
-		window.removeEventListener('resize', this._resizeWindow, false);
-
 		super._cancel(args);
 	}
 
@@ -45,7 +43,6 @@ class PowerWindow extends PowerDialogBase {
 		this._minHeight = minHeight;
 
 		this.addOnMouseBorderEvents();
-		// this.resizeWindow();
 
 		this.windowsOrder();
 
@@ -374,12 +371,12 @@ class PowerWindow extends PowerDialogBase {
 
 	closeDragElement() {
 		this._window.classList.add('pw-active');
-		// this.resizeWindow();
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
 		window.onmouseup = null;
 		window.onmousemove = null;
 		this.$powerUi._dragging = false;
+		this.$powerUi._mouseIsDown = false;
 	}
 
 	windowsOrder(preventActivateWindow) {
