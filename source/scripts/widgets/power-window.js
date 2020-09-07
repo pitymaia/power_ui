@@ -64,7 +64,7 @@ class PowerWindow extends PowerDialogBase {
 
 	onMouseMoveBorder(e) {
 		// Return if click in inner elements, not in the border itself
-		if (e.target !== e.currentTarget || this._mouseIsDown) {
+		if (e.target !== e.currentTarget || this._mouseIsDown || this._dragging) {
 			return;
 		}
 
@@ -336,6 +336,7 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
+		this._dragging = true;
 		// Re-order the windows z-index
 		this.windowsOrder(true);
 		// get initial mouse cursor position
@@ -377,6 +378,7 @@ class PowerWindow extends PowerDialogBase {
 		// stop moving when mouse button is released:
 		window.onmouseup = null;
 		window.onmousemove = null;
+		this._dragging = false;
 	}
 
 	windowsOrder(preventActivateWindow) {
