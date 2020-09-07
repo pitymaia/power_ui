@@ -62,7 +62,7 @@ class PowerWindow extends PowerDialogBase {
 
 	onMouseMoveBorder(e) {
 		// Return if click in inner elements, not in the border itself
-		if (e.target !== e.currentTarget || this._mouseIsDown || this._dragging) {
+		if (e.target !== e.currentTarget || this.$powerUi._mouseIsDown || this.$powerUi._dragging) {
 			return;
 		}
 
@@ -119,7 +119,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	onMouseOutBorder() {
-		if (this._mouseIsDown) {
+		if (this.$powerUi._mouseIsDown) {
 			return;
 		}
 		this.removeAllCursorClasses();
@@ -134,7 +134,7 @@ class PowerWindow extends PowerDialogBase {
 		}
 		e.preventDefault();
 
-		this._mouseIsDown = true;
+		this.$powerUi._mouseIsDown = true;
 		this.allowResize = true;
 		this._initialX = e.clientX;
 		this._initialY = e.clientY;
@@ -146,7 +146,6 @@ class PowerWindow extends PowerDialogBase {
 
 	changeWindowSize(e) {
 		e.preventDefault();
-
 		if (this.allowResize) {
 			const rect = this._window.getBoundingClientRect();
 			const x = e.clientX - rect.left;
@@ -211,10 +210,6 @@ class PowerWindow extends PowerDialogBase {
 		this._window.style.left = this._left + 'px';
 		this._window.style.top = this._top + 'px';
 
-		if (this.iframe) {
-			this.iframe.style.height = this.bodyEl.style.height;
-		}
-
 		// Add the classes to create a css "midia query" for the window
 		this.replaceWindowSizeQuery();
 		this.replaceMenuBreakQuery();
@@ -244,7 +239,7 @@ class PowerWindow extends PowerDialogBase {
 		this.allowResize = false;
 		window.onmousemove = null;
 		window.onmouseup = null;
-		this._mouseIsDown = false;
+		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
 		this.closeDragElement();
 		if (this.onResize) {
@@ -342,7 +337,7 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
-		this._dragging = true;
+		this.$powerUi._dragging = true;
 		// Re-order the windows z-index
 		this.windowsOrder(true);
 		// get initial mouse cursor position
@@ -384,7 +379,7 @@ class PowerWindow extends PowerDialogBase {
 		// stop moving when mouse button is released:
 		window.onmouseup = null;
 		window.onmousemove = null;
-		this._dragging = false;
+		this.$powerUi._dragging = false;
 	}
 
 	windowsOrder(preventActivateWindow) {
@@ -439,13 +434,16 @@ class PowerWindowIframe extends PowerWindow {
 	_onViewLoad(view) {
 		// Make it resizable
 		this.iframe = view.getElementsByTagName('iframe')[0];
+		this.coverIframe = view.getElementsByClassName('pw-cover-iframe')[0];
 		super._onViewLoad(view);
 	}
 
-	changeWindowSize(e) {
-		super.changeWindowSize(e);
-		// this.iframe.style.width = this.bodyEl.style.width;
+	setAllWindowElements() {
+		super.setAllWindowElements();
 		this.iframe.style.height = this.bodyEl.style.height;
+		this.coverIframe.style.height = this.iframe.style.height;
+		this.coverIframe.style.width = this._width + 'px';
+		this.coverIframe.style.top = this.titleBarEl.offsetHeight + 5 + 'px';
 	}
 
 	template({$title, $url}) {
@@ -460,8 +458,8 @@ class PowerWindowIframe extends PowerWindow {
 					<div class="pw-body pw-body-iframe">
 						<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
 						</iframe>
-					</div>
-					<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
+						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
+						</div>
 					</div>
 				</div>`;
 	}
