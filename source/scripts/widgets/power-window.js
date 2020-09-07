@@ -18,17 +18,23 @@ class PowerWindow extends PowerDialogBase {
 	_onViewLoad(view) {
 		this.currentView = view;
 		this._window = this.currentView.getElementsByClassName('pw-window')[0];
+
+		if (this._top !== undefined && this._left !== undefined) {
+			this._window.style.top = this._top + 'px';
+			this._window.style.left = this._left + 'px';
+		}
+
+		if (this._width !== undefined && this._height !== undefined) {
+			this._window.style.width = this._width + 'px';
+			this._window.style.height = this._height + 'px';
+		}
+
 		this._width = this._window.offsetWidth;
 		this._height = this._window.offsetHeight;
 		this._top = this._window.offsetTop;
 		this._left = this._window.offsetLeft;
 		// Make it draggable
 		this.dragElement();
-
-		if (this._top && this._left) {
-			this._window.style.top = this._top + 'px';
-			this._window.style.left = this._left + 'px';
-		}
 
 		// Make it resizable
 		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
@@ -39,27 +45,13 @@ class PowerWindow extends PowerDialogBase {
 		this._minHeight = parseInt(window.getComputedStyle(this._window).getPropertyValue('min-height').replace('px', ''));
 		this._minHeight = this._minHeight + this.titleBarEl.offsetHeight;
 		this._window.style['min-height'] = this._minHeight + 'px';
-		// this.resizeElement();
 
-		// if (this._width && this._height) {
-		// 	// Keep the size if user refresh the window
-		// 	this.bodyEl.style.width = this._width;
-		// 	this.bodyEl.style.height = this._bodyHeight;
-		// 	this.resizableEl.style.width = this._width;
-		// 	this.resizableEl.style.height = this._height;
-		// } else {
-		// 	// Makes an initial adjustiment on window size to avoid it starts with a scrollbar
-		// 	const height = (this.bodyEl.offsetHeight + 50) + 'px';
-		// 	const width = (this.bodyEl.offsetWidth + 50) + 'px';
-		// 	this.bodyEl.style.height = height;
-		// 	this.resizableEl.style.height = height;
-		// 	this.bodyEl.style.width = width;
-		// 	this.resizableEl.style.width = width;
-		// }
 		this.addOnMouseBorderEvents();
 		// this.resizeWindow();
 
 		this.windowsOrder();
+
+		this.setAllWindowElements();
 
 		super._onViewLoad(this.currentView);
 	}
@@ -141,7 +133,7 @@ class PowerWindow extends PowerDialogBase {
 			return;
 		}
 		e.preventDefault();
-		console.log('mouse down', e);
+
 		// Re-order the windows z-index
 		this.windowsOrder(true);
 		this._mouseIsDown = true;
@@ -194,17 +186,24 @@ class PowerWindow extends PowerDialogBase {
 				this._height = minHeight;
 			}
 
-			this._window.style.width =  this._width + 'px';
-			this._window.style.height =  this._height + 'px';
-			this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
-			this._window.style.left = this._left + 'px';
-			this._window.style.top = this._top + 'px';
-			// console.log('resize', this._window.style.width);
-
-			// Add the classes to create a css "midia query" for the window
-			this.replaceWindowSizeQuery();
-			this.replaceMenuBreakQuery();
+			this.setAllWindowElements();
 		}
+	}
+
+	setAllWindowElements() {
+		this._window.style.width =  this._width + 'px';
+		this._window.style.height =  this._height + 'px';
+		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		this._window.style.left = this._left + 'px';
+		this._window.style.top = this._top + 'px';
+
+		if (this.iframe) {
+			this.iframe.style.height = this.bodyEl.style.height;
+		}
+
+		// Add the classes to create a css "midia query" for the window
+		this.replaceWindowSizeQuery();
+		this.replaceMenuBreakQuery();
 	}
 
 	resizeRightBorder(x) {
@@ -262,53 +261,6 @@ class PowerWindow extends PowerDialogBase {
 					${super.template({$title})}
 				</div>`;
 	}
-
-	// resizeElement() {
-	// 	// or move it from anywhere inside the container
-	// 	this.bodyEl.onmousedown = this.resizeMouseDown.bind(this);
-	// }
-
-
-	// resizeMouseDown() {
-	// 	// Re-order the windows z-index
-	// 	this.windowsOrder(true);
-	// 	// Cancel if user giveup
-	// 	document.onmouseup = this.closeDragElement.bind(this);
-	// 	// call a function when the cursor moves
-	// 	document.onmousemove = this.resizeWindow.bind(this);
-	// }
-
-	// resizeWindow() {
-	// 	const minWidth = 130;
-	// 	const minHeight = 130;
-	// 	// set the _window's new size
-	// 	this._width = this.bodyEl.offsetWidth;
-	// 	const bodyHeight = this.bodyEl.offsetHeight;
-	// 	const titleHeight = this.titleBarEl.offsetHeight;
-	// 	this._height = bodyHeight + titleHeight;
-
-	// 	if (this._width < minWidth) {
-	// 		this._width = minWidth;
-	// 	}
-	// 	if (this._height < minHeight) {
-	// 		this._height = minHeight;
-	// 	}
-
-	// 	// Add the classes to create a css "midia query" for the window
-	// 	this.replaceWindowSizeQuery();
-	// 	this.replaceMenuBreakQuery();
-
-	// 	this._width = `${this._width}px`;
-	// 	this._height = `${this._height}px`;
-
-	// 	this.resizableEl.style.width = this._width;
-	// 	this.resizableEl.style.height = this._height;
-	// 	this.bodyEl.style.width = this._width;
-	// 	this.bodyEl.style.height = this.resizableEl.offsetHeight - titleHeight + 'px';
-	// 	if (this.onResize) {
-	// 		this.onResize();
-	// 	}
-	// }
 
 	// Allow simulate midia queries with power-window
 	replaceWindowSizeQuery() {
@@ -390,9 +342,9 @@ class PowerWindow extends PowerDialogBase {
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
 		// Cancel if user giveup
-		document.onmouseup = this.closeDragElement.bind(this);
+		window.onmouseup = this.closeDragElement.bind(this);
 		// call a function when the cursor moves
-		document.onmousemove = this.elementDrag.bind(this);
+		window.onmousemove = this.elementDrag.bind(this);
 	}
 
 	elementDrag(event) {
@@ -423,8 +375,8 @@ class PowerWindow extends PowerDialogBase {
 		// this.resizeWindow();
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
-		document.onmouseup = null;
-		document.onmousemove = null;
+		window.onmouseup = null;
+		window.onmousemove = null;
 	}
 
 	windowsOrder(preventActivateWindow) {

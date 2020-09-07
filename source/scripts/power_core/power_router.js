@@ -49,7 +49,7 @@ class EngineCommands {
 					runLoad: false,
 					runCtrl: false,
 					addView: true,
-					runOnViewLoad: false,
+					runOnViewLoad: true,
 				},
 			},
 			reload: {
@@ -976,6 +976,7 @@ class Router {
 				ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
+			ctx.afterOnViewLoad(ctx, route);
 			ctx.runOnViewLoadInOrder(orderedRoutesToOpen, routeIndex + 1, ctx, _resolve);
 		}
 	}
