@@ -2,10 +2,8 @@ class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi, promise=false}) {
 		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
-
-		// Add it to _resizeWindow allow remove the listner
-		// this._resizeWindow = this.resizeWindow.bind(this);
-		// window.addEventListener('resize', this._resizeWindow, false);
+		this._minWidth = 250;
+		this._minHeight = 250;
 	}
 
 	// Allow async calls to implement onCancel
@@ -41,10 +39,10 @@ class PowerWindow extends PowerDialogBase {
 		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
 
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
-		this._minWidth = window.getComputedStyle(this._window).getPropertyValue('min-width');
-		this._minHeight = parseInt(window.getComputedStyle(this._window).getPropertyValue('min-height').replace('px', ''));
-		this._minHeight = this._minHeight + this.titleBarEl.offsetHeight;
-		this._window.style['min-height'] = this._minHeight + 'px';
+		let minHeight = parseInt(window.getComputedStyle(this._window).getPropertyValue('min-height').replace('px', ''));
+		minHeight = minHeight + this.titleBarEl.offsetHeight;
+		this._window.style['min-height'] = minHeight + 'px';
+		this._minHeight = minHeight;
 
 		this.addOnMouseBorderEvents();
 		// this.resizeWindow();
@@ -154,9 +152,6 @@ class PowerWindow extends PowerDialogBase {
 			const x = e.clientX - rect.left;
 			const y = e.clientY - rect.top;
 
-			const minWidth = 130;
-			const minHeight = 130;
-
 			if (this._window.cursor === 'right') {
 				this.resizeRightBorder(x);
 			} else if (this._window.cursor === 'left') {
@@ -179,14 +174,33 @@ class PowerWindow extends PowerDialogBase {
 				this.resizeLeftBorder(x);
 			}
 
-			if (this._width < minWidth) {
-				this._width = minWidth;
-			}
-			if (this._height < minHeight) {
-				this._height = minHeight;
-			}
-
+			this.avoidExceedingLimits();
 			this.setAllWindowElements();
+		}
+	}
+
+	avoidExceedingLimits() {
+		let widthFix = 0;
+		let heightFix = 0;
+		if (this._width < this._minWidth) {
+			widthFix = this._width - this._minWidth;
+			this._width = this._minWidth;
+		}
+		if (this._height < this._minHeight) {
+			heightFix = this._height - this._minHeight;
+			this._height = this._minHeight;
+		}
+		if (this._left < 0) {
+			this._left = 0;
+		}
+		if (this._top < 0) {
+			this._top = 0;
+		}
+		if (this._width === this._minWidth && this._window.cursor.includes('left')) {
+			this._left = this._left + widthFix;
+		}
+		if (this._height === this._minHeight && this._window.cursor.includes('top')) {
+			this._top = this._top + heightFix;
 		}
 	}
 
@@ -213,21 +227,13 @@ class PowerWindow extends PowerDialogBase {
 	resizeLeftBorder(x) {
 		const diff = (x - this._initialX);
 		this._left = this._initialLeft + this._left + diff;
-		if (this._left < 0) {
-			this._left = 0;
-		} else {
-			this._width = this._width - (this._initialLeft + diff);
-		}
+		this._width = this._width - (this._initialLeft + diff);
 	}
 
 	resizeTopBorder(y) {
 		const diff = (y - this._initialY);
 		this._top = this._initialTop + this._top + diff;
-		if (this._top < 0) {
-			this._top = 0;
-		} else {
-			this._height = this._height - (this._initialTop + diff);
-		}
+		this._height = this._height - (this._initialTop + diff);
 	}
 
 	resizeBottomBorder(y) {
