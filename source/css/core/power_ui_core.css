@@ -172,9 +172,10 @@
 /* Menu end*/
 
 /* Dialog-Modal-Window start */
-.pw-body-iframe iframe {
-    margin-left: 5px;
+.pw-body iframe {
+    margin: 0;
     z-index: 1;
+    overflow: hidden;
 }
 .pw-cover-iframe {
     position: absolute;
@@ -224,7 +225,7 @@
 .window-left-top {
     cursor: nwse-resize;
 }
-.window-left-botton {
+.window-left-bottom {
     cursor: nesw-resize;
 }
 .window-width {
@@ -246,11 +247,10 @@
     top: 0;
     left: 0;
 }
-.pw-window .pw-body {
-    /*resize: both;*/
+.pw-window .pw-body:not(.pw-body-iframe) {
     overflow: auto;
 }
-.pw-window, .pw-window .pw-body {
+.pw-window, .pw-window .pw-body, .pw-window iframe {
     max-width: 95vw;
     max-height: 98vh;
     min-width: 250px;
@@ -258,7 +258,7 @@
     /*text-align: center;*/
 }
 
-.pw-window .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window .pw-body-iframe, .pw-window iframe {
+.pw-window .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window iframe {
     min-width: 100%;
     max-width: 100%;
 }

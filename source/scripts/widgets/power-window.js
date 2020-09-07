@@ -35,6 +35,10 @@ class PowerWindow extends PowerDialogBase {
 		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
 
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		this._minWidth = window.getComputedStyle(this._window).getPropertyValue('min-width');
+		this._minHeight = parseInt(window.getComputedStyle(this._window).getPropertyValue('min-height').replace('px', ''));
+		this._minHeight = this._minHeight + this.titleBarEl.offsetHeight;
+		this._window.style['min-height'] = this._minHeight + 'px';
 		// this.resizeElement();
 
 		// if (this._width && this._height) {
@@ -68,7 +72,7 @@ class PowerWindow extends PowerDialogBase {
 
 	onMouseMoveBorder(e) {
 		// Return if click in inner elements, not in the border itself
-		if (e.target !== e.currentTarget) {
+		if (e.target !== e.currentTarget || this._mouseIsDown) {
 			return;
 		}
 
@@ -78,12 +82,13 @@ class PowerWindow extends PowerDialogBase {
 		e.preventDefault();
 		const viewId = this.$root ? 'root-view' : this._viewId;
 
+		this.removeAllCursorClasses();
 		this.cursorPositionOnWindowBound(e);
-		if (this._window.cursor === 'top-left' || this._window.cursor === 'botton-right') {
+		if (this._window.cursor === 'top-left' || this._window.cursor === 'bottom-right') {
 			this.$powerUi.addCss(viewId, 'window-left-top');
-		} else if (this._window.cursor === 'top-right' || this._window.cursor === 'botton-left') {
-			this.$powerUi.addCss(viewId, 'window-left-botton');
-		} else if (this._window.cursor === 'top' || this._window.cursor === 'botton') {
+		} else if (this._window.cursor === 'top-right' || this._window.cursor === 'bottom-left') {
+			this.$powerUi.addCss(viewId, 'window-left-bottom');
+		} else if (this._window.cursor === 'top' || this._window.cursor === 'bottom') {
 			this.$powerUi.addCss(viewId, 'window-height');
 		} else {
 			this.$powerUi.addCss(viewId, 'window-width');
@@ -100,14 +105,14 @@ class PowerWindow extends PowerDialogBase {
 			// top left corner
 			this._window.cursor = 'top-left';
 		} else if (x <= 15 && (y > 15 && y >= height - 15)) {
-			// botton left corner
-			this._window.cursor = 'botton-left';
+			// bottom left corner
+			this._window.cursor = 'bottom-left';
 		} else if (x >= width - 15 && y <= 15) {
 			// top right corner
 			this._window.cursor = 'top-right';
 		} else if (x >= width - 15 && y >= height - 15) {
-			// botton left corner
-			this._window.cursor = 'botton-right';
+			// bottom left corner
+			this._window.cursor = 'bottom-right';
 		} else if ((y > 15 && y <= height - 15) && x < 15) {
 			// left
 			this._window.cursor = 'left';
@@ -118,15 +123,16 @@ class PowerWindow extends PowerDialogBase {
 			// top
 			this._window.cursor = 'top';
 		} else if (y >= height - 15 && (x > 15 && x <= width - 15)) {
-			// botton
-			this._window.cursor = 'botton';
+			// bottom
+			this._window.cursor = 'bottom';
 		}
 	}
 
 	onMouseOutBorder() {
-		if (!this._mouseIsDown) {
-			this.removeAllCursorClasses();
+		if (this._mouseIsDown) {
+			return;
 		}
+		this.removeAllCursorClasses();
 	}
 
 	onMouseDownBorder(e) {
@@ -165,8 +171,20 @@ class PowerWindow extends PowerDialogBase {
 				this.resizeLeftBorder(x);
 			} else if (this._window.cursor === 'top') {
 				this.resizeTopBorder(y);
-			} else if (this._window.cursor === 'botton') {
-				this.resizeBottonBorder(y);
+			} else if (this._window.cursor === 'bottom') {
+				this.resizeBottomBorder(y);
+			} else if (this._window.cursor === 'top-right') {
+				this.resizeTopBorder(y);
+				this.resizeRightBorder(x);
+			} else if (this._window.cursor === 'top-left') {
+				this.resizeTopBorder(y);
+				this.resizeLeftBorder(x);
+			} else if (this._window.cursor === 'bottom-right') {
+				this.resizeBottomBorder(y);
+				this.resizeRightBorder(x);
+			} else if (this._window.cursor === 'bottom-left') {
+				this.resizeBottomBorder(y);
+				this.resizeLeftBorder(x);
 			}
 
 			if (this._width < minWidth) {
@@ -190,24 +208,30 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	resizeRightBorder(x) {
-		// this._width = this._initialOffsetWidth + (x - this._initialX);
 		this._width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
-		console.log('x', x, 'this._width', this._width);
 	}
 
 	resizeLeftBorder(x) {
 		const diff = (x - this._initialX);
 		this._left = this._initialLeft + this._left + diff;
-		this._width = this._width - (this._initialLeft + diff);
+		if (this._left < 0) {
+			this._left = 0;
+		} else {
+			this._width = this._width - (this._initialLeft + diff);
+		}
 	}
 
 	resizeTopBorder(y) {
 		const diff = (y - this._initialY);
 		this._top = this._initialTop + this._top + diff;
-		this._height = this._height - (this._initialTop + diff);
+		if (this._top < 0) {
+			this._top = 0;
+		} else {
+			this._height = this._height - (this._initialTop + diff);
+		}
 	}
 
-	resizeBottonBorder(y) {
+	resizeBottomBorder(y) {
 		this._height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
 	}
 
@@ -217,6 +241,7 @@ class PowerWindow extends PowerDialogBase {
 		window.onmouseup = null;
 		this._mouseIsDown = false;
 		this.removeAllCursorClasses();
+		this.closeDragElement();
 		if (this.onResize) {
 			this.onResize();
 		}
@@ -225,7 +250,7 @@ class PowerWindow extends PowerDialogBase {
 	removeAllCursorClasses() {
 		const viewId = this.$root ? 'root-view' : this._viewId;
 		this.$powerUi.removeCss(viewId, 'window-left-top');
-		this.$powerUi.removeCss(viewId, 'window-left-botton');
+		this.$powerUi.removeCss(viewId, 'window-left-bottom');
 		this.$powerUi.removeCss(viewId, 'window-width');
 		this.$powerUi.removeCss(viewId, 'window-height');
 	}
@@ -379,8 +404,16 @@ class PowerWindow extends PowerDialogBase {
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
 		// set the _window's new position
-		this._window.style.top = (this._window.offsetTop - this.pos2) + 'px';
-		this._window.style.left = (this._window.offsetLeft - this.pos1) + 'px';
+		let top = this._window.offsetTop - this.pos2;
+		let left = this._window.offsetLeft - this.pos1;
+		if (top < 0) {
+			top = 0;
+		}
+		if (left < 0) {
+			left = 0;
+		}
+		this._window.style.top = top + 'px';
+		this._window.style.left = left + 'px';
 		this._top = this._window.offsetTop;
 		this._left = this._window.offsetLeft;
 	}
@@ -444,35 +477,31 @@ class PowerWindowIframe extends PowerWindow {
 	}
 
 	_onViewLoad(view) {
-		// Make it draggable
-		this.currentView = view;
 		// Make it resizable
-		this.iframe = this.currentView.getElementsByTagName('iframe')[0];
+		this.iframe = view.getElementsByTagName('iframe')[0];
 		super._onViewLoad(view);
 	}
 
-	// resizeWindow() {
-	// 	super.resizeWindow();
-	// 	this.iframe.style.width = parseInt(this._width.replace('px', '')) -10 + 'px';
-	// 	this.iframe.style.height = parseInt(this._height.replace('px', '')) -53 + 'px';
-	// }
+	changeWindowSize(e) {
+		super.changeWindowSize(e);
+		// this.iframe.style.width = this.bodyEl.style.width;
+		this.iframe.style.height = this.bodyEl.style.height;
+	}
 
 	template({$title, $url}) {
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
 		const id = `iframe_${this.$powerUi._Unique.next()}`;
 		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
-					<div class="pw-window-resizable">
-						<div class="pw-title-bar">
-							<span class="pw-title-bar-label">${this.$title}</span>
-							<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
-						</div>
-						<div class="pw-body pw-body-iframe">
-							<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
-							</iframe>
-						</div>
-						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
-						</div>
+					<div class="pw-title-bar">
+						<span class="pw-title-bar-label">${this.$title}</span>
+						<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
+					</div>
+					<div class="pw-body pw-body-iframe">
+						<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
+						</iframe>
+					</div>
+					<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 					</div>
 				</div>`;
 	}
