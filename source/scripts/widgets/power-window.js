@@ -53,6 +53,12 @@ class PowerWindow extends PowerDialogBase {
 		this.setAllWindowElements();
 	}
 
+	_onRouteClose() {
+		delete this.zIndex;
+		this.saveWindowState();
+		super._onRouteClose();
+	}
+
 	saveWindowState() {
 		const winState = {
 			width: this._width,
@@ -61,7 +67,6 @@ class PowerWindow extends PowerDialogBase {
 			left: this._left,
 			zIndex: this.zIndex,
 		};
-
 		sessionStorage.setItem(this.dialogId, JSON.stringify(winState));
 	}
 
@@ -75,7 +80,6 @@ class PowerWindow extends PowerDialogBase {
 			this._left = winState.left;
 			this.zIndex = winState.zIndex || this.zIndex;
 			this._dialog.style.zIndex = this.zIndex;
-			return true;
 		}
 	}
 
@@ -289,7 +293,6 @@ class PowerWindow extends PowerDialogBase {
 		window.onmouseup = null;
 		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
-		this.endDragWindow();
 		if (this.onResize) {
 			this.onResize();
 		}
@@ -449,6 +452,7 @@ class PowerWindow extends PowerDialogBase {
 			dialog.ctrl.zIndex = biggerIndex;
 			dialog.ctrl._dialog.style.zIndex = biggerIndex;
 			dialog.ctrl._dialog.classList.remove('pw-active');
+			dialog.ctrl.saveWindowState();
 		}
 
 		this.zIndex = biggerIndex + 1;
