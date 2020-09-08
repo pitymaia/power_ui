@@ -7,9 +7,9 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	// Allow async calls to implement onCancel
-	_cancel(...args) {
-		super._cancel(args);
-	}
+	// _cancel(...args) {
+	// 	super._cancel(args);
+	// }
 
 	_onViewLoad(view) {
 		this.currentView = view;
@@ -356,8 +356,6 @@ class PowerWindow extends PowerDialogBase {
 		event = event || window.event;
 		event.preventDefault();
 		this.$powerUi._dragging = true;
-		// Re-order the windows z-index
-		this.windowsOrder(true);
 		// get initial mouse cursor position
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
@@ -413,45 +411,40 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	windowsOrder(preventActivateWindow) {
-		const self = this;
-		// The timeout avoid call the windowOrder multiple times (one for each opened window)
-		if (this.$powerUi._windowsOrderTimeout) {
-			return;
-		}
-		this.$powerUi._windowsOrderInterval = setTimeout(function () {
-			let windows = document.getElementsByClassName('pw-window');
-			const currentWindow = self.currentView.getElementsByClassName('pw-window')[0];
+		let windows = document.getElementsByClassName('pw-window');
+		const currentWindow = this.currentView.getElementsByClassName('pw-window')[0];
 
-			let zindex = 1002;
-			const windowsTosort = {};
-			for (const win of windows) {
-				let winZindex = parseInt(win.style.zIndex || zindex);
-				if (win !== currentWindow) {
-					windowsTosort[winZindex] = win;
-					if (winZindex >= zindex) {
-						// Set zindex to it's bigger value
-						zindex = winZindex + 1;
-					}
+		let zindex = 1002;
+		const windowsTosort = {};
+		for (const win of windows) {
+			let winZindex = parseInt(win.style.zIndex || zindex);
+			if (win !== currentWindow) {
+				windowsTosort[winZindex] = win;
+				if (winZindex >= zindex) {
+					// Set zindex to it's bigger value
+					zindex = winZindex + 1;
 				}
 			}
-			// Sort it
-			const sorted = Object.keys(windowsTosort).sort((a,b) => parseInt(a)-parseInt(b));
+		}
+		// Sort it
+		const sorted = Object.keys(windowsTosort).sort((a,b) => parseInt(a)-parseInt(b));
 
-			zindex = 1002;
-			// Reorder the real windows z-index
-			for (const key of sorted) {
-				windowsTosort[key].style.zIndex = zindex;
-				zindex = zindex + 1;
-				windowsTosort[key].classList.remove('pw-active');
-			}
-			currentWindow.style.zIndex = zindex + 1;
-			// Prevent set the active if dragging or resizing
-			if (!preventActivateWindow) {
-				currentWindow.classList.add('pw-active');
-			} else {
-				currentWindow.classList.remove('pw-active');
-			}
-		}, 10);
+		zindex = 1002;
+		// Reorder the real windows z-index
+		for (const key of sorted) {
+			windowsTosort[key].style.zIndex = zindex;
+			zindex = zindex + 1;
+			windowsTosort[key].classList.remove('pw-active');
+			// Save it on session storage
+		}
+		console.log('windows', windows);
+		currentWindow.style.zIndex = zindex + 1;
+		// Prevent set the active if dragging or resizing
+		if (!preventActivateWindow) {
+			currentWindow.classList.add('pw-active');
+		} else {
+			currentWindow.classList.remove('pw-active');
+		}
 	}
 }
 
@@ -477,10 +470,14 @@ class PowerWindowIframe extends PowerWindow {
 	}
 
 	template({$title, $url}) {
+		for (const item of this._routeParams) {
+			console.log('params', item.key, item.value);
+			console.log('this._routeParams', this._routeParams);
+		}
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
 		const id = `iframe_${this.$powerUi._Unique.next()}`;
-		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}">
+		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}" id="${this._routeId}">
 					<div class="pw-title-bar">
 						<span class="pw-title-bar-label">${this.$title}</span>
 						<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>

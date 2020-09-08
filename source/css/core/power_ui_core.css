@@ -180,7 +180,7 @@
 .pw-cover-iframe {
     position: absolute;
     top: 0;
-    z-index: 1000;
+    z-index: 1001;
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.1);
@@ -216,7 +216,7 @@
     padding-top: 20vh;
 }
 .pw-dialog {
-    z-index: 1003;
+    z-index: 2001;
 }
 .pw-order {
     z-index: 3000 !important;

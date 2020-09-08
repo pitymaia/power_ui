@@ -589,6 +589,7 @@ class Router {
 			const shouldUpdate = (routeIsNew === false && this.engineCommands.pending[mainRoute.routeId] !== undefined);
 			if (propagateCommandsFromRouteId || shouldUpdate || (!this.oldRoutes.id || (this.oldRoutes.route !== currentRoutesTree.mainRoute.path))) {
 				this.orderedRoutesToOpen.push({
+					route: currentRoutesTree.mainRoute.path,
 					routeId: mainRoute.routeId,
 					viewId: this.config.routerMainViewId,
 					paramKeys: mainRoute.paramKeys,
@@ -647,6 +648,7 @@ class Router {
 					viewId = viewId || _Unique.domID('view');
 					// Add route to ordered list
 					this.orderedRoutesToOpen.push({
+						route: route.path,
 						routeId: currentRoute.routeId,
 						viewId: viewId,
 						paramKeys: currentRoute.paramKeys,
@@ -844,6 +846,7 @@ class Router {
 				component: ctrl,
 				data: $data,
 			};
+
 			// Instanciate the controller
 			$data.$powerUi = ctx.$powerUi;
 			$data.viewId = route.viewId;
@@ -853,7 +856,7 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
 			ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
 			ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues(
-				{routeId: route.routeId, paramKeys: route.paramKeys}) : {};
+				{routeId: route.routeId, paramKeys: route.paramKeys, route: route.route || ''}) : {};
 			ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
 		}
 		// Run the controller load
@@ -1465,7 +1468,7 @@ class Router {
 		this.currentRoutes.parentViewId = parentViewId;
 		// Register current route parameters keys and values
 		if (paramKeys) {
-			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys});
+			this.currentRoutes.params = this.getRouteParamValues({routeId: routeId, paramKeys: paramKeys, route: route});
 		} else {
 			this.currentRoutes.params = [];
 		}
@@ -1629,14 +1632,15 @@ class Router {
 	}
 
 	getRouteParamValues({routeId, paramKeys, route}) {
-		const routeParts = this.routes[routeId].route.split('/');
-		const hashParts = (route || this.locationHashWithHiddenRoutes() || this.config.rootPath).split('/');
+		const routeParts = this.routes[routeId].route.split('/').filter(item=> item !== '#!');
+		const hashParts = (route || this.locationHashWithHiddenRoutes() || this.config.rootPath).split('?')[0].split('/');
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value
 			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)]});
 			// Also remove any ?sr=route from the value
 			// params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?sr=[^]*)/, '')});
+			console.log(routeId, '!!!! params', routeParts, hashParts);
 		}
 		return params;
 	}
