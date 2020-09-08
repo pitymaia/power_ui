@@ -15,26 +15,25 @@ class PowerWindow extends PowerDialogBase {
 		super._onViewLoad(view);
 
 		this.currentView = view;
-		this._window = this.currentView.getElementsByClassName('pw-window')[0];
 
 		if (this.isHiddenRoute === false) {
 			this.loadWindowState();
 		}
 
 		if (this._top !== undefined && this._left !== undefined) {
-			this._window.style.top = this._top + 'px';
-			this._window.style.left = this._left + 'px';
+			this._dialog.style.top = this._top + 'px';
+			this._dialog.style.left = this._left + 'px';
 		}
 
 		if (this._width !== undefined && this._height !== undefined) {
-			this._window.style.width = this._width + 'px';
-			this._window.style.height = this._height + 'px';
+			this._dialog.style.width = this._width + 'px';
+			this._dialog.style.height = this._height + 'px';
 		}
 
-		this._width = this._window.offsetWidth;
-		this._height = this._window.offsetHeight;
-		this._top = this._window.offsetTop;
-		this._left = this._window.offsetLeft;
+		this._width = this._dialog.offsetWidth;
+		this._height = this._dialog.offsetHeight;
+		this._top = this._dialog.offsetTop;
+		this._left = this._dialog.offsetLeft;
 		this._lastHeight = 0;
 		this._lastwidth = 0;
 		// Make it draggable
@@ -45,9 +44,9 @@ class PowerWindow extends PowerDialogBase {
 		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
 
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
-		let minHeight = parseInt(window.getComputedStyle(this._window).getPropertyValue('min-height').replace('px', ''));
+		let minHeight = parseInt(window.getComputedStyle(this._dialog).getPropertyValue('min-height').replace('px', ''));
 		minHeight = minHeight + this.titleBarEl.offsetHeight;
-		this._window.style['min-height'] = minHeight + 'px';
+		this._dialog.style['min-height'] = minHeight + 'px';
 		this._minHeight = minHeight;
 
 		this.addOnMouseBorderEvents();
@@ -75,15 +74,15 @@ class PowerWindow extends PowerDialogBase {
 			this._top = winState.top;
 			this._left = winState.left;
 			this.zIndex = winState.zIndex || this.zIndex;
-			this._window.style.zIndex = this.zIndex;
+			this._dialog.style.zIndex = this.zIndex;
 			return true;
 		}
 	}
 
 	addOnMouseBorderEvents() {
-		this._window.onmousemove = this.onMouseMoveBorder.bind(this);
-		this._window.onmouseout = this.onMouseOutBorder.bind(this);
-		this._window.onmousedown = this.onMouseDownBorder.bind(this);
+		this._dialog.onmousemove = this.onMouseMoveBorder.bind(this);
+		this._dialog.onmouseout = this.onMouseOutBorder.bind(this);
+		this._dialog.onmousedown = this.onMouseDownBorder.bind(this);
 	}
 
 	onMouseMoveBorder(e) {
@@ -100,11 +99,11 @@ class PowerWindow extends PowerDialogBase {
 
 		this.removeAllCursorClasses();
 		this.cursorPositionOnWindowBound(e);
-		if (this._window.cursor === 'top-left' || this._window.cursor === 'bottom-right') {
+		if (this._dialog.cursor === 'top-left' || this._dialog.cursor === 'bottom-right') {
 			this.$powerUi.addCss(viewId, 'window-left-top');
-		} else if (this._window.cursor === 'top-right' || this._window.cursor === 'bottom-left') {
+		} else if (this._dialog.cursor === 'top-right' || this._dialog.cursor === 'bottom-left') {
 			this.$powerUi.addCss(viewId, 'window-left-bottom');
-		} else if (this._window.cursor === 'top' || this._window.cursor === 'bottom') {
+		} else if (this._dialog.cursor === 'top' || this._dialog.cursor === 'bottom') {
 			this.$powerUi.addCss(viewId, 'window-height');
 		} else {
 			this.$powerUi.addCss(viewId, 'window-width');
@@ -112,35 +111,35 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	cursorPositionOnWindowBound(e) {
-		const rect = this._window.getBoundingClientRect();
+		const rect = this._dialog.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
-		const width = this._window.offsetWidth;
-		const height = this._window.offsetHeight;
+		const width = this._dialog.offsetWidth;
+		const height = this._dialog.offsetHeight;
 		if ((x <= 15 && y <= 15)) {
 			// top left corner
-			this._window.cursor = 'top-left';
+			this._dialog.cursor = 'top-left';
 		} else if (x <= 15 && (y > 15 && y >= height - 15)) {
 			// bottom left corner
-			this._window.cursor = 'bottom-left';
+			this._dialog.cursor = 'bottom-left';
 		} else if (x >= width - 15 && y <= 15) {
 			// top right corner
-			this._window.cursor = 'top-right';
+			this._dialog.cursor = 'top-right';
 		} else if (x >= width - 15 && y >= height - 15) {
 			// bottom left corner
-			this._window.cursor = 'bottom-right';
+			this._dialog.cursor = 'bottom-right';
 		} else if ((y > 15 && y <= height - 15) && x < 15) {
 			// left
-			this._window.cursor = 'left';
+			this._dialog.cursor = 'left';
 		} else if ((y > 15 && y <= height - 15) && x >= width - 15) {
 			// right
-			this._window.cursor = 'right';
+			this._dialog.cursor = 'right';
 		} else if (y < 15 && (x > 15 && x <= width - 15)) {
 			// top
-			this._window.cursor = 'top';
+			this._dialog.cursor = 'top';
 		} else if (y >= height - 15 && (x > 15 && x <= width - 15)) {
 			// bottom
-			this._window.cursor = 'bottom';
+			this._dialog.cursor = 'bottom';
 		}
 	}
 
@@ -166,35 +165,35 @@ class PowerWindow extends PowerDialogBase {
 		this._initialY = e.clientY;
 		this._initialLeft = this._left;
 		this._initialTop = this._top;
-		this._initialOffsetWidth = this._window.offsetWidth;
-		this._initialOffsetHeight = this._window.offsetHeight;
+		this._initialOffsetWidth = this._dialog.offsetWidth;
+		this._initialOffsetHeight = this._dialog.offsetHeight;
 	}
 
 	changeWindowSize(e) {
 		e.preventDefault();
 		if (this.allowResize) {
-			const rect = this._window.getBoundingClientRect();
+			const rect = this._dialog.getBoundingClientRect();
 			const x = e.clientX - rect.left;
 			const y = e.clientY - rect.top;
 
-			if (this._window.cursor === 'right') {
+			if (this._dialog.cursor === 'right') {
 				this.resizeRightBorder(x);
-			} else if (this._window.cursor === 'left') {
+			} else if (this._dialog.cursor === 'left') {
 				this.resizeLeftBorder(x);
-			} else if (this._window.cursor === 'top') {
+			} else if (this._dialog.cursor === 'top') {
 				this.resizeTopBorder(y);
-			} else if (this._window.cursor === 'bottom') {
+			} else if (this._dialog.cursor === 'bottom') {
 				this.resizeBottomBorder(y);
-			} else if (this._window.cursor === 'top-right') {
+			} else if (this._dialog.cursor === 'top-right') {
 				this.resizeTopBorder(y);
 				this.resizeRightBorder(x);
-			} else if (this._window.cursor === 'top-left') {
+			} else if (this._dialog.cursor === 'top-left') {
 				this.resizeTopBorder(y);
 				this.resizeLeftBorder(x);
-			} else if (this._window.cursor === 'bottom-right') {
+			} else if (this._dialog.cursor === 'bottom-right') {
 				this.resizeBottomBorder(y);
 				this.resizeRightBorder(x);
-			} else if (this._window.cursor === 'bottom-left') {
+			} else if (this._dialog.cursor === 'bottom-left') {
 				this.resizeBottomBorder(y);
 				this.resizeLeftBorder(x);
 			}
@@ -226,15 +225,15 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.topLeftLimits();
 		// Left limits
-		if (this._width === this._minWidth && this._window.cursor.includes('left')) {
+		if (this._width === this._minWidth && this._dialog.cursor.includes('left')) {
 			this._left = this._left + widthFix;
-		} else if (this._left <= 0 && this._lastWidth < this._width && this._window.cursor.includes('left')) {
+		} else if (this._left <= 0 && this._lastWidth < this._width && this._dialog.cursor.includes('left')) {
 			this._width = this._lastWidth;
 		}
 		// Top limits
-		if (this._height === this._minHeight && this._window.cursor.includes('top')) {
+		if (this._height === this._minHeight && this._dialog.cursor.includes('top')) {
 			this._top = this._top + heightFix;
-		} else if (this._top <= 0 && this._lastHeight < this._height && this._window.cursor.includes('top')) {
+		} else if (this._top <= 0 && this._lastHeight < this._height && this._dialog.cursor.includes('top')) {
 			this._height = this._lastHeight;
 		}
 		// Right limits
@@ -253,11 +252,11 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	setAllWindowElements() {
-		this._window.style.width =  this._width + 'px';
-		this._window.style.height =  this._height + 'px';
+		this._dialog.style.width =  this._width + 'px';
+		this._dialog.style.height =  this._height + 'px';
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
-		this._window.style.left = this._left + 'px';
-		this._window.style.top = this._top + 'px';
+		this._dialog.style.left = this._left + 'px';
+		this._dialog.style.top = this._top + 'px';
 
 		// Add the classes to create a css "midia query" for the window
 		this.replaceWindowSizeQuery();
@@ -330,18 +329,18 @@ class PowerWindow extends PowerDialogBase {
 
 		if (this.currentWindowQuery === undefined || this.currentWindowQuery !== changeWindowQueryTo) {
 			this.removeWindowQueries();
-			this._window.classList.add(changeWindowQueryTo);
+			this._dialog.classList.add(changeWindowQueryTo);
 			this.currentWindowQuery = changeWindowQueryTo;
 		}
 	}
 
 	// Remove any window midia query from window classes
 	removeWindowQueries() {
-		this._window.classList.remove('pw-wsize-tinny');
-		this._window.classList.remove('pw-wsize-small');
-		this._window.classList.remove('pw-wsize-medium');
-		this._window.classList.remove('pw-wsize-large');
-		this._window.classList.remove('pw-wsize-extra-large');
+		this._dialog.classList.remove('pw-wsize-tinny');
+		this._dialog.classList.remove('pw-wsize-small');
+		this._dialog.classList.remove('pw-wsize-medium');
+		this._dialog.classList.remove('pw-wsize-large');
+		this._dialog.classList.remove('pw-wsize-extra-large');
 	}
 
 	replaceMenuBreakQuery() {
@@ -357,14 +356,14 @@ class PowerWindow extends PowerDialogBase {
 		if (this.currentMenuBreakQuery === undefined || this.currentMenuBreakQuery !== changeMenuBreakQueryTo) {
 			this.removeMenuBreakQuery();
 			if (changeMenuBreakQueryTo) {
-				this._window.classList.add(changeMenuBreakQueryTo);
+				this._dialog.classList.add(changeMenuBreakQueryTo);
 			}
 			this.currentMenuBreakQuery = changeMenuBreakQueryTo;
 		}
 	}
 
 	removeMenuBreakQuery() {
-		this._window.classList.remove('pw-menu-break');
+		this._dialog.classList.remove('pw-menu-break');
 	}
 
 	addDragWindow() {
@@ -379,7 +378,7 @@ class PowerWindow extends PowerDialogBase {
 			titleBar.onmousedown = this.dragMouseDown.bind(this);
 		} else {
 			// or move from anywhere inside the container
-			this._window.onmousedown = this.dragMouseDown.bind(this);
+			this._dialog.onmousedown = this.dragMouseDown.bind(this);
 		}
 	}
 
@@ -404,16 +403,16 @@ class PowerWindow extends PowerDialogBase {
 		this.pos2 = this.pos4 - event.clientY;
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
-		// set the _window's new position
-		this._top = this._window.offsetTop - this.pos2;
-		this._left = this._window.offsetLeft - this.pos1;
+		// set the _dialog's new position
+		this._top = this._dialog.offsetTop - this.pos2;
+		this._left = this._dialog.offsetLeft - this.pos1;
 
 		this.avoidDragOutOfScreen();
 
-		this._window.style.top = this._top + 'px';
-		this._window.style.left = this._left + 'px';
-		this._top = this._window.offsetTop;
-		this._left = this._window.offsetLeft;
+		this._dialog.style.top = this._top + 'px';
+		this._dialog.style.left = this._left + 'px';
+		this._top = this._dialog.offsetTop;
+		this._left = this._dialog.offsetLeft;
 	}
 
 	avoidDragOutOfScreen() {
@@ -432,7 +431,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	endDragWindow() {
-		this._window.classList.add('pw-active');
+		this._dialog.classList.add('pw-active');
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
 		window.onmouseup = null;
@@ -444,7 +443,7 @@ class PowerWindow extends PowerDialogBase {
 
 	setWindowsOrder(preventActivateWindow) {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d => d.id !== this.dialogId);
-		let biggerIndex = 199;
+		let biggerIndex = 1999;
 		for (const dialog of this.$powerUi.dialogs) {
 			biggerIndex = biggerIndex + 1;
 			dialog.ctrl.zIndex = biggerIndex;
