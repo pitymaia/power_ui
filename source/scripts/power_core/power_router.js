@@ -847,6 +847,7 @@ class Router {
 				data: $data,
 			};
 
+			const currentRoute = ctx.getOpenedRoute({routeId: route.routeId, viewId: route.viewId});
 			// Instanciate the controller
 			$data.$powerUi = ctx.$powerUi;
 			$data.viewId = route.viewId;
@@ -855,8 +856,7 @@ class Router {
 			ctx.$powerUi.controllers[route.viewId].instance = new ctrl($data);
 			ctx.$powerUi.controllers[route.viewId].instance._viewId = route.viewId;
 			ctx.$powerUi.controllers[route.viewId].instance._routeId = route.routeId;
-			ctx.$powerUi.controllers[route.viewId].instance._routeParams = route.paramKeys ? ctx.getRouteParamValues(
-				{routeId: route.routeId, paramKeys: route.paramKeys, route: route.route || ''}) : {};
+			ctx.$powerUi.controllers[route.viewId].instance._routeParams = currentRoute ? currentRoute.params : [];
 			ctx.$powerUi.controllers[route.viewId].instance.$root = (ctx.$powerUi.controllers['root-view'] && ctx.$powerUi.controllers['root-view'].instance) ? ctx.$powerUi.controllers['root-view'].instance : null;
 		}
 		// Run the controller load
@@ -1637,10 +1637,9 @@ class Router {
 		const params = [];
 		for (const key of paramKeys) {
 			// Get key and value
-			params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)]});
-			// Also remove any ?sr=route from the value
-			// params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)].replace(/(\?sr=[^]*)/, '')});
-			console.log(routeId, '!!!! params', routeParts, hashParts);
+			if (this.routes[routeId].route.includes(routeParts[0])) {
+				params.push({key: key.substring(1), value: hashParts[routeParts.indexOf(key)]});
+			}
 		}
 		return params;
 	}

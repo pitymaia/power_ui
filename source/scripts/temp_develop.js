@@ -268,6 +268,7 @@ class SecundaryMainCtrl extends PowerModal {
 		this.openRoute({
 			routeId: 'secmainchild',
 			target: '_self',
+			params: {id: 5},
 		});
 	}
 
@@ -375,7 +376,7 @@ class SecundaryChildOfChildTemplate extends PowerTemplate {
 
 class SecundaryChildOfChildCtrl extends PowerController {
 	ctrl() {
-		// console.log('Secundary child of a child ctrl');
+		console.log('!!!! Child of a child ctrl', this);
 	}
 	openChildOfChild2() {
 		this.openRoute({
@@ -5495,7 +5496,7 @@ const routes = [
 		{
 			id: 'secmainchild',
 			title: 'Another main child',
-			route: 'secundary_mc',
+			route: 'secundary_mc/:id',
 			templateComponent: SecundaryChildOfChildTemplate,
 			ctrl: SecundaryChildOfChildCtrl,
 			mainRouteId: 'secchildmain',
