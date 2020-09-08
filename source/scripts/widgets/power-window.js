@@ -13,11 +13,15 @@ class PowerWindow extends PowerDialogBase {
 
 	_onViewLoad(view) {
 		super._onViewLoad(view);
-
 		this.currentView = view;
 
 		if (this.isHiddenRoute === false) {
 			this.loadWindowState();
+			// Run a single reoder function at the end of the cycle
+			if (!this.$powerUi.reorder) {
+				this.$powerUi.reorder = true;
+				this.$powerUi.router.onCycleEnds.subscribe(this.reorderDialogsList.bind(this));
+			}
 		}
 
 		if (this._top !== undefined && this._left !== undefined) {
@@ -465,6 +469,20 @@ class PowerWindow extends PowerDialogBase {
 			this._dialog.classList.remove('pw-active');
 		}
 		this.saveWindowState();
+	}
+
+	reorderDialogsList() {
+		if (this.$powerUi.dialogs.length <= 1) {
+			return;
+		}
+
+		this.$powerUi.dialogs.sort(function (a, b) {
+			if (a.ctrl.zIndex > b.ctrl.zIndex) {
+				return 1;
+			} else {
+				return -1;
+			}
+		});
 	}
 }
 
