@@ -26,7 +26,7 @@ class PowerModal extends PowerDialogBase {
 		}
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
-		return `<div class="pw-modal pw-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}${classList}" data-pow-event onclick="clickOutside(event)">
+		return `<div class="pw-modal pw-dialog-container pw-backdrop${this.$powerUi.touchdevice ? ' pw-touchdevice': ''}${classList}" data-pow-event onclick="clickOutside(event)">
 					${super.template({$title})}
 				</div>`;
 	}

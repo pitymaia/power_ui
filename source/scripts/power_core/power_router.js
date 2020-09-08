@@ -919,6 +919,9 @@ class Router {
 
 			if (result && result.then) {
 				result.then(function () {
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+					}
 					if (route.commands.removeCtrl) {
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
@@ -929,6 +932,9 @@ class Router {
 					window.console.log('Error running onRouteClose: ', route.routeId, error);
 				});
 			} else {
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+				}
 				if (route.commands.removeCtrl) {
 					ctx.removeVolatileViews(route.viewId);
 					delete ctx.$powerUi.controllers[route.viewId];
@@ -937,6 +943,9 @@ class Router {
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
+			if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
+				ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+			}
 			ctx.runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
