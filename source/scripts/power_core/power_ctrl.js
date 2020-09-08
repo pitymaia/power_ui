@@ -52,6 +52,10 @@ class PowerController extends PowerScope {
 		return this.$powerUi.getRouteCtrl(routeId);
 	}
 
+	getViewCtrl(viewId) {
+		return this.$powerUi.getViewCtrl(viewId);
+	}
+
 	getRouteParam(key) {
 		const param = this._routeParams.find((p)=> p.key === key);
 		return param ? parseInt(this._routeParams.find((p)=> p.key === key).value) : null;

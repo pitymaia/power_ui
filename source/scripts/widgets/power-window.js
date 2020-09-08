@@ -12,8 +12,15 @@ class PowerWindow extends PowerDialogBase {
 	// }
 
 	_onViewLoad(view) {
+		this.isHiddenRoute = this.$powerUi.router.routes[this._routeId].isHidden || false;
 		this.currentView = view;
 		this._window = this.currentView.getElementsByClassName('pw-window')[0];
+
+		if (this.isHiddenRoute === false) {
+			const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId}).route;
+			this.sessionId = `win_${route.replace('/', '-')}`;
+			this.loadWindowState();
+		}
 
 		if (this._top !== undefined && this._left !== undefined) {
 			this._window.style.top = this._top + 'px';
@@ -45,12 +52,36 @@ class PowerWindow extends PowerDialogBase {
 		this._minHeight = minHeight;
 
 		this.addOnMouseBorderEvents();
-
 		this.windowsOrder();
-
 		this.setAllWindowElements();
 
 		super._onViewLoad(this.currentView);
+	}
+
+	saveWindowState() {
+		const winState = {
+			width: this._width,
+			height: this._height,
+			top: this._top,
+			left: this._left,
+			zIndex: this.zIndex,
+		};
+
+		sessionStorage.setItem(this.sessionId, JSON.stringify(winState));
+	}
+
+	loadWindowState() {
+		let winState = sessionStorage.getItem(this.sessionId);
+		if (winState) {
+			winState = JSON.parse(winState);
+			this._width = winState.width;
+			this._height = winState.height;
+			this._top = winState.top;
+			this._left = winState.left;
+			this.zIndex = winState.zIndex;
+			this._window.style.zIndex = this.zIndex;
+			return true;
+		}
 	}
 
 	addOnMouseBorderEvents() {
@@ -408,6 +439,7 @@ class PowerWindow extends PowerDialogBase {
 		window.onmousemove = null;
 		this.$powerUi._dragging = false;
 		this.$powerUi._mouseIsDown = false;
+		this.saveWindowState();
 	}
 
 	windowsOrder(preventActivateWindow) {
@@ -418,6 +450,7 @@ class PowerWindow extends PowerDialogBase {
 		const windowsTosort = {};
 		for (const win of windows) {
 			let winZindex = parseInt(win.style.zIndex || zindex);
+			console.log('winZindex', winZindex);
 			if (win !== currentWindow) {
 				windowsTosort[winZindex] = win;
 				if (winZindex >= zindex) {
@@ -435,10 +468,15 @@ class PowerWindow extends PowerDialogBase {
 			windowsTosort[key].style.zIndex = zindex;
 			zindex = zindex + 1;
 			windowsTosort[key].classList.remove('pw-active');
-			// Save it on session storage
+			// Save new order on the controller
+			const viewId = windowsTosort[key].parentElement.id;
+			const ctrl = this.getViewCtrl(viewId);
+			ctrl.zIndex = zindex;
+			ctrl.saveWindowState();
 		}
-		console.log('windows', windows);
-		currentWindow.style.zIndex = zindex + 1;
+
+		this.zIndex = zindex + 1;
+		currentWindow.style.zIndex = this.zIndex;
 		// Prevent set the active if dragging or resizing
 		if (!preventActivateWindow) {
 			currentWindow.classList.add('pw-active');
@@ -470,7 +508,6 @@ class PowerWindowIframe extends PowerWindow {
 	}
 
 	template({$title, $url}) {
-		console.log('this._routeParams', this._routeParams);
 		// This allow the user define a this.$title on controller constructor or compile, otherwise use the route title
 		this.$title = this.$title || $title;
 		const id = `iframe_${this.$powerUi._Unique.next()}`;
