@@ -297,13 +297,14 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.maximizeBt.style.display = 'none';
 		this.restoreBt.style.display = 'block';
-		this._dialog.style.top = 0 + 'px';
-		this._dialog.style.left = 0 + 'px';
-		this._dialog.style.height = window.innerHeight - 10 + 'px';
-		this._dialog.style.width = window.innerWidth - 10 + 'px';
-		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight - 10 + 'px';
+		this._dialog.style.top = -5 + 'px';
+		this._dialog.style.left = -5 + 'px';
+		this._dialog.style.height = window.innerHeight + 'px';
+		this._dialog.style.width = window.innerWidth + 'px';
+		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = true;
 		this.saveWindowState();
+		this.replaceSizeQueries();
 		if (document.body && document.body.classList) {
 			document.body.classList.add('window-is-miximized');
 		}
@@ -322,6 +323,7 @@ class PowerWindow extends PowerDialogBase {
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = false;
 		this.saveWindowState();
+		this.replaceSizeQueries();
 		this.removeWindowIsMaximizedFromBody();
 	}
 
@@ -333,6 +335,11 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.top = this._top + 'px';
 
 		// Add the classes to create a css "midia query" for the window
+		this.replaceSizeQueries();
+		this.saveWindowState();
+	}
+
+	replaceSizeQueries() {
 		this.replaceWindowSizeQuery();
 		this.replaceMenuBreakQuery();
 	}
@@ -387,14 +394,18 @@ class PowerWindow extends PowerDialogBase {
 	// Allow simulate midia queries with power-window
 	replaceWindowSizeQuery() {
 		let changeWindowQueryTo = this.currentWindowQuery;
+		let width = this._width;
+		if (this.isMaximized) {
+			width = window.innerWidth;
+		}
 
-		if (this._width <= 600) {
+		if (width <= 600) {
 			changeWindowQueryTo = 'pw-wsize-tinny';
-		} else if (this._width >= 601 && this._width <= 900) {
+		} else if (width >= 601 && width <= 900) {
 			changeWindowQueryTo = 'pw-wsize-small';
-		} else if (this._width >= 901 && this._width <= 1200) {
+		} else if (width >= 901 && width <= 1200) {
 			changeWindowQueryTo = 'pw-wsize-medium';
-		} else if (this._width >= 1201 && this._width <= 1500) {
+		} else if (width >= 1201 && width <= 1500) {
 			changeWindowQueryTo = 'pw-wsize-large';
 		} else {
 			changeWindowQueryTo = 'pw-wsize-extra-large';
@@ -418,9 +429,12 @@ class PowerWindow extends PowerDialogBase {
 
 	replaceMenuBreakQuery() {
 		let changeMenuBreakQueryTo = this.currentMenuBreakQuery;
+		let width = this._width;
+		if (this.isMaximized) {
+			width = window.innerWidth;
+		}
 
-
-		if (this._width <= 768) {
+		if (width <= 768) {
 			changeMenuBreakQueryTo = 'pw-menu-break';
 		} else {
 			changeMenuBreakQueryTo = false;
