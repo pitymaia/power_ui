@@ -331,8 +331,12 @@ body.modal-open {
     display: inline-block;
     vertical-align: middle;
 }
-
+/* TODO: Remove after replace with pw-bt-dialog-title */
 .pw-bt-close {
+    float: right;
+    cursor: pointer;
+}
+.pw-bt-dialog-title {
     float: right;
     cursor: pointer;
 }

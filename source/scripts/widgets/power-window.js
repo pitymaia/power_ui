@@ -4,6 +4,9 @@ class PowerWindow extends PowerDialogBase {
 		this.isWindow = true;
 		this._minWidth = 250;
 		this._minHeight = 250;
+		this.maximizeBt = true;
+		this.restoreBt = true;
+		this.isMaximized = true;
 	}
 
 	// Allow async calls to implement onCancel
@@ -46,6 +49,8 @@ class PowerWindow extends PowerDialogBase {
 		// Make it resizable
 		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
 		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
+		this.maximizeBt = this._dialog.getElementsByClassName('icon-maximize')[0];
+		this.restoreBt = this._dialog.getElementsByClassName('icon-windows')[0];
 
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		let minHeight = parseInt(window.getComputedStyle(this._dialog).getPropertyValue('min-height').replace('px', ''));
@@ -55,6 +60,10 @@ class PowerWindow extends PowerDialogBase {
 
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
+
+		if (this.isMaximized) {
+			this.maximize();
+		}
 	}
 
 	_onRouteClose() {
@@ -70,6 +79,7 @@ class PowerWindow extends PowerDialogBase {
 			top: this._top,
 			left: this._left,
 			zIndex: this.zIndex,
+			isMaximized: this.isMaximized,
 		};
 		sessionStorage.setItem(this.dialogId, JSON.stringify(winState));
 	}
@@ -84,6 +94,7 @@ class PowerWindow extends PowerDialogBase {
 			this._left = winState.left;
 			this.zIndex = winState.zIndex || this.zIndex;
 			this._dialog.style.zIndex = this.zIndex;
+			this.isMaximized = winState.isMaximized;
 		}
 	}
 
@@ -166,7 +177,14 @@ class PowerWindow extends PowerDialogBase {
 			return;
 		}
 		e.preventDefault();
-
+		if (this.isMaximized) {
+			this._height = window.innerHeight - 10;
+			this._width = window.innerWidth - 10;
+			this._top = 5;
+			this._left = 5;
+			this.setAllWindowElements();
+			this.restore();
+		}
 		this.$powerUi._mouseIsDown = true;
 		this.allowResize = true;
 		this._initialX = e.clientX;
@@ -257,6 +275,36 @@ class PowerWindow extends PowerDialogBase {
 		this._lastWidth = this._width;
 		this._lastTop = this._top;
 		this._lastLeft = this._left;
+	}
+
+	maximize(event) {
+		if (event) {
+			event.preventDefault();
+		}
+		this.maximizeBt.style.display = 'none';
+		this.restoreBt.style.display = 'block';
+		this._dialog.style.top = 0 + 'px';
+		this._dialog.style.left = 0 + 'px';
+		this._dialog.style.height = window.innerHeight + 'px';
+		this._dialog.style.width = window.innerWidth + 'px';
+		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight - 10 + 'px';
+		this.isMaximized = true;
+		this.saveWindowState();
+	}
+
+	restore(event) {
+		if (event) {
+			event.preventDefault();
+		}
+		this.maximizeBt.style.display = 'block';
+		this.restoreBt.style.display = 'none';
+		this._dialog.style.top = this._top + 'px';
+		this._dialog.style.left = this._left + 'px';
+		this._dialog.style.height = this._height + 'px';
+		this._dialog.style.width = this._width + 'px';
+		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		this.isMaximized = false;
+		this.saveWindowState();
 	}
 
 	setAllWindowElements() {
@@ -392,6 +440,9 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
+		if (this.isMaximized) {
+			return;
+		}
 		this.$powerUi._dragging = true;
 		// get initial mouse cursor position
 		this.pos3 = event.clientX;
@@ -514,7 +565,7 @@ class PowerWindowIframe extends PowerWindow {
 		return `<div class="pw-window${this.$powerUi.touchdevice ? ' pw-touchdevice': ''} pw-dialog-container">
 					<div class="pw-title-bar">
 						<span class="pw-title-bar-label">${this.$title}</span>
-						<div data-pow-event onmousedown="_cancel()" class="pw-bt-close pw-icon icon-cancel-black"></div>
+						<div data-pow-event onmousedown="_cancel()" class="pw-bt-dialog-title pw-icon icon-cancel-black"></div>
 					</div>
 					<div class="pw-body pw-body-iframe">
 						<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
