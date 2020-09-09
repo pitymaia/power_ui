@@ -70,7 +70,14 @@ class PowerWindow extends PowerDialogBase {
 	_onRouteClose() {
 		delete this.zIndex;
 		this.saveWindowState();
+		this.removeWindowIsMaximizedFromBody();
 		super._onRouteClose();
+	}
+
+	removeWindowIsMaximizedFromBody() {
+		if (document.body && document.body.classList) {
+			document.body.classList.remove('window-is-miximized');
+		}
 	}
 
 	saveWindowState() {
@@ -293,10 +300,13 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.top = 0 + 'px';
 		this._dialog.style.left = 0 + 'px';
 		this._dialog.style.height = window.innerHeight - 10 + 'px';
-		this._dialog.style.width = window.innerWidth + 'px';
+		this._dialog.style.width = window.innerWidth - 10 + 'px';
 		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight - 10 + 'px';
 		this.isMaximized = true;
 		this.saveWindowState();
+		if (document.body && document.body.classList) {
+			document.body.classList.add('window-is-miximized');
+		}
 	}
 
 	restore(event) {
@@ -312,6 +322,7 @@ class PowerWindow extends PowerDialogBase {
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = false;
 		this.saveWindowState();
+		this.removeWindowIsMaximizedFromBody();
 	}
 
 	setAllWindowElements() {

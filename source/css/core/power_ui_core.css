@@ -291,7 +291,7 @@
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
 
-body.modal-open {
+body.modal-open, body.window-is-miximized {
     overflow: hidden;
 }
 /* dialog-Modal-Window end */

@@ -2970,14 +2970,15 @@ input.pw-field[type=range] {
 /* Menu end*/
 
 /* Dialog-Modal-Window start */
-.pw-body-iframe iframe {
-    margin-left: 5px;
+.pw-body iframe {
+    margin: 0;
     z-index: 1;
+    overflow: hidden;
 }
 .pw-cover-iframe {
     position: absolute;
     top: 0;
-    z-index: 1000;
+    z-index: 1001;
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.1);
@@ -3007,50 +3008,65 @@ input.pw-field[type=range] {
     left: 0;
     background-color: rgb(0, 0, 0, 0.7);
 }
-.pw-dialog-container {
+.pw-dialog {
     top: 0;
     left: 0;
     padding-top: 20vh;
-}
-.pw-dialog {
-    z-index: 1003;
+    z-index: 2501;
 }
 .pw-order {
-    z-index: 3000 !important;
+    z-index: 4000 !important;
 }
 
+.window-left-top {
+    cursor: nwse-resize;
+}
+.window-left-bottom {
+    cursor: nesw-resize;
+}
+.window-width {
+    cursor: ew-resize;
+}
+.window-height {
+    cursor: ns-resize;
+}
 .pw-window  {
     position: fixed;
     top: 10px;
     left: 10px;
+    padding: 5px;
     z-index: 1001;
+    background-color: #000000;
+    /*overflow: hidden;*/
 }
 .pw-window.pw-touchdevice {
     top: 0;
     left: 0;
 }
-.pw-window .pw-body {
-    resize: both;
+.pw-window .pw-body:not(.pw-body-iframe) {
     overflow: auto;
 }
-.pw-window, .pw-window-resizable, .pw-window .pw-body {
-    max-width: 95vw;
-    max-height: 98vh;
+.pw-window, .pw-window .pw-body, .pw-window iframe {
+    max-width: 100%;
+    max-height: 100vh;
     min-width: 250px;
     min-height: 250px;
     /*text-align: center;*/
 }
-.pw-window.pw-touchdevice .pw-body, .pw-window.pw-touchdevice .pw-window-resizable {
+
+.pw-window .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window iframe {
+    min-width: 100%;
+    max-width: 100%;
+}
+.pw-window.pw-touchdevice .pw-body {
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
-    max-width: 100vw;
+    max-width: 100%;
     max-height: 100vh;
 }
-.pw-window-resizable {
-    overflow: hidden;
-}
+
 .pw-window .pw-title-bar {
     cursor: grabbing;
     text-align: center;
@@ -3069,11 +3085,11 @@ input.pw-field[type=range] {
     width: 50em;
     max-width: 95vw;
 }
-.pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window-resizable {
+.pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
 
-body.modal-open {
+body.modal-open, body.window-is-miximized {
     overflow: hidden;
 }
 /* dialog-Modal-Window end */
@@ -3113,8 +3129,12 @@ body.modal-open {
     display: inline-block;
     vertical-align: middle;
 }
-
+/* TODO: Remove after replace with pw-bt-dialog-title */
 .pw-bt-close {
+    float: right;
+    cursor: pointer;
+}
+.pw-bt-dialog-title {
     float: right;
     cursor: pointer;
 }
@@ -3128,7 +3148,7 @@ body.modal-open {
     text-align: center;
     width: 100%;
     height: 100%;
-    z-index: 3000;
+    z-index: 4001;
     background-color: rgb(0, 0, 0, 0.7);
 }
 .pw-spinner, p.pw-spinner-label {
@@ -3145,7 +3165,7 @@ body.modal-open {
     height: 130px;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
-    z-index: 3001;
+    z-index: 4002;
 }
 
 @-webkit-keyframes spin {
@@ -3172,7 +3192,7 @@ p.pw-spinner-label {
     animation: animate 2s linear infinite;
     -webkit-background-clip: text;
     -webkit-text-fill-color: rgba(255, 255, 255, 0);
-    z-index: 3002;
+    z-index: 4003;
 }
 
 @keyframes animate {
@@ -3516,7 +3536,7 @@ p.pw-spinner-label {
     background-color: #fff;
 }
 
-.pwdesign-white-smoke .pw-bt-close {
+.pwdesign-white-smoke .pw-bt-dialog-title {
     color: #FFF;
     margin-top: .9rem;
     margin-right: .9rem;
