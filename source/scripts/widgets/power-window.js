@@ -7,6 +7,7 @@ class PowerWindow extends PowerDialogBase {
 		this.maximizeBt = true;
 		this.restoreBt = true;
 		this.isMaximized = true;
+		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
 	}
 
 	// Allow async calls to implement onCancel
@@ -277,6 +278,12 @@ class PowerWindow extends PowerDialogBase {
 		this._lastLeft = this._left;
 	}
 
+	browserWindowResize() {
+		if (this.isMaximized) {
+			this.maximize();
+		}
+	}
+
 	maximize(event) {
 		if (event) {
 			event.preventDefault();
@@ -285,7 +292,7 @@ class PowerWindow extends PowerDialogBase {
 		this.restoreBt.style.display = 'block';
 		this._dialog.style.top = 0 + 'px';
 		this._dialog.style.left = 0 + 'px';
-		this._dialog.style.height = window.innerHeight + 'px';
+		this._dialog.style.height = window.innerHeight - 10 + 'px';
 		this._dialog.style.width = window.innerWidth + 'px';
 		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight - 10 + 'px';
 		this.isMaximized = true;
@@ -429,11 +436,20 @@ class PowerWindow extends PowerDialogBase {
 
 		const titleBar = this.currentView.getElementsByClassName('pw-title-bar')[0];
 		if (titleBar) {
-			// if the title bar existis move from it
+			// if the title bar exists move from it
 			titleBar.onmousedown = this.dragMouseDown.bind(this);
+			titleBar.ondblclick = this.onDoubleClickTitle.bind(this);
 		} else {
 			// or move from anywhere inside the container
 			this._dialog.onmousedown = this.dragMouseDown.bind(this);
+		}
+	}
+
+	onDoubleClickTitle(event) {
+		if (this.isMaximized) {
+			this.restore(event);
+		} else {
+			this.maximize(event);
 		}
 	}
 
@@ -550,12 +566,32 @@ class PowerWindowIframe extends PowerWindow {
 		super._onViewLoad(view);
 	}
 
-	setAllWindowElements() {
-		super.setAllWindowElements();
+	maximize(event) {
+		if (event) {
+			event.preventDefault();
+		}
+		super.maximize(event);
+		this.resizeIframeAndCover();
+	}
+
+	restore(event) {
+		if (event) {
+			event.preventDefault();
+		}
+		super.restore(event);
+		this.resizeIframeAndCover();
+	}
+
+	resizeIframeAndCover() {
 		this.iframe.style.height = this.bodyEl.style.height;
 		this.coverIframe.style.height = this.iframe.style.height;
 		this.coverIframe.style.width = this._width + 'px';
 		this.coverIframe.style.top = this.titleBarEl.offsetHeight + 5 + 'px';
+	}
+
+	setAllWindowElements() {
+		super.setAllWindowElements();
+		this.resizeIframeAndCover();
 	}
 
 	template({$title, $url}) {
@@ -566,6 +602,8 @@ class PowerWindowIframe extends PowerWindow {
 					<div class="pw-title-bar">
 						<span class="pw-title-bar-label">${this.$title}</span>
 						<div data-pow-event onmousedown="_cancel()" class="pw-bt-dialog-title pw-icon icon-cancel-black"></div>
+						${this.restoreBt ? '<div style="display:none;" data-pow-event onclick="restore(event)" class="pw-bt-dialog-title pw-icon icon-windows"></div>' : ''}
+						${this.maximizeBt ? '<div data-pow-event onclick="maximize(event)" class="pw-bt-dialog-title pw-icon icon-maximize"></div>' : ''}
 					</div>
 					<div class="pw-body pw-body-iframe">
 						<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
