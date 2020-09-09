@@ -471,6 +471,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	onDoubleClickTitle(event) {
+		event.preventDefault();
 		if (this.isMaximized) {
 			this.restore(event);
 		} else {
