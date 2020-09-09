@@ -6,7 +6,7 @@ class PowerWindow extends PowerDialogBase {
 		this._minHeight = 250;
 		this.maximizeBt = true;
 		this.restoreBt = true;
-		this.isMaximized = true;
+		this.isMaximized = false;
 		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
 	}
 
@@ -102,7 +102,7 @@ class PowerWindow extends PowerDialogBase {
 			this._left = winState.left;
 			this.zIndex = winState.zIndex || this.zIndex;
 			this._dialog.style.zIndex = this.zIndex;
-			this.isMaximized = winState.isMaximized;
+			this.isMaximized = winState.isMaximized || this.isMaximized;
 		}
 	}
 
