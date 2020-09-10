@@ -32,9 +32,11 @@ class PowerMenu extends PowerTarget {
 
 	onRemove() {
 		this.$powerUi.menus = this.$powerUi.menus.filter( menu=> menu.id !== this.id);
+		this.removePaddingFromBody();
 	}
 
 	init() {
+		this.addPaddingToBody();
 		this.$powerUi.menus.push({id: this.id, menu: this});
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
@@ -62,6 +64,40 @@ class PowerMenu extends PowerTarget {
 			if (!this.$powerUi.touchdevice) {
 				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
 				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
+			}
+		}
+	}
+
+	addPaddingToBody() {
+		if (this.isFixed) {
+			const body = document.body;
+			const currentStylePaddingTop = parseInt((body.style['padding-top'] || '0').replace('px', ''));
+			const currentStylePaddingBottom = parseInt((body.style['padding-bottom'] || '0').replace('px', ''));
+			if (this.menuPosition === 'top') {
+				let computedTop = window.getComputedStyle(this.element)['padding-top'];
+				computedTop = parseInt(computedTop.replace('px', ''));
+				body.style['padding-top'] = currentStylePaddingTop + computedTop + this.element.offsetHeight + 'px';
+			} else if (this.menuPosition === 'bottom') {
+				let computedBottom = window.getComputedStyle(this.element)['padding-bottom'];
+				computedBottom = parseInt(computedBottom.replace('px', ''));
+				body.style['padding-bottom'] = currentStylePaddingBottom + computedBottom + this.element.offsetHeight + 'px';
+			}
+		}
+	}
+
+	removePaddingFromBody() {
+		if (this.isFixed) {
+			const body = document.body;
+			const currentStylePaddingTop = parseInt((body.style['padding-top'] || '0').replace('px', ''));
+			const currentStylePaddingBottom = parseInt((body.style['padding-bottom'] || '0').replace('px', ''));
+			if (this.menuPosition === 'top') {
+				let computedTop = window.getComputedStyle(this.element)['padding-top'];
+				computedTop = parseInt(computedTop.replace('px', ''));
+				body.style['padding-top'] = currentStylePaddingTop + computedTop - this.element.offsetHeight + 'px';
+			} else if (this.menuPosition === 'bottom') {
+				let computedBottom = window.getComputedStyle(this.element)['padding-bottom'];
+				computedBottom = parseInt(computedBottom.replace('px', ''));
+				body.style['padding-bottom'] = currentStylePaddingBottom - computedBottom - this.element.offsetHeight + 'px';
 			}
 		}
 	}

@@ -1018,8 +1018,7 @@ class SmallDialog extends PowerTemplate {
 class RootScopeTemplate extends PowerTemplate {
 	template(resolve, reject) {
 		// console.log('ROOT template');
-		let newTmpl = `<br /><br /><br /><br />
-			<div>Antes</div>
+		let newTmpl = `<div>Antes</div>
 			<div class="power-view" id="main-view"></div>
 			<div class="power-view" id="secundary-view"></div>
 			<div>{{ 2+2 }}</div>`;
