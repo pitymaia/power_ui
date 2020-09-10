@@ -9,6 +9,7 @@ class PowerWindow extends PowerDialogBase {
 		this.isMaximized = false;
 		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
 		this.adjustTop = 0;
+		this.adjustHeight = 0;
 	}
 
 	// Allow async calls to implement onCancel
@@ -67,6 +68,8 @@ class PowerWindow extends PowerDialogBase {
 		for (const menu of menus) {
 			if (menu.menu.menuPosition === 'top') {
 				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+			} else if (menu.menu.menuPosition === 'bottom') {
+				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
 			}
 		}
 		if (this.isMaximized) {
@@ -76,11 +79,22 @@ class PowerWindow extends PowerDialogBase {
 
 	// Adapt window to fixed menus and maybe also other power components
 	adjustWindowWithComponents() {
-		if (this.isMaximized && this._dialog.offsetTop < this.adjustTop) {
-			this._dialog.style.top = this.adjustTop + 'px';
-			this._dialog.style['padding-top'] = 0;
+		if (this.isMaximized) {
+			if (this._dialog.offsetTop < this.adjustTop) {
+				this._dialog.style['padding-top'] = 0;
+				this._dialog.style.top = this.adjustTop + 'px';
+				this._dialog.style.height = window.innerHeight - this.adjustTop + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.titleBarEl.offsetHeight + 'px';
+			}
+
+			if (this.adjustHeight) {
+				this._dialog.style.height = window.innerHeight - this.adjustHeight + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
+				this._dialog.style['padding-bottom'] = 0;
+			}
 		} else {
 			this._dialog.style['padding-top'] = '5px';
+			this._dialog.style['padding-bottom'] = '5px';
 		}
 	}
 

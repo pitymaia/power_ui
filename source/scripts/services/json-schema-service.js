@@ -536,13 +536,13 @@ class JSONSchemaService extends PowerServices {
 					if (menu.mirrored === true) {
 						if (menu.position === undefined || menu.position === 'fixed-top') {
 							menu.dropMenuPosition = 'bottom-left';
-						} else if (menu.kind === 'fixed-bottom') {
+						} else if (menu.position === 'fixed-bottom') {
 							menu.dropMenuPosition = 'top-left';
 						}
 					} else {
 						if (menu.position === undefined || menu.position === 'fixed-top') {
 							menu.dropMenuPosition = 'bottom-right';
-						} else if (menu.kind === 'fixed-bottom') {
+						} else if (menu.position === 'fixed-bottom') {
 							menu.dropMenuPosition = 'top-right';
 						}
 					}
@@ -662,7 +662,6 @@ class JSONSchemaService extends PowerServices {
 			dropmenu.classList.push(isMenu ? 'power-menu' : 'power-dropmenu');
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
-			console.log('tmpEl.innerHTML', tmpEl.innerHTML);
 
 			// Set menu position
 			if (dropmenuPosition) {
