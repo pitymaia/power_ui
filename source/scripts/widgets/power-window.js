@@ -8,6 +8,7 @@ class PowerWindow extends PowerDialogBase {
 		this.restoreBt = true;
 		this.isMaximized = false;
 		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
+		this.adjustTop = 0;
 	}
 
 	// Allow async calls to implement onCancel
@@ -62,8 +63,24 @@ class PowerWindow extends PowerDialogBase {
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
 
+		const menus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
+		for (const menu of menus) {
+			if (menu.menu.menuPosition === 'top') {
+				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+			}
+		}
 		if (this.isMaximized) {
 			this.maximize();
+		}
+	}
+
+	// Adapt window to fixed menus and maybe also other power components
+	adjustWindowWithComponents() {
+		if (this.isMaximized && this._dialog.offsetTop < this.adjustTop) {
+			this._dialog.style.top = this.adjustTop + 'px';
+			this._dialog.style['padding-top'] = 0;
+		} else {
+			this._dialog.style['padding-top'] = '5px';
 		}
 	}
 
@@ -308,6 +325,7 @@ class PowerWindow extends PowerDialogBase {
 		if (document.body && document.body.classList) {
 			document.body.classList.add('window-is-miximized');
 		}
+		this.adjustWindowWithComponents();
 	}
 
 	restore(event) {
@@ -325,6 +343,7 @@ class PowerWindow extends PowerDialogBase {
 		this.saveWindowState();
 		this.replaceSizeQueries();
 		this.removeWindowIsMaximizedFromBody();
+		this.adjustWindowWithComponents();
 	}
 
 	setAllWindowElements() {
