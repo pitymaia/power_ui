@@ -3,7 +3,7 @@ class PowerDropmenu extends PowerTarget {
 		super(element);
 
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-power-position') || 'bottom-right';
+		this.defaultPosition = this.element.getAttribute('data-pw-position') || 'bottom-right';
 		// Mark the root of the dropmenu tree, first level element
 		this._markRootAndMenuDropmenu();
 	}

@@ -1031,7 +1031,7 @@ class RootScopeTemplate extends PowerTemplate {
 				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
 			},
 			"mirrored": false,
-			"position": "top-right",
+			"dropMenuPosition": "top-right",
 			// "orientation": "vertical",
 			// "kind": "float-right",
 			"items": [
@@ -2155,7 +2155,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				]
 			},
 			"mirrored": false,
-			// "position": "bottom-left",
+			// "dropMenuPosition": "bottom-left",
 			// "orientation": "vertical",
 			// "kind": "float-right",
 			"items": [
@@ -4141,7 +4141,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"id": 'my-menu-2',
 			"brand": {"content": "PowerUi"},
 			"mirrored": false,
-			"position": "top-right",
+			"dropMenuPostision": "top-right",
 			// "orientation": "vertical",
 			// "kind": "float-right",
 			"items": [

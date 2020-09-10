@@ -9,13 +9,13 @@ class PowerMenu extends PowerTarget {
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-power-position');
+		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
 		if (this.element.classList.contains('pw-horizontal')) {
-			this.isHorizontal = true;
+			this.orientation = 'horizontal';
 			this.defaultPosition = this.defaultPosition || 'bottom-right';
 		} else {
-			this.isHorizontal = false;
+			this.orientation = 'vertical';
 			this.defaultPosition = this.defaultPosition || 'right-bottom';
 		}
 		if (this.element.classList.contains('pw-menu-fixed')) {

@@ -531,26 +531,26 @@ class JSONSchemaService extends PowerServices {
 			const tmpEl = document.createElement('div');
 
 			// Set dropmenu position
-			if (!menu.position) {
+			if (!menu.dropMenuPosition) {
 				if (!menu.orientation || menu.orientation === 'horizontal') {
 					if (menu.mirrored === true) {
-						if (menu.kind === undefined || menu.kind === 'fixed-top') {
-							menu.position = 'bottom-left';
+						if (menu.position === undefined || menu.position === 'fixed-top') {
+							menu.dropMenuPosition = 'bottom-left';
 						} else if (menu.kind === 'fixed-bottom') {
-							menu.position = 'top-left';
+							menu.dropMenuPosition = 'top-left';
 						}
 					} else {
-						if (menu.kind === undefined || menu.kind === 'fixed-top') {
-							menu.position = 'bottom-right';
+						if (menu.position === undefined || menu.position === 'fixed-top') {
+							menu.dropMenuPosition = 'bottom-right';
 						} else if (menu.kind === 'fixed-bottom') {
-							menu.position = 'top-right';
+							menu.dropMenuPosition = 'top-right';
 						}
 					}
 				} else if (menu.orientation === 'vertical') {
-					if (menu.mirrored === true || (menu.mirrored === undefined && (menu.kind === 'fixed-right' || menu.kind === 'float-right'))) {
-						menu.position = 'left-bottom';
+					if (menu.mirrored === true || (menu.mirrored === undefined && (menu.position === 'fixed-right' || menu.position === 'float-right'))) {
+						menu.dropMenuPosition = 'left-bottom';
 					} else {
-						menu.position = 'right-bottom';
+						menu.dropMenuPosition = 'right-bottom';
 					}
 				}
 			}
@@ -559,22 +559,22 @@ class JSONSchemaService extends PowerServices {
 			const menuEl = tmpEl.children[0];
 
 			// Set menu css styles
-			if (menu.kind === 'fixed-top') {
+			if (menu.position === 'fixed-top') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-top');
-			} else if (menu.kind === 'fixed-bottom') {
+			} else if (menu.position === 'fixed-bottom') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-bottom');
-			} else if (menu.kind === 'fixed-left') {
+			} else if (menu.position === 'fixed-left') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-left');
-			} else if (menu.kind === 'fixed-right') {
+			} else if (menu.position === 'fixed-right') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-right');
-			} else if (menu.kind === 'float-left') {
+			} else if (menu.position === 'float-left') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-left');
-			} else if (menu.kind === 'float-right') {
+			} else if (menu.position === 'float-right') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-right');
 			}
@@ -629,6 +629,7 @@ class JSONSchemaService extends PowerServices {
 	dropmenu(_dropmenu, mirrored, isMenu) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);
+		const dropmenuPosition = isMenu ? dropmenu.dropMenuPosition : dropmenu.position;
 		// This allow pass an array of dropmenus
 		if (_dropmenu.length) {
 			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
@@ -661,11 +662,16 @@ class JSONSchemaService extends PowerServices {
 			dropmenu.classList.push(isMenu ? 'power-menu' : 'power-dropmenu');
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
+			console.log('tmpEl.innerHTML', tmpEl.innerHTML);
 
 			// Set menu position
-			if (dropmenu.position) {
+			if (dropmenuPosition) {
 					const menu = tmpEl.children[0];
-					menu.dataset.powerPosition = dropmenu.position;
+					if (isMenu) {
+						menu.dataset.pwDropmenu = dropmenuPosition;
+					} else {
+						menu.dataset.pwPosition = dropmenuPosition;
+					}
 			}
 
 			for (const item of dropmenu.items) {
@@ -1538,9 +1544,9 @@ class JSONSchemaService extends PowerServices {
 				"id": {"type": "string"},
 				"classList": {"type": "array"},
 				"mirrored": {"type": "boolean"},
-				"position": {"type": "string"},
+				"dropMenuPosition": {"type": "string"},
 				"orientation": {"type": "string"},
-				"kind": {"type": "string"},
+				"position": {"type": "string"},
 				"items": {
 					"type": "array",
 					"properties": {
