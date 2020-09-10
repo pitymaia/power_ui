@@ -11,16 +11,29 @@ class PowerMenu extends PowerTarget {
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-power-position');
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
-		if (!this.defaultPosition) {
-			if (this.element.classList.contains('power-horizontal')) {
-				this.defaultPosition = 'bottom-right';
-			} else {
-				this.defaultPosition = 'right-bottom';
-			}
+		if (this.element.classList.contains('pw-horizontal')) {
+			this.isHorizontal = true;
+			this.defaultPosition = this.defaultPosition || 'bottom-right';
+		} else {
+			this.isHorizontal = false;
+			this.defaultPosition = this.defaultPosition || 'right-bottom';
+		}
+		if (this.element.classList.contains('pw-menu-fixed')) {
+			this.isFixed = true;
+		} else {
+			this.isFixed = false;
+		}
+		if (this.element.classList.contains('pw-top')) {
+			this.menuPosition = 'top';
 		}
 	}
 
+	onRemove() {
+		this.$powerUi.menus = this.$powerUi.menus.filter( menu=> menu.id !== this.id);
+	}
+
 	init() {
+		this.$powerUi.menus.push({id: this.id, menu: this});
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu

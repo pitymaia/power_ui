@@ -181,6 +181,7 @@ class PowerUi extends _PowerUiBase {
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {};
 		this.dialogs = [];
+		this.menus = [];
 		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();

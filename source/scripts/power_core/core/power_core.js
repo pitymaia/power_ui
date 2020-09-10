@@ -123,6 +123,11 @@ class SharedScope {
 		if (element.id && this.ctx.allPowerObjsById[element.id]) {
 			// Remove events of this objects
 			this.ctx.removeEventsOfObject(element.id);
+			for (const key of Object.keys(this.ctx.allPowerObjsById[element.id])) {
+				if (key !== '$shared' && this.ctx.allPowerObjsById[element.id][key].onRemove) {
+					this.ctx.allPowerObjsById[element.id][key].onRemove();
+				}
+			}
 			delete this.ctx.allPowerObjsById[element.id];
 		}
 
