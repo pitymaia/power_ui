@@ -1,5 +1,4 @@
 /* Dropdown */
-
 .power-dropmenu, .power-dropmenu.power-active > .power-dropmenu {
     display: none !important;
 }

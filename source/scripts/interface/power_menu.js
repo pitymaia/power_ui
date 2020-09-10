@@ -74,13 +74,9 @@ class PowerMenu extends PowerTarget {
 			const currentStylePaddingTop = parseInt((body.style['padding-top'] || '0').replace('px', ''));
 			const currentStylePaddingBottom = parseInt((body.style['padding-bottom'] || '0').replace('px', ''));
 			if (this.menuPosition === 'top') {
-				let computedTop = window.getComputedStyle(this.element)['padding-top'];
-				computedTop = parseInt(computedTop.replace('px', ''));
-				body.style['padding-top'] = currentStylePaddingTop + computedTop + this.element.offsetHeight + 'px';
+				body.style['padding-top'] = currentStylePaddingTop + this.element.offsetHeight + 'px';
 			} else if (this.menuPosition === 'bottom') {
-				let computedBottom = window.getComputedStyle(this.element)['padding-bottom'];
-				computedBottom = parseInt(computedBottom.replace('px', ''));
-				body.style['padding-bottom'] = currentStylePaddingBottom + computedBottom + this.element.offsetHeight + 'px';
+				body.style['padding-bottom'] = currentStylePaddingBottom + this.element.offsetHeight + 'px';
 			}
 		}
 	}
@@ -91,13 +87,9 @@ class PowerMenu extends PowerTarget {
 			const currentStylePaddingTop = parseInt((body.style['padding-top'] || '0').replace('px', ''));
 			const currentStylePaddingBottom = parseInt((body.style['padding-bottom'] || '0').replace('px', ''));
 			if (this.menuPosition === 'top') {
-				let computedTop = window.getComputedStyle(this.element)['padding-top'];
-				computedTop = parseInt(computedTop.replace('px', ''));
-				body.style['padding-top'] = currentStylePaddingTop + computedTop - this.element.offsetHeight + 'px';
+				body.style['padding-top'] = currentStylePaddingTop - this.element.offsetHeight + 'px';
 			} else if (this.menuPosition === 'bottom') {
-				let computedBottom = window.getComputedStyle(this.element)['padding-bottom'];
-				computedBottom = parseInt(computedBottom.replace('px', ''));
-				body.style['padding-bottom'] = currentStylePaddingBottom - computedBottom - this.element.offsetHeight + 'px';
+				body.style['padding-bottom'] = currentStylePaddingBottom - this.element.offsetHeight + 'px';
 			}
 		}
 	}
