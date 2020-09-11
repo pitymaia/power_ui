@@ -200,11 +200,17 @@ class PowerUi extends _PowerUiBase {
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 		this.router = new Router(config, this); // Router calls this.init();
-		this.onWindowResize = new UEvent('onWindowResize');
-		window.addEventListener("resize", ()=> this.onWindowResize.broadcast());
+		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
+		// this.appContainer = document.getElementById('app-container');
+		// this.browserWindowResize.subscribe(this.onBrowserWindowResize.bind(this));
+		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
+
+	// browserWindowResize() {
+	// 	this.appContainer.style.height = window.innerHeight + 'px';
+	// }
 
 	// Return the "view" controller of any element inside the current view
 	getCurrentElementCtrl(node) {

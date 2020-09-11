@@ -31,6 +31,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	onRemove() {
+		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
 		this.$powerUi.menus = this.$powerUi.menus.filter(menu=> menu.id !== this.id);
 		this.removeMarginFromBody();
 		this.setAppContainerHeight();
@@ -78,7 +79,7 @@ class PowerMenu extends PowerTarget {
 		}
 		this.addMarginToBody();
 		this.setAppContainerHeight();
-		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
+		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu
