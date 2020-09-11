@@ -31,7 +31,6 @@ class PowerMenu extends PowerTarget {
 	}
 
 	onRemove() {
-		console.log('onRemove', this.id);
 		this.$powerUi.menus = this.$powerUi.menus.filter(menu=> menu.id !== this.id);
 		this.removeMarginFromBody();
 		this.setAppContainerHeight();
@@ -49,7 +48,6 @@ class PowerMenu extends PowerTarget {
 	}
 
 	init() {
-		console.log('init', this.id);
 		this.appContainer = document.getElementById('app-container');
 		this.$powerUi.menus.push({id: this.id, menu: this});
 		if (this.isFixed) {
@@ -71,14 +69,12 @@ class PowerMenu extends PowerTarget {
 					// Adjust this menu top if have other menus on top, filter itself from the adjustBottom
 					if (menu.menu.id !== this.id && this.menuPosition === 'bottom') {
 						this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
-						this.element.style.top = this.element.offsetTop - this.adjustBottom + 'px';
-						this.element.style.height = this.element.offsetHeight - this.adjustBottom + 'px';
+						// this.element.style.top = this.element.offsetTop - this.adjustBottom + 'px';
+						this.element.style.bottom = this.adjustTop + this.adjustBottom + 'px';
 					}
 					this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
 				}
 			}
-			// console.log('this.topTotalHeight', this.topTotalHeight);
-			// console.log('this.bottomTotalHeight', this.bottomTotalHeight);
 		}
 		this.addMarginToBody();
 		this.setAppContainerHeight();
