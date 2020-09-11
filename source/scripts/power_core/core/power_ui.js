@@ -396,6 +396,20 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initNodes() {
+		// Add ids to remove from this.waitingInit
+		const needRemove = [];
+		for (const currentNode of this.waitingInit) {
+			for (const toCheck of this.waitingInit) {
+				if (currentNode.viewId !== toCheck.viewId) {
+					const isInner = currentNode.node.contains(toCheck.node);
+					if (isInner) {
+						needRemove.push(toCheck.viewId);
+					}
+				}
+			}
+		}
+		this.waitingInit = this.waitingInit.filter(n=> !needRemove.includes(n.viewId));
+
 		for (const item of this.waitingInit) {
 			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});

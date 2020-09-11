@@ -88,8 +88,8 @@ class PowerWindow extends PowerDialogBase {
 			}
 
 			if (this.adjustHeight) {
-				this._dialog.style.height = window.innerHeight - this.adjustHeight + 'px';
-				this.bodyEl.style.height = window.innerHeight - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
+				this._dialog.style.height = window.innerHeight - this.adjustTop - this.adjustHeight + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
 				this._dialog.style['padding-bottom'] = 0;
 			}
 		} else {

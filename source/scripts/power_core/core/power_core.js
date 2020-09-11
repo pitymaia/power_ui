@@ -112,9 +112,8 @@ class SharedScope {
 		const children = this.element.children;
 		for (const child of children) {
 			this.removeElementAndInnersFromPower(child);
-			this.element.removeChild(child);
 		}
-		// this.element.innerHTML = '';
+		this.element.innerHTML = '';
 		delete this.element.dataset.pwhascomp;
 	}
 
@@ -227,7 +226,7 @@ class _PowerBasicElement {
 	}
 
 	get id() {
-		return this.element.id || null;
+		return this.element ? this.element.id || null : null;
 	}
 
 	set id(id) {

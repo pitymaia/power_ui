@@ -31,13 +31,58 @@ class PowerMenu extends PowerTarget {
 	}
 
 	onRemove() {
-		this.$powerUi.menus = this.$powerUi.menus.filter( menu=> menu.id !== this.id);
-		this.removePaddingFromBody();
+		console.log('onRemove', this.id);
+		this.$powerUi.menus = this.$powerUi.menus.filter(menu=> menu.id !== this.id);
+		this.removeMarginFromBody();
+		this.setAppContainerHeight();
+	}
+
+	browserWindowResize() {
+		this.setAppContainerHeight();
+	}
+
+	setAppContainerHeight() {
+		if (!this.isFixed) {
+			return;
+		}
+		this.appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
 	}
 
 	init() {
-		this.addPaddingToBody();
+		console.log('init', this.id);
+		this.appContainer = document.getElementById('app-container');
 		this.$powerUi.menus.push({id: this.id, menu: this});
+		if (this.isFixed) {
+			const fixedMenus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
+			this.adjustTop = 0;
+			this.adjustBottom = 0;
+			this.topTotalHeight = 0;
+			this.bottomTotalHeight = 0;
+			for (const menu of fixedMenus) {
+				if (menu.menu.menuPosition === 'top') {
+					// Adjust this menu top if have other menus on top, filter itself from the adjustTop
+					if (menu.menu.id !== this.id && this.menuPosition === 'top') {
+						this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+						this.element.style.top = this.adjustTop + 'px';
+					}
+					this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
+				}
+				if (menu.menu.menuPosition === 'bottom') {
+					// Adjust this menu top if have other menus on top, filter itself from the adjustBottom
+					if (menu.menu.id !== this.id && this.menuPosition === 'bottom') {
+						this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
+						this.element.style.top = this.element.offsetTop - this.adjustBottom + 'px';
+						this.element.style.height = this.element.offsetHeight - this.adjustBottom + 'px';
+					}
+					this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
+				}
+			}
+			// console.log('this.topTotalHeight', this.topTotalHeight);
+			// console.log('this.bottomTotalHeight', this.bottomTotalHeight);
+		}
+		this.addMarginToBody();
+		this.setAppContainerHeight();
+		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu
@@ -68,28 +113,28 @@ class PowerMenu extends PowerTarget {
 		}
 	}
 
-	addPaddingToBody() {
+	addMarginToBody() {
 		if (this.isFixed) {
 			const body = document.body;
-			const currentStylePaddingTop = parseInt((body.style['padding-top'] || '0').replace('px', ''));
-			const currentStylePaddingBottom = parseInt((body.style['padding-bottom'] || '0').replace('px', ''));
+			const currentStyleMarginTop = parseInt((body.style['margin-top'] || '0').replace('px', ''));
+			// const currentStyleMarginBottom = parseInt((body.style['margin-bottom'] || '0').replace('px', ''));
 			if (this.menuPosition === 'top') {
-				body.style['padding-top'] = currentStylePaddingTop + this.element.offsetHeight + 'px';
+				body.style['margin-top'] = currentStyleMarginTop + this.element.offsetHeight + 'px';
 			} else if (this.menuPosition === 'bottom') {
-				body.style['padding-bottom'] = currentStylePaddingBottom + this.element.offsetHeight + 'px';
+				// body.style['margin-bottom'] = currentStyleMarginBottom + this.element.offsetHeight + 'px';
 			}
 		}
 	}
 
-	removePaddingFromBody() {
+	removeMarginFromBody() {
 		if (this.isFixed) {
 			const body = document.body;
-			const currentStylePaddingTop = parseInt((body.style['padding-top'] || '0').replace('px', ''));
-			const currentStylePaddingBottom = parseInt((body.style['padding-bottom'] || '0').replace('px', ''));
+			const currentStyleMarginTop = parseInt((body.style['margin-top'] || '0').replace('px', ''));
+			// const currentStyleMarginBottom = parseInt((body.style['margin-bottom'] || '0').replace('px', ''));
 			if (this.menuPosition === 'top') {
-				body.style['padding-top'] = currentStylePaddingTop - this.element.offsetHeight + 'px';
+				body.style['margin-top'] = currentStyleMarginTop - this.element.offsetHeight + 'px';
 			} else if (this.menuPosition === 'bottom') {
-				body.style['padding-bottom'] = currentStylePaddingBottom - this.element.offsetHeight + 'px';
+				// body.style['margin-bottom'] = currentStyleMarginBottom - this.element.offsetHeight + 'px';
 			}
 		}
 	}
