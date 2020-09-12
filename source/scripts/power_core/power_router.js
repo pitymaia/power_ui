@@ -430,7 +430,6 @@ class Router {
 	}
 
 	addSpinnerAndHideContent(viewId) {
-		return
 		// Only add one spinner when the first view is added to waitingViews
 		if (!document.getElementById('_power-spinner')) {
 			// Backdrop
