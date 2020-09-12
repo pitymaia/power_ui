@@ -199,6 +199,7 @@ class PowerUi extends _PowerUiBase {
 		this._events.ready = new UEvent();
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
+		this.toggleSmallWindowMode();
 		this.router = new Router(config, this); // Router calls this.init();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
 		this.onBrowserWindowResize.subscribe(this._browserWindowResize.bind(this));
@@ -208,17 +209,30 @@ class PowerUi extends _PowerUiBase {
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
+	toggleSmallWindowMode() {
+		const _appContainer = document.getElementById('app-container');
+		if (window.innerWidth <= 768) {
+			this.smallWindowMode = true;
+			_appContainer.classList.add('pw-small-window-mode');
+		} else {
+			this.smallWindowMode = false;
+			_appContainer.classList.remove('pw-small-window-mode');
+		}
+	}
+
 	_browserWindowResize() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.menusSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
 	}
 	_routeChange() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.menusSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
 	}
 	// This change the "app-container" and body element to allow adjust for fixed bars/menus
 	_setAppContainerHeight() {

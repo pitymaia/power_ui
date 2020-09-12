@@ -115,7 +115,7 @@ class PowerWindow extends PowerDialogBase {
 
 	removeWindowIsMaximizedFromBody() {
 		if (document.body && document.body.classList) {
-			document.body.classList.remove('window-is-miximized');
+			document.body.classList.remove('window-is-maximized');
 		}
 	}
 
@@ -345,7 +345,7 @@ class PowerWindow extends PowerDialogBase {
 		this.saveWindowState();
 		this.replaceSizeQueries();
 		if (document.body && document.body.classList) {
-			document.body.classList.add('window-is-miximized');
+			document.body.classList.add('window-is-maximized');
 		}
 		this.adjustWindowWithComponents();
 	}

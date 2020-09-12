@@ -260,7 +260,8 @@ body, html {
     background-color: #000000;
     /*overflow: hidden;*/
 }
-.pw-window.pw-touchdevice {
+.pw-window.pw-touchdevice,
+.pw-small-window-mode .pw-window {
     top: 0;
     left: 0;
 }
@@ -279,7 +280,8 @@ body, html {
     min-width: 100%;
     max-width: 100%;
 }
-.pw-window.pw-touchdevice .pw-body {
+.pw-window.pw-touchdevice .pw-body,
+.pw-small-window-mode .pw-window .pw-body {
     top: 0;
     left: 0;
     width: 100%;
@@ -297,7 +299,10 @@ body, html {
     width: 80%;
     max-width: 95vw;
 }
-.pw-modal.pw-touchdevice .pw-body, .pw-modal.pw-touchdevice .pw-title-bar {
+.pw-modal.pw-touchdevice .pw-body,
+.pw-modal.pw-touchdevice .pw-title-bar,
+.pw-small-window-mode .pw-modal .pw-body,
+.pw-small-window-mode .pw-modal .pw-title-bar {
     width: 95%;
     max-width: 100vw;
 }
@@ -310,7 +315,7 @@ body, html {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
 }
 
-body.modal-open, body.window-is-miximized {
+body.modal-open, body.window-is-maximized {
     overflow: hidden;
 }
 /* dialog-Modal-Window end */
