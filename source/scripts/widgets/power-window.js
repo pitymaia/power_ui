@@ -16,8 +16,6 @@ class PowerWindow extends PowerDialogBase {
 
 	_onViewLoad(view) {
 		super._onViewLoad(view);
-		this.adjustTop = 0;
-		this.adjustHeight = 0;
 		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
 		this.currentView = view;
 
@@ -64,14 +62,7 @@ class PowerWindow extends PowerDialogBase {
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
 
-		const menus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
-		for (const menu of menus) {
-			if (menu.menu.menuPosition === 'top') {
-				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
-			} else if (menu.menu.menuPosition === 'bottom') {
-				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
-			}
-		}
+
 		if (this.isMaximized) {
 			this.maximize();
 		}
@@ -81,6 +72,16 @@ class PowerWindow extends PowerDialogBase {
 
 	// Adapt window to fixed menus and maybe also other power components
 	adjustWindowWithComponents() {
+		this.adjustTop = 0;
+		this.adjustHeight = 0;
+		const menus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
+		for (const menu of menus) {
+			if (menu.menu.menuPosition === 'top') {
+				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+			} else if (menu.menu.menuPosition === 'bottom') {
+				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
+			}
+		}
 		if (this.isMaximized) {
 			if (this._dialog.offsetTop < this.adjustTop) {
 				this._dialog.style['padding-top'] = 0;
