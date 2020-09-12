@@ -7,9 +7,6 @@ class PowerWindow extends PowerDialogBase {
 		this.maximizeBt = true;
 		this.restoreBt = true;
 		this.isMaximized = false;
-		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
-		this.adjustTop = 0;
-		this.adjustHeight = 0;
 	}
 
 	// Allow async calls to implement onCancel
@@ -19,6 +16,9 @@ class PowerWindow extends PowerDialogBase {
 
 	_onViewLoad(view) {
 		super._onViewLoad(view);
+		this.adjustTop = 0;
+		this.adjustHeight = 0;
+		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
 		this.currentView = view;
 
 		if (this.isHiddenRoute === false) {
@@ -75,6 +75,8 @@ class PowerWindow extends PowerDialogBase {
 		if (this.isMaximized) {
 			this.maximize();
 		}
+
+		this.restoreScrollPosition(view);
 	}
 
 	// Adapt window to fixed menus and maybe also other power components
@@ -101,9 +103,13 @@ class PowerWindow extends PowerDialogBase {
 	_onRemoveCtrl() {
 		delete this.zIndex;
 		this.saveWindowState();
+		super._onRemoveCtrl();
+	}
+
+	_onRemoveView() {
+		delete this.currentWindowQuery;
 		this.removeWindowIsMaximizedFromBody();
 		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
-		super._onRemoveCtrl();
 	}
 
 	removeWindowIsMaximizedFromBody() {

@@ -6,30 +6,13 @@
     <link rel="stylesheet" type="text/css" href="css/power_ui.css" />
     <link rel="stylesheet" type="text/css" href="css/temp_develop.css" />
     <style id="styles"></style>
+    <script src="//console.re/connector.js" data-channel="powerui" id="consolerescript"></script>
   </head>
   <body>
     <div id="app-container">
       <div id="root-view" class="power-main power-view pwdesign-white-smoke">
         <div class="power-view" id="main-view"></div>
         <div class="power-view" id="secundary-view"></div>
-        <div>
-          {{ 'Aqui temos uma interpolação de 3 + 3: ' }}
-          {{ 3 + 3 }}
-        </div>
-        <p>Qual o seu nome? <span data-pow-eval="pity()"></span></p>
-        <p>Qual o seu nome 2? {{ pity() }}</p>
-        <p>teste.pity.obj: {{ teste.pity.obj }}</p>
-        <p>teste["pity"]['obj']: {{ teste["pity"]['obj'] }}</p>
-        <p>'teste["pity"]["obj"]': {{ 'teste["pity"]["obj"]' }}</p>
-        <p>teste["pity"].obj: {{ teste["pity"].obj }}</p>
-        <p>teste["pity"][variable]: {{ teste["pity"][variable] }}</p>
-        <p>piii.pity.pity: {{ piii.pity.pity }}</p>
-        <p>piii[`pity`]['pity']: {{ piii[`pity`]['pity'] }}</p>
-        <p>obj.obj.obj: {{ obj.obj.obj }}</p>
-        <p>teste[piii.pity.pity][obj.obj.obj]: {{ teste[piii.pity.pity][obj.obj.obj] }}</p>
-        <p>teste[piii['pity'].pity][obj["obj"]["obj"]]: {{ teste[piii['pity'].pity][obj["obj"]["obj"]] }}</p>
-        <p>EVAL() {{ 'eval("danger")' }} = {{ eval("danger") }}</p>
-      </div>
     </div>
     <script type="module" src="scripts/temp_develop.js"></script>
   </body>

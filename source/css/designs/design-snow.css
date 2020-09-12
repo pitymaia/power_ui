@@ -5,6 +5,10 @@
     font-size: 1em;
 }
 
+.window-is-miximized .pw-window {
+    box-shadow: unset;
+}
+
 /* Menu */
 .pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-toggle {
     cursor: pointer;
@@ -13,7 +17,6 @@
 
 .pwdesign-white-smoke .power-menu {
     padding: 0.5em;
-    margin-bottom: 0.5em;
     background-color: #F5F5F5;
     vertical-align: middle;
     z-index: 1000;

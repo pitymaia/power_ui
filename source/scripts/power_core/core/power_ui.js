@@ -210,6 +210,8 @@ class PowerUi extends _PowerUiBase {
 
 	_browserWindowResize() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.menusSizeAndPosition();
+		this._addMarginToBody();
 		this._setAppContainerHeight();
 	}
 	_routeChange() {

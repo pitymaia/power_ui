@@ -81,7 +81,6 @@ body, html {
 
 .power-menu.pw-horizontal {
     display: flex;
-    justify-content: none;
     align-items: center;
     /*min-height: 40px;*/
 }
@@ -309,10 +308,6 @@ body, html {
 }
 .pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
-}
-
-.window-is-miximized .pw-window {
-    box-shadow: unset;
 }
 
 body.modal-open, body.window-is-miximized {

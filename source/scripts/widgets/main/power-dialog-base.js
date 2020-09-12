@@ -80,6 +80,10 @@ class PowerDialogBase extends PowerWidget {
 			this._dialog.style.zIndex = this.zIndex;
 			this.$powerUi.dialogs.push({id: this.dialogId, ctrl: this});
 		}
+		this.restoreScrollPosition(view);
+	}
+
+	restoreScrollPosition(view) {
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
 		if (container) {
