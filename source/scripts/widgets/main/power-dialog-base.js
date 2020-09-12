@@ -65,7 +65,7 @@ class PowerDialogBase extends PowerWidget {
 		}
 	}
 
-	_onRouteClose() {
+	_onRemoveCtrl() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
 	}

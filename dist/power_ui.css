@@ -2796,8 +2796,20 @@ input.pw-field[type=range] {
   content: "\eb18";
 }
 
-/* Dropdown */
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
+body, html {
+  height: 100%;
+}
+#app-container {
+    height: 100%;
+    overflow: auto;
+}
+/* Dropdown */
 .power-dropmenu, .power-dropmenu.power-active > .power-dropmenu {
     display: none !important;
 }
@@ -2860,10 +2872,18 @@ input.pw-field[type=range] {
     display: none;
 }
 .power-tree-view .power-tree-view.power-active {
-    display: block;;
+    display: block;
 }
 
 /* end power tree view*/
+
+.power-menu.pw-horizontal {
+    display: flex;
+    justify-content: none;
+    align-items: center;
+    /*min-height: 40px;*/
+}
+
 @media screen and (max-width: 768px) {
     .power-menu.pw-horizontal.power-active .power-action,
     .power-menu.pw-horizontal.power-active .power-item {
@@ -3087,6 +3107,10 @@ input.pw-field[type=range] {
 }
 .pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);
+}
+
+.window-is-miximized .pw-window {
+    box-shadow: unset;
 }
 
 body.modal-open, body.window-is-miximized {

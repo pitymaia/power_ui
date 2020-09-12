@@ -5156,7 +5156,7 @@ class JSONViews extends PowerWindow {
 		};
 	}
 
-	// onRouteClose() {
+	// onRemoveCtrl() {
 	// 	// console.log('ON ROUTE CLOSE!!!');
 	// 	const promise = new Promise(function (resolve, reject) {
 	// 		setTimeout(function () {

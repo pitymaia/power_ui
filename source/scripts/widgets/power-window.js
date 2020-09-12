@@ -98,12 +98,12 @@ class PowerWindow extends PowerDialogBase {
 		}
 	}
 
-	_onRouteClose() {
+	_onRemoveCtrl() {
 		delete this.zIndex;
 		this.saveWindowState();
 		this.removeWindowIsMaximizedFromBody();
 		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
-		super._onRouteClose();
+		super._onRemoveCtrl();
 	}
 
 	removeWindowIsMaximizedFromBody() {

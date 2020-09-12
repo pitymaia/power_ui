@@ -24,9 +24,10 @@ class EngineCommands {
 		this.default = {
 			close: {
 				runBeforeClose: true,
-				removeView: true,
-				runOnRouteClose: true,
+				runOnRemoveCtrl: true,
 				removeCtrl: true,
+				runOnRemoveView: true,
+				removeView: true,
 			},
 			open: {
 				addCtrl: true,
@@ -40,9 +41,10 @@ class EngineCommands {
 			refresh: {
 				close: {
 					runBeforeClose: false,
-					removeView: true,
-					runOnRouteClose: false,
+					runOnRemoveCtrl: false,
 					removeCtrl: false,
+					runOnRemoveView: true,
+					removeView: true,
 				},
 				open: {
 					addCtrl: false,
@@ -55,9 +57,10 @@ class EngineCommands {
 			reload: {
 				close: {
 					runBeforeClose: true,
-					removeView: true,
-					runOnRouteClose: true,
+					runOnRemoveCtrl: true,
 					removeCtrl: true,
+					runOnRemoveView: true,
+					removeView: true,
 				},
 				open: {
 					addCtrl: true,
@@ -741,9 +744,10 @@ class Router {
 			return;
 		}
 		this.clearPhantomRouter();
-		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
+			this.removeViewInOrder, this.orderedRoutesToClose, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.runOnRemoveCtrlAndRemoveController, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.initRouteControllerAndRunLoadInOrder, this.orderedRoutesToOpen, 0, this);
 		await this.resolveWhenListIsPopulated(
@@ -779,13 +783,48 @@ class Router {
 		return _promise;
 	}
 
-	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx) {
+	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
-			return;
+			return _resolve();
 		}
-		ctx.removeView(route.viewId, ctx);
-		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
+
+		// Run the onRemoveView
+		if (route.commands.runOnRemoveView === true &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.onRemoveView) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.onRemoveView();
+			if (result && result.then) {
+				result.then(function (response) {
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveView) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRemoveView();
+					}
+					ctx.removeView(route.viewId, ctx);
+					ctx.callNextLinkWhenReady(
+						ctx.removeViewInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					_resolve('abort');
+					if (error) {
+						window.console.log('Error running onRemoveView: ', route.routeId, error);
+					}
+				});
+			} else {
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveView) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRemoveView();
+				}
+				ctx.removeView(route.viewId, ctx);
+					ctx.callNextLinkWhenReady(
+						ctx.removeViewInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveView) {
+				ctx.$powerUi.controllers[route.viewId].instance._onRemoveView();
+			}
+			ctx.removeView(route.viewId, ctx);
+			ctx.callNextLinkWhenReady(
+				ctx.removeViewInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		}
 	}
 
 	callNextLinkWhenReady(runInOrder, orderedList, index, ctx, _resolve) {
@@ -909,7 +948,7 @@ class Router {
 		}
 	}
 
-	runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+	runOnRemoveCtrlAndRemoveController(orderedRoutesToClose, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
 			return _resolve();
@@ -917,38 +956,38 @@ class Router {
 
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance) {
-			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
+			const result = (route.commands.runOnRemoveCtrl && ctx.$powerUi.controllers[route.viewId].instance.onRemoveCtrl) ? ctx.$powerUi.controllers[route.viewId].instance.onRemoveCtrl() : false;
 
 			if (result && result.then) {
 				result.then(function () {
-					if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
-						ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
 					}
 					if (route.commands.removeCtrl) {
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
 					}
 					ctx.callNextLinkWhenReady(
-						ctx.runOnRouteCloseAndRemoveController, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+						ctx.runOnRemoveCtrlAndRemoveController, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
-					window.console.log('Error running onRouteClose: ', route.routeId, error);
+					window.console.log('Error running onRemoveCtrl: ', route.routeId, error);
 				});
 			} else {
-				if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
-					ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
 				}
 				if (route.commands.removeCtrl) {
 					ctx.removeVolatileViews(route.viewId);
 					delete ctx.$powerUi.controllers[route.viewId];
 				}
-				ctx.runOnRouteCloseAndRemoveController(
+				ctx.runOnRemoveCtrlAndRemoveController(
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
-				ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+			if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+				ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
 			}
-			ctx.runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			ctx.runOnRemoveCtrlAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
 

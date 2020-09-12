@@ -112,9 +112,8 @@ class SharedScope {
 		const children = this.element.children;
 		for (const child of children) {
 			this.removeElementAndInnersFromPower(child);
-			this.element.removeChild(child);
 		}
-		// this.element.innerHTML = '';
+		this.element.innerHTML = '';
 		delete this.element.dataset.pwhascomp;
 	}
 
@@ -123,6 +122,11 @@ class SharedScope {
 		if (element.id && this.ctx.allPowerObjsById[element.id]) {
 			// Remove events of this objects
 			this.ctx.removeEventsOfObject(element.id);
+			for (const key of Object.keys(this.ctx.allPowerObjsById[element.id])) {
+				if (key !== '$shared' && this.ctx.allPowerObjsById[element.id][key].onRemove) {
+					this.ctx.allPowerObjsById[element.id][key].onRemove();
+				}
+			}
 			delete this.ctx.allPowerObjsById[element.id];
 		}
 
@@ -222,7 +226,7 @@ class _PowerBasicElement {
 	}
 
 	get id() {
-		return this.element.id || null;
+		return this.element ? this.element.id || null : null;
 	}
 
 	set id(id) {
@@ -1650,6 +1654,7 @@ class PowerUi extends _PowerUiBase {
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {};
 		this.dialogs = [];
+		this.menus = [];
 		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
@@ -1668,10 +1673,55 @@ class PowerUi extends _PowerUiBase {
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 		this.router = new Router(config, this); // Router calls this.init();
-		this.onWindowResize = new UEvent('onWindowResize');
-		window.addEventListener("resize", ()=> this.onWindowResize.broadcast());
+		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
+		this.onBrowserWindowResize.subscribe(this._browserWindowResize.bind(this));
+		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
+		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+	}
+
+	_browserWindowResize() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this._setAppContainerHeight();
+	}
+	_routeChange() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.menusSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_setAppContainerHeight() {
+		const _appContainer = document.getElementById('app-container');
+		_appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_addMarginToBody() {
+		const body = document.body;
+		const currentStyleMarginTop = 0;
+		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
+	}
+	// This change the position for fixed bars/menus so it shows one after another
+	// also register the info so "app-container" and body element can adjust for fixed bars/menus
+	menusSizeAndPosition() {
+		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
+		this.adjustTop = 0;
+		this.adjustBottom = 0;
+		this.topTotalHeight = 0;
+		this.bottomTotalHeight = 0;
+		for (const menu of fixedMenus) {
+			if (menu.menu.menuPosition === 'top') {
+				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+				menu.menu.element.style.top = this.adjustTop - menu.menu.element.offsetHeight + 'px';
+				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
+			}
+			if (menu.menu.menuPosition === 'bottom') {
+				this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
+				menu.menu.element.style.bottom = this.adjustBottom - menu.menu.element.offsetHeight + 'px';
+				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
+			}
+		}
 	}
 
 	// Return the "view" controller of any element inside the current view
@@ -1864,6 +1914,20 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	initNodes() {
+		// Add ids to remove from this.waitingInit
+		const needRemove = [];
+		for (const currentNode of this.waitingInit) {
+			for (const toCheck of this.waitingInit) {
+				if (currentNode.viewId !== toCheck.viewId) {
+					const isInner = currentNode.node.contains(toCheck.node);
+					if (isInner) {
+						needRemove.push(toCheck.viewId);
+					}
+				}
+			}
+		}
+		this.waitingInit = this.waitingInit.filter(n=> !needRemove.includes(n.viewId));
+
 		for (const item of this.waitingInit) {
 			// Interpolate using root controller scope
 			this.powerTree.createAndInitObjectsFromCurrentNode({id: item.node.id});
@@ -2727,26 +2791,26 @@ class JSONSchemaService extends PowerServices {
 			const tmpEl = document.createElement('div');
 
 			// Set dropmenu position
-			if (!menu.position) {
+			if (!menu.dropMenuPosition) {
 				if (!menu.orientation || menu.orientation === 'horizontal') {
 					if (menu.mirrored === true) {
-						if (menu.kind === undefined || menu.kind === 'fixed-top') {
-							menu.position = 'bottom-left';
-						} else if (menu.kind === 'fixed-bottom') {
-							menu.position = 'top-left';
+						if (menu.position === undefined || menu.position === 'fixed-top') {
+							menu.dropMenuPosition = 'bottom-left';
+						} else if (menu.position === 'fixed-bottom') {
+							menu.dropMenuPosition = 'top-left';
 						}
 					} else {
-						if (menu.kind === undefined || menu.kind === 'fixed-top') {
-							menu.position = 'bottom-right';
-						} else if (menu.kind === 'fixed-bottom') {
-							menu.position = 'top-right';
+						if (menu.position === undefined || menu.position === 'fixed-top') {
+							menu.dropMenuPosition = 'bottom-right';
+						} else if (menu.position === 'fixed-bottom') {
+							menu.dropMenuPosition = 'top-right';
 						}
 					}
 				} else if (menu.orientation === 'vertical') {
-					if (menu.mirrored === true || (menu.mirrored === undefined && (menu.kind === 'fixed-right' || menu.kind === 'float-right'))) {
-						menu.position = 'left-bottom';
+					if (menu.mirrored === true || (menu.mirrored === undefined && (menu.position === 'fixed-right' || menu.position === 'float-right'))) {
+						menu.dropMenuPosition = 'left-bottom';
 					} else {
-						menu.position = 'right-bottom';
+						menu.dropMenuPosition = 'right-bottom';
 					}
 				}
 			}
@@ -2755,22 +2819,22 @@ class JSONSchemaService extends PowerServices {
 			const menuEl = tmpEl.children[0];
 
 			// Set menu css styles
-			if (menu.kind === 'fixed-top') {
+			if (menu.position === 'fixed-top') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-top');
-			} else if (menu.kind === 'fixed-bottom') {
+			} else if (menu.position === 'fixed-bottom') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-bottom');
-			} else if (menu.kind === 'fixed-left') {
+			} else if (menu.position === 'fixed-left') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-left');
-			} else if (menu.kind === 'fixed-right') {
+			} else if (menu.position === 'fixed-right') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-right');
-			} else if (menu.kind === 'float-left') {
+			} else if (menu.position === 'float-left') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-left');
-			} else if (menu.kind === 'float-right') {
+			} else if (menu.position === 'float-right') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-right');
 			}
@@ -2825,6 +2889,7 @@ class JSONSchemaService extends PowerServices {
 	dropmenu(_dropmenu, mirrored, isMenu) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);
+		const dropmenuPosition = isMenu ? dropmenu.dropMenuPosition : dropmenu.position;
 		// This allow pass an array of dropmenus
 		if (_dropmenu.length) {
 			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
@@ -2859,9 +2924,13 @@ class JSONSchemaService extends PowerServices {
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
 			// Set menu position
-			if (dropmenu.position) {
+			if (dropmenuPosition) {
 					const menu = tmpEl.children[0];
-					menu.dataset.powerPosition = dropmenu.position;
+					if (isMenu) {
+						menu.dataset.pwDropmenu = dropmenuPosition;
+					} else {
+						menu.dataset.pwPosition = dropmenuPosition;
+					}
 			}
 
 			for (const item of dropmenu.items) {
@@ -3734,9 +3803,9 @@ class JSONSchemaService extends PowerServices {
 				"id": {"type": "string"},
 				"classList": {"type": "array"},
 				"mirrored": {"type": "boolean"},
-				"position": {"type": "string"},
+				"dropMenuPosition": {"type": "string"},
 				"orientation": {"type": "string"},
-				"kind": {"type": "string"},
+				"position": {"type": "string"},
 				"items": {
 					"type": "array",
 					"properties": {
@@ -4441,7 +4510,7 @@ class EngineCommands {
 			close: {
 				runBeforeClose: true,
 				removeView: true,
-				runOnRouteClose: true,
+				runOnRemoveCtrl: true,
 				removeCtrl: true,
 			},
 			open: {
@@ -4457,7 +4526,7 @@ class EngineCommands {
 				close: {
 					runBeforeClose: false,
 					removeView: true,
-					runOnRouteClose: false,
+					runOnRemoveCtrl: false,
 					removeCtrl: false,
 				},
 				open: {
@@ -4472,7 +4541,7 @@ class EngineCommands {
 				close: {
 					runBeforeClose: true,
 					removeView: true,
-					runOnRouteClose: true,
+					runOnRemoveCtrl: true,
 					removeCtrl: true,
 				},
 				open: {
@@ -4682,6 +4751,7 @@ class Router {
 		this.phantomRouter = null;
 		this.engineCommands = new EngineCommands(this);
 		this.onCycleEnds = new UEvent('onCycleEnds');
+		this.onRouteChange = new UEvent('onRouteChange');
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
 		}
@@ -5158,7 +5228,7 @@ class Router {
 		this.clearPhantomRouter();
 		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
-			this.runOnRouteCloseAndRemoveController, this.orderedRoutesToClose, 0, this);
+			this.runOnRemoveCtrlAndRemoveController, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.initRouteControllerAndRunLoadInOrder, this.orderedRoutesToOpen, 0, this);
 		await this.resolveWhenListIsPopulated(
@@ -5180,6 +5250,7 @@ class Router {
 			// Clear observers to call only a single time
 			this.onCycleEnds.observers = [];
 		}
+		this.onRouteChange.broadcast();
 	}
 
 	// This is the first link in a chain of recursive loop with promises
@@ -5323,7 +5394,7 @@ class Router {
 		}
 	}
 
-	runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+	runOnRemoveCtrlAndRemoveController(orderedRoutesToClose, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
 			return _resolve();
@@ -5331,38 +5402,38 @@ class Router {
 
 		if (ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance) {
-			const result = (route.commands.runOnRouteClose && ctx.$powerUi.controllers[route.viewId].instance.onRouteClose) ? ctx.$powerUi.controllers[route.viewId].instance.onRouteClose() : false;
+			const result = (route.commands.runOnRemoveCtrl && ctx.$powerUi.controllers[route.viewId].instance.onRemoveCtrl) ? ctx.$powerUi.controllers[route.viewId].instance.onRemoveCtrl() : false;
 
 			if (result && result.then) {
 				result.then(function () {
-					if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
-						ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
 					}
 					if (route.commands.removeCtrl) {
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
 					}
 					ctx.callNextLinkWhenReady(
-						ctx.runOnRouteCloseAndRemoveController, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+						ctx.runOnRemoveCtrlAndRemoveController, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
-					window.console.log('Error running onRouteClose: ', route.routeId, error);
+					window.console.log('Error running onRemoveCtrl: ', route.routeId, error);
 				});
 			} else {
-				if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
-					ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
 				}
 				if (route.commands.removeCtrl) {
 					ctx.removeVolatileViews(route.viewId);
 					delete ctx.$powerUi.controllers[route.viewId];
 				}
-				ctx.runOnRouteCloseAndRemoveController(
+				ctx.runOnRemoveCtrlAndRemoveController(
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			if (ctx.$powerUi.controllers[route.viewId].instance._onRouteClose) {
-				ctx.$powerUi.controllers[route.viewId].instance._onRouteClose();
+			if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+				ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
 			}
-			ctx.runOnRouteCloseAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			ctx.runOnRemoveCtrlAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -8835,7 +8906,7 @@ class PowerDialogBase extends PowerWidget {
 		}
 	}
 
-	_onRouteClose() {
+	_onRemoveCtrl() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
 	}
@@ -9159,8 +9230,10 @@ class PowerWindow extends PowerDialogBase {
 		this._minHeight = 250;
 		this.maximizeBt = true;
 		this.restoreBt = true;
-		this.isMaximized = true;
-		this.$powerUi.onWindowResize.subscribe(this.browserWindowResize.bind(this));
+		this.isMaximized = false;
+		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
+		this.adjustTop = 0;
+		this.adjustHeight = 0;
 	}
 
 	// Allow async calls to implement onCancel
@@ -9215,16 +9288,46 @@ class PowerWindow extends PowerDialogBase {
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
 
+		const menus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
+		for (const menu of menus) {
+			if (menu.menu.menuPosition === 'top') {
+				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+			} else if (menu.menu.menuPosition === 'bottom') {
+				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
+			}
+		}
 		if (this.isMaximized) {
 			this.maximize();
 		}
 	}
 
-	_onRouteClose() {
+	// Adapt window to fixed menus and maybe also other power components
+	adjustWindowWithComponents() {
+		if (this.isMaximized) {
+			if (this._dialog.offsetTop < this.adjustTop) {
+				this._dialog.style['padding-top'] = 0;
+				this._dialog.style.top = this.adjustTop + 'px';
+				this._dialog.style.height = window.innerHeight - this.adjustTop + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.titleBarEl.offsetHeight + 'px';
+			}
+
+			if (this.adjustHeight) {
+				this._dialog.style.height = window.innerHeight - this.adjustTop - this.adjustHeight + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
+				this._dialog.style['padding-bottom'] = 0;
+			}
+		} else {
+			this._dialog.style['padding-top'] = '5px';
+			this._dialog.style['padding-bottom'] = '5px';
+		}
+	}
+
+	_onRemoveCtrl() {
 		delete this.zIndex;
 		this.saveWindowState();
 		this.removeWindowIsMaximizedFromBody();
-		super._onRouteClose();
+		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
+		super._onRemoveCtrl();
 	}
 
 	removeWindowIsMaximizedFromBody() {
@@ -9255,7 +9358,7 @@ class PowerWindow extends PowerDialogBase {
 			this._left = winState.left;
 			this.zIndex = winState.zIndex || this.zIndex;
 			this._dialog.style.zIndex = this.zIndex;
-			this.isMaximized = winState.isMaximized;
+			this.isMaximized = winState.isMaximized || this.isMaximized;
 		}
 	}
 
@@ -9450,16 +9553,18 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.maximizeBt.style.display = 'none';
 		this.restoreBt.style.display = 'block';
-		this._dialog.style.top = 0 + 'px';
-		this._dialog.style.left = 0 + 'px';
-		this._dialog.style.height = window.innerHeight - 10 + 'px';
-		this._dialog.style.width = window.innerWidth - 10 + 'px';
-		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight - 10 + 'px';
+		this._dialog.style.top = -5 + 'px';
+		this._dialog.style.left = -5 + 'px';
+		this._dialog.style.height = window.innerHeight + 'px';
+		this._dialog.style.width = window.innerWidth + 'px';
+		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = true;
 		this.saveWindowState();
+		this.replaceSizeQueries();
 		if (document.body && document.body.classList) {
 			document.body.classList.add('window-is-miximized');
 		}
+		this.adjustWindowWithComponents();
 	}
 
 	restore(event) {
@@ -9475,7 +9580,9 @@ class PowerWindow extends PowerDialogBase {
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = false;
 		this.saveWindowState();
+		this.replaceSizeQueries();
 		this.removeWindowIsMaximizedFromBody();
+		this.adjustWindowWithComponents();
 	}
 
 	setAllWindowElements() {
@@ -9486,6 +9593,11 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.top = this._top + 'px';
 
 		// Add the classes to create a css "midia query" for the window
+		this.replaceSizeQueries();
+		this.saveWindowState();
+	}
+
+	replaceSizeQueries() {
 		this.replaceWindowSizeQuery();
 		this.replaceMenuBreakQuery();
 	}
@@ -9540,14 +9652,18 @@ class PowerWindow extends PowerDialogBase {
 	// Allow simulate midia queries with power-window
 	replaceWindowSizeQuery() {
 		let changeWindowQueryTo = this.currentWindowQuery;
+		let width = this._width;
+		if (this.isMaximized) {
+			width = window.innerWidth;
+		}
 
-		if (this._width <= 600) {
+		if (width <= 600) {
 			changeWindowQueryTo = 'pw-wsize-tinny';
-		} else if (this._width >= 601 && this._width <= 900) {
+		} else if (width >= 601 && width <= 900) {
 			changeWindowQueryTo = 'pw-wsize-small';
-		} else if (this._width >= 901 && this._width <= 1200) {
+		} else if (width >= 901 && width <= 1200) {
 			changeWindowQueryTo = 'pw-wsize-medium';
-		} else if (this._width >= 1201 && this._width <= 1500) {
+		} else if (width >= 1201 && width <= 1500) {
 			changeWindowQueryTo = 'pw-wsize-large';
 		} else {
 			changeWindowQueryTo = 'pw-wsize-extra-large';
@@ -9571,9 +9687,12 @@ class PowerWindow extends PowerDialogBase {
 
 	replaceMenuBreakQuery() {
 		let changeMenuBreakQueryTo = this.currentMenuBreakQuery;
+		let width = this._width;
+		if (this.isMaximized) {
+			width = window.innerWidth;
+		}
 
-
-		if (this._width <= 768) {
+		if (width <= 768) {
 			changeMenuBreakQueryTo = 'pw-menu-break';
 		} else {
 			changeMenuBreakQueryTo = false;
@@ -9610,6 +9729,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	onDoubleClickTitle(event) {
+		event.preventDefault();
 		if (this.isMaximized) {
 			this.restore(event);
 		} else {
@@ -10010,7 +10130,7 @@ class PowerDropmenu extends PowerTarget {
 		super(element);
 
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-power-position') || 'bottom-right';
+		this.defaultPosition = this.element.getAttribute('data-pw-position') || 'bottom-right';
 		// Mark the root of the dropmenu tree, first level element
 		this._markRootAndMenuDropmenu();
 	}
@@ -10419,18 +10539,34 @@ class PowerMenu extends PowerTarget {
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-power-position');
+		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
-		if (!this.defaultPosition) {
-			if (this.element.classList.contains('power-horizontal')) {
-				this.defaultPosition = 'bottom-right';
-			} else {
-				this.defaultPosition = 'right-bottom';
-			}
+		if (this.element.classList.contains('pw-horizontal')) {
+			this.orientation = 'horizontal';
+			this.defaultPosition = this.defaultPosition || 'bottom-right';
+		} else {
+			this.orientation = 'vertical';
+			this.defaultPosition = this.defaultPosition || 'right-bottom';
+		}
+		if (this.element.classList.contains('pw-menu-fixed')) {
+			this.isFixed = true;
+		} else {
+			this.isFixed = false;
+		}
+		if (this.element.classList.contains('pw-top')) {
+			this.menuPosition = 'top';
+		} else if (this.element.classList.contains('pw-bottom')) {
+			this.menuPosition = 'bottom';
 		}
 	}
 
+	onRemove() {
+		this.$powerUi.menus = this.$powerUi.menus.filter(menu=> menu.id !== this.id);
+	}
+
 	init() {
+		this.$powerUi.menus.push({id: this.id, menu: this});
+
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu
