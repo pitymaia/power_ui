@@ -78,6 +78,14 @@ body, html {
 }
 
 /* end power tree view*/
+
+.power-menu.pw-horizontal {
+    display: flex;
+    justify-content: none;
+    align-items: center;
+    /*min-height: 40px;*/
+}
+
 @media screen and (max-width: 768px) {
     .power-menu.pw-horizontal.power-active .power-action,
     .power-menu.pw-horizontal.power-active .power-item {
