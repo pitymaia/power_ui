@@ -201,16 +201,55 @@ class PowerUi extends _PowerUiBase {
 		this.request = new Request({config, $powerUi: this});
 		this.router = new Router(config, this); // Router calls this.init();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
-		// this.appContainer = document.getElementById('app-container');
-		// this.browserWindowResize.subscribe(this.onBrowserWindowResize.bind(this));
+		this.onBrowserWindowResize.subscribe(this._browserWindowResize.bind(this));
+		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}
 
-	// browserWindowResize() {
-	// 	this.appContainer.style.height = window.innerHeight + 'px';
-	// }
+	_browserWindowResize() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this._setAppContainerHeight();
+	}
+	_routeChange() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.menusSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_setAppContainerHeight() {
+		const _appContainer = document.getElementById('app-container');
+		_appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_addMarginToBody() {
+		const body = document.body;
+		const currentStyleMarginTop = 0;
+		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
+	}
+	// This change the position for fixed bars/menus so it shows one after another
+	// also register the info so "app-container" and body element can adjust for fixed bars/menus
+	menusSizeAndPosition() {
+		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
+		this.adjustTop = 0;
+		this.adjustBottom = 0;
+		this.topTotalHeight = 0;
+		this.bottomTotalHeight = 0;
+		for (const menu of fixedMenus) {
+			if (menu.menu.menuPosition === 'top') {
+				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
+				menu.menu.element.style.top = this.adjustTop - menu.menu.element.offsetHeight + 'px';
+				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
+			}
+			if (menu.menu.menuPosition === 'bottom') {
+				this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
+				menu.menu.element.style.bottom = this.adjustBottom - menu.menu.element.offsetHeight + 'px';
+				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
+			}
+		}
+	}
 
 	// Return the "view" controller of any element inside the current view
 	getCurrentElementCtrl(node) {

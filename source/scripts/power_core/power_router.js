@@ -266,6 +266,7 @@ class Router {
 		this.phantomRouter = null;
 		this.engineCommands = new EngineCommands(this);
 		this.onCycleEnds = new UEvent('onCycleEnds');
+		this.onRouteChange = new UEvent('onRouteChange');
 		if (!this.config.rootPath) {
 			this.config.rootPath = '#!/';
 		}
@@ -764,6 +765,7 @@ class Router {
 			// Clear observers to call only a single time
 			this.onCycleEnds.observers = [];
 		}
+		this.onRouteChange.broadcast();
 	}
 
 	// This is the first link in a chain of recursive loop with promises
