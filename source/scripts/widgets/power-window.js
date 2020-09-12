@@ -65,6 +65,8 @@ class PowerWindow extends PowerDialogBase {
 
 		if (this.isMaximized) {
 			this.maximize();
+		} else {
+			this.restore();
 		}
 
 		this.restoreScrollPosition(view);
@@ -82,7 +84,7 @@ class PowerWindow extends PowerDialogBase {
 				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
 			}
 		}
-		if (this.isMaximized) {
+		if (this.isMaximized && !(this.$powerUi.smallWindowMode) || (!this.isMaximized && this.$powerUi.smallWindowMode)) {
 			if (this._dialog.offsetTop < this.adjustTop) {
 				this._dialog.style['padding-top'] = 0;
 				this._dialog.style.top = this.adjustTop + 'px';
@@ -327,20 +329,26 @@ class PowerWindow extends PowerDialogBase {
 	browserWindowResize() {
 		if (this.isMaximized) {
 			this.maximize();
+		} else {
+			this.restore();
 		}
+	}
+
+	_maximizeDialog() {
+		this._dialog.style.top = -5 + 'px';
+		this._dialog.style.left = -5 + 'px';
+		this._dialog.style.height = window.innerHeight + 'px';
+		this._dialog.style.width = window.innerWidth + 'px';
+		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 	}
 
 	maximize(event) {
 		if (event) {
 			event.preventDefault();
 		}
+		this._maximizeDialog();
 		this.maximizeBt.style.display = 'none';
 		this.restoreBt.style.display = 'block';
-		this._dialog.style.top = -5 + 'px';
-		this._dialog.style.left = -5 + 'px';
-		this._dialog.style.height = window.innerHeight + 'px';
-		this._dialog.style.width = window.innerWidth + 'px';
-		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = true;
 		this.saveWindowState();
 		this.replaceSizeQueries();
@@ -356,11 +364,15 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.maximizeBt.style.display = 'block';
 		this.restoreBt.style.display = 'none';
-		this._dialog.style.top = this._top + 'px';
-		this._dialog.style.left = this._left + 'px';
-		this._dialog.style.height = this._height + 'px';
-		this._dialog.style.width = this._width + 'px';
-		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		if (!this.$powerUi.smallWindowMode) {
+			this._dialog.style.top = this._top + 'px';
+			this._dialog.style.left = this._left + 'px';
+			this._dialog.style.height = this._height + 'px';
+			this._dialog.style.width = this._width + 'px';
+			this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		} else {
+			this._maximizeDialog();
+		}
 		this.isMaximized = false;
 		this.saveWindowState();
 		this.replaceSizeQueries();
@@ -523,7 +535,7 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
-		if (this.isMaximized) {
+		if (this.isMaximized || this.$powerUi.smallWindowMode) {
 			return;
 		}
 		this.$powerUi._dragging = true;
