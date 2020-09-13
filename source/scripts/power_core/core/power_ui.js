@@ -200,11 +200,11 @@ class PowerUi extends _PowerUiBase {
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
 		this.toggleSmallWindowMode();
-		this.router = new Router(config, this); // Router calls this.init();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
 		this.onBrowserWindowResize.subscribe(this._browserWindowResize.bind(this));
-		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
+		this.router = new Router(config, this); // Router calls this.init();
+		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 	}

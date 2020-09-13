@@ -283,6 +283,9 @@ class Router {
 			// call engine if hash change
 			window.onhashchange = this.hashChange.bind(this);
 		}
+		// On the first run broadcast a browser window resize so any window or other
+		// component can adapt it's size with the 'app-container'
+		this.onCycleEnds.subscribe(()=>this.$powerUi.onBrowserWindowResize.broadcast());
 	}
 
 	add(route) {

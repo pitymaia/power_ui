@@ -85,6 +85,12 @@ class PowerWindow extends PowerDialogBase {
 			}
 		}
 		if (this.isMaximized && !(this.$powerUi.smallWindowMode) || (!this.isMaximized && this.$powerUi.smallWindowMode)) {
+			const _appContainer = document.getElementById('app-container');
+			this._dialog.style.left = _appContainer.offsetLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + 'px';
+			this._dialog.style['padding-left'] = 0;
+			this._dialog.style['padding-right'] = 0;
+			console.log('rodou', _appContainer);
 			if (this._dialog.offsetTop < this.adjustTop) {
 				this._dialog.style['padding-top'] = 0;
 				this._dialog.style.top = this.adjustTop + 'px';
@@ -100,6 +106,8 @@ class PowerWindow extends PowerDialogBase {
 		} else {
 			this._dialog.style['padding-top'] = '5px';
 			this._dialog.style['padding-bottom'] = '5px';
+			this._dialog.style['padding-left'] = '5px';
+			this._dialog.style['padding-right'] = '5px';
 		}
 	}
 
@@ -351,11 +359,11 @@ class PowerWindow extends PowerDialogBase {
 		this.restoreBt.style.display = 'block';
 		this.isMaximized = true;
 		this.saveWindowState();
-		this.replaceSizeQueries();
 		if (document.body && document.body.classList) {
 			document.body.classList.add('window-is-maximized');
 		}
 		this.adjustWindowWithComponents();
+		this.replaceSizeQueries();
 	}
 
 	restore(event) {
@@ -375,9 +383,9 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.isMaximized = false;
 		this.saveWindowState();
-		this.replaceSizeQueries();
 		this.removeWindowIsMaximizedFromBody();
 		this.adjustWindowWithComponents();
+		this.replaceSizeQueries();
 	}
 
 	setAllWindowElements() {
