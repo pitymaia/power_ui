@@ -244,6 +244,10 @@ class PowerUi extends _PowerUiBase {
 		const body = document.body;
 		const currentStyleMarginTop = 0;
 		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
+		const currentStyleMarginLeft = 0;
+		body.style['margin-left'] = currentStyleMarginLeft + this.leftTotalWidth + 'px';
+		const currentStyleMarginRight = 0;
+		body.style['margin-right'] = currentStyleMarginRight + this.rightTotalWidth + 'px';
 	}
 	// This change the position for fixed bars/menus so it shows one after another
 	// also register the info so "app-container" and body element can adjust for fixed bars/menus
@@ -251,8 +255,12 @@ class PowerUi extends _PowerUiBase {
 		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
 		this.adjustTop = 0;
 		this.adjustBottom = 0;
+		this.adjustLeft = 0;
+		this.adjustRight = 0;
 		this.topTotalHeight = 0;
 		this.bottomTotalHeight = 0;
+		this.leftTotalWidth = 0;
+		this.rightTotalWidth=0;
 		for (const menu of fixedMenus) {
 			if (menu.menu.menuPosition === 'top') {
 				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
@@ -263,6 +271,16 @@ class PowerUi extends _PowerUiBase {
 				this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
 				menu.menu.element.style.bottom = this.adjustBottom - menu.menu.element.offsetHeight + 'px';
 				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
+			}
+			if (menu.menu.menuPosition === 'left') {
+				this.adjustLeft = this.adjustLeft + menu.menu.element.offsetWidth;
+				menu.menu.element.style.left = this.adjustLeft - menu.menu.element.offsetWidth + 'px';
+				this.leftTotalWidth = this.leftTotalWidth + menu.menu.element.offsetWidth;
+			}
+			if (menu.menu.menuPosition === 'right') {
+				this.adjustRight = this.adjustRight + menu.menu.element.offsetWidth;
+				menu.menu.element.style.right = this.adjustRight - menu.menu.element.offsetWidth + 'px';
+				this.rightTotalWidth = this.rightTotalWidth + menu.menu.element.offsetWidth;
 			}
 		}
 	}

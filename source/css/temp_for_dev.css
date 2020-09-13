@@ -152,3 +152,8 @@ html {
 .red-bg .pw-title-bar, .red-bg #powerui-top, .red-bg {
     background-color: red !important;
 }
+
+.pw-black-white, .pw-black-white .power-dropmenu {
+    background-color: black !important;
+    color: white;
+}

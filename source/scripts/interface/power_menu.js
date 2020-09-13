@@ -27,6 +27,10 @@ class PowerMenu extends PowerTarget {
 			this.menuPosition = 'top';
 		} else if (this.element.classList.contains('pw-bottom')) {
 			this.menuPosition = 'bottom';
+		} else if (this.element.classList.contains('pw-left')) {
+			this.menuPosition = 'left';
+		} else if (this.element.classList.contains('pw-right')) {
+			this.menuPosition = 'right';
 		}
 	}
 
