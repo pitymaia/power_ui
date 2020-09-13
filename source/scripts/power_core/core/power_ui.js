@@ -272,7 +272,7 @@ class PowerUi extends _PowerUiBase {
 			if (menu.menu.menuPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + menu.menu.element.offsetWidth;
 				menu.menu.element.style.left = this.leftTotalWidth - menu.menu.element.offsetWidth + 'px';
-				menu.menu.element.style.top = this.bottomTotalHeight + 'px';
+				menu.menu.element.style.top = this.topTotalHeight + 'px';
 				menu.menu.element.style.height = window.innerHeight - this._offsetComputedPadding(menu.menu.element) - this.totalHeight + 'px';
 			}
 			if (menu.menu.menuPosition === 'right') {
