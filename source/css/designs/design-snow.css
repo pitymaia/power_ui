@@ -34,6 +34,9 @@
 .pwdesign-white-smoke .pw-menu-fixed .power-toggle {
     margin-right: 1em;
 }
+.pwdesign-white-smoke .pw-menu-fixed.pw-vertical .power-toggle {
+    margin-right: 0;
+}
 
 .pwdesign-white-smoke  .pw-menu-fixed {
     width: 100%;
