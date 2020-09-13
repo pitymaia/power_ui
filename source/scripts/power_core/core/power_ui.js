@@ -253,34 +253,33 @@ class PowerUi extends _PowerUiBase {
 	// also register the info so "app-container" and body element can adjust for fixed bars/menus
 	menusSizeAndPosition() {
 		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
-		this.adjustTop = 0;
-		this.adjustBottom = 0;
-		this.adjustLeft = 0;
-		this.adjustRight = 0;
 		this.topTotalHeight = 0;
 		this.bottomTotalHeight = 0;
 		this.leftTotalWidth = 0;
-		this.rightTotalWidth=0;
+		this.rightTotalWidth = 0;
+		this.totalHeight = 0;
 		for (const menu of fixedMenus) {
 			if (menu.menu.menuPosition === 'top') {
-				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
-				menu.menu.element.style.top = this.adjustTop - menu.menu.element.offsetHeight + 'px';
+				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
 				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
+				menu.menu.element.style.top = this.topTotalHeight - menu.menu.element.offsetHeight + 'px';
 			}
 			if (menu.menu.menuPosition === 'bottom') {
-				this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
-				menu.menu.element.style.bottom = this.adjustBottom - menu.menu.element.offsetHeight + 'px';
+				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
 				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
+				menu.menu.element.style.bottom = this.bottomTotalHeight - menu.menu.element.offsetHeight + 'px';
 			}
 			if (menu.menu.menuPosition === 'left') {
-				this.adjustLeft = this.adjustLeft + menu.menu.element.offsetWidth;
-				menu.menu.element.style.left = this.adjustLeft - menu.menu.element.offsetWidth + 'px';
 				this.leftTotalWidth = this.leftTotalWidth + menu.menu.element.offsetWidth;
+				menu.menu.element.style.left = this.leftTotalWidth - menu.menu.element.offsetWidth + 'px';
+				menu.menu.element.style.top = this.bottomTotalHeight + 'px';
+				menu.menu.element.style.height = window.innerHeight - this._offsetComputedPadding(menu.menu.element) - this.totalHeight + 'px';
 			}
 			if (menu.menu.menuPosition === 'right') {
-				this.adjustRight = this.adjustRight + menu.menu.element.offsetWidth;
-				menu.menu.element.style.right = this.adjustRight - menu.menu.element.offsetWidth + 'px';
 				this.rightTotalWidth = this.rightTotalWidth + menu.menu.element.offsetWidth;
+				menu.menu.element.style.right = this.rightTotalWidth - menu.menu.element.offsetWidth + 'px';
+				menu.menu.element.style.top = this.topTotalHeight + 'px';
+				menu.menu.element.style.height = window.innerHeight - this._offsetComputedPadding(menu.menu.element) - this.totalHeight + 'px';
 			}
 		}
 	}
@@ -784,6 +783,13 @@ class PowerUi extends _PowerUiBase {
 	// The Root element have some aditional offset on margin-left
 	_offsetComputedRootElementStyles(styles) {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
+	}
+	_offsetComputedHeight(element) {
+		return parseInt(getComputedStyle(element).height.split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-top'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-top-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-bottom'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-bottom-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+	}
+
+	_offsetComputedPadding(element) {
+		return parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
 	}
 }
 
