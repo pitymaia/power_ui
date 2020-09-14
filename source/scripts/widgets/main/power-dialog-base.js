@@ -16,8 +16,6 @@ class PowerDialogBase extends PowerWidget {
 		this._closeWindow = function() {
 			self._cancel();
 		};
-
-		$powerUi._events['Escape'].subscribe(this._closeWindow);
 	}
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
@@ -65,12 +63,13 @@ class PowerDialogBase extends PowerWidget {
 		}
 	}
 
-	_onRemoveCtrl() {
+	_onRemoveView() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
 	}
 
 	_onViewLoad(view, hasCustomScroll, hasCustomLimits) {
+		this.$powerUi._events['Escape'].subscribe(this._closeWindow);
 		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
 		this.isHiddenRoute = this.$powerUi.router.routes[this._routeId].isHidden || false;
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
@@ -81,7 +80,7 @@ class PowerDialogBase extends PowerWidget {
 
 		if (route) {
 			this.dialogId = `dialog_${route.route.replace('/', '-')}`;
-			this.zIndex = 2000 + this.$powerUi.dialogs.length + 1;
+			this.zIndex = 1999 + this.$powerUi.dialogs.length + 1;
 			this._dialog.style.zIndex = this.zIndex;
 			this.$powerUi.dialogs.push({id: this.dialogId, ctrl: this});
 		}

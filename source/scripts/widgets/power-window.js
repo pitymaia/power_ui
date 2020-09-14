@@ -18,9 +18,9 @@ class PowerWindow extends PowerDialogBase {
 		super._onViewLoad(view, true, true);
 		this.currentView = view;
 
-		if (this.isHiddenRoute === false) {
+		if (!this.isHiddenRoute) {
 			this.loadWindowState();
-			// Run a single reoder function at the end of the cycle
+			// Run a single reorder function at the end of the cycle
 			if (!this.$powerUi.reorder) {
 				this.$powerUi.reorder = true;
 				this.$powerUi.router.onCycleEnds.subscribe(this.reorderDialogsList.bind(this));
@@ -111,13 +111,14 @@ class PowerWindow extends PowerDialogBase {
 	_onRemoveCtrl() {
 		delete this.zIndex;
 		this.saveWindowState();
-		super._onRemoveCtrl();
+		this.removeWindowIsMaximizedFromBody();
 	}
 
 	_onRemoveView() {
 		delete this.currentWindowQuery;
-		this.removeWindowIsMaximizedFromBody();
+		delete this.currentMenuBreakQuery;
 		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
+		super._onRemoveView();
 	}
 
 	removeWindowIsMaximizedFromBody() {
@@ -127,6 +128,9 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	saveWindowState() {
+		if (!this.dialogId) {
+			return;
+		}
 		const winState = {
 			width: this._width,
 			height: this._height,
@@ -624,10 +628,11 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	reorderDialogsList() {
+		// Run once and reset reorder to false so refresh can re-run it
+		this.$powerUi.reorder = false;
 		if (this.$powerUi.dialogs.length <= 1) {
 			return;
 		}
-
 		this.$powerUi.dialogs.sort(function (a, b) {
 			if (a.ctrl.zIndex > b.ctrl.zIndex) {
 				return 1;

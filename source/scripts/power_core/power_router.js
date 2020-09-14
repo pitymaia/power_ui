@@ -963,10 +963,10 @@ class Router {
 
 			if (result && result.then) {
 				result.then(function () {
-					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
-						ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
-					}
-					if (route.commands.removeCtrl) {
+					if (route.commands.runOnRemoveCtrl) {
+						if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+							ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+						}
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
 					}
@@ -976,10 +976,10 @@ class Router {
 					window.console.log('Error running onRemoveCtrl: ', route.routeId, error);
 				});
 			} else {
-				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
-					ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
-				}
-				if (route.commands.removeCtrl) {
+				if (route.commands.runOnRemoveCtrl) {
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+					}
 					ctx.removeVolatileViews(route.viewId);
 					delete ctx.$powerUi.controllers[route.viewId];
 				}
@@ -987,8 +987,10 @@ class Router {
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
-				ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+			if (route.commands.runOnRemoveCtrl) {
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+				}
 			}
 			ctx.runOnRemoveCtrlAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
