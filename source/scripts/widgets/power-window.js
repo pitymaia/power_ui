@@ -541,6 +541,7 @@ class PowerWindow extends PowerDialogBase {
 		event = event || window.event;
 		event.preventDefault();
 		if (this.isMaximized || this.$powerUi.smallWindowMode) {
+			this._dialog.classList.add('pw-active');
 			return;
 		}
 		this.$powerUi._dragging = true;
@@ -614,7 +615,7 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.zIndex = this.zIndex;
 		this.$powerUi.dialogs.push({id: this.dialogId, ctrl: this});
 		// Prevent set the active if dragging or resizing
-		if (!preventActivateWindow) {
+		if (!preventActivateWindow || this.isMaximized || this.$powerUi.smallWindowMode) {
 			this._dialog.classList.add('pw-active');
 		} else {
 			this._dialog.classList.remove('pw-active');
