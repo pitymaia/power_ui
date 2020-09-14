@@ -254,7 +254,7 @@ body, html {
     padding: 1em 0 0 0;
     text-align: center;
     width: 100%;
-    height: 100%;
+    height: 100vh;
 }
 .pw-backdrop {
     top: 0;
@@ -308,9 +308,15 @@ body, html {
     /*text-align: center;*/
 }
 
-.pw-window .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window iframe {
+.pw-window .pw-title-bar, .pw-window .pw-body, .pw-window iframe {
     min-width: 100%;
     max-width: 100%;
+}
+.pw-title-bar .pw-title-bar-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
 }
 .pw-window.pw-touchdevice .pw-body,
 .pw-small-window-mode .pw-window .pw-body {
@@ -325,23 +331,28 @@ body, html {
 .pw-window .pw-title-bar {
     cursor: grabbing;
     text-align: center;
+    white-space: nowrap;
+}
+.window-is-maximized .pw-window .pw-title-bar, .pw-small-window-mode .pw-window .pw-title-bar {
+    cursor: default;
 }
 .pw-modal .pw-body, .pw-modal .pw-title-bar {
     margin: 0 auto;
     width: 80%;
     max-width: 95vw;
 }
+
 .pw-modal.pw-touchdevice .pw-body,
 .pw-modal.pw-touchdevice .pw-title-bar,
 .pw-small-window-mode .pw-modal .pw-body,
 .pw-small-window-mode .pw-modal .pw-title-bar {
     width: 95%;
-    max-width: 100vw;
+    max-width: 100%;
 }
 .pw-dialog .pw-body, .pw-dialog .pw-title-bar {
     margin: 0 auto;
     width: 50em;
-    max-width: 95vw;
+    max-width: 95%;
 }
 .pw-modal .pw-body, .pw-modal .pw-title-bar, .pw-dialog .pw-body, .pw-dialog .pw-title-bar, .pw-window {
     box-shadow: 5px 5px 10px 0 rgb(0, 0, 0, 0.5);

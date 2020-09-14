@@ -15,8 +15,7 @@ class PowerWindow extends PowerDialogBase {
 	// }
 
 	_onViewLoad(view) {
-		super._onViewLoad(view);
-		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
+		super._onViewLoad(view, true, true);
 		this.currentView = view;
 
 		if (this.isHiddenRoute === false) {
@@ -48,8 +47,6 @@ class PowerWindow extends PowerDialogBase {
 		this.addDragWindow();
 
 		// Make it resizable
-		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
-		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
 		this.maximizeBt = this._dialog.getElementsByClassName('icon-maximize')[0];
 		this.restoreBt = this._dialog.getElementsByClassName('icon-windows')[0];
 
@@ -90,7 +87,7 @@ class PowerWindow extends PowerDialogBase {
 			this._dialog.style.width = _appContainer.offsetWidth + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
-			console.log('rodou', _appContainer);
+
 			if (this._dialog.offsetTop < this.adjustTop) {
 				this._dialog.style['padding-top'] = 0;
 				this._dialog.style.top = this.adjustTop + 'px';

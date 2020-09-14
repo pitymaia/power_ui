@@ -5518,7 +5518,7 @@ const routes = [
 		{
 			id: 'simple-dialog',
 			route: 'dialog',
-			title: 'Window dialog',
+			title: 'My great window dialog is very cool!',
 			templateComponent: SimpleTemplate,
 			avoidCacheTemplate: false,
 			ctrl: SimpleDialog,
