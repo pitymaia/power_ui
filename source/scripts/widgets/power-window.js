@@ -3,7 +3,7 @@ class PowerWindow extends PowerDialogBase {
 		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
 		this._minWidth = 250;
-		this._minHeight = 250;
+		this._minHeight = 50;
 		this.maximizeBt = true;
 		this.restoreBt = true;
 		this.isMaximized = false;
