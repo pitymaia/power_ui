@@ -207,6 +207,9 @@ class PowerUi extends _PowerUiBase {
 		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
+		// On the first run broadcast a browser window resize so any window or other
+		// component can adapt it's size with the 'app-container'
+		this._events.ready.subscribe(()=>this.onBrowserWindowResize.broadcast());
 	}
 
 	toggleSmallWindowMode() {
@@ -249,10 +252,58 @@ class PowerUi extends _PowerUiBase {
 		const currentStyleMarginRight = 0;
 		body.style['margin-right'] = currentStyleMarginRight + this.rightTotalWidth + 'px';
 	}
+	_reorderBars(fixedMenus) {
+		let priority = fixedMenus.length + 20;
+		fixedMenus.sort(function (a, b) {
+			if (!a.menu.priority) {
+				a.menu.priority = priority;
+				priority = priority + 1;
+			}
+			if (!b.menu.priority) {
+				b.menu.priority = priority;
+				priority = priority + 1;
+			}
+			if (a.menu.priority > b.menu.priority) {
+				return 1;
+			} else {
+				return -1;
+			}
+			priority = priority + 1;
+		});
+
+
+	}
+	getMenusWithPrioritySizes() {
+		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
+		this._reorderBars(fixedMenus);
+
+		let currentTotalTopHeight = 0;
+		let currentTotalBottomHeight = 0;
+		let currentTotalLeftWidth = 0;
+		let currentTotalRightWidth = 0;
+		for (const menu of fixedMenus) {
+			menu.adjusts = {};
+			menu.adjusts.top = currentTotalTopHeight;
+			menu.adjusts.bottom = currentTotalBottomHeight;
+			menu.adjusts.left = currentTotalLeftWidth;
+			menu.adjusts.right = currentTotalRightWidth;
+
+			if (menu.menu.menuPosition === 'top') {
+				currentTotalTopHeight = currentTotalTopHeight + menu.menu.element.offsetHeight;
+			} else if (menu.menu.menuPosition === 'bottom') {
+				currentTotalBottomHeight = currentTotalBottomHeight + menu.menu.element.offsetHeight;
+			} else if (menu.menu.menuPosition === 'left') {
+				currentTotalLeftWidth = currentTotalLeftWidth + menu.menu.element.offsetWidth;
+			} else if (menu.menu.menuPosition === 'right') {
+				currentTotalRightWidth = currentTotalRightWidth + menu.menu.element.offsetWidth;
+			}
+		}
+		return fixedMenus;
+	}
 	// This change the position for fixed bars/menus so it shows one after another
 	// also register the info so "app-container" and body element can adjust for fixed bars/menus
 	menusSizeAndPosition() {
-		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
+		const fixedMenus = this.getMenusWithPrioritySizes();
 		this.topTotalHeight = 0;
 		this.bottomTotalHeight = 0;
 		this.leftTotalWidth = 0;
@@ -262,24 +313,40 @@ class PowerUi extends _PowerUiBase {
 			if (menu.menu.menuPosition === 'top') {
 				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
 				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
-				menu.menu.element.style.top = this.topTotalHeight - menu.menu.element.offsetHeight + 'px';
+				menu.menu.element.style.top = null;
+				menu.menu.element.style.top = menu.adjusts.top + 'px';
+				menu.menu.element.style.left = null;
+				menu.menu.element.style.left = menu.adjusts.left + 'px';
+				menu.menu.element.style.width = null;
+				menu.menu.element.style.width = this._offsetComputedWidth(menu.menu.element) - menu.adjusts.left - menu.adjusts.right + 'px';
 			}
 			if (menu.menu.menuPosition === 'bottom') {
 				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
 				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
-				menu.menu.element.style.bottom = this.bottomTotalHeight - menu.menu.element.offsetHeight + 'px';
+				menu.menu.element.style.bottom = null;
+				menu.menu.element.style.bottom = menu.adjusts.bottom + 'px';
+				menu.menu.element.style.left = null;
+				menu.menu.element.style.left = menu.adjusts.left + 'px';
+				menu.menu.element.style.width = null;
+				menu.menu.element.style.width = this._offsetComputedWidth(menu.menu.element) - menu.adjusts.left - menu.adjusts.right + 'px';
 			}
 			if (menu.menu.menuPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + menu.menu.element.offsetWidth;
-				menu.menu.element.style.left = this.leftTotalWidth - menu.menu.element.offsetWidth + 'px';
-				menu.menu.element.style.top = this.topTotalHeight + 'px';
-				menu.menu.element.style.height = window.innerHeight - this._offsetComputedPadding(menu.menu.element) - this.totalHeight + 'px';
+				menu.menu.element.style.left = null;
+				menu.menu.element.style.left = menu.adjusts.left + 'px';
+				menu.menu.element.style.top = null;
+				menu.menu.element.style.top = menu.adjusts.top + 'px';
+				menu.menu.element.style.height = null;
+				menu.menu.element.style.height = (window.innerHeight - this._offsetComputedPadding(menu.menu.element)) - menu.adjusts.top - menu.adjusts.bottom + 'px';
 			}
 			if (menu.menu.menuPosition === 'right') {
 				this.rightTotalWidth = this.rightTotalWidth + menu.menu.element.offsetWidth;
-				menu.menu.element.style.right = this.rightTotalWidth - menu.menu.element.offsetWidth + 'px';
-				menu.menu.element.style.top = this.topTotalHeight + 'px';
-				menu.menu.element.style.height = window.innerHeight - this._offsetComputedPadding(menu.menu.element) - this.totalHeight + 'px';
+				menu.menu.element.style.right = null;
+				menu.menu.element.style.right = menu.adjusts.right + 'px';
+				menu.menu.element.style.top = null;
+				menu.menu.element.style.top = menu.adjusts.top + 'px';
+				menu.menu.element.style.height = null;
+				menu.menu.element.style.height = (window.innerHeight - this._offsetComputedPadding(menu.menu.element)) - menu.adjusts.top - menu.adjusts.bottom + 'px';
 			}
 		}
 	}
@@ -790,6 +857,10 @@ class PowerUi extends _PowerUiBase {
 
 	_offsetComputedPadding(element) {
 		return parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+	}
+
+	_offsetComputedWidth(element) {
+		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
 	}
 }
 

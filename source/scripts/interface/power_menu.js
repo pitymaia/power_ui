@@ -10,6 +10,9 @@ class PowerMenu extends PowerTarget {
 		this.powerTarget = true;
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
+		// Menu priority
+		this.priority = this.element.getAttribute('data-pw-priority');
+		this.priority = this.priority ? parseInt(this.priority) : null;
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
 		if (this.element.classList.contains('pw-horizontal')) {
 			this.orientation = 'horizontal';
