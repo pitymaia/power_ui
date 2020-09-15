@@ -69,19 +69,19 @@ class PowerWindow extends PowerDialogBase {
 		this.restoreScrollPosition(view);
 	}
 
-	// Adapt window to fixed menus and maybe also other power components
+	// Adapt window to fixed bars and maybe also other power components
 	adjustWindowWithComponents() {
 		this.adjustTop = 0;
 		this.adjustHeight = 0;
-		const menus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
-		for (const menu of menus) {
-			if (menu.menu.menuPosition === 'top') {
-				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
-			} else if (menu.menu.menuPosition === 'bottom') {
-				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
+		const bars = this.$powerUi.componentsManager.bars.filter(b=> b.bar.isFixed === true);
+		for (const bar of bars) {
+			if (bar.bar.barPosition === 'top') {
+				this.adjustTop = this.adjustTop + bar.bar.element.offsetHeight;
+			} else if (bar.bar.barPosition === 'bottom') {
+				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
 			}
 		}
-		if (this.isMaximized && !(this.$powerUi.smallWindowMode) || (!this.isMaximized && this.$powerUi.smallWindowMode)) {
+		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
 			this._dialog.style.left = _appContainer.offsetLeft + 'px';
 			this._dialog.style.width = _appContainer.offsetWidth + 'px';
@@ -373,7 +373,7 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.maximizeBt.style.display = 'block';
 		this.restoreBt.style.display = 'none';
-		if (!this.$powerUi.smallWindowMode) {
+		if (!this.$powerUi.componentsManager.smallWindowMode) {
 			this._dialog.style.top = this._top + 'px';
 			this._dialog.style.left = this._left + 'px';
 			this._dialog.style.height = this._height + 'px';
@@ -544,7 +544,7 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
-		if (this.isMaximized || this.$powerUi.smallWindowMode) {
+		if (this.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
 			this._dialog.classList.add('pw-active');
 			return;
 		}
@@ -619,7 +619,7 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.zIndex = this.zIndex;
 		this.$powerUi.dialogs.push({id: this.dialogId, ctrl: this});
 		// Prevent set the active if dragging or resizing
-		if (!preventActivateWindow || this.isMaximized || this.$powerUi.smallWindowMode) {
+		if (!preventActivateWindow || this.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
 			this._dialog.classList.add('pw-active');
 		} else {
 			this._dialog.classList.remove('pw-active');
@@ -660,6 +660,7 @@ class PowerWindowIframe extends PowerWindow {
 		if (event) {
 			event.preventDefault();
 		}
+		this._dialog.classList.add('pw-active');
 		super.maximize(event);
 		this.resizeIframeAndCover();
 	}
@@ -667,6 +668,9 @@ class PowerWindowIframe extends PowerWindow {
 	restore(event) {
 		if (event) {
 			event.preventDefault();
+		}
+		if (this.$powerUi.componentsManager.smallWindowMode) {
+			this._dialog.classList.add('pw-active');
 		}
 		super.restore(event);
 		this.resizeIframeAndCover();

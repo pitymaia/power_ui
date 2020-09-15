@@ -135,6 +135,156 @@ class KeyboardManager {
 	}
 }
 
+class ComponentsManager {
+	constructor($powerUi) {
+		this.$powerUi = $powerUi;
+		this.bars = []
+	}
+
+	toggleSmallWindowMode() {
+		const _appContainer = document.getElementById('app-container');
+		if (window.innerWidth <= 768) {
+			this.smallWindowMode = true;
+			_appContainer.classList.add('pw-small-window-mode');
+		} else {
+			this.smallWindowMode = false;
+			_appContainer.classList.remove('pw-small-window-mode');
+		}
+	}
+
+	_browserWindowResize() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.barsSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
+	}
+	_routeChange() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.barsSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_setAppContainerHeight() {
+		const _appContainer = document.getElementById('app-container');
+		_appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_addMarginToBody() {
+		const body = document.body;
+		const currentStyleMarginTop = 0;
+		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
+		const currentStyleMarginLeft = 0;
+		body.style['margin-left'] = currentStyleMarginLeft + this.leftTotalWidth + 'px';
+		const currentStyleMarginRight = 0;
+		body.style['margin-right'] = currentStyleMarginRight + this.rightTotalWidth + 'px';
+	}
+	_reorderBars(fixedBars) {
+		let priority = fixedBars.length + 20;
+		fixedBars.sort(function (a, b) {
+			if (!a.bar.priority) {
+				a.bar.priority = priority;
+				priority = priority + 1;
+			}
+			if (!b.bar.priority) {
+				b.bar.priority = priority;
+				priority = priority + 1;
+			}
+			if (a.bar.priority > b.bar.priority) {
+				return 1;
+			} else {
+				return -1;
+			}
+			priority = priority + 1;
+		});
+
+
+	}
+	getBarsWithPrioritySizes() {
+		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true);
+		this._reorderBars(fixedBars);
+
+		let currentTotalTopHeight = 0;
+		let currentTotalBottomHeight = 0;
+		let currentTotalLeftWidth = 0;
+		let currentTotalRightWidth = 0;
+		for (const bar of fixedBars) {
+			bar.adjusts = {};
+			bar.adjusts.top = currentTotalTopHeight;
+			bar.adjusts.bottom = currentTotalBottomHeight;
+			bar.adjusts.left = currentTotalLeftWidth;
+			bar.adjusts.right = currentTotalRightWidth;
+
+			if (bar.bar.barPosition === 'top') {
+				currentTotalTopHeight = currentTotalTopHeight + bar.bar.element.offsetHeight;
+			} else if (bar.bar.barPosition === 'bottom') {
+				currentTotalBottomHeight = currentTotalBottomHeight + bar.bar.element.offsetHeight;
+			} else if (bar.bar.barPosition === 'left') {
+				currentTotalLeftWidth = currentTotalLeftWidth + bar.bar.element.offsetWidth;
+			} else if (bar.bar.barPosition === 'right') {
+				currentTotalRightWidth = currentTotalRightWidth + bar.bar.element.offsetWidth;
+			}
+		}
+		return fixedBars;
+	}
+	// This change the position for fixed bars/menus so it shows one after another
+	// also register the info so "app-container" and body element can adjust for fixed bars/menus
+	barsSizeAndPosition() {
+		const fixedBars = this.getBarsWithPrioritySizes();
+		this.topTotalHeight = 0;
+		this.bottomTotalHeight = 0;
+		this.leftTotalWidth = 0;
+		this.rightTotalWidth = 0;
+		this.totalHeight = 0;
+		let zIndex = 1000 + fixedBars.length;
+		for (const bar of fixedBars) {
+			bar.zIndex = zIndex;
+			zIndex = zIndex - 1;
+			bar.bar.element.style.zIndex = zIndex;
+			if (bar.bar.barPosition === 'top') {
+				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
+				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight;
+				bar.bar.element.style.top = null;
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.left = null;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+			}
+			if (bar.bar.barPosition === 'bottom') {
+				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
+				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight;
+				bar.bar.element.style.bottom = null;
+				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
+				bar.bar.element.style.left = null;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+			}
+			if (bar.bar.barPosition === 'left') {
+				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.left = null;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.top = null;
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+			if (bar.bar.barPosition === 'right') {
+				this.rightTotalWidth = this.rightTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.right = null;
+				bar.bar.element.style.right = bar.adjusts.right + 'px';
+				bar.bar.element.style.top = null;
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+		}
+	}
+}
+
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
@@ -181,7 +331,6 @@ class PowerUi extends _PowerUiBase {
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		this.controllers = {};
 		this.dialogs = [];
-		this.menus = [];
 		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
@@ -194,165 +343,23 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
+		this.componentsManager = new ComponentsManager(this);
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events.ready = new UEvent();
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
-		this.toggleSmallWindowMode();
+		this.componentsManager.toggleSmallWindowMode();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
-		this.onBrowserWindowResize.subscribe(this._browserWindowResize.bind(this));
+		this.onBrowserWindowResize.subscribe(this.componentsManager._browserWindowResize.bind(this.componentsManager));
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		this.router = new Router(config, this); // Router calls this.init();
-		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
+		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 		// On the first run broadcast a browser window resize so any window or other
 		// component can adapt it's size with the 'app-container'
 		this._events.ready.subscribe(()=>this.onBrowserWindowResize.broadcast());
-	}
-
-	toggleSmallWindowMode() {
-		const _appContainer = document.getElementById('app-container');
-		if (window.innerWidth <= 768) {
-			this.smallWindowMode = true;
-			_appContainer.classList.add('pw-small-window-mode');
-		} else {
-			this.smallWindowMode = false;
-			_appContainer.classList.remove('pw-small-window-mode');
-		}
-	}
-
-	_browserWindowResize() {
-		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.menusSizeAndPosition();
-		this._addMarginToBody();
-		this._setAppContainerHeight();
-		this.toggleSmallWindowMode();
-	}
-	_routeChange() {
-		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.menusSizeAndPosition();
-		this._addMarginToBody();
-		this._setAppContainerHeight();
-		this.toggleSmallWindowMode();
-	}
-	// This change the "app-container" and body element to allow adjust for fixed bars/menus
-	_setAppContainerHeight() {
-		const _appContainer = document.getElementById('app-container');
-		_appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
-	}
-	// This change the "app-container" and body element to allow adjust for fixed bars/menus
-	_addMarginToBody() {
-		const body = document.body;
-		const currentStyleMarginTop = 0;
-		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
-		const currentStyleMarginLeft = 0;
-		body.style['margin-left'] = currentStyleMarginLeft + this.leftTotalWidth + 'px';
-		const currentStyleMarginRight = 0;
-		body.style['margin-right'] = currentStyleMarginRight + this.rightTotalWidth + 'px';
-	}
-	_reorderBars(fixedMenus) {
-		let priority = fixedMenus.length + 20;
-		fixedMenus.sort(function (a, b) {
-			if (!a.menu.priority) {
-				a.menu.priority = priority;
-				priority = priority + 1;
-			}
-			if (!b.menu.priority) {
-				b.menu.priority = priority;
-				priority = priority + 1;
-			}
-			if (a.menu.priority > b.menu.priority) {
-				return 1;
-			} else {
-				return -1;
-			}
-			priority = priority + 1;
-		});
-
-
-	}
-	getMenusWithPrioritySizes() {
-		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
-		this._reorderBars(fixedMenus);
-
-		let currentTotalTopHeight = 0;
-		let currentTotalBottomHeight = 0;
-		let currentTotalLeftWidth = 0;
-		let currentTotalRightWidth = 0;
-		for (const menu of fixedMenus) {
-			menu.adjusts = {};
-			menu.adjusts.top = currentTotalTopHeight;
-			menu.adjusts.bottom = currentTotalBottomHeight;
-			menu.adjusts.left = currentTotalLeftWidth;
-			menu.adjusts.right = currentTotalRightWidth;
-
-			if (menu.menu.menuPosition === 'top') {
-				currentTotalTopHeight = currentTotalTopHeight + menu.menu.element.offsetHeight;
-			} else if (menu.menu.menuPosition === 'bottom') {
-				currentTotalBottomHeight = currentTotalBottomHeight + menu.menu.element.offsetHeight;
-			} else if (menu.menu.menuPosition === 'left') {
-				currentTotalLeftWidth = currentTotalLeftWidth + menu.menu.element.offsetWidth;
-			} else if (menu.menu.menuPosition === 'right') {
-				currentTotalRightWidth = currentTotalRightWidth + menu.menu.element.offsetWidth;
-			}
-		}
-		return fixedMenus;
-	}
-	// This change the position for fixed bars/menus so it shows one after another
-	// also register the info so "app-container" and body element can adjust for fixed bars/menus
-	menusSizeAndPosition() {
-		const fixedMenus = this.getMenusWithPrioritySizes();
-		this.topTotalHeight = 0;
-		this.bottomTotalHeight = 0;
-		this.leftTotalWidth = 0;
-		this.rightTotalWidth = 0;
-		this.totalHeight = 0;
-		let zIndex = 1000 + fixedMenus.length;
-		for (const menu of fixedMenus) {
-			menu.zIndex = zIndex;
-			zIndex = zIndex - 1;
-			menu.menu.element.style.zIndex = zIndex;
-			if (menu.menu.menuPosition === 'top') {
-				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
-				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
-				menu.menu.element.style.top = null;
-				menu.menu.element.style.top = menu.adjusts.top + 'px';
-				menu.menu.element.style.left = null;
-				menu.menu.element.style.left = menu.adjusts.left + 'px';
-				menu.menu.element.style.width = null;
-				menu.menu.element.style.width = this._offsetComputedWidth(menu.menu.element) - menu.adjusts.left - menu.adjusts.right + 'px';
-			}
-			if (menu.menu.menuPosition === 'bottom') {
-				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
-				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
-				menu.menu.element.style.bottom = null;
-				menu.menu.element.style.bottom = menu.adjusts.bottom + 'px';
-				menu.menu.element.style.left = null;
-				menu.menu.element.style.left = menu.adjusts.left + 'px';
-				menu.menu.element.style.width = null;
-				menu.menu.element.style.width = this._offsetComputedWidth(menu.menu.element) - menu.adjusts.left - menu.adjusts.right + 'px';
-			}
-			if (menu.menu.menuPosition === 'left') {
-				this.leftTotalWidth = this.leftTotalWidth + menu.menu.element.offsetWidth;
-				menu.menu.element.style.left = null;
-				menu.menu.element.style.left = menu.adjusts.left + 'px';
-				menu.menu.element.style.top = null;
-				menu.menu.element.style.top = menu.adjusts.top + 'px';
-				menu.menu.element.style.height = null;
-				menu.menu.element.style.height = (window.innerHeight - this._offsetComputedPadding(menu.menu.element)) - menu.adjusts.top - menu.adjusts.bottom + 'px';
-			}
-			if (menu.menu.menuPosition === 'right') {
-				this.rightTotalWidth = this.rightTotalWidth + menu.menu.element.offsetWidth;
-				menu.menu.element.style.right = null;
-				menu.menu.element.style.right = menu.adjusts.right + 'px';
-				menu.menu.element.style.top = null;
-				menu.menu.element.style.top = menu.adjusts.top + 'px';
-				menu.menu.element.style.height = null;
-				menu.menu.element.style.height = (window.innerHeight - this._offsetComputedPadding(menu.menu.element)) - menu.adjusts.top - menu.adjusts.bottom + 'px';
-			}
-		}
 	}
 
 	// Return the "view" controller of any element inside the current view
