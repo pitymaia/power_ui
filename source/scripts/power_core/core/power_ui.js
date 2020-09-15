@@ -309,7 +309,11 @@ class PowerUi extends _PowerUiBase {
 		this.leftTotalWidth = 0;
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
+		let zIndex = 1000 + fixedMenus.length;
 		for (const menu of fixedMenus) {
+			menu.zIndex = zIndex;
+			zIndex = zIndex - 1;
+			menu.menu.element.style.zIndex = zIndex;
 			if (menu.menu.menuPosition === 'top') {
 				this.totalHeight = this.totalHeight + menu.menu.element.offsetHeight;
 				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
