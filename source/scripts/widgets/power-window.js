@@ -73,18 +73,24 @@ class PowerWindow extends PowerDialogBase {
 	adjustWindowWithComponents() {
 		this.adjustTop = 0;
 		this.adjustHeight = 0;
+		this.adjustWidth = 0;
+		this.adjustLeft = 0;
 		const bars = this.$powerUi.componentsManager.bars.filter(b=> b.bar.isFixed === true);
 		for (const bar of bars) {
-			if (bar.bar.barPosition === 'top') {
+			if (!bar.bar.ignore && bar.bar.barPosition === 'top') {
 				this.adjustTop = this.adjustTop + bar.bar.element.offsetHeight;
-			} else if (bar.bar.barPosition === 'bottom') {
+			} else if (!bar.bar.ignore && bar.bar.barPosition === 'bottom') {
 				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
+			} else if (bar.bar.ignore && bar.bar.barPosition === 'right') {
+				this.adjustWidth = this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+			} else if (bar.bar.ignore && bar.bar.barPosition === 'left') {
+				this.adjustLeft = this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			}
 		}
 		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
-			this._dialog.style.left = _appContainer.offsetLeft + 'px';
-			this._dialog.style.width = _appContainer.offsetWidth + 'px';
+			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 

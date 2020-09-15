@@ -873,6 +873,9 @@ class PowerUi extends _PowerUiBase {
 	_offsetComputedWidth(element) {
 		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
 	}
+	_offsetComputedAdjustSides(element) {
+		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
+	}
 }
 
 export { PowerUi };

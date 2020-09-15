@@ -35,6 +35,9 @@ class PowerMenu extends PowerTarget {
 		} else if (this.element.classList.contains('pw-right')) {
 			this.barPosition = 'right';
 		}
+		if (this.element.classList.contains('pw-ignore')) {
+			this.ignore = true;
+		}
 	}
 
 	onRemove() {
