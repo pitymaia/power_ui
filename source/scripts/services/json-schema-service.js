@@ -562,21 +562,37 @@ class JSONSchemaService extends PowerServices {
 			if (menu.position === 'fixed-top') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-top');
+				if (!menu.orientation || menu.orientation === 'horizontal') {
+					menuEl.classList.add('pw-horizontal');
+				}
 			} else if (menu.position === 'fixed-bottom') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-bottom');
+				if (!menu.orientation || menu.orientation === 'horizontal') {
+					menuEl.classList.add('pw-horizontal');
+				}
 			} else if (menu.position === 'fixed-left') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-left');
+				if (!menu.orientation || menu.orientation === 'vertical') {
+					menuEl.classList.add('pw-vertical');
+				}
 			} else if (menu.position === 'fixed-right') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-right');
+				if (!menu.orientation || menu.orientation === 'vertical') {
+					menuEl.classList.add('pw-vertical');
+				}
 			} else if (menu.position === 'float-left') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-left');
 			} else if (menu.position === 'float-right') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-right');
+			}
+			// Window can ignore menu
+			if (menu.ignore) {
+				menuEl.classList.add('pw-ignore');
 			}
 
 			// Brand
@@ -587,9 +603,6 @@ class JSONSchemaService extends PowerServices {
 						throw result;
 					}
 				}
-				// Add horizontal style
-				menuEl.classList.add('pw-horizontal');
-
 				// Add menu brand
 				const brandHolderEl = document.createElement('div');
 				if (!menu.brand.classList) {
@@ -603,19 +616,21 @@ class JSONSchemaService extends PowerServices {
 				menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
 			}
 
-			if (!menu.orientation || menu.orientation === 'horizontal') {
-				// Add horizontal style
+			if (menu.orientation === 'horizontal') {
 				menuEl.classList.add('pw-horizontal');
+			} else if (menu.orientation === 'vertical') {
+				menuEl.classList.add('pw-vertical');
+			}
 
-				// Add hamburger menu toggle
+			// Add hamburger menu toggle
+			if (menu.colapse !== false) {
+				menuEl.classList.add('pw-colapse');
 				const hamburgerHolderEl = document.createElement('div');
 				hamburgerHolderEl.innerHTML = `<a id="${menu.id}-action" class="power-toggle" data-power-target="${menu.id}">
 					<i class="pw-icon icon-hamburguer"></i>
 				</a>`;
 				const hamburgerEl = hamburgerHolderEl.children[0];
 				menuEl.appendChild(hamburgerEl);
-			} else if (menu.orientation === 'vertical') {
-				menuEl.classList.add('pw-vertical');
 			}
 
 			if (menu.classList) {

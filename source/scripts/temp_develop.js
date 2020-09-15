@@ -171,7 +171,7 @@ class SecundaryMainTemplate extends PowerTemplate {
 			"id": 'secundary-menu',
 			"mirrored": false,
 			"position": "top-right",
-			// "orientation": "vertical",
+			"orientation": "horizontal",
 			// "kind": "float-right",
 			"items": [
 				{
@@ -1031,7 +1031,7 @@ class RootScopeTemplate extends PowerTemplate {
 			},
 			"mirrored": false,
 			"dropMenuPosition": "top-right",
-			// "orientation": "vertical",
+			"orientation": "horizontal",
 			// "kind": "float-right",
 			"items": [
 				{
@@ -2144,6 +2144,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',
+			"orientation": "horizontal",
 			"brand": {
 				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
 				"events": [
@@ -4141,7 +4142,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"brand": {"content": "PowerUi"},
 			"mirrored": false,
 			"dropMenuPostision": "top-right",
-			// "orientation": "vertical",
+			"orientation": "horizontal",
 			// "kind": "float-right",
 			"items": [
 				{
