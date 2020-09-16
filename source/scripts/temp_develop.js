@@ -238,13 +238,6 @@ class SecundaryMainCtrl extends PowerModal {
 	onCancel() {
 		this.closeCurrentRoute({
 			commands: [{'$root': {refresh: true}}],
-			// callback: function () {
-			// 	console.log('CALLBACK IS HERE!!!!', this.getMainvalue());
-			// 	this.$service('widget').alert({
-			// 		title: 'The route has closed',
-			// 		template: '<p>The secondary route closed!</p>',
-			// 	});
-			// },
 		})
 	}
 
@@ -272,7 +265,7 @@ class SecundaryMainCtrl extends PowerModal {
 		});
 	}
 
-	getMainvalue = function () {
+	getMainvalue() {
 		this.mainValue = this.mainValue + 1;
 		return this.mainValue;
 	}
@@ -5359,18 +5352,18 @@ const routes = [
 			templateComponent: GridPageTemplate,
 			ctrl: GridPageCtrl,
 		},
-		{
-			id: 'front-page',
-			title: 'PowerUi - Rich UI made easy',
-			route: '/',
-			templateUrl: 'front_page.html',
-			ctrl: FrontPage,
-			data: {lock: true},
-		},
+		// {
+		// 	id: 'front-page',
+		// 	title: 'PowerUi - Rich UI made easy',
+		// 	route: '/',
+		// 	templateUrl: 'front_page.html',
+		// 	ctrl: FrontPage,
+		// 	data: {lock: true},
+		// },
 		{
 			id: 'power-only',
 			title: 'Power only page | PowerUi',
-			route: 'power_only',
+			route: '/',
 			templateUrl: 'power_only.html',
 			avoidCacheTemplate: false,
 			ctrl: PowerOnlyPage,
