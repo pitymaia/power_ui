@@ -1161,7 +1161,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+											"fn": "openSimpleDialog()"
 										}
 									]
 								}
@@ -1174,7 +1174,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
+											"fn": "openSimpleDialog()"
 										}
 									]
 								}
@@ -1187,7 +1187,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
+											"fn": "openSimpleDialog()"
 										}
 									]
 								}
@@ -1214,7 +1214,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+														"fn": "openSimpleDialog()"
 													}
 												]
 											}
@@ -1227,7 +1227,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+														"fn": "openSimpleDialog()"
 													}
 												]
 											}
@@ -1240,7 +1240,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+														"fn": "openSimpleDialog()"
 													}
 												]
 											}
@@ -1289,7 +1289,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+											"fn": "openSimpleDialog()"
 										}
 									]
 								}
@@ -1302,7 +1302,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
+											"fn": "openSimpleDialog()"
 										}
 									]
 								}
@@ -1315,7 +1315,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
+											"fn": "openSimpleDialog()"
 										}
 									]
 								}
@@ -1403,7 +1403,7 @@ class RootScopeTemplate extends PowerTemplate {
 						"events": [
 							{
 								"event": "onclick",
-								"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+								"fn": "openSimpleDialog()"
 							}
 						]
 					}
@@ -1432,7 +1432,7 @@ class RootScopeTemplate extends PowerTemplate {
 						"events": [
 							{
 								"event": "onclick",
-								"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+								"fn": "openSimpleDialog(true)"
 							}
 						]
 					}
@@ -1674,6 +1674,13 @@ class RootScope extends PowerController {
 					self.refresh(self._viewId);
 				}
 			}
+		});
+	}
+
+	openSimpleDialog() {
+		this.openRoute({
+			routeId: 'simple-dialog',
+			target: '_blank',
 		});
 	}
 
@@ -2248,7 +2255,7 @@ class GridPageCtrl extends PowerController {
 
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
-		this.$routeClassList['power-only'] = ['red-bg'];
+		this.$classList = ['blue-bg'];
 		const menu1 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-1',

@@ -1565,6 +1565,8 @@ class JSONSchemaService extends PowerServices {
 				"dropMenuPosition": {"type": "string"},
 				"orientation": {"type": "string"},
 				"position": {"type": "string"},
+				"priority": {"type": "number"},
+				"ignore": {"type": "boolean"},
 				"items": {
 					"type": "array",
 					"properties": {

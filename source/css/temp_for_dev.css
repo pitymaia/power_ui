@@ -149,7 +149,7 @@ html {
 .orange-bg .pw-title-bar {
     background-color: orange;
 }
-.red-bg .pw-title-bar, .red-bg #powerui-top, .red-bg {
+.red-bg .pw-title-bar {
     background-color: red !important;
 }
 
