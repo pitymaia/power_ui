@@ -71,6 +71,9 @@ class PowerDialogBase extends PowerWidget {
 	_onViewLoad(view, hasCustomScroll, hasCustomLimits) {
 		this.$powerUi._events['Escape'].subscribe(this._closeWindow);
 		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
+		if (this.$powerUi.touchdevice) {
+			this.$powerUi.onBrowserOrientationChange.subscribe(this._orientationChange.bind(this));
+		}
 		this.isHiddenRoute = this.$powerUi.router.routes[this._routeId].isHidden || false;
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
 
@@ -113,6 +116,10 @@ class PowerDialogBase extends PowerWidget {
 
 	browserWindowResize() {
 		this.setHeightLimits();
+	}
+
+	_orientationChange() {
+		this.browserWindowResize();
 	}
 
 	restoreScrollPosition(view) {

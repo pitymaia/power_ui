@@ -143,7 +143,7 @@ class ComponentsManager {
 
 	toggleSmallWindowMode() {
 		const _appContainer = document.getElementById('app-container');
-		if (window.innerWidth <= 768) {
+		if (window.innerWidth <= 768 || (this.$powerUi.touchdevice && window.innerWidth <= 1024)) {
 			this.smallWindowMode = true;
 			_appContainer.classList.add('pw-small-window-mode');
 		} else {
@@ -153,11 +153,16 @@ class ComponentsManager {
 	}
 
 	_browserWindowResize() {
+		// window.alert(window.innerWidth);
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.barsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
+	}
+	_orientationChange() {
+		// window.alert(window.innerWidth);
+		this._browserWindowResize();
 	}
 	_routeChange() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
@@ -329,6 +334,8 @@ class PowerUi extends _PowerUiBase {
 
 
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
+		// Detect if is touchdevice (Phones, Ipads, etc)
+		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		this.controllers = {};
 		this.dialogs = [];
 		this.JSONById = {};
@@ -352,6 +359,11 @@ class PowerUi extends _PowerUiBase {
 		this.componentsManager.toggleSmallWindowMode();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
 		this.onBrowserWindowResize.subscribe(this.componentsManager._browserWindowResize.bind(this.componentsManager));
+		if (this.touchdevice) {
+			this.onBrowserOrientationChange = new UEvent('onBrowserOrientationChange');
+			this.onBrowserOrientationChange.subscribe(this.componentsManager._orientationChange.bind(this.componentsManager));
+			window.addEventListener("orientationchange", ()=> this.onBrowserOrientationChange.broadcast());
+		}
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		this.router = new Router(config, this); // Router calls this.init();
 		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
@@ -538,8 +550,6 @@ class PowerUi extends _PowerUiBase {
 		}
 		this._createPowerTree();
 		this.tmp = {dropmenu: {}};
-		// Detect if is touchdevice (Phones, Ipads, etc)
-		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		// If not touchdevice add keyboardManager
 		// if (!this.touchdevice) {
 		// 	this.keyboardManager = new KeyboardManager(this);
