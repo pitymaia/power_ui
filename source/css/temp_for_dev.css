@@ -154,6 +154,11 @@ html {
 }
 
 .pw-black-white, .pw-black-white .power-dropmenu {
+    background-color: #000000 !important;
+    color: white;
+}
+
+.pw-blue-white, .pw-blue-white .power-dropmenu {
     background-color: blue !important;
     color: white;
 }

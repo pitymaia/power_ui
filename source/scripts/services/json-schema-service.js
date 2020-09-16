@@ -594,6 +594,10 @@ class JSONSchemaService extends PowerServices {
 			if (menu.ignore) {
 				menuEl.classList.add('pw-ignore');
 			}
+			// Set priority
+			if (menu.priority) {
+				menuEl.dataset.pwPriority = menu.priority;
+			}
 
 			// Brand
 			if (menu.brand) {

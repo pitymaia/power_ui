@@ -1017,15 +1017,15 @@ class RootScopeTemplate extends PowerTemplate {
 			<div>{{ 2+2 }}</div>`;
 
 		const menu1 = {
-			"classList": ["custom-menu"],
+			"classList": ["pw-blue-white"],
 			"id": 'my-menu-12',
-			"brand": {
-				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
-			},
 			"mirrored": false,
-			"dropMenuPosition": "top-right",
-			"orientation": "horizontal",
-			// "kind": "float-right",
+			"position": "fixed-bottom",
+			"priority": 1,
+			"ignore": false,
+			"brand": {
+				"content": "PowerEasy",
+			},
 			"items": [
 				{
 					"item": {
@@ -1251,73 +1251,130 @@ class RootScopeTemplate extends PowerTemplate {
 						]
 					}
 				},
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu1);
+
+		const menu2 = {
+			"classList": ["pw-blue-white"],
+			"id": 'my-sss-12',
+			"mirrored": false,
+			"position": "fixed-top",
+			"ignore": true,
+			"priority": 3,
+			"brand": {
+				"content": "PowerUi",
+			},
+			"items": [
 				{
-					"button": {
-						"id": "books-plus-1b2",
-						"label": "More Books",
-						"icon": "icon-power-logo",
-						"kind": "warning",
+					"item": {
+						"id": "games-dfg12",
+						"label": "Games",
+						"icon": "icon-power-logo"
 					},
 					"status": {
 						"active": "icon-caret-down",
 						"inactive": "icon-caret-right",
 					},
 					"dropmenu": {
-						"id": "my-books-menu-2b2",
+						"id": "the-hjh-12",
 						"position": "top-right",
 						"items": [
 							{
 								"item": {
-									"id": "a1984-b12",
-									"label": "1984",
+									"id": "vcv-12",
+									"label": "New Super Mario",
 									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+											"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
 										}
 									]
 								}
 							},
 							{
 								"item": {
-									"id": "never-1b2",
-									"label": "Neverending Story",
+									"id": "df-12",
+									"label": "StarCraft",
 									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+											"fn": "openModal({'name': 'Blizzard', 'title': 'StarCraft'})"
 										}
 									]
 								}
 							},
 							{
 								"item": {
-									"id": "stranger-1b2",
-									"label": "The Stranger",
+									"id": "dfxc-12",
+									"label": "Zelda",
 									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+											"fn": "openModal({'name': 'Nintendo', 'title': 'Zelda'})"
 										}
 									]
 								}
-							}
-						]
-					}
-				},
-				{
-					"button": {
-						"id": "learn-1b2",
-						"label": "Learn More",
-						"icon": "icon-power-logo",
-						"kind": "highlight",
-						"events": [
+							},
 							{
-								"event": "onclick",
-								"fn": "changeAndRefresh()"
+								"item": {
+									"id": "more-ss-12",
+									"label": "More Games",
+									"icon": "icon-power-logo"
+								},
+								"status": {
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
+								},
+								"dropmenu": {
+									"id": "my-sdf-menu-22",
+									"position": "top-right",
+									"items": [
+										{
+											"item": {
+												"id": "ss-12",
+												"label": "Doom",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "rr-12",
+												"label": "Quake",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "dd-12",
+												"label": "Sim City 2000",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+													}
+												]
+											}
+										}
+									]
+								}
 							}
 						]
 					}
@@ -1325,7 +1382,65 @@ class RootScopeTemplate extends PowerTemplate {
 			]
 		};
 
-		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu1);
+		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu2);
+
+		const menu3 = {
+			"classList": ["pw-black-white"],
+			"id": 'my-aaa-12',
+			"mirrored": false,
+			"position": "fixed-left",
+			"ignore": false,
+			"priority": 2,
+			"brand": {
+				"content": "SuperGame",
+			},
+			"items": [
+				{
+					"item": {
+						"id": "marioss-12",
+						"label": "Super Mario",
+						"icon": "icon-power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+							}
+						]
+					}
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu3);
+
+		const menu4 = {
+			"classList": ["pw-black-white"],
+			"id": 'my-ccc-12',
+			"mirrored": false,
+			"position": "fixed-bottom",
+			"ignore": true,
+			"priority": 4,
+			"brand": {
+				"content": "Great",
+			},
+			"items": [
+				{
+					"item": {
+						"id": "marioaaa-12",
+						"label": "Super Mario",
+						"icon": "icon-power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openModal({'name': 'Nintendo', 'title': 'New Super Mario'})"
+							}
+						]
+					}
+				}
+			]
+		};
+
+		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu4);
 
 		newTmpl = newTmpl + `<h1>Cats list {{ rootValue() }}</h1>
 			<div data-pow-for="cat of cats">
