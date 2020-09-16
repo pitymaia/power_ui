@@ -452,8 +452,8 @@ class Router {
 			document.body.appendChild(spinnerBackdrop);
 		}
 		// Avoid blink uninterpolated data before call compile and interpolate
-		const node = document.getElementById(viewId) || document.getElementById('main-view').parentNode;
-		node.style.visibility = 'hidden';
+		const app = document.getElementById('app-container');
+		app.style.opacity = 0;
 	}
 
 	removeSpinnerAndShowContent(viewId) {
@@ -463,8 +463,11 @@ class Router {
 		}
 		if (viewId) {
 			const view = document.getElementById(viewId);
-			view.style.visibility = null;
+			view.style.visibility = 'visible';
 		}
+		// Avoid blink uninterpolated data before call compile and interpolate
+		const app = document.getElementById('app-container');
+		app.style.opacity = 1;
 	}
 
 	buildRoutesTree(path) {
@@ -724,12 +727,22 @@ class Router {
 		}
 	}
 
+	// testSpinner() {
+	// 	const _promise = new Promise(function(resolve) {
+	// 		setTimeout(function() {
+	// 			resolve();
+	// 		}, 2000);
+	// 	});
+	// 	return _promise;
+	// }
+
 	async engine($root) {
 		if (!this.config.phantomMode) {
-			this.addSpinnerAndHideContent('root-view');
+			this.addSpinnerAndHideContent();
 			this.setDefaultCommands();
+			// await this.testSpinner();
 		} else {
-			this.removeSpinnerAndShowContent('root-view');
+			this.removeSpinnerAndShowContent();
 		}
 		this.engineIsRunning = true;
 		this.orderedRoutesToOpen = $root ? [$root] : [];

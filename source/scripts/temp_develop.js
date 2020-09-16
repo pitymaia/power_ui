@@ -231,7 +231,6 @@ class SecundaryMainTemplate extends PowerTemplate {
 
 class SecundaryMainCtrl extends PowerModal {
 	ctrl() {
-		console.log('Secundary main ctrl');
 		this.mainValue = -1;
 	}
 
@@ -287,8 +286,6 @@ class SecundaryChildTemplate extends PowerTemplate {
 
 class SecundaryChildCtrl extends PowerController {
 	ctrl(data) {
-		console.log('DATA:', data);
-		// console.log('Secundary child ctrl');
 		this.myCats = ['Princesa', 'Sol', 'Penny', 'Riquinho', 'Drew'];
 		if (data.moreCats) {
 			this.myCats = this.myCats.concat(data.moreCats);
@@ -315,7 +312,7 @@ class SecundaryChildCtrl2 extends PowerController {
 	}
 
 	onCycleEnds() {
-		console.log('CYCLE ENDS!', this);
+		// console.log('CYCLE ENDS!', this);
 	}
 }
 
@@ -333,7 +330,6 @@ class SecundaryChildMainTemplate extends PowerTemplate {
 
 class SecundaryChildMainCtrl extends PowerController {
 	ctrl() {
-		console.log('SecundaryChildMainCtrl rodou');
 		this.secValue = -1;
 		this.pity = 'Pity o bom';
 	}
@@ -368,17 +364,11 @@ class SecundaryChildOfChildTemplate extends PowerTemplate {
 }
 
 class SecundaryChildOfChildCtrl extends PowerController {
-	ctrl() {
-		console.log('!!!! Child of a child ctrl', this);
-	}
 	openChildOfChild2() {
 		this.openRoute({
 			routeId: 'secmainchild2',
 			target: '_self',
 		});
-	}
-	onViewLoad() {
-		console.log('SecundaryChildOfChildCtrl onViewLoad');
 	}
 }
 
@@ -406,7 +396,6 @@ class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 
 class SecundaryChildOfChildCtrl2 extends PowerController {
 	ctrl() {
-		console.log('Secundary child of a child ctrl 2');
 		this.pity = 'Pity is here!';
 	}
 }
@@ -5240,7 +5229,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 class JSONViews extends PowerWindow {
 	brand() {
-		console.log('oi');
+		window.console.log('oi');
 	}
 	ctrl() {
 		// window.console.log('JSONViews CTRL', this.$tscope);
@@ -5691,7 +5680,7 @@ let app = new PowerUi({
 	devMode: {iframe: 'http://localhost:3002', main: 'http://localhost:3000'},
 });
 
-console.log('app', app);
+window.console.log('app', app);
 app.pity = function() {
 	return myName;
 }
