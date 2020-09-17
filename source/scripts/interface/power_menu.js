@@ -46,6 +46,14 @@ class PowerMenu extends PowerTarget {
 		if (this.isFixed) {
 			this.$powerUi.componentsManager.stopObserve(this.element);
 		}
+
+		for (const action of this.childrenPowerActions) {
+			// Only atach the windows like behaviour if not a touchdevice
+			if (!this.$powerUi.touchdevice) {
+				action.unsubscribe({event: 'click', fn: this.hoverModeOn, menu: this});
+				action.unsubscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, menu: this});
+			}
+		}
 	}
 
 	init() {
@@ -82,7 +90,7 @@ class PowerMenu extends PowerTarget {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
 				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
-				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
+				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, menu: this});
 			}
 		}
 	}
@@ -173,6 +181,8 @@ class PowerMenu extends PowerTarget {
 			// If there is no active action, set hover mode to off
 			if (someDropdownIsOpen === false) {
 				params.menu.hoverModeOff(ctx, event, params);
+			} else {
+				params.menu.startWatchMouseMove(ctx, event, params);
 			}
 		}, 50);
 	}
