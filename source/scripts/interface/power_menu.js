@@ -55,8 +55,10 @@ class PowerMenu extends PowerTarget {
 			this.$powerUi.componentsManager.observe(this.element);
 		}
 
-		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
+		// Child powerActions - Hold all the power actions in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
+		// Child powerItem - Hold all the power items in this menu, but not the ones on the internal Power dropmenus
+		this.childrenPowerItems = this.getChildrenByPowerCss('powerItem');
 		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu
 		this.innerPowerActionsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerAction');
 		// Child powerDropmenus - Hold all the power Dropmenus in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
@@ -86,16 +88,56 @@ class PowerMenu extends PowerTarget {
 	}
 
 	hoverModeOn(ctx, event, params) {
+		// Abort if is moving
+		if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo) {
+			// User may move over the same element, only add new target if not the same target
+			if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo.id !== params.menu.id) {
+				params.menu.moveOverPossibleNewTarget(params.action);
+			}
+			return;
+		}
 		for (const action of params.menu.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
+			action.subscribe({event: 'click', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
 
 	onMouseEnterAction(ctx, event, params) {
-		params.menu.resetAnyDropdownTmpInfo();
-		// Only call toggle if is not active
-		if (!params.action._$pwActive) {
-			params.action.toggle();
+		// Abort if is moving
+		if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo) {
+			// User may moving over the same element, only add new target if not the same target
+			if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo.id !== params.action.id) {
+				params.menu.moveOverPossibleNewTarget(params.action);
+			}
+			return;
+		}
+		if (params.action._$pwActive) {
+			return;
+		}
+		params.action.toggle();
+		params.menu.onMouseEnterItem(ctx, event, params, true);
+		for (const item of params.menu.childrenPowerItems) {
+			item.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterItem, action: params.action, menu: params.menu, item: item});
+		}
+		params.menu.startWatchMouseMove(ctx, event, params);
+	}
+
+	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
+		// Abort if is moving
+		if (this.$powerUi.tmp.menu._mouseIsMovingTo) {
+			// User may moving over the same element, only add new target if not the same target
+			if (this.$powerUi.tmp.menu._mouseIsMovingTo.id !== params.action.id) {
+				params.menu.moveOverPossibleNewTarget(params.action);
+			}
+			return;
+		}
+		// This can be called from onMouseEnterAction and in this case we don't want call the toggle
+		if (!onMouseEnterAction) {
+			// Only call toggle if is active
+			if (params.action._$pwActive) {
+				params.action.toggle();
+			}
+
 		}
 
 		// Close any child possible active dropmenu
@@ -110,6 +152,12 @@ class PowerMenu extends PowerTarget {
 				action.toggle();
 			}
 		}
+
+		// Unsubscribe from all the power items mouseenter
+		for (const item of params.menu.childrenPowerItems) {
+			item.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterItem, action: params.action, menu: params.menu});
+		}
+
 	}
 
 	maySetHoverModeOff(ctx, event, params) {
@@ -128,17 +176,53 @@ class PowerMenu extends PowerTarget {
 			}
 		}, 50);
 	}
-
-	hoverModeOff(ctx, level, params) {
+	// Deactivate hover mode
+	hoverModeOff(ctx, event, params) {
+		params.menu.stopWatchMouseMove();
 		for (const action of params.menu.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
+			action.unsubscribe({event: 'click', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
-	resetAnyDropdownTmpInfo() {
-		this.$powerUi.tmp.dropmenu._mouseIsMovingTo = false;
-		this.$powerUi.tmp.dropmenu._possibleNewTarget = false;
-		clearTimeout(this.$powerUi.tmp.dropmenu.timeout);
-		document.removeEventListener('mousemove', this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
+
+	// Bellow functions temporary abort the hover mode to give time to users move to the opened dropmenu
+	moveOverPossibleNewTarget(item) {
+		this.$powerUi.tmp.menu._possibleNewTarget = item;
+	}
+	onmousestop() {
+		// Only stopWatchMouseMove if the _possibleNewTarget are not already active
+		// If it is already active then wait user to mover over it
+		if (this.$powerUi.tmp.menu._possibleNewTarget && !this.$powerUi.tmp.menu._possibleNewTarget._$pwActive) {
+			const item = this.$powerUi.tmp.menu._possibleNewTarget;
+			setTimeout(function () {
+				item.broadcast('mouseenter');
+			}, 10);
+			this.stopWatchMouseMove();
+		} else {
+			this.$powerUi.tmp.menu._resetMouseTimeout();
+		}
+	}
+	// Called when mouse move
+	resetMouseTimeout() {
+		clearTimeout(this.$powerUi.tmp.menu.timeout);
+		this.$powerUi.tmp.menu.timeout = setTimeout(this.$powerUi.tmp.menu._onmousestop, 120);
+	}
+	startWatchMouseMove(ctx, event, params) {
+		if (this.$powerUi.tmp.menu._mouseIsMovingTo) {
+			return;
+		}
+		params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, menu: params.menu});
+		this.$powerUi.tmp.menu._mouseIsMovingTo = params.action.targetObj;
+		this.$powerUi.tmp.menu._onmousestop = this.onmousestop.bind(this);
+		this.$powerUi.tmp.menu._resetMouseTimeout = this.resetMouseTimeout.bind(this);
+		this.$powerUi.tmp.menu.timeout = setTimeout(this.$powerUi.tmp.menu._onmousestop, 300);
+		document.addEventListener('mousemove', this.$powerUi.tmp.menu._resetMouseTimeout, true);
+	}
+	stopWatchMouseMove() {
+		this.$powerUi.tmp.menu._mouseIsMovingTo = false;
+		this.$powerUi.tmp.menu._possibleNewTarget = false;
+		clearTimeout(this.$powerUi.tmp.menu.timeout);
+		document.removeEventListener('mousemove', this.$powerUi.tmp.menu._resetMouseTimeout, true);
 		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
 	}
 

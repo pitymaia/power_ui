@@ -54,7 +54,7 @@ class PowerDropmenu extends PowerTarget {
 	hoverModeOn() {
 		// Abort if is moving
 		if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
-			// Using may moving over the same element, only add new target if not the same target
+			// User may move over the same element, only add new target if not the same target
 			if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo.id !== this.id) {
 				this.moveOverPossibleNewTarget(this);
 			}
