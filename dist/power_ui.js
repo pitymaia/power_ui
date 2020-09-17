@@ -1608,6 +1608,202 @@ class KeyboardManager {
 	}
 }
 
+class ComponentsManager {
+	constructor($powerUi) {
+		this.$powerUi = $powerUi;
+		this.bars = [];
+		this.observing = {};
+		this.startObserver();
+	}
+
+	observe(element) {
+		this.observing[element.id] = {};
+		this.observing[element.id].element = element;
+		this.observing[element.id].lastWidth = element.offsetWidth;
+		this.observing[element.id].lastHeight = element.offsetHeight;
+	}
+
+	stopObserve(element) {
+		this.observing[element.id] = null;
+		delete this.observing[element.id];
+	}
+
+	startObserver() {
+		const self = this;
+		setInterval(function () {
+			let hasChange = false;
+			for (const key of Object.keys(self.observing)) {
+				const lastWidth = self.observing[key].lastWidth;
+				const currentWidth = self.observing[key].element.offsetWidth;
+				const lastHeight = self.observing[key].lastHeight;
+				const currentHeight = self.observing[key].element.offsetHeight;
+				const active = self.observing[key].element.classList.contains('power-active');
+				if ((!active && lastWidth && lastHeight) && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
+					self.observing[key].lastWidth = currentWidth;
+					self.observing[key].lastHeight = currentHeight;
+					hasChange = true;
+				}
+			}
+
+			if (hasChange) {
+				self.running = true;
+				self.$powerUi.onBrowserWindowResize.broadcast();
+				self.hasChange = false;
+			}
+		}, 100);
+	}
+
+	toggleSmallWindowMode() {
+		const _appContainer = document.getElementById('app-container');
+		if (window.innerWidth <= 768 || (this.$powerUi.touchdevice && window.innerWidth <= 1024)) {
+			this.smallWindowMode = true;
+			_appContainer.classList.add('pw-small-window-mode');
+		} else {
+			this.smallWindowMode = false;
+			_appContainer.classList.remove('pw-small-window-mode');
+		}
+	}
+
+	_browserWindowResize() {
+		// window.alert(window.innerWidth);
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.barsSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
+	}
+
+	_orientationChange() {
+		// window.alert(window.innerWidth);
+		this._browserWindowResize();
+	}
+
+	_routeChange() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.barsSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_setAppContainerHeight() {
+		const _appContainer = document.getElementById('app-container');
+		_appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
+	}
+	// This change the "app-container" and body element to allow adjust for fixed bars/menus
+	_addMarginToBody() {
+		const body = document.body;
+		const currentStyleMarginTop = 0;
+		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
+		const currentStyleMarginLeft = 0;
+		body.style['margin-left'] = currentStyleMarginLeft + this.leftTotalWidth + 'px';
+		const currentStyleMarginRight = 0;
+		body.style['margin-right'] = currentStyleMarginRight + this.rightTotalWidth + 'px';
+	}
+	_reorderBars(fixedBars) {
+		let priority = fixedBars.length + 20;
+		fixedBars.sort(function (a, b) {
+			if (!a.bar.priority) {
+				a.bar.priority = priority;
+				priority = priority + 1;
+			}
+			if (!b.bar.priority) {
+				b.bar.priority = priority;
+				priority = priority + 1;
+			}
+			if (a.bar.priority > b.bar.priority) {
+				return 1;
+			} else {
+				return -1;
+			}
+			priority = priority + 1;
+		});
+
+
+	}
+	getBarsWithPrioritySizes() {
+		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true);
+		this._reorderBars(fixedBars);
+
+		let currentTotalTopHeight = 0;
+		let currentTotalBottomHeight = 0;
+		let currentTotalLeftWidth = 0;
+		let currentTotalRightWidth = 0;
+		for (const bar of fixedBars) {
+			bar.adjusts = {};
+			bar.adjusts.top = currentTotalTopHeight;
+			bar.adjusts.bottom = currentTotalBottomHeight;
+			bar.adjusts.left = currentTotalLeftWidth;
+			bar.adjusts.right = currentTotalRightWidth;
+
+			if (bar.bar.barPosition === 'top') {
+				currentTotalTopHeight = currentTotalTopHeight + bar.bar.element.offsetHeight;
+			} else if (bar.bar.barPosition === 'bottom') {
+				currentTotalBottomHeight = currentTotalBottomHeight + bar.bar.element.offsetHeight;
+			} else if (bar.bar.barPosition === 'left') {
+				currentTotalLeftWidth = currentTotalLeftWidth + bar.bar.element.offsetWidth;
+			} else if (bar.bar.barPosition === 'right') {
+				currentTotalRightWidth = currentTotalRightWidth + bar.bar.element.offsetWidth;
+			}
+		}
+		return fixedBars;
+	}
+	// This change the position for fixed bars/menus so it shows one after another
+	// also register the info so "app-container" and body element can adjust for fixed bars/menus
+	barsSizeAndPosition() {
+		const fixedBars = this.getBarsWithPrioritySizes();
+		this.topTotalHeight = 0;
+		this.bottomTotalHeight = 0;
+		this.leftTotalWidth = 0;
+		this.rightTotalWidth = 0;
+		this.totalHeight = 0;
+		let zIndex = 1000 + fixedBars.length;
+		for (const bar of fixedBars) {
+			bar.zIndex = zIndex;
+			zIndex = zIndex - 1;
+			bar.bar.element.style.zIndex = zIndex;
+			if (bar.bar.barPosition === 'top') {
+				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
+				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight;
+				bar.bar.element.style.top = null;
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.left = null;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+			}
+			if (bar.bar.barPosition === 'bottom') {
+				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
+				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight;
+				bar.bar.element.style.bottom = null;
+				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
+				bar.bar.element.style.left = null;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+			}
+			if (bar.bar.barPosition === 'left') {
+				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.left = null;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.top = null;
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+			if (bar.bar.barPosition === 'right') {
+				this.rightTotalWidth = this.rightTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.right = null;
+				bar.bar.element.style.right = bar.adjusts.right + 'px';
+				bar.bar.element.style.top = null;
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+		}
+	}
+}
+
 class PowerUi extends _PowerUiBase {
 	constructor(config) {
 		super();
@@ -1652,9 +1848,10 @@ class PowerUi extends _PowerUiBase {
 
 
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
+		// Detect if is touchdevice (Phones, Ipads, etc)
+		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		this.controllers = {};
 		this.dialogs = [];
-		this.menus = [];
 		this.JSONById = {};
 		this._Unique = _Unique;
 		this.addScopeEventListener();
@@ -1667,61 +1864,28 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
+		this.componentsManager = new ComponentsManager(this);
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
 		this._events.ready = new UEvent();
 		this._events.Escape = new UEvent();
 		this.request = new Request({config, $powerUi: this});
-		this.router = new Router(config, this); // Router calls this.init();
+		this.componentsManager.toggleSmallWindowMode();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
-		this.onBrowserWindowResize.subscribe(this._browserWindowResize.bind(this));
-		this.router.onRouteChange.subscribe(this._routeChange.bind(this));
+		this.onBrowserWindowResize.subscribe(this.componentsManager._browserWindowResize.bind(this.componentsManager));
+		if (this.touchdevice) {
+			this.onBrowserOrientationChange = new UEvent('onBrowserOrientationChange');
+			this.onBrowserOrientationChange.subscribe(this.componentsManager._orientationChange.bind(this.componentsManager));
+			window.addEventListener("orientationchange", ()=> this.onBrowserOrientationChange.broadcast());
+		}
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
+		this.router = new Router(config, this); // Router calls this.init();
+		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
-	}
-
-	_browserWindowResize() {
-		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this._setAppContainerHeight();
-	}
-	_routeChange() {
-		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.menusSizeAndPosition();
-		this._addMarginToBody();
-		this._setAppContainerHeight();
-	}
-	// This change the "app-container" and body element to allow adjust for fixed bars/menus
-	_setAppContainerHeight() {
-		const _appContainer = document.getElementById('app-container');
-		_appContainer.style.height = window.innerHeight - this.topTotalHeight - this.bottomTotalHeight + 'px';
-	}
-	// This change the "app-container" and body element to allow adjust for fixed bars/menus
-	_addMarginToBody() {
-		const body = document.body;
-		const currentStyleMarginTop = 0;
-		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
-	}
-	// This change the position for fixed bars/menus so it shows one after another
-	// also register the info so "app-container" and body element can adjust for fixed bars/menus
-	menusSizeAndPosition() {
-		const fixedMenus = this.menus.filter(m=> m.menu.isFixed === true);
-		this.adjustTop = 0;
-		this.adjustBottom = 0;
-		this.topTotalHeight = 0;
-		this.bottomTotalHeight = 0;
-		for (const menu of fixedMenus) {
-			if (menu.menu.menuPosition === 'top') {
-				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
-				menu.menu.element.style.top = this.adjustTop - menu.menu.element.offsetHeight + 'px';
-				this.topTotalHeight = this.topTotalHeight + menu.menu.element.offsetHeight;
-			}
-			if (menu.menu.menuPosition === 'bottom') {
-				this.adjustBottom = this.adjustBottom + menu.menu.element.offsetHeight;
-				menu.menu.element.style.bottom = this.adjustBottom - menu.menu.element.offsetHeight + 'px';
-				this.bottomTotalHeight = this.bottomTotalHeight + menu.menu.element.offsetHeight;
-			}
-		}
+		// On the first run broadcast a browser window resize so any window or other
+		// component can adapt it's size with the 'app-container'
+		this._events.ready.subscribe(()=>this.onBrowserWindowResize.broadcast());
 	}
 
 	// Return the "view" controller of any element inside the current view
@@ -1900,8 +2064,6 @@ class PowerUi extends _PowerUiBase {
 		}
 		this._createPowerTree();
 		this.tmp = {dropmenu: {}};
-		// Detect if is touchdevice (Phones, Ipads, etc)
-		this.touchdevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) ? true : false;
 		// If not touchdevice add keyboardManager
 		// if (!this.touchdevice) {
 		// 	this.keyboardManager = new KeyboardManager(this);
@@ -2223,6 +2385,20 @@ class PowerUi extends _PowerUiBase {
 	// The Root element have some aditional offset on margin-left
 	_offsetComputedRootElementStyles(styles) {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
+	}
+	_offsetComputedHeight(element) {
+		return parseInt(getComputedStyle(element).height.split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-top'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-top-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-bottom'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-bottom-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+	}
+
+	_offsetComputedPadding(element) {
+		return parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+	}
+
+	_offsetComputedWidth(element) {
+		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
+	}
+	_offsetComputedAdjustSides(element) {
+		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
 	}
 }
 
@@ -2822,21 +2998,41 @@ class JSONSchemaService extends PowerServices {
 			if (menu.position === 'fixed-top') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-top');
+				if (!menu.orientation || menu.orientation === 'horizontal') {
+					menuEl.classList.add('pw-horizontal');
+				}
 			} else if (menu.position === 'fixed-bottom') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-bottom');
+				if (!menu.orientation || menu.orientation === 'horizontal') {
+					menuEl.classList.add('pw-horizontal');
+				}
 			} else if (menu.position === 'fixed-left') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-left');
+				if (!menu.orientation || menu.orientation === 'vertical') {
+					menuEl.classList.add('pw-vertical');
+				}
 			} else if (menu.position === 'fixed-right') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-right');
+				if (!menu.orientation || menu.orientation === 'vertical') {
+					menuEl.classList.add('pw-vertical');
+				}
 			} else if (menu.position === 'float-left') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-left');
 			} else if (menu.position === 'float-right') {
 				menuEl.classList.add('pw-menu-float');
 				menuEl.classList.add('pw-right');
+			}
+			// Window can ignore menu
+			if (menu.ignore) {
+				menuEl.classList.add('pw-ignore');
+			}
+			// Set priority
+			if (menu.priority) {
+				menuEl.dataset.pwPriority = menu.priority;
 			}
 
 			// Brand
@@ -2847,9 +3043,6 @@ class JSONSchemaService extends PowerServices {
 						throw result;
 					}
 				}
-				// Add horizontal style
-				menuEl.classList.add('pw-horizontal');
-
 				// Add menu brand
 				const brandHolderEl = document.createElement('div');
 				if (!menu.brand.classList) {
@@ -2863,19 +3056,21 @@ class JSONSchemaService extends PowerServices {
 				menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
 			}
 
-			if (!menu.orientation || menu.orientation === 'horizontal') {
-				// Add horizontal style
+			if (menu.orientation === 'horizontal') {
 				menuEl.classList.add('pw-horizontal');
+			} else if (menu.orientation === 'vertical') {
+				menuEl.classList.add('pw-vertical');
+			}
 
-				// Add hamburger menu toggle
+			// Add hamburger menu toggle
+			if (menu.colapse !== false) {
+				menuEl.classList.add('pw-colapse');
 				const hamburgerHolderEl = document.createElement('div');
 				hamburgerHolderEl.innerHTML = `<a id="${menu.id}-action" class="power-toggle" data-power-target="${menu.id}">
 					<i class="pw-icon icon-hamburguer"></i>
 				</a>`;
 				const hamburgerEl = hamburgerHolderEl.children[0];
 				menuEl.appendChild(hamburgerEl);
-			} else if (menu.orientation === 'vertical') {
-				menuEl.classList.add('pw-vertical');
 			}
 
 			if (menu.classList) {
@@ -3806,6 +4001,8 @@ class JSONSchemaService extends PowerServices {
 				"dropMenuPosition": {"type": "string"},
 				"orientation": {"type": "string"},
 				"position": {"type": "string"},
+				"priority": {"type": "number"},
+				"ignore": {"type": "boolean"},
 				"items": {
 					"type": "array",
 					"properties": {
@@ -4509,9 +4706,10 @@ class EngineCommands {
 		this.default = {
 			close: {
 				runBeforeClose: true,
-				removeView: true,
 				runOnRemoveCtrl: true,
 				removeCtrl: true,
+				runOnRemoveView: true,
+				removeView: true,
 			},
 			open: {
 				addCtrl: true,
@@ -4525,9 +4723,10 @@ class EngineCommands {
 			refresh: {
 				close: {
 					runBeforeClose: false,
-					removeView: true,
 					runOnRemoveCtrl: false,
 					removeCtrl: false,
+					runOnRemoveView: true,
+					removeView: true,
 				},
 				open: {
 					addCtrl: false,
@@ -4540,9 +4739,10 @@ class EngineCommands {
 			reload: {
 				close: {
 					runBeforeClose: true,
-					removeView: true,
 					runOnRemoveCtrl: true,
 					removeCtrl: true,
+					runOnRemoveView: true,
+					removeView: true,
 				},
 				open: {
 					addCtrl: true,
@@ -4934,8 +5134,8 @@ class Router {
 			document.body.appendChild(spinnerBackdrop);
 		}
 		// Avoid blink uninterpolated data before call compile and interpolate
-		const node = document.getElementById(viewId) || document.getElementById('main-view').parentNode;
-		node.style.visibility = 'hidden';
+		const app = document.getElementById('app-container');
+		app.style.opacity = 0;
 	}
 
 	removeSpinnerAndShowContent(viewId) {
@@ -4945,8 +5145,11 @@ class Router {
 		}
 		if (viewId) {
 			const view = document.getElementById(viewId);
-			view.style.visibility = null;
+			view.style.visibility = 'visible';
 		}
+		// Avoid blink uninterpolated data before call compile and interpolate
+		const app = document.getElementById('app-container');
+		app.style.opacity = 1;
 	}
 
 	buildRoutesTree(path) {
@@ -5206,12 +5409,22 @@ class Router {
 		}
 	}
 
+	// testSpinner() {
+	// 	const _promise = new Promise(function(resolve) {
+	// 		setTimeout(function() {
+	// 			resolve();
+	// 		}, 2000);
+	// 	});
+	// 	return _promise;
+	// }
+
 	async engine($root) {
 		if (!this.config.phantomMode) {
-			this.addSpinnerAndHideContent('root-view');
+			this.addSpinnerAndHideContent();
 			this.setDefaultCommands();
+			// await this.testSpinner();
 		} else {
-			this.removeSpinnerAndShowContent('root-view');
+			this.removeSpinnerAndShowContent();
 		}
 		this.engineIsRunning = true;
 		this.orderedRoutesToOpen = $root ? [$root] : [];
@@ -5226,7 +5439,8 @@ class Router {
 			return;
 		}
 		this.clearPhantomRouter();
-		this.removeViewInOrder(this.orderedRoutesToClose, 0, this);
+		await this.resolveWhenListIsPopulated(
+			this.removeViewInOrder, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
 			this.runOnRemoveCtrlAndRemoveController, this.orderedRoutesToClose, 0, this);
 		await this.resolveWhenListIsPopulated(
@@ -5264,13 +5478,48 @@ class Router {
 		return _promise;
 	}
 
-	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx) {
+	removeViewInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
 		const route = orderedRoutesToClose[routeIndex];
 		if (!route) {
-			return;
+			return _resolve();
 		}
-		ctx.removeView(route.viewId, ctx);
-		ctx.removeViewInOrder(orderedRoutesToClose, routeIndex + 1, ctx);
+
+		// Run the onRemoveView
+		if (route.commands.runOnRemoveView === true &&
+			ctx.$powerUi.controllers[route.viewId] &&
+			ctx.$powerUi.controllers[route.viewId].instance &&
+			ctx.$powerUi.controllers[route.viewId].instance.onRemoveView) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.onRemoveView();
+			if (result && result.then) {
+				result.then(function (response) {
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveView) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRemoveView();
+					}
+					ctx.removeView(route.viewId, ctx);
+					ctx.callNextLinkWhenReady(
+						ctx.removeViewInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+				}).catch(function (error) {
+					_resolve('abort');
+					if (error) {
+						window.console.log('Error running onRemoveView: ', route.routeId, error);
+					}
+				});
+			} else {
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveView) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRemoveView();
+				}
+				ctx.removeView(route.viewId, ctx);
+					ctx.callNextLinkWhenReady(
+						ctx.removeViewInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			}
+		} else {
+			if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveView) {
+				ctx.$powerUi.controllers[route.viewId].instance._onRemoveView();
+			}
+			ctx.removeView(route.viewId, ctx);
+			ctx.callNextLinkWhenReady(
+				ctx.removeViewInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+		}
 	}
 
 	callNextLinkWhenReady(runInOrder, orderedList, index, ctx, _resolve) {
@@ -5406,10 +5655,10 @@ class Router {
 
 			if (result && result.then) {
 				result.then(function () {
-					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
-						ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
-					}
-					if (route.commands.removeCtrl) {
+					if (route.commands.runOnRemoveCtrl) {
+						if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+							ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+						}
 						ctx.removeVolatileViews(route.viewId);
 						delete ctx.$powerUi.controllers[route.viewId];
 					}
@@ -5419,10 +5668,10 @@ class Router {
 					window.console.log('Error running onRemoveCtrl: ', route.routeId, error);
 				});
 			} else {
-				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
-					ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
-				}
-				if (route.commands.removeCtrl) {
+				if (route.commands.runOnRemoveCtrl) {
+					if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+						ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+					}
 					ctx.removeVolatileViews(route.viewId);
 					delete ctx.$powerUi.controllers[route.viewId];
 				}
@@ -5430,8 +5679,10 @@ class Router {
 					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
-				ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+			if (route.commands.runOnRemoveCtrl) {
+				if (ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl) {
+					ctx.$powerUi.controllers[route.viewId].instance._onRemoveCtrl();
+				}
 			}
 			ctx.runOnRemoveCtrlAndRemoveController(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
 		}
@@ -8857,8 +9108,6 @@ class PowerDialogBase extends PowerWidget {
 		this._closeWindow = function() {
 			self._cancel();
 		};
-
-		$powerUi._events['Escape'].subscribe(this._closeWindow);
 	}
 	// Allow async calls to implement onCancel
 	_cancel(...args) {
@@ -8906,21 +9155,66 @@ class PowerDialogBase extends PowerWidget {
 		}
 	}
 
-	_onRemoveCtrl() {
+	_onRemoveView() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
 		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
 	}
 
-	_onViewLoad(view) {
+	_onViewLoad(view, hasCustomScroll, hasCustomLimits) {
+		this.$powerUi._events['Escape'].subscribe(this._closeWindow);
+		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
+		if (this.$powerUi.touchdevice) {
+			this.$powerUi.onBrowserOrientationChange.subscribe(this._orientationChange.bind(this));
+		}
 		this.isHiddenRoute = this.$powerUi.router.routes[this._routeId].isHidden || false;
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
+
 		this._dialog = view.getElementsByClassName('pw-dialog-container')[0];
+		this.bodyEl = view.getElementsByClassName('pw-body')[0];
+		this.titleBarEl = view.getElementsByClassName('pw-title-bar')[0];
+
 		if (route) {
 			this.dialogId = `dialog_${route.route.replace('/', '-')}`;
-			this.zIndex = 2000 + this.$powerUi.dialogs.length + 1;
+			this.zIndex = 1999 + this.$powerUi.dialogs.length + 1;
 			this._dialog.style.zIndex = this.zIndex;
 			this.$powerUi.dialogs.push({id: this.dialogId, ctrl: this});
 		}
+
+		if (!hasCustomLimits) {
+			this.setHeightLimits();
+		}
+		if (!hasCustomScroll) {
+			this.restoreScrollPosition(view);
+		}
+	}
+
+
+	setHeightLimits() {
+		if (this.bodyEl.offsetHeight + this.titleBarEl.offsetHeight > window.innerHeight - 30) {
+			this._setHieghtLimits();
+		} else {
+			this.bodyEl.style.height = null;
+			// There is a chance when resizing that the value after removing the height is greater than allowed
+			if (this.bodyEl.offsetHeight + this.titleBarEl.offsetHeight > window.innerHeight - 30) {
+				this._setHieghtLimits();
+			}
+		}
+	}
+
+	_setHieghtLimits() {
+		const newHeight = window.innerHeight - this.titleBarEl.offsetHeight - 30 + 'px';
+		this.bodyEl.style.height = newHeight;
+	}
+
+	browserWindowResize() {
+		this.setHeightLimits();
+	}
+
+	_orientationChange() {
+		this.browserWindowResize();
+	}
+
+	restoreScrollPosition(view) {
 		const container = view.getElementsByClassName('pw-container')[0];
 		const body = view.getElementsByClassName('pw-body')[0];
 		if (container) {
@@ -9227,13 +9521,10 @@ class PowerWindow extends PowerDialogBase {
 		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
 		this._minWidth = 250;
-		this._minHeight = 250;
+		this._minHeight = 50;
 		this.maximizeBt = true;
 		this.restoreBt = true;
 		this.isMaximized = false;
-		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
-		this.adjustTop = 0;
-		this.adjustHeight = 0;
 	}
 
 	// Allow async calls to implement onCancel
@@ -9242,12 +9533,12 @@ class PowerWindow extends PowerDialogBase {
 	// }
 
 	_onViewLoad(view) {
-		super._onViewLoad(view);
+		super._onViewLoad(view, true, true);
 		this.currentView = view;
 
-		if (this.isHiddenRoute === false) {
+		if (!this.isHiddenRoute) {
 			this.loadWindowState();
-			// Run a single reoder function at the end of the cycle
+			// Run a single reorder function at the end of the cycle
 			if (!this.$powerUi.reorder) {
 				this.$powerUi.reorder = true;
 				this.$powerUi.router.onCycleEnds.subscribe(this.reorderDialogsList.bind(this));
@@ -9274,8 +9565,6 @@ class PowerWindow extends PowerDialogBase {
 		this.addDragWindow();
 
 		// Make it resizable
-		this.bodyEl = this.currentView.getElementsByClassName('pw-body')[0];
-		this.titleBarEl = this.currentView.getElementsByClassName('pw-title-bar')[0];
 		this.maximizeBt = this._dialog.getElementsByClassName('icon-maximize')[0];
 		this.restoreBt = this._dialog.getElementsByClassName('icon-windows')[0];
 
@@ -9288,22 +9577,41 @@ class PowerWindow extends PowerDialogBase {
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
 
-		const menus = this.$powerUi.menus.filter(m=> m.menu.isFixed === true);
-		for (const menu of menus) {
-			if (menu.menu.menuPosition === 'top') {
-				this.adjustTop = this.adjustTop + menu.menu.element.offsetHeight;
-			} else if (menu.menu.menuPosition === 'bottom') {
-				this.adjustHeight = this.adjustHeight + menu.menu.element.offsetHeight;
-			}
-		}
+
 		if (this.isMaximized) {
 			this.maximize();
+		} else {
+			this.restore();
 		}
+
+		this.restoreScrollPosition(view);
 	}
 
-	// Adapt window to fixed menus and maybe also other power components
+	// Adapt window to fixed bars and maybe also other power components
 	adjustWindowWithComponents() {
-		if (this.isMaximized) {
+		this.adjustTop = 0;
+		this.adjustHeight = 0;
+		this.adjustWidth = 0;
+		this.adjustLeft = 0;
+		const bars = this.$powerUi.componentsManager.bars.filter(b=> b.bar.isFixed === true);
+		for (const bar of bars) {
+			if (!bar.bar.ignore && bar.bar.barPosition === 'top') {
+				this.adjustTop = this.adjustTop + bar.bar.element.offsetHeight;
+			} else if (!bar.bar.ignore && bar.bar.barPosition === 'bottom') {
+				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
+			} else if (bar.bar.ignore && bar.bar.barPosition === 'right') {
+				this.adjustWidth = this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+			} else if (bar.bar.ignore && bar.bar.barPosition === 'left') {
+				this.adjustLeft = this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+			}
+		}
+		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
+			const _appContainer = document.getElementById('app-container');
+			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
+			this._dialog.style['padding-left'] = 0;
+			this._dialog.style['padding-right'] = 0;
+
 			if (this._dialog.offsetTop < this.adjustTop) {
 				this._dialog.style['padding-top'] = 0;
 				this._dialog.style.top = this.adjustTop + 'px';
@@ -9319,6 +9627,8 @@ class PowerWindow extends PowerDialogBase {
 		} else {
 			this._dialog.style['padding-top'] = '5px';
 			this._dialog.style['padding-bottom'] = '5px';
+			this._dialog.style['padding-left'] = '5px';
+			this._dialog.style['padding-right'] = '5px';
 		}
 	}
 
@@ -9326,17 +9636,28 @@ class PowerWindow extends PowerDialogBase {
 		delete this.zIndex;
 		this.saveWindowState();
 		this.removeWindowIsMaximizedFromBody();
+	}
+
+	_onRemoveView() {
+		delete this.currentWindowQuery;
+		delete this.currentMenuBreakQuery;
 		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
-		super._onRemoveCtrl();
+		if (this.$powerUi.touchdevice) {
+			this.$powerUi.onBrowserOrientationChange.unsubscribe(this._orientationChange.bind(this));
+		}
+		super._onRemoveView();
 	}
 
 	removeWindowIsMaximizedFromBody() {
 		if (document.body && document.body.classList) {
-			document.body.classList.remove('window-is-miximized');
+			document.body.classList.remove('window-is-maximized');
 		}
 	}
 
 	saveWindowState() {
+		if (!this.dialogId) {
+			return;
+		}
 		const winState = {
 			width: this._width,
 			height: this._height,
@@ -9544,27 +9865,37 @@ class PowerWindow extends PowerDialogBase {
 	browserWindowResize() {
 		if (this.isMaximized) {
 			this.maximize();
+		} else {
+			this.restore();
 		}
+	}
+
+	_orientationChange(event) {
+		this.browserWindowResize();
+	}
+
+	_maximizeDialog() {
+		this._dialog.style.top = -5 + 'px';
+		this._dialog.style.left = -5 + 'px';
+		this._dialog.style.height = window.innerHeight + 'px';
+		this._dialog.style.width = window.innerWidth + 'px';
+		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 	}
 
 	maximize(event) {
 		if (event) {
 			event.preventDefault();
 		}
+		this._maximizeDialog();
 		this.maximizeBt.style.display = 'none';
 		this.restoreBt.style.display = 'block';
-		this._dialog.style.top = -5 + 'px';
-		this._dialog.style.left = -5 + 'px';
-		this._dialog.style.height = window.innerHeight + 'px';
-		this._dialog.style.width = window.innerWidth + 'px';
-		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 		this.isMaximized = true;
 		this.saveWindowState();
-		this.replaceSizeQueries();
 		if (document.body && document.body.classList) {
-			document.body.classList.add('window-is-miximized');
+			document.body.classList.add('window-is-maximized');
 		}
 		this.adjustWindowWithComponents();
+		this.replaceSizeQueries();
 	}
 
 	restore(event) {
@@ -9573,16 +9904,20 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.maximizeBt.style.display = 'block';
 		this.restoreBt.style.display = 'none';
-		this._dialog.style.top = this._top + 'px';
-		this._dialog.style.left = this._left + 'px';
-		this._dialog.style.height = this._height + 'px';
-		this._dialog.style.width = this._width + 'px';
-		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		if (!this.$powerUi.componentsManager.smallWindowMode) {
+			this._dialog.style.top = this._top + 'px';
+			this._dialog.style.left = this._left + 'px';
+			this._dialog.style.height = this._height + 'px';
+			this._dialog.style.width = this._width + 'px';
+			this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
+		} else {
+			this._maximizeDialog();
+		}
 		this.isMaximized = false;
 		this.saveWindowState();
-		this.replaceSizeQueries();
 		this.removeWindowIsMaximizedFromBody();
 		this.adjustWindowWithComponents();
+		this.replaceSizeQueries();
 	}
 
 	setAllWindowElements() {
@@ -9652,7 +9987,7 @@ class PowerWindow extends PowerDialogBase {
 	// Allow simulate midia queries with power-window
 	replaceWindowSizeQuery() {
 		let changeWindowQueryTo = this.currentWindowQuery;
-		let width = this._width;
+		let width = this._dialog.offsetWidth;
 		if (this.isMaximized) {
 			width = window.innerWidth;
 		}
@@ -9740,7 +10075,8 @@ class PowerWindow extends PowerDialogBase {
 	dragMouseDown(event) {
 		event = event || window.event;
 		event.preventDefault();
-		if (this.isMaximized) {
+		if (this.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
+			this._dialog.classList.add('pw-active');
 			return;
 		}
 		this.$powerUi._dragging = true;
@@ -9814,7 +10150,7 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.zIndex = this.zIndex;
 		this.$powerUi.dialogs.push({id: this.dialogId, ctrl: this});
 		// Prevent set the active if dragging or resizing
-		if (!preventActivateWindow) {
+		if (!preventActivateWindow || this.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
 			this._dialog.classList.add('pw-active');
 		} else {
 			this._dialog.classList.remove('pw-active');
@@ -9823,10 +10159,11 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	reorderDialogsList() {
+		// Run once and reset reorder to false so refresh can re-run it
+		this.$powerUi.reorder = false;
 		if (this.$powerUi.dialogs.length <= 1) {
 			return;
 		}
-
 		this.$powerUi.dialogs.sort(function (a, b) {
 			if (a.ctrl.zIndex > b.ctrl.zIndex) {
 				return 1;
@@ -9854,6 +10191,7 @@ class PowerWindowIframe extends PowerWindow {
 		if (event) {
 			event.preventDefault();
 		}
+		this._dialog.classList.add('pw-active');
 		super.maximize(event);
 		this.resizeIframeAndCover();
 	}
@@ -9861,6 +10199,9 @@ class PowerWindowIframe extends PowerWindow {
 	restore(event) {
 		if (event) {
 			event.preventDefault();
+		}
+		if (this.$powerUi.componentsManager.smallWindowMode) {
+			this._dialog.classList.add('pw-active');
 		}
 		super.restore(event);
 		this.resizeIframeAndCover();
@@ -10540,6 +10881,9 @@ class PowerMenu extends PowerTarget {
 		this.powerTarget = true;
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
+		// Menu priority
+		this.priority = this.element.getAttribute('data-pw-priority');
+		this.priority = this.priority ? parseInt(this.priority) : null;
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
 		if (this.element.classList.contains('pw-horizontal')) {
 			this.orientation = 'horizontal';
@@ -10554,18 +10898,33 @@ class PowerMenu extends PowerTarget {
 			this.isFixed = false;
 		}
 		if (this.element.classList.contains('pw-top')) {
-			this.menuPosition = 'top';
+			this.barPosition = 'top';
 		} else if (this.element.classList.contains('pw-bottom')) {
-			this.menuPosition = 'bottom';
+			this.barPosition = 'bottom';
+		} else if (this.element.classList.contains('pw-left')) {
+			this.barPosition = 'left';
+		} else if (this.element.classList.contains('pw-right')) {
+			this.barPosition = 'right';
+		}
+		if (this.element.classList.contains('pw-ignore')) {
+			this.ignore = true;
 		}
 	}
 
 	onRemove() {
-		this.$powerUi.menus = this.$powerUi.menus.filter(menu=> menu.id !== this.id);
+		// Remove this menu bar from componentsManager.bars
+		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.stopObserve(this.element);
+		}
 	}
 
 	init() {
-		this.$powerUi.menus.push({id: this.id, menu: this});
+		// Add this menu bar to componentsManager.bars
+		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.observe(this.element);
+		}
 
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
