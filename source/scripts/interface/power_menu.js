@@ -43,11 +43,17 @@ class PowerMenu extends PowerTarget {
 	onRemove() {
 		// Remove this menu bar from componentsManager.bars
 		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.stopObserve(this.element);
+		}
 	}
 
 	init() {
 		// Add this menu bar to componentsManager.bars
 		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.observe(this.element);
+		}
 
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');

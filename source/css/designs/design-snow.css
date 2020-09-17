@@ -50,7 +50,6 @@
     color: #F5F5F5;
 }
 .pwdesign-white-smoke .power-menu > span.power-action:hover, .pwdesign-white-smoke .power-menu > span.power-item:hover, .pwdesign-white-smoke .power-menu > a.power-action:hover, .pwdesign-white-smoke .power-menu > a.power-item:hover, .pwdesign-white-smoke .power-menu > div.power-action:hover, .pwdesign-white-smoke .power-menu > div.power-item:hover {
-    font-weight: bold;
     text-shadow: 0px 0px 11px rgb(0, 172, 230);
 }
 

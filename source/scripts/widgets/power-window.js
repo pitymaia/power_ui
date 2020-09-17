@@ -125,7 +125,7 @@ class PowerWindow extends PowerDialogBase {
 		delete this.currentMenuBreakQuery;
 		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
 		if (this.$powerUi.touchdevice) {
-			this.$powerUi.onBrowserOrientationChange.unsubscribe(this.browserWindowResize.bind(this));
+			this.$powerUi.onBrowserOrientationChange.unsubscribe(this._orientationChange.bind(this));
 		}
 		super._onRemoveView();
 	}

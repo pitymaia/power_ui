@@ -138,7 +138,46 @@ class KeyboardManager {
 class ComponentsManager {
 	constructor($powerUi) {
 		this.$powerUi = $powerUi;
-		this.bars = []
+		this.bars = [];
+		this.observing = {};
+		this.startObserver();
+	}
+
+	observe(element) {
+		this.observing[element.id] = {};
+		this.observing[element.id].element = element;
+		this.observing[element.id].lastWidth = element.offsetWidth;
+		this.observing[element.id].lastHeight = element.offsetHeight;
+	}
+
+	stopObserve(element) {
+		this.observing[element.id] = null;
+		delete this.observing[element.id];
+	}
+
+	startObserver() {
+		const self = this;
+		setInterval(function () {
+			let hasChange = false;
+			for (const key of Object.keys(self.observing)) {
+				const lastWidth = self.observing[key].lastWidth;
+				const currentWidth = self.observing[key].element.offsetWidth;
+				const lastHeight = self.observing[key].lastHeight;
+				const currentHeight = self.observing[key].element.offsetHeight;
+				const active = self.observing[key].element.classList.contains('power-active');
+				if ((!active && lastWidth && lastHeight) && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
+					self.observing[key].lastWidth = currentWidth;
+					self.observing[key].lastHeight = currentHeight;
+					hasChange = true;
+				}
+			}
+
+			if (hasChange) {
+				self.running = true;
+				self.$powerUi.onBrowserWindowResize.broadcast();
+				self.hasChange = false;
+			}
+		}, 100);
 	}
 
 	toggleSmallWindowMode() {
@@ -160,10 +199,12 @@ class ComponentsManager {
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
 	}
+
 	_orientationChange() {
 		// window.alert(window.innerWidth);
 		this._browserWindowResize();
 	}
+
 	_routeChange() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.barsSizeAndPosition();
