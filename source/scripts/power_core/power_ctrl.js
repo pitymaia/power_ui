@@ -83,6 +83,22 @@ class PowerController extends PowerScope {
 		});
 	}
 
+	_onViewLoad() {
+		if (this._viewId === 'main-view') {
+			const _appContainer = document.getElementById('app-container');
+			_appContainer.scrollTop = this._currentScrollTop || 0;
+			_appContainer.scrollLeft = this._currentScrollLeft || 0;
+		}
+	}
+
+	_onRemoveView() {
+		if (this._viewId === 'main-view') {
+			const _appContainer = document.getElementById('app-container');
+			this._currentScrollTop = _appContainer.scrollTop;
+			this._currentScrollLeft = _appContainer.scrollLeft;
+		}
+	}
+
 	addCommands(commands) {
 		this.router.engineCommands.addCommands(commands);
 	}
