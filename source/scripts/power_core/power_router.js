@@ -1404,7 +1404,13 @@ class Router {
 				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
+				if (target === '_single') {
+					this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
+				} else {
+					const oldHash = this.getOpenedSecundaryRoutesHash();
+					const newRoute = this.buildHash({routeId, params, paramKeys}) + oldHash;
+					this.navigate({hash: newRoute, title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
+				}
 			}
 		}
 	}
@@ -1419,6 +1425,17 @@ class Router {
 			if (filter.lenght === 0 || !filter.includes(route)) {
 				oldHash = oldHash + `?${routeKind}=${route}`;
 			}
+		}
+		return oldHash;
+	}
+
+	// Get the hash definition of current secundary and hidden routes
+	getOpenedSecundaryRoutesHash() {
+		const routeParts = this.extractRouteParts(window.location.hash);
+		let oldHash = '';
+		for (let route of routeParts.secundaryRoutes) {
+			route = route.replace(this.config.rootPath, '');
+			oldHash = oldHash + `?sr=${route}`;
 		}
 		return oldHash;
 	}

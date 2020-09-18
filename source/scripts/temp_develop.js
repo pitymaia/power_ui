@@ -1879,6 +1879,7 @@ class RootScope extends PowerController {
 	goPowerThird2() {
 		this.openRoute({
 			routeId: 'third-level2',
+			target: '_single',
 		});
 	}
 
