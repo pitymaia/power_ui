@@ -559,6 +559,9 @@ class JSONSchemaService extends PowerServices {
 			const menuEl = tmpEl.children[0];
 
 			// Set menu css styles
+			if (menu.mirrored) {
+				menuEl.classList.add('pw-mirrored');
+			}
 			if (menu.position === 'fixed-top') {
 				menuEl.classList.add('pw-menu-fixed');
 				menuEl.classList.add('pw-top');
@@ -677,7 +680,6 @@ class JSONSchemaService extends PowerServices {
 			if (!dropmenu.classList) {
 				dropmenu.classList = [];
 			}
-
 
 			dropmenu.classList.push(isMenu ? 'power-menu' : 'power-dropmenu');
 
