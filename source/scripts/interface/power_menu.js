@@ -21,7 +21,7 @@ class PowerMenu extends PowerTarget {
 			this.orientation = 'vertical';
 			this.defaultPosition = this.defaultPosition || 'right-bottom';
 		}
-		if (this.element.classList.contains('pw-menu-fixed')) {
+		if (this.element.classList.contains('pw-bar-fixed')) {
 			this.isFixed = true;
 		} else {
 			this.isFixed = false;

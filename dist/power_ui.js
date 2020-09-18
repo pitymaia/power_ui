@@ -2063,7 +2063,7 @@ class PowerUi extends _PowerUiBase {
 			this.powerTree.removeAllEvents();
 		}
 		this._createPowerTree();
-		this.tmp = {dropmenu: {}};
+		this.tmp = {dropmenu: {}, menu: {}};
 		// If not touchdevice add keyboardManager
 		// if (!this.touchdevice) {
 		// 	this.keyboardManager = new KeyboardManager(this);
@@ -2990,31 +2990,34 @@ class JSONSchemaService extends PowerServices {
 					}
 				}
 			}
-			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true);
+			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true, menu.flip);
 
 			const menuEl = tmpEl.children[0];
 
 			// Set menu css styles
+			if (menu.mirrored) {
+				menuEl.classList.add('pw-mirrored');
+			}
 			if (menu.position === 'fixed-top') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-top');
 				if (!menu.orientation || menu.orientation === 'horizontal') {
 					menuEl.classList.add('pw-horizontal');
 				}
 			} else if (menu.position === 'fixed-bottom') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-bottom');
 				if (!menu.orientation || menu.orientation === 'horizontal') {
 					menuEl.classList.add('pw-horizontal');
 				}
 			} else if (menu.position === 'fixed-left') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-left');
 				if (!menu.orientation || menu.orientation === 'vertical') {
 					menuEl.classList.add('pw-vertical');
 				}
 			} else if (menu.position === 'fixed-right') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-right');
 				if (!menu.orientation || menu.orientation === 'vertical') {
 					menuEl.classList.add('pw-vertical');
@@ -3081,7 +3084,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	dropmenu(_dropmenu, mirrored, isMenu) {
+	dropmenu(_dropmenu, mirrored, isMenu, flip) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);
 		const dropmenuPosition = isMenu ? dropmenu.dropMenuPosition : dropmenu.position;
@@ -3130,7 +3133,13 @@ class JSONSchemaService extends PowerServices {
 
 			for (const item of dropmenu.items) {
 				const itemHolderEl = document.createElement('div');
-
+				if (flip && item.status && item.status.active) {
+					if (item.status.active.includes('down')) {
+						item.status.active = item.status.active.replace('down', 'up');
+					} else if (item.status.active.includes('up')) {
+						item.status.active = item.status.active.replace('up', 'down');
+					}
+				}
 				if (item.item) {
 					itemHolderEl.innerHTML = this.item({
 						item: item.item,
@@ -3168,7 +3177,7 @@ class JSONSchemaService extends PowerServices {
 				} else if (item.dropmenu && !item.button) {
 					// Add submenu if have one and is not a button
 					const submenuHolderEl = document.createElement('div');
-					submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored);
+					submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, null, flip);
 					tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 				}
 			}
@@ -3252,11 +3261,11 @@ class JSONSchemaService extends PowerServices {
 			buttonEl.classList.add('power-action');
 
 			if (dropMenuButton.status) {
-				this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored});
+				this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored, flip: dropMenuButton.button.flip});
 			}
 
 			// Create dropmenu
-			tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored);
+			tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored, dropMenuButton.button.flip);
 
 			return tmpEl.innerHTML;
 		}
@@ -4511,6 +4520,22 @@ class PowerController extends PowerScope {
 			data: data,
 			commands: commands,
 		});
+	}
+
+	_onViewLoad() {
+		if (this._viewId === 'main-view') {
+			const _appContainer = document.getElementById('app-container');
+			_appContainer.scrollTop = this._currentScrollTop || 0;
+			_appContainer.scrollLeft = this._currentScrollLeft || 0;
+		}
+	}
+
+	_onRemoveView() {
+		if (this._viewId === 'main-view') {
+			const _appContainer = document.getElementById('app-container');
+			this._currentScrollTop = _appContainer.scrollTop;
+			this._currentScrollLeft = _appContainer.scrollLeft;
+		}
 	}
 
 	addCommands(commands) {
@@ -6086,7 +6111,13 @@ class Router {
 				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
 			// Close all secundary views and open the route in the main view
 			} else {
-				this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
+				if (target === '_single') {
+					this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
+				} else {
+					const oldHash = this.getOpenedSecundaryRoutesHash();
+					const newRoute = this.buildHash({routeId, params, paramKeys}) + oldHash;
+					this.navigate({hash: newRoute, title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
+				}
 			}
 		}
 	}
@@ -6101,6 +6132,17 @@ class Router {
 			if (filter.lenght === 0 || !filter.includes(route)) {
 				oldHash = oldHash + `?${routeKind}=${route}`;
 			}
+		}
+		return oldHash;
+	}
+
+	// Get the hash definition of current secundary and hidden routes
+	getOpenedSecundaryRoutesHash() {
+		const routeParts = this.extractRouteParts(window.location.hash);
+		let oldHash = '';
+		for (let route of routeParts.secundaryRoutes) {
+			route = route.replace(this.config.rootPath, '');
+			oldHash = oldHash + `?sr=${route}`;
 		}
 		return oldHash;
 	}
@@ -9151,17 +9193,23 @@ class PowerDialogBase extends PowerWidget {
 			super.closeCurrentRoute({commands: commands, callback: callback});
 		} else {
 			// If not opened, call the next in the queue
-			this.$powerUi._events['Escape'].broadcast();
+			this.$powerUi._events.Escape.broadcast();
 		}
 	}
 
 	_onRemoveView() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
-		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
+		if (!this.isWindow) {
+			this.$powerUi._events.Escape.unsubscribe(this._closeWindow);
+		}
+		this._currentScrollTop = this.bodyEl.scrollTop || 0;
+		this._currentScrollLeft = this.bodyEl.scrollLeft || 0;
 	}
 
 	_onViewLoad(view, hasCustomScroll, hasCustomLimits) {
-		this.$powerUi._events['Escape'].subscribe(this._closeWindow);
+		if (!this.isWindow) {
+			this.$powerUi._events.Escape.subscribe(this._closeWindow);
+		}
 		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
 		if (this.$powerUi.touchdevice) {
 			this.$powerUi.onBrowserOrientationChange.subscribe(this._orientationChange.bind(this));
@@ -9215,16 +9263,8 @@ class PowerDialogBase extends PowerWidget {
 	}
 
 	restoreScrollPosition(view) {
-		const container = view.getElementsByClassName('pw-container')[0];
-		const body = view.getElementsByClassName('pw-body')[0];
-		if (container) {
-			container.scrollTop = this._containerScrollTop || 0;
-			container.scrollLeft = this._containerScrollLeft || 0;
-		}
-		if (body) {
-			body.scrollTop = this._bodyScrollTop || 0;
-			body.scrollLeft = this._bodyScrollLeft || 0;
-		}
+		this.bodyEl.scrollTop = this._currentScrollTop || 0;
+		this.bodyEl.scrollLeft = this._currentScrollLeft || 0;
 	}
 
 	$buttons() {
@@ -9583,6 +9623,8 @@ class PowerWindow extends PowerDialogBase {
 		} else {
 			this.restore();
 		}
+
+		this.replaceSizeQueries();
 
 		this.restoreScrollPosition(view);
 	}
@@ -10003,12 +10045,9 @@ class PowerWindow extends PowerDialogBase {
 		} else {
 			changeWindowQueryTo = 'pw-wsize-extra-large';
 		}
-
-		if (this.currentWindowQuery === undefined || this.currentWindowQuery !== changeWindowQueryTo) {
-			this.removeWindowQueries();
-			this._dialog.classList.add(changeWindowQueryTo);
-			this.currentWindowQuery = changeWindowQueryTo;
-		}
+		this.removeWindowQueries();
+		this._dialog.classList.add(changeWindowQueryTo);
+		this.currentWindowQuery = changeWindowQueryTo;
 	}
 
 	// Remove any window midia query from window classes
@@ -10033,13 +10072,11 @@ class PowerWindow extends PowerDialogBase {
 			changeMenuBreakQueryTo = false;
 		}
 
-		if (this.currentMenuBreakQuery === undefined || this.currentMenuBreakQuery !== changeMenuBreakQueryTo) {
-			this.removeMenuBreakQuery();
-			if (changeMenuBreakQueryTo) {
-				this._dialog.classList.add(changeMenuBreakQueryTo);
-			}
-			this.currentMenuBreakQuery = changeMenuBreakQueryTo;
+		this.removeMenuBreakQuery();
+		if (changeMenuBreakQueryTo) {
+			this._dialog.classList.add(changeMenuBreakQueryTo);
 		}
+		this.currentMenuBreakQuery = changeMenuBreakQueryTo;
 	}
 
 	removeMenuBreakQuery() {
@@ -10456,6 +10493,65 @@ class PowerToggle extends PowerAction {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-toggle'});
 
+class _PowerBarsBase extends PowerTarget {
+	constructor(bar, $powerUi) {
+		super(bar);
+		this.isMenu = true;
+		this.$powerUi = $powerUi;
+		this.order = 0;
+		this._$pwActive = false;
+		// this.element = bar;
+		this.id = this.element.getAttribute('id');
+		this.powerTarget = true;
+		// The position the dropmenu will try to appear by default
+		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
+		// Bar priority
+		this.priority = this.element.getAttribute('data-pw-priority');
+		this.priority = this.priority ? parseInt(this.priority) : null;
+		// If user does not define a default position, see if is horizontal or vertical bar and set a defeult value
+		if (this.element.classList.contains('pw-horizontal')) {
+			this.orientation = 'horizontal';
+			this.defaultPosition = this.defaultPosition || 'bottom-right';
+		} else {
+			this.orientation = 'vertical';
+			this.defaultPosition = this.defaultPosition || 'right-bottom';
+		}
+		if (this.element.classList.contains('pw-bar-fixed')) {
+			this.isFixed = true;
+		} else {
+			this.isFixed = false;
+		}
+		if (this.element.classList.contains('pw-top')) {
+			this.barPosition = 'top';
+		} else if (this.element.classList.contains('pw-bottom')) {
+			this.barPosition = 'bottom';
+		} else if (this.element.classList.contains('pw-left')) {
+			this.barPosition = 'left';
+		} else if (this.element.classList.contains('pw-right')) {
+			this.barPosition = 'right';
+		}
+		if (this.element.classList.contains('pw-ignore')) {
+			this.ignore = true;
+		}
+	}
+
+	onRemove() {
+		// Remove this menu bar from componentsManager.bars
+		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.stopObserve(this.element);
+		}
+	}
+
+	init() {
+		// Add this bar to componentsManager.bars
+		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.observe(this.element);
+		}
+	}
+}
+
 class PowerBrand extends PowerTarget {
 	constructor(element) {
 		super(element);
@@ -10522,7 +10618,7 @@ class PowerDropmenu extends PowerTarget {
 	hoverModeOn() {
 		// Abort if is moving
 		if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
-			// Using may moving over the same element, only add new target if not the same target
+			// User may move over the same element, only add new target if not the same target
 			if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo.id !== this.id) {
 				this.moveOverPossibleNewTarget(this);
 			}
@@ -10892,7 +10988,7 @@ class PowerMenu extends PowerTarget {
 			this.orientation = 'vertical';
 			this.defaultPosition = this.defaultPosition || 'right-bottom';
 		}
-		if (this.element.classList.contains('pw-menu-fixed')) {
+		if (this.element.classList.contains('pw-bar-fixed')) {
 			this.isFixed = true;
 		} else {
 			this.isFixed = false;
@@ -10917,6 +11013,14 @@ class PowerMenu extends PowerTarget {
 		if (this.isFixed) {
 			this.$powerUi.componentsManager.stopObserve(this.element);
 		}
+
+		for (const action of this.childrenPowerActions) {
+			// Only atach the windows like behaviour if not a touchdevice
+			if (!this.$powerUi.touchdevice) {
+				action.unsubscribe({event: 'click', fn: this.hoverModeOn, menu: this});
+				action.unsubscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, menu: this});
+			}
+		}
 	}
 
 	init() {
@@ -10926,8 +11030,10 @@ class PowerMenu extends PowerTarget {
 			this.$powerUi.componentsManager.observe(this.element);
 		}
 
-		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
+		// Child powerActions - Hold all the power actions in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
+		// Child powerItem - Hold all the power items in this menu, but not the ones on the internal Power dropmenus
+		this.childrenPowerItems = this.getChildrenByPowerCss('powerItem');
 		// Inner powerActions without the childrens - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this menu
 		this.innerPowerActionsWithoutChildren = this.getInnerWithoutChildrenByPowerCss('powerAction');
 		// Child powerDropmenus - Hold all the power Dropmenus in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
@@ -10951,22 +11057,62 @@ class PowerMenu extends PowerTarget {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
 				action.subscribe({event: 'click', fn: this.hoverModeOn, menu: this});
-				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, menu: this});
+				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, menu: this});
 			}
 		}
 	}
 
 	hoverModeOn(ctx, event, params) {
+		// Abort if is moving
+		if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo) {
+			// User may move over the same element, only add new target if not the same target
+			if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo.id !== params.menu.id) {
+				params.menu.moveOverPossibleNewTarget(params.action);
+			}
+			return;
+		}
 		for (const action of params.menu.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
+			action.subscribe({event: 'click', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
 
 	onMouseEnterAction(ctx, event, params) {
-		params.menu.resetAnyDropdownTmpInfo();
-		// Only call toggle if is not active
-		if (!params.action._$pwActive) {
-			params.action.toggle();
+		// Abort if is moving
+		if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo) {
+			// User may moving over the same element, only add new target if not the same target
+			if (params.menu.$powerUi.tmp.menu._mouseIsMovingTo.id !== params.action.id) {
+				params.menu.moveOverPossibleNewTarget(params.action);
+			}
+			return;
+		}
+		if (params.action._$pwActive) {
+			return;
+		}
+		params.action.toggle();
+		params.menu.onMouseEnterItem(ctx, event, params, true);
+		for (const item of params.menu.childrenPowerItems) {
+			item.subscribe({event: 'mouseenter', fn: params.menu.onMouseEnterItem, action: params.action, menu: params.menu, item: item});
+		}
+		params.menu.startWatchMouseMove(ctx, event, params);
+	}
+
+	onMouseEnterItem(ctx, event, params, onMouseEnterAction) {
+		// Abort if is moving
+		if (this.$powerUi.tmp.menu._mouseIsMovingTo) {
+			// User may moving over the same element, only add new target if not the same target
+			if (this.$powerUi.tmp.menu._mouseIsMovingTo.id !== params.action.id) {
+				params.menu.moveOverPossibleNewTarget(params.action);
+			}
+			return;
+		}
+		// This can be called from onMouseEnterAction and in this case we don't want call the toggle
+		if (!onMouseEnterAction) {
+			// Only call toggle if is active
+			if (params.action._$pwActive) {
+				params.action.toggle();
+			}
+
 		}
 
 		// Close any child possible active dropmenu
@@ -10981,6 +11127,12 @@ class PowerMenu extends PowerTarget {
 				action.toggle();
 			}
 		}
+
+		// Unsubscribe from all the power items mouseenter
+		for (const item of params.menu.childrenPowerItems) {
+			item.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterItem, action: params.action, menu: params.menu});
+		}
+
 	}
 
 	maySetHoverModeOff(ctx, event, params) {
@@ -10996,20 +11148,58 @@ class PowerMenu extends PowerTarget {
 			// If there is no active action, set hover mode to off
 			if (someDropdownIsOpen === false) {
 				params.menu.hoverModeOff(ctx, event, params);
+			} else {
+				params.menu.startWatchMouseMove(ctx, event, params);
 			}
 		}, 50);
 	}
-
-	hoverModeOff(ctx, level, params) {
+	// Deactivate hover mode
+	hoverModeOff(ctx, event, params) {
+		params.menu.stopWatchMouseMove();
 		for (const action of params.menu.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
+			action.unsubscribe({event: 'click', fn: params.menu.onMouseEnterAction, action: action, menu: params.menu});
 		}
 	}
-	resetAnyDropdownTmpInfo() {
-		this.$powerUi.tmp.dropmenu._mouseIsMovingTo = false;
-		this.$powerUi.tmp.dropmenu._possibleNewTarget = false;
-		clearTimeout(this.$powerUi.tmp.dropmenu.timeout);
-		document.removeEventListener('mousemove', this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
+
+	// Bellow functions temporary abort the hover mode to give time to users move to the opened dropmenu
+	moveOverPossibleNewTarget(item) {
+		this.$powerUi.tmp.menu._possibleNewTarget = item;
+	}
+	onmousestop() {
+		// Only stopWatchMouseMove if the _possibleNewTarget are not already active
+		// If it is already active then wait user to mover over it
+		if (this.$powerUi.tmp.menu._possibleNewTarget && !this.$powerUi.tmp.menu._possibleNewTarget._$pwActive) {
+			const item = this.$powerUi.tmp.menu._possibleNewTarget;
+			setTimeout(function () {
+				item.broadcast('mouseenter');
+			}, 10);
+			this.stopWatchMouseMove();
+		} else {
+			this.$powerUi.tmp.menu._resetMouseTimeout();
+		}
+	}
+	// Called when mouse move
+	resetMouseTimeout() {
+		clearTimeout(this.$powerUi.tmp.menu.timeout);
+		this.$powerUi.tmp.menu.timeout = setTimeout(this.$powerUi.tmp.menu._onmousestop, 120);
+	}
+	startWatchMouseMove(ctx, event, params) {
+		if (this.$powerUi.tmp.menu._mouseIsMovingTo) {
+			return;
+		}
+		params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, menu: params.menu});
+		this.$powerUi.tmp.menu._mouseIsMovingTo = params.action.targetObj;
+		this.$powerUi.tmp.menu._onmousestop = this.onmousestop.bind(this);
+		this.$powerUi.tmp.menu._resetMouseTimeout = this.resetMouseTimeout.bind(this);
+		this.$powerUi.tmp.menu.timeout = setTimeout(this.$powerUi.tmp.menu._onmousestop, 300);
+		document.addEventListener('mousemove', this.$powerUi.tmp.menu._resetMouseTimeout, true);
+	}
+	stopWatchMouseMove() {
+		this.$powerUi.tmp.menu._mouseIsMovingTo = false;
+		this.$powerUi.tmp.menu._possibleNewTarget = false;
+		clearTimeout(this.$powerUi.tmp.menu.timeout);
+		document.removeEventListener('mousemove', this.$powerUi.tmp.menu._resetMouseTimeout, true);
 		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
 	}
 

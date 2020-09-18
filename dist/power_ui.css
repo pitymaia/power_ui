@@ -2851,7 +2851,7 @@ body, html {
 .power-menu.pw-vertical.pw-colapse .power-toggle {
     display: none;
 }
-.power-dropmenu.pw-mirrored {
+.pw-mirrored .power-dropmenu, .power-menu.pw-mirrored {
     text-align: right;
 }
 .power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
@@ -2982,27 +2982,27 @@ body, html {
     }
 /* power menu-break query*/
 
-.pw-menu-fixed {
+.pw-bar-fixed {
     position: fixed;
 }
 
-.power-menu.pw-menu-fixed.pw-top {
+.power-menu.pw-bar-fixed.pw-top {
     top: 0;
     left: 0;
 }
-.power-menu.pw-menu-fixed.pw-bottom {
+.power-menu.pw-bar-fixed.pw-bottom {
     bottom: 0;
     left: 0;
     margin: 0;
 }
-.power-menu.pw-menu-fixed.pw-left {
+.power-menu.pw-bar-fixed.pw-left {
     top: 0;
     left: 0;
     margin: 0;
     width: auto;
     height: 100vh;
 }
-.power-menu.pw-menu-fixed.pw-right {
+.power-menu.pw-bar-fixed.pw-right {
     top: 0;
     right: 0;
     margin: 0;
@@ -3445,14 +3445,14 @@ p.pw-spinner-label {
     padding: 0.3em 0.5em;
 }
 
-.pwdesign-white-smoke .pw-menu-fixed .power-toggle {
+.pwdesign-white-smoke .pw-bar-fixed .power-toggle {
     margin-right: 1em;
 }
-.pwdesign-white-smoke .pw-menu-fixed.pw-vertical .power-toggle {
+.pwdesign-white-smoke .pw-bar-fixed.pw-vertical .power-toggle {
     margin-right: 0;
 }
 
-.pwdesign-white-smoke  .pw-menu-fixed {
+.pwdesign-white-smoke  .pw-bar-fixed {
     width: 100%;
     z-index: 1000;
 }

@@ -31,14 +31,14 @@
     padding: 0.3em 0.5em;
 }
 
-.pwdesign-white-smoke .pw-menu-fixed .power-toggle {
+.pwdesign-white-smoke .pw-bar-fixed .power-toggle {
     margin-right: 1em;
 }
-.pwdesign-white-smoke .pw-menu-fixed.pw-vertical .power-toggle {
+.pwdesign-white-smoke .pw-bar-fixed.pw-vertical .power-toggle {
     margin-right: 0;
 }
 
-.pwdesign-white-smoke  .pw-menu-fixed {
+.pwdesign-white-smoke  .pw-bar-fixed {
     width: 100%;
     z-index: 1000;
 }

@@ -563,25 +563,25 @@ class JSONSchemaService extends PowerServices {
 				menuEl.classList.add('pw-mirrored');
 			}
 			if (menu.position === 'fixed-top') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-top');
 				if (!menu.orientation || menu.orientation === 'horizontal') {
 					menuEl.classList.add('pw-horizontal');
 				}
 			} else if (menu.position === 'fixed-bottom') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-bottom');
 				if (!menu.orientation || menu.orientation === 'horizontal') {
 					menuEl.classList.add('pw-horizontal');
 				}
 			} else if (menu.position === 'fixed-left') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-left');
 				if (!menu.orientation || menu.orientation === 'vertical') {
 					menuEl.classList.add('pw-vertical');
 				}
 			} else if (menu.position === 'fixed-right') {
-				menuEl.classList.add('pw-menu-fixed');
+				menuEl.classList.add('pw-bar-fixed');
 				menuEl.classList.add('pw-right');
 				if (!menu.orientation || menu.orientation === 'vertical') {
 					menuEl.classList.add('pw-vertical');
