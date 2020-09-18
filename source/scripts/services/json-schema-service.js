@@ -554,7 +554,7 @@ class JSONSchemaService extends PowerServices {
 					}
 				}
 			}
-			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true);
+			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true, menu.flip);
 
 			const menuEl = tmpEl.children[0];
 
@@ -645,7 +645,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	dropmenu(_dropmenu, mirrored, isMenu) {
+	dropmenu(_dropmenu, mirrored, isMenu, flip) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);
 		const dropmenuPosition = isMenu ? dropmenu.dropMenuPosition : dropmenu.position;
@@ -678,6 +678,7 @@ class JSONSchemaService extends PowerServices {
 				dropmenu.classList = [];
 			}
 
+
 			dropmenu.classList.push(isMenu ? 'power-menu' : 'power-dropmenu');
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
@@ -694,7 +695,13 @@ class JSONSchemaService extends PowerServices {
 
 			for (const item of dropmenu.items) {
 				const itemHolderEl = document.createElement('div');
-
+				if (flip && item.status && item.status.active) {
+					if (item.status.active.includes('down')) {
+						item.status.active = item.status.active.replace('down', 'up');
+					} else if (item.status.active.includes('up')) {
+						item.status.active = item.status.active.replace('up', 'down');
+					}
+				}
 				if (item.item) {
 					itemHolderEl.innerHTML = this.item({
 						item: item.item,
@@ -732,7 +739,7 @@ class JSONSchemaService extends PowerServices {
 				} else if (item.dropmenu && !item.button) {
 					// Add submenu if have one and is not a button
 					const submenuHolderEl = document.createElement('div');
-					submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored);
+					submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, null, flip);
 					tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 				}
 			}
@@ -816,11 +823,11 @@ class JSONSchemaService extends PowerServices {
 			buttonEl.classList.add('power-action');
 
 			if (dropMenuButton.status) {
-				this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored});
+				this.appendStatus({element: buttonEl, json: dropMenuButton.status, mirrored: dropMenuButton.button.mirrored, flip: dropMenuButton.button.flip});
 			}
 
 			// Create dropmenu
-			tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored);
+			tmpEl.innerHTML = tmpEl.innerHTML + this.dropmenu(dropMenuButton.dropmenu, dropMenuButton.button.mirrored, dropMenuButton.button.flip);
 
 			return tmpEl.innerHTML;
 		}

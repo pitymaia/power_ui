@@ -402,11 +402,252 @@ class SecundaryChildOfChildCtrl2 extends PowerController {
 
 class PowerMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		// console.log('Main template');
-		resolve(`<div>
+		let newTmpl = `<div>
 			<h1>This is the main page! {{ getMvalue() }}</h1>
 			<div class="power-view" id="power-main-child-view"></div>
-		</div>`);
+		</div>`;
+
+		const menu1 = {
+			// "classList": ["pw-black-white"],
+			"id": 'my-menu-main',
+			"mirrored": true,
+			"position": "fixed-right",
+			"priority": 2,
+			"ignore": false,
+			"brand": {
+				"content": "PowerEasy",
+			},
+			"items": [
+				{
+					"item": {
+						"id": "my-ss-14",
+						"label": "Books",
+						"icon": "icon-power-logo"
+					},
+					"status": {
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
+					},
+					"dropmenu": {
+						"id": "my-sd-menu-124",
+						"position": "top-right",
+						"items": [
+							{
+								"item": {
+									"id": "the-fall-124",
+									"label": "The Fall",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Albert Camus', 'title': 'The Fall'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "brave-124",
+									"label": "Brave new world",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Aldous Huxley', 'title': 'Brave new world'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "animal-farm-124",
+									"label": "Animal Farm",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Animal Farm', 'title': 'George Orwell'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "books-plus-124",
+									"label": "More Books",
+									"icon": "icon-power-logo"
+								},
+								"status": {
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
+								},
+								"dropmenu": {
+									"id": "my-books-menu-224",
+									"position": "top-right",
+									"items": [
+										{
+											"item": {
+												"id": "a1984-124",
+												"label": "1984",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'George Orwell', 'title': '1984'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "never-124",
+												"label": "Neverending Story",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Michael Ende', 'title': 'Neverending Story'})"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "stranger-124",
+												"label": "The Stranger",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openModal({'name': 'Albert Camus', 'title': 'The Stranger'})"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "games-124",
+						"label": "Games",
+						"icon": "icon-power-logo"
+					},
+					"status": {
+						"active": "icon-caret-down",
+						"inactive": "icon-caret-right",
+					},
+					"dropmenu": {
+						"id": "the-books-menu-124",
+						"position": "top-right",
+						"items": [
+							{
+								"item": {
+									"id": "mario-124",
+									"label": "New Super Mario",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openSimpleDialog()"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "starcraft-124",
+									"label": "StarCraft",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openSimpleDialog()"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "zelda-124",
+									"label": "Zelda",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openSimpleDialog()"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "more-games-124",
+									"label": "More Games",
+									"icon": "icon-power-logo"
+								},
+								"status": {
+									"active": "icon-caret-down",
+									"inactive": "icon-caret-right",
+								},
+								"dropmenu": {
+									"id": "my-games-menu-224",
+									"position": "top-right",
+									"items": [
+										{
+											"item": {
+												"id": "doom-124",
+												"label": "Doom",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openSimpleDialog()"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "quake-124",
+												"label": "Quake",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openSimpleDialog()"
+													}
+												]
+											}
+										},
+										{
+											"item": {
+												"id": "simcity-124",
+												"label": "Sim City 2000",
+												"icon": "icon-power-logo",
+												"events": [
+													{
+														"event": "onclick",
+														"fn": "openSimpleDialog()"
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+			]
+		};
+
+		newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
+
+		resolve(newTmpl);
 	}
 }
 
@@ -1009,7 +1250,8 @@ class RootScopeTemplate extends PowerTemplate {
 			"classList": ["pw-blue-white"],
 			"id": 'my-menu-12',
 			"mirrored": false,
-			"position": "fixed-left",
+			"flip": true,
+			"position": "fixed-bottom",
 			"priority": 1,
 			"ignore": false,
 			"brand": {
