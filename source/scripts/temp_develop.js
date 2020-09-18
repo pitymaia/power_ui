@@ -1515,12 +1515,12 @@ class RootScopeTemplate extends PowerTemplate {
 							{
 								"item": {
 									"id": "vcv-12",
-									"label": "New Super Mario",
+									"label": "Fake Modal",
 									"icon": "icon-power-logo",
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openSimpleDialog()"
+											"fn": "openFakeModal({name: 'Orwell', title: '1984'})"
 										}
 									]
 								}
@@ -1906,6 +1906,14 @@ class RootScope extends PowerController {
 					self.refresh(self._viewId);
 				}
 			}
+		});
+	}
+
+	openFakeModal(params) {
+		this.openRoute({
+			params: params,
+			routeId: 'component1',
+			target: '_blank',
 		});
 	}
 

@@ -10496,26 +10496,13 @@ PowerUi.injectPowerCss({name: 'power-toggle'});
 class _PowerBarsBase extends PowerTarget {
 	constructor(bar, $powerUi) {
 		super(bar);
-		this.isMenu = true;
 		this.$powerUi = $powerUi;
-		this.order = 0;
 		this._$pwActive = false;
-		// this.element = bar;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
-		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
 		// Bar priority
 		this.priority = this.element.getAttribute('data-pw-priority');
 		this.priority = this.priority ? parseInt(this.priority) : null;
-		// If user does not define a default position, see if is horizontal or vertical bar and set a defeult value
-		if (this.element.classList.contains('pw-horizontal')) {
-			this.orientation = 'horizontal';
-			this.defaultPosition = this.defaultPosition || 'bottom-right';
-		} else {
-			this.orientation = 'vertical';
-			this.defaultPosition = this.defaultPosition || 'right-bottom';
-		}
 		if (this.element.classList.contains('pw-bar-fixed')) {
 			this.isFixed = true;
 		} else {
@@ -10965,21 +10952,12 @@ class PowerMain extends _PowerBasicElementWithEvents {
 // Inject the power css on PowerUi
 PowerUi.injectPowerCss({name: 'power-main', isMain: true});
 
-class PowerMenu extends PowerTarget {
+class PowerMenu extends _PowerBarsBase {
 	constructor(menu, $powerUi) {
-		super(menu);
+		super(menu, $powerUi);
 		this.isMenu = true;
-		this.$powerUi = $powerUi;
-		this.order = 0;
-		this._$pwActive = false;
-		// this.element = menu;
-		this.id = this.element.getAttribute('id');
-		this.powerTarget = true;
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
-		// Menu priority
-		this.priority = this.element.getAttribute('data-pw-priority');
-		this.priority = this.priority ? parseInt(this.priority) : null;
 		// If user does not define a default position, see if is horizontal or vertical menu and set a defeult value
 		if (this.element.classList.contains('pw-horizontal')) {
 			this.orientation = 'horizontal';
@@ -10988,31 +10966,10 @@ class PowerMenu extends PowerTarget {
 			this.orientation = 'vertical';
 			this.defaultPosition = this.defaultPosition || 'right-bottom';
 		}
-		if (this.element.classList.contains('pw-bar-fixed')) {
-			this.isFixed = true;
-		} else {
-			this.isFixed = false;
-		}
-		if (this.element.classList.contains('pw-top')) {
-			this.barPosition = 'top';
-		} else if (this.element.classList.contains('pw-bottom')) {
-			this.barPosition = 'bottom';
-		} else if (this.element.classList.contains('pw-left')) {
-			this.barPosition = 'left';
-		} else if (this.element.classList.contains('pw-right')) {
-			this.barPosition = 'right';
-		}
-		if (this.element.classList.contains('pw-ignore')) {
-			this.ignore = true;
-		}
 	}
 
 	onRemove() {
-		// Remove this menu bar from componentsManager.bars
-		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
-		if (this.isFixed) {
-			this.$powerUi.componentsManager.stopObserve(this.element);
-		}
+		super.onRemove();
 
 		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
@@ -11024,12 +10981,7 @@ class PowerMenu extends PowerTarget {
 	}
 
 	init() {
-		// Add this menu bar to componentsManager.bars
-		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
-		if (this.isFixed) {
-			this.$powerUi.componentsManager.observe(this.element);
-		}
-
+		super.init();
 		// Child powerActions - Hold all the power actions in this menu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Child powerItem - Hold all the power items in this menu, but not the ones on the internal Power dropmenus
