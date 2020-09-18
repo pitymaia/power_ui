@@ -43,6 +43,7 @@ const distJsFiles = [
 	'source/scripts/widgets/main/power-dialog-base.js',
 	'source/scripts/widgets/main/power-dialog.js',
 	'source/scripts/widgets/*.js',
+	'source/scripts/interface/core/*.js',
 	'source/scripts/interface/*.js',
 ];
 const devJsFiles = distJsFiles; //.concat(['source/scripts/temp_develop.js']);

@@ -590,7 +590,7 @@ class PowerUi extends _PowerUiBase {
 			this.powerTree.removeAllEvents();
 		}
 		this._createPowerTree();
-		this.tmp = {dropmenu: {}, menu: {}};
+		this.tmp = {dropmenu: {}, bar: {}};
 		// If not touchdevice add keyboardManager
 		// if (!this.touchdevice) {
 		// 	this.keyboardManager = new KeyboardManager(this);

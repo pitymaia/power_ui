@@ -5,7 +5,6 @@ class _PowerBarsBase extends PowerTarget {
 		this._$pwActive = false;
 		this.order = 0; // This helps keep zIndex
 		this.id = this.element.getAttribute('id');
-		this.powerTarget = true;
 		// Bar priority
 		this.priority = this.element.getAttribute('data-pw-priority');
 		this.priority = this.priority ? parseInt(this.priority) : null;
@@ -29,7 +28,7 @@ class _PowerBarsBase extends PowerTarget {
 	}
 
 	onRemove() {
-		// Remove this menu bar from componentsManager.bars
+		// Remove this bar from componentsManager.bars
 		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
 		if (this.isFixed) {
 			this.$powerUi.componentsManager.stopObserve(this.element);

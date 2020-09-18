@@ -1,7 +1,7 @@
-class PowerMenu extends PowerActionsBar {
+class PowerToolbar extends PowerActionsBar {
 	constructor(menu, $powerUi) {
 		super(menu, $powerUi);
-		this.isMenu = true;
+		this.isToolbar = true;
 	}
 
 	onRemove() {
@@ -12,5 +12,6 @@ class PowerMenu extends PowerActionsBar {
 		super.init();
 	}
 }
+
 // Inject the power css on PowerUi
-PowerUi.injectPowerCss({name: 'power-menu', isMain: true});
+PowerUi.injectPowerCss({name: 'power-toolbar', isMain: true});
