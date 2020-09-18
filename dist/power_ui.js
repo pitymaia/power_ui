@@ -9686,7 +9686,7 @@ class PowerWindow extends PowerDialogBase {
 
 	_onRemoveView() {
 		delete this.currentWindowQuery;
-		delete this.currentMenuBreakQuery;
+		delete this.currentBarBreakQuery;
 		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize.bind(this));
 		if (this.$powerUi.touchdevice) {
 			this.$powerUi.onBrowserOrientationChange.unsubscribe(this._orientationChange.bind(this));
@@ -9980,7 +9980,7 @@ class PowerWindow extends PowerDialogBase {
 
 	replaceSizeQueries() {
 		this.replaceWindowSizeQuery();
-		this.replaceMenuBreakQuery();
+		this.replaceBarBreakQuery();
 	}
 
 	resizeRightBorder(x) {
@@ -10063,28 +10063,28 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.classList.remove('pw-wsize-extra-large');
 	}
 
-	replaceMenuBreakQuery() {
-		let changeMenuBreakQueryTo = this.currentMenuBreakQuery;
+	replaceBarBreakQuery() {
+		let changeBarBreakQueryTo = this.currentBarBreakQuery;
 		let width = this._width;
 		if (this.isMaximized) {
 			width = window.innerWidth;
 		}
 
 		if (width <= 768) {
-			changeMenuBreakQueryTo = 'pw-menu-break';
+			changeBarBreakQueryTo = 'pw-bar-break';
 		} else {
-			changeMenuBreakQueryTo = false;
+			changeBarBreakQueryTo = false;
 		}
 
-		this.removeMenuBreakQuery();
-		if (changeMenuBreakQueryTo) {
-			this._dialog.classList.add(changeMenuBreakQueryTo);
+		this.removeBarBreakQuery();
+		if (changeBarBreakQueryTo) {
+			this._dialog.classList.add(changeBarBreakQueryTo);
 		}
-		this.currentMenuBreakQuery = changeMenuBreakQueryTo;
+		this.currentBarBreakQuery = changeBarBreakQueryTo;
 	}
 
-	removeMenuBreakQuery() {
-		this._dialog.classList.remove('pw-menu-break');
+	removeBarBreakQuery() {
+		this._dialog.classList.remove('pw-bar-break');
 	}
 
 	addDragWindow() {
