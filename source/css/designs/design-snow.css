@@ -16,7 +16,7 @@
     list-style-type: none;
 }
 
-.pwdesign-white-smoke .power-menu {
+.pwdesign-white-smoke .pw-bar {
     padding: 0.5em;
     background-color: #F5F5F5;
     vertical-align: middle;
@@ -49,7 +49,7 @@
     background-color: #00ace6;
     color: #F5F5F5;
 }
-.pwdesign-white-smoke .power-menu > span.power-action:hover, .pwdesign-white-smoke .power-menu > span.power-item:hover, .pwdesign-white-smoke .power-menu > a.power-action:hover, .pwdesign-white-smoke .power-menu > a.power-item:hover, .pwdesign-white-smoke .power-menu > div.power-action:hover, .pwdesign-white-smoke .power-menu > div.power-item:hover {
+.pwdesign-white-smoke .pw-bar > span.power-action:hover, .pwdesign-white-smoke .pw-bar > span.power-item:hover, .pwdesign-white-smoke .pw-bar > a.power-action:hover, .pwdesign-white-smoke .pw-bar > a.power-item:hover, .pwdesign-white-smoke .pw-bar > div.power-action:hover, .pwdesign-white-smoke .pw-bar > div.power-item:hover {
     text-shadow: 0px 0px 11px rgb(0, 172, 230);
 }
 

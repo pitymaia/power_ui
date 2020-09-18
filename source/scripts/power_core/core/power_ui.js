@@ -849,6 +849,10 @@ class PowerUi extends _PowerUiBase {
 		return new PowerMenu(element, this);
 	}
 
+	_powerToolbar(element) {
+		return new PowerToolbar(element, this);
+	}
+
 	_powerMain(element) { // TODO need classes?
 		return new PowerMain(element, this);
 	}

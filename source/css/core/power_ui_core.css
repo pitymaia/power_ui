@@ -35,25 +35,25 @@ body, html {
 
 /* Dropdown end */
 /* Menu */
-.power-menu.pw-horizontal > *,
-.power-menu.pw-vertical > * {
+.pw-bar.pw-horizontal > *,
+.pw-bar.pw-vertical > * {
     display: inline-block;
 }
-.power-menu.pw-vertical > .power-action, .power-menu.pw-vertical > .power-item, .power-menu.pw-vertical > .power-brand {
+.pw-bar.pw-vertical > .power-action, .pw-bar.pw-vertical > .power-item, .pw-bar.pw-vertical > .power-brand {
     display: block;
 }
-.power-menu.pw-vertical {
+.pw-bar.pw-vertical {
     display: inline-block;
 }
 .power-active > .power-item, .power-active > .power-action, .power-active > .power-brand {
     display: block;
 }
 
-.power-menu.pw-horizontal.pw-colapse .power-toggle,
-.power-menu.pw-vertical.pw-colapse .power-toggle {
+.pw-bar.pw-horizontal.pw-colapse .power-toggle,
+.pw-bar.pw-vertical.pw-colapse .power-toggle {
     display: none;
 }
-.pw-mirrored .power-dropmenu, .power-menu.pw-mirrored {
+.pw-mirrored .power-dropmenu, .pw-bar.pw-mirrored {
     text-align: right;
 }
 .power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
@@ -81,105 +81,105 @@ body, html {
 
 /* end power tree view*/
 
-.power-menu.pw-horizontal {
+.pw-bar.pw-horizontal {
     display: flex;
     align-items: center;
     /*min-height: 40px;*/
 }
 
 @media screen and (max-width: 768px) {
-    .power-menu.pw-horizontal.pw-colapse.power-active .power-action,
-    .power-menu.pw-horizontal.pw-colapse.power-active .power-item,
-    .power-menu.pw-vertical.pw-colapse.power-active .power-action,
-    .power-menu.pw-vertical.pw-colapse.power-active .power-item  {
+    .pw-bar.pw-horizontal.pw-colapse.power-active .power-action,
+    .pw-bar.pw-horizontal.pw-colapse.power-active .power-item,
+    .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
+    .pw-bar.pw-vertical.pw-colapse.power-active .power-item  {
         display: block;
         width: max-content;
     }
 
-    .power-menu.pw-horizontal.pw-colapse .power-action,
-    .power-menu.pw-horizontal.pw-colapse .power-item,
-    .power-menu.pw-vertical.pw-colapse .power-action,
-    .power-menu.pw-vertical.pw-colapse .power-item {
+    .pw-bar.pw-horizontal.pw-colapse .power-action,
+    .pw-bar.pw-horizontal.pw-colapse .power-item,
+    .pw-bar.pw-vertical.pw-colapse .power-action,
+    .pw-bar.pw-vertical.pw-colapse .power-item {
         display: none;
     }
 
-    .power-menu.pw-horizontal.pw-colapse {
+    .pw-bar.pw-horizontal.pw-colapse {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .power-menu.pw-vertical.pw-colapse {
+    .pw-bar.pw-vertical.pw-colapse {
         display: flex;
         justify-content: space-between;
         align-items: top;
     }
 
 
-    .power-menu.pw-horizontal.pw-colapse.power-active,
-    .power-menu.pw-vertical.pw-colapse.power-active {
+    .pw-bar.pw-horizontal.pw-colapse.power-active,
+    .pw-bar.pw-vertical.pw-colapse.power-active {
         display: block;
         justify-content: initial;
     }
 
-    .power-menu.pw-horizontal.pw-colapse .power-toggle,
-    .power-menu.pw-vertical.pw-colapse .power-toggle {
+    .pw-bar.pw-horizontal.pw-colapse .power-toggle,
+    .pw-bar.pw-vertical.pw-colapse .power-toggle {
         display: inline-block;
         text-align: right;
     }
 
-    .power-menu.pw-vertical.pw-colapse.power-active .power-brand {
+    .pw-bar.pw-vertical.pw-colapse.power-active .power-brand {
         display: block;
     }
 
-    .power-menu.pw-vertical.pw-colapse .power-brand {
+    .pw-bar.pw-vertical.pw-colapse .power-brand {
         display: none;
     }
 
-    .power-menu.pw-horizontal.pw-colapse.power-active .power-toggle,
-    .power-menu.pw-vertical.pw-colapse.power-active .power-toggle {
+    .pw-bar.pw-horizontal.pw-colapse.power-active .power-toggle,
+    .pw-bar.pw-vertical.pw-colapse.power-active .power-toggle {
         display: none;
     }
 }
 /* power menu-break query*/
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse.power-active .power-action,
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse.power-active .power-item,
-    .pw-menu-break .power-menu.pw-vertical.pw-colapse.power-active .power-action,
-    .pw-menu-break .power-menu.pw-vertical.pw-colapse.power-active .power-item {
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-action,
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-item,
+    .pw-menu-break .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
+    .pw-menu-break .pw-bar.pw-vertical.pw-colapse.power-active .power-item {
         display: block;
         width: max-content;
     }
 
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse .power-action,
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse .power-item {
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse .power-action,
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse .power-item {
         display: none;
     }
 
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse {
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .pw-menu-break .power-menu.pw-vertical.pw-colapse {
+    .pw-menu-break .pw-bar.pw-vertical.pw-colapse {
         display: flex;
         justify-content: space-between;
         align-items: top;
     }
 
 
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse.power-active,
-    .pw-menu-break .power-menu.pw-vertical.pw-colapse.power-active {
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse.power-active,
+    .pw-menu-break .pw-bar.pw-vertical.pw-colapse.power-active {
         display: block;
         justify-content: initial;
     }
 
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse .power-toggle,
-    .pw-menu-break .power-menu.pw-vertical.pw-colapse .power-toggle {
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse .power-toggle,
+    .pw-menu-break .pw-bar.pw-vertical.pw-colapse .power-toggle {
         display: inline-block;
         text-align: right;
     }
 
-    .pw-menu-break .power-menu.pw-horizontal.pw-colapse.power-active .power-toggle,
-    .pw-menu-break .power-menu.pw-vertical.pw-colapse.power-active .power-toggle {
+    .pw-menu-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-toggle,
+    .pw-menu-break .pw-bar.pw-vertical.pw-colapse.power-active .power-toggle {
         display: none;
     }
 /* power menu-break query*/
@@ -188,36 +188,36 @@ body, html {
     position: fixed;
 }
 
-.power-menu.pw-bar-fixed.pw-top {
+.pw-bar.pw-bar-fixed.pw-top {
     top: 0;
     left: 0;
 }
-.power-menu.pw-bar-fixed.pw-bottom {
+.pw-bar.pw-bar-fixed.pw-bottom {
     bottom: 0;
     left: 0;
     margin: 0;
 }
-.power-menu.pw-bar-fixed.pw-left {
+.pw-bar.pw-bar-fixed.pw-left {
     top: 0;
     left: 0;
     margin: 0;
     width: auto;
     height: 100vh;
 }
-.power-menu.pw-bar-fixed.pw-right {
+.pw-bar.pw-bar-fixed.pw-right {
     top: 0;
     right: 0;
     margin: 0;
     width: auto;
     height: 100vh;
 }
-.power-menu.pw-menu-float {
+.pw-bar.pw-menu-float {
     width: auto;
 }
-.power-menu.pw-menu-float.pw-left {
+.pw-bar.pw-menu-float.pw-left {
     float: left;
 }
-.power-menu.pw-menu-float.pw-right {
+.pw-bar.pw-menu-float.pw-right {
     float: right;
 }
 /* Menu end*/
@@ -386,11 +386,11 @@ body.modal-open, body.window-is-maximized {
     border: none;
     cursor: pointer;
 }
-.power-menu button.pw-btn-default, .power-menu button.pw-btn-highlight, .power-menu button.pw-btn-danger, .power-menu button.pw-btn-primary, .power-menu button.pw-btn-warning, .power-menu button.pw-btn-secundary, .power-menu button.pw-btn-success, .power-menu button.pw-btn-basic {
+.pw-bar button.pw-btn-default, .pw-bar button.pw-btn-highlight, .pw-bar button.pw-btn-danger, .pw-bar button.pw-btn-primary, .pw-bar button.pw-btn-warning, .pw-bar button.pw-btn-secundary, .pw-bar button.pw-btn-success, .pw-bar button.pw-btn-basic {
     margin-top: 0;
     vertical-align: middle;
 }
-.power-menu .power-action.pw-btn-default, .power-menu .power-action.pw-btn-highlight, .power-menu .power-action.pw-btn-danger, .power-menu .power-action.pw-btn-primary, .power-menu .power-action.pw-btn-warning, .power-menu .power-action.pw-btn-secundary, .power-menu .power-action.pw-btn-success, .power-menu .power-action.pw-btn-basic {
+.pw-bar .power-action.pw-btn-default, .pw-bar .power-action.pw-btn-highlight, .pw-bar .power-action.pw-btn-danger, .pw-bar .power-action.pw-btn-primary, .pw-bar .power-action.pw-btn-warning, .pw-bar .power-action.pw-btn-secundary, .pw-bar .power-action.pw-btn-success, .pw-bar .power-action.pw-btn-basic {
     margin-top: 0;
     vertical-align: middle;
 }

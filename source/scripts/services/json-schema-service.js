@@ -681,7 +681,7 @@ class JSONSchemaService extends PowerServices {
 				dropmenu.classList = [];
 			}
 
-			dropmenu.classList.push(isMenu ? 'power-menu' : 'power-dropmenu');
+			dropmenu.classList.push(isMenu ? 'power-menu pw-bar' : 'power-dropmenu');
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 

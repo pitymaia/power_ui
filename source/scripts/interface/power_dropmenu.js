@@ -42,7 +42,7 @@ class PowerDropmenu extends PowerTarget {
 			} else {
 				this.isRootElement = true;
 			}
-			if (searchResult.powerElement.className.includes('power-menu')) {
+			if (searchResult.powerElement.className.includes('pw-bar')) {
 				this.isMenuElement = true;
 			}
 		} else {

@@ -3,6 +3,7 @@ class _PowerBarsBase extends PowerTarget {
 		super(bar);
 		this.$powerUi = $powerUi;
 		this._$pwActive = false;
+		this.isBar = true;
 		this.order = 0; // This helps keep zIndex
 		this.id = this.element.getAttribute('id');
 		// Bar priority

@@ -29,7 +29,7 @@ class PowerList extends PowerTarget {
 			this.targetObj.element.classList.remove('power-active');
 			this.element.classList.remove('power-active');
 			// Give menu a z-index to put it on top of any windows
-			if (this.$pwMain.isMenu) {
+			if (this.$pwMain.isBar) {
 				if (this.$pwMain.order > 0) {
 					this.$pwMain.order = this.$pwMain.order - 1;
 					if (this.$pwMain.order === 0) {
@@ -43,7 +43,7 @@ class PowerList extends PowerTarget {
 			this.targetObj.element.classList.add('power-active');
 			this.element.classList.add('power-active');
 			// Give menu its normal z-index
-			if (this.$pwMain.isMenu) {
+			if (this.$pwMain.isBar) {
 				if (this.$pwMain.order === 0) {
 					this.$pwMain.element.classList.add('pw-order');
 				}
