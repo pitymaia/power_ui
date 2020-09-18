@@ -66,6 +66,8 @@ class PowerWindow extends PowerDialogBase {
 			this.restore();
 		}
 
+		this.replaceSizeQueries();
+
 		this.restoreScrollPosition(view);
 	}
 
@@ -485,12 +487,9 @@ class PowerWindow extends PowerDialogBase {
 		} else {
 			changeWindowQueryTo = 'pw-wsize-extra-large';
 		}
-
-		if (this.currentWindowQuery === undefined || this.currentWindowQuery !== changeWindowQueryTo) {
-			this.removeWindowQueries();
-			this._dialog.classList.add(changeWindowQueryTo);
-			this.currentWindowQuery = changeWindowQueryTo;
-		}
+		this.removeWindowQueries();
+		this._dialog.classList.add(changeWindowQueryTo);
+		this.currentWindowQuery = changeWindowQueryTo;
 	}
 
 	// Remove any window midia query from window classes
@@ -515,13 +514,11 @@ class PowerWindow extends PowerDialogBase {
 			changeMenuBreakQueryTo = false;
 		}
 
-		if (this.currentMenuBreakQuery === undefined || this.currentMenuBreakQuery !== changeMenuBreakQueryTo) {
-			this.removeMenuBreakQuery();
-			if (changeMenuBreakQueryTo) {
-				this._dialog.classList.add(changeMenuBreakQueryTo);
-			}
-			this.currentMenuBreakQuery = changeMenuBreakQueryTo;
+		this.removeMenuBreakQuery();
+		if (changeMenuBreakQueryTo) {
+			this._dialog.classList.add(changeMenuBreakQueryTo);
 		}
+		this.currentMenuBreakQuery = changeMenuBreakQueryTo;
 	}
 
 	removeMenuBreakQuery() {

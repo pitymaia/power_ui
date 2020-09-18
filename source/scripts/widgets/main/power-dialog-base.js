@@ -59,17 +59,23 @@ class PowerDialogBase extends PowerWidget {
 			super.closeCurrentRoute({commands: commands, callback: callback});
 		} else {
 			// If not opened, call the next in the queue
-			this.$powerUi._events['Escape'].broadcast();
+			this.$powerUi._events.Escape.broadcast();
 		}
 	}
 
 	_onRemoveView() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
-		this.$powerUi._events['Escape'].unsubscribe(this._closeWindow);
+		if (!this.isWindow) {
+			this.$powerUi._events.Escape.unsubscribe(this._closeWindow);
+		}
+		this._currentScrollTop = this.bodyEl.scrollTop || 0;
+		this._currentScrollLeft = this.bodyEl.scrollLeft || 0;
 	}
 
 	_onViewLoad(view, hasCustomScroll, hasCustomLimits) {
-		this.$powerUi._events['Escape'].subscribe(this._closeWindow);
+		if (!this.isWindow) {
+			this.$powerUi._events.Escape.subscribe(this._closeWindow);
+		}
 		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
 		if (this.$powerUi.touchdevice) {
 			this.$powerUi.onBrowserOrientationChange.subscribe(this._orientationChange.bind(this));
@@ -123,16 +129,8 @@ class PowerDialogBase extends PowerWidget {
 	}
 
 	restoreScrollPosition(view) {
-		const container = view.getElementsByClassName('pw-container')[0];
-		const body = view.getElementsByClassName('pw-body')[0];
-		if (container) {
-			container.scrollTop = this._containerScrollTop || 0;
-			container.scrollLeft = this._containerScrollLeft || 0;
-		}
-		if (body) {
-			body.scrollTop = this._bodyScrollTop || 0;
-			body.scrollLeft = this._bodyScrollLeft || 0;
-		}
+		this.bodyEl.scrollTop = this._currentScrollTop || 0;
+		this.bodyEl.scrollLeft = this._currentScrollLeft || 0;
 	}
 
 	$buttons() {
