@@ -1,26 +1,13 @@
 class _PowerBarsBase extends PowerTarget {
 	constructor(bar, $powerUi) {
 		super(bar);
-		this.isMenu = true;
 		this.$powerUi = $powerUi;
-		this.order = 0;
 		this._$pwActive = false;
-		// this.element = bar;
 		this.id = this.element.getAttribute('id');
 		this.powerTarget = true;
-		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
 		// Bar priority
 		this.priority = this.element.getAttribute('data-pw-priority');
 		this.priority = this.priority ? parseInt(this.priority) : null;
-		// If user does not define a default position, see if is horizontal or vertical bar and set a defeult value
-		if (this.element.classList.contains('pw-horizontal')) {
-			this.orientation = 'horizontal';
-			this.defaultPosition = this.defaultPosition || 'bottom-right';
-		} else {
-			this.orientation = 'vertical';
-			this.defaultPosition = this.defaultPosition || 'right-bottom';
-		}
 		if (this.element.classList.contains('pw-bar-fixed')) {
 			this.isFixed = true;
 		} else {
