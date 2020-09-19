@@ -87,6 +87,17 @@ body, html {
     /*min-height: 40px;*/
 }
 
+/* toolbar pw-icons-bar */
+.pw-bar.pw-icons-bar .pw-icon {
+    font-size: 1.7em;
+}
+.pw-bar.pw-icons-bar .pw-icon.pw-status, .pw-bar.pw-icons-bar .power-status {
+    font-size: 1em;
+}
+.pw-bar.pw-icons-bar .power-action {
+    padding-right: 0;
+}
+
 @media screen and (max-width: 768px) {
     .pw-bar.pw-horizontal.pw-colapse.power-active .power-action,
     .pw-bar.pw-horizontal.pw-colapse.power-active .power-item,
@@ -139,6 +150,13 @@ body, html {
     .pw-bar.pw-vertical.pw-colapse.power-active .power-toggle {
         display: none;
     }
+
+    .pw-bar.pw-icons-bar .pw-icon {
+        font-size: 1.4em;
+    }
+    .pw-bar.pw-icons-bar .pw-icon.pw-status, .pw-bar.pw-icons-bar .power-status {
+        font-size: 1em;
+    }
 }
 /* power menu-break query*/
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-action,
@@ -181,6 +199,13 @@ body, html {
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-toggle,
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-toggle {
         display: none;
+    }
+
+    .pw-bar-break .pw-bar.pw-icons-bar .pw-icon {
+        font-size: 1.4em;
+    }
+    .pw-bar-break .pw-bar.pw-icons-bar .pw-icon.pw-status, .pw-bar-break .pw-bar.pw-icons-bar .power-status {
+        font-size: 1em;
     }
 /* power menu-break query*/
 

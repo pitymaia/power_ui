@@ -43,7 +43,9 @@
     z-index: 1000;
 }
 /* Menu end*/
-
+.pwdesign-white-smoke .pw-bar.pw-icons-bar {
+    padding: 0;
+}
 /* Dropdown */
 .pwdesign-white-smoke .power-dropmenu span.power-action:hover, .pwdesign-white-smoke .power-dropmenu span.power-item:hover, .pwdesign-white-smoke .power-dropmenu a.power-action:hover, .pwdesign-white-smoke .power-dropmenu a.power-item:hover, .pwdesign-white-smoke .power-dropmenu div.power-action:hover, .pwdesign-white-smoke .power-dropmenu div.power-item:hover {
     background-color: #00ace6;
