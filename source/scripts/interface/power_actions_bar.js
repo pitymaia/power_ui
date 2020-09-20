@@ -203,8 +203,10 @@ class PowerActionsBar extends _PowerBarsBase {
 	toggle() {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
+
+		// Removed becouse power-toggle already implement a toggle event
 		// Broadcast toggle custom event
-		this.powerAction.broadcast('toggle', true);
+		// this.powerAction.broadcast('toggle', true);
 	}
 
 	// The powerToggle call this action method

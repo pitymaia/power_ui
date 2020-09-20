@@ -61,9 +61,26 @@ body, html {
 }
 .pw-bar.pw-icons-bar, .pw-bar.pw-icons-bar.pw-show-toggle {
     display: flex;
-    /*justify-content: space-between;*/
     align-items: center;
 }
+.pw-bar.pw-icons-bar, .pw-bar.pw-icons-bar.pw-show-toggle {
+    display: flex;
+    align-items: center;
+}
+
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active {
+    display: block;
+    justify-content: initial;
+}
+
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active > .power-toggle {
+    display: none;
+}
+
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active > .power-item, .pw-bar.pw-icons-bar.pw-show-toggle.power-active > .power-action {
+    display: inline-block;
+}
+
 .pw-bar.pw-icons-bar.pw-show-toggle > .power-item:not(.pw-force-show),
 .pw-bar.pw-icons-bar.pw-show-toggle > .power-action:not(.pw-force-show) {
     visibility: hidden;
