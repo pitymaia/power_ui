@@ -54,18 +54,27 @@ body, html {
 .pw-bar.pw-icons-bar .power-toggle {
     display: none;
 }
-.pw-bar.pw-icons-bar.pw-show-toggle > .power-toggle {
+.pw-bar.pw-icons-bar.pw-show-toggle.pw-horizontal > .power-toggle {
     display: block;
     margin-right: 0.25em;
     margin-left: auto;
 }
-.pw-bar.pw-icons-bar, .pw-bar.pw-icons-bar.pw-show-toggle {
+.pw-bar.pw-icons-bar.pw-show-toggle.pw-vertical > .power-toggle {
+    display: block;
+    margin-bottom: 0.25em;
+}
+
+.pw-bar.pw-icons-bar.pw-horizontal, .pw-bar.pw-icons-bar.pw-horizontal.pw-show-toggle {
     display: flex;
     align-items: center;
 }
-.pw-bar.pw-icons-bar, .pw-bar.pw-icons-bar.pw-show-toggle {
-    display: flex;
-    align-items: center;
+.pw-bar.pw-icons-bar.pw-vertical, .pw-bar.pw-icons-bar.pw-vertical.pw-show-toggle {
+    display: block;
+}
+
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active.pw-vertical > .power-item,
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active.pw-vertical > .power-action {
+    display: inline-block;
 }
 
 .pw-bar.pw-icons-bar.pw-show-toggle.power-active {
@@ -77,7 +86,8 @@ body, html {
     display: none;
 }
 
-.pw-bar.pw-icons-bar.pw-show-toggle.power-active > .power-item, .pw-bar.pw-icons-bar.pw-show-toggle.power-active > .power-action {
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active.pw-horizontal > .power-item,
+.pw-bar.pw-icons-bar.pw-show-toggle.power-active.pw-horizontal > .power-action {
     display: inline-block;
 }
 
