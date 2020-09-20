@@ -11,6 +11,12 @@ class PowerToolbar extends PowerActionsBar {
 
 	init() {
 		super.init();
+		console.log("this.powerAction", this.powerAction);
+		if (!this.powerAction || !this.powerAction.element) {
+			throw `Toolbar ${this.id} is missing the "power-toggle" element or it's "data-power-target" attribute value is different from the toolbar id. See documentation for more details.`;
+		} else {
+			this.powerToggle = this.powerAction.element;
+		}
 	}
 
 	getChildrenTotalWidth() {
@@ -27,7 +33,7 @@ class PowerToolbar extends PowerActionsBar {
 
 	setStatus() {
 		this.barWidth = parseInt(this.element.style.width.replace('px', ''));
-		this.toggleWidth = this.powerAction.element.offsetWidth;
+		this.toggleWidth = this.powerToggle.offsetWidth;
 		if (this.getChildrenTotalWidth() >= this.barWidth) {
 			if (this.isColapsed === false) {
 				this.element.classList.add('pw-show-toggle');
@@ -43,7 +49,9 @@ class PowerToolbar extends PowerActionsBar {
 	showAndHiddeItems() {
 		let currentWidth = 0;
 		for (const child of this.element.children) {
-			if (child.classList.contains('power-item') || child.classList.contains('power-action')) {
+			const isAction = child.classList.contains('power-action');
+			const isItem = child.classList.contains('power-item');
+			if (isItem || isAction) {
 				currentWidth = currentWidth + child.offsetWidth;
 				if (currentWidth < this.barWidth - this.toggleWidth) {
 					child.classList.add('pw-force-show');

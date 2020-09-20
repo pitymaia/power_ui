@@ -54,9 +54,15 @@ body, html {
 .pw-bar.pw-icons-bar .power-toggle {
     display: none;
 }
-.pw-bar.pw-icons-bar.pw-show-toggle .power-toggle {
-    display: inline-block;
-    text-align: right;
+.pw-bar.pw-icons-bar.pw-show-toggle > .power-toggle {
+    display: block;
+    margin-right: 0.25em;
+    margin-left: auto;
+}
+.pw-bar.pw-icons-bar, .pw-bar.pw-icons-bar.pw-show-toggle {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: center;
 }
 .pw-bar.pw-icons-bar.pw-show-toggle > .power-item:not(.pw-force-show),
 .pw-bar.pw-icons-bar.pw-show-toggle > .power-action:not(.pw-force-show) {
@@ -92,11 +98,11 @@ body, html {
 
 /* end power tree view*/
 
-.pw-bar.pw-horizontal {
+/*.pw-bar.pw-horizontal {
     display: flex;
     align-items: center;
     /*min-height: 40px;*/
-}
+}*/
 
 /* toolbar pw-icons-bar */
 .pw-bar.pw-icons-bar {
