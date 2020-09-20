@@ -50,12 +50,23 @@ body, html {
 }
 
 .pw-bar.pw-horizontal.pw-colapse .power-toggle,
-.pw-bar.pw-vertical.pw-colapse .power-toggle {
+.pw-bar.pw-vertical.pw-colapse .power-toggle,
+.pw-bar.pw-icons-bar .power-toggle {
     display: none;
+}
+.pw-bar.pw-icons-bar.pw-show-toggle .power-toggle {
+    display: inline-block;
+    text-align: right;
+}
+.pw-bar.pw-icons-bar.pw-show-toggle > .power-item:not(.pw-force-show),
+.pw-bar.pw-icons-bar.pw-show-toggle > .power-action:not(.pw-force-show) {
+    visibility: hidden;
+    /*display: none;*/
 }
 .pw-mirrored .power-dropmenu, .pw-bar.pw-mirrored {
     text-align: right;
 }
+
 .power-dropmenu.power-active, .power-dropmenu.power-active > .power-dropmenu.power-active {
     display: block !important;
     white-space: nowrap;
@@ -88,6 +99,11 @@ body, html {
 }
 
 /* toolbar pw-icons-bar */
+.pw-bar.pw-icons-bar {
+    max-width: 100%;
+    min-width: 100%;
+    width: 100%;
+}
 .pw-bar.pw-icons-bar .pw-icon {
     font-size: 1.7em;
 }
@@ -104,7 +120,7 @@ body, html {
     .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-item  {
         display: block;
-        width: max-content;
+        /*width: max-content;*/
     }
 
     .pw-bar.pw-horizontal.pw-colapse .power-action,

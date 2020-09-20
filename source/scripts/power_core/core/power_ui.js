@@ -327,6 +327,9 @@ class ComponentsManager {
 				bar.bar.element.style.height = null;
 				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
+			if (bar.bar.isToolbar) {
+				bar.bar.setStatus();
+			}
 		}
 	}
 }
