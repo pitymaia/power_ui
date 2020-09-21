@@ -89,7 +89,37 @@ class PowerToolbar extends PowerActionsBar {
 				}
 			}
 		}
-		// this.powerToggle.style.top = this.barHeight - this.toggleHeight + 'px';
+		this.setMaxWidthOnActiveVerticalBar();
+	}
+
+	setMaxWidthOnActiveVerticalBar() {
+		if (!this._$pwActive) {
+			this.element.style.width = null;
+			return;
+		}
+		const firstItem = this.childrenPowerActions[0] || this.childrenPowerItems[0];
+		const firstItemWidth = firstItem.element.offsetWidth;
+
+		let maxWidth =  firstItemWidth + firstItemWidth;
+		let needIncrease = true;
+		let loops = 0;
+		while (needIncrease || loops > 30) {
+			loops = loops + 1;
+			this.element.style.width = maxWidth + 'px';
+			needIncrease = false;
+			for (const action of this.childrenPowerActions) {
+				if (action.element.offsetTop >= this.barHeight - firstItemWidth) {
+					needIncrease = true;
+				}
+			}
+
+			for (const item of this.childrenPowerItems) {
+				if (item.element.offsetTop >= this.barHeight - firstItemWidth) {
+					needIncrease = true;
+				}
+			}
+			maxWidth = maxWidth + firstItemWidth;
+		}
 	}
 
 	horizontalShowAndHiddeItems() {
