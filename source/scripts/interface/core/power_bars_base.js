@@ -40,7 +40,7 @@ class _PowerBarsBase extends PowerTarget {
 		// Add this bar to componentsManager.bars
 		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
 		if (this.isFixed) {
-			this.$powerUi.componentsManager.observe(this.element);
+			this.$powerUi.componentsManager.observe(this);
 		}
 	}
 }

@@ -143,11 +143,10 @@ class ComponentsManager {
 		this.startObserver();
 	}
 
-	observe(element) {
-		this.observing[element.id] = {};
-		this.observing[element.id].element = element;
-		this.observing[element.id].lastWidth = element.offsetWidth;
-		this.observing[element.id].lastHeight = element.offsetHeight;
+	observe(bar) {
+		this.observing[bar.id] = bar;
+		this.observing[bar.id].lastWidth = bar.element.offsetWidth;
+		this.observing[bar.id].lastHeight = bar.element.offsetHeight;
 	}
 
 	stopObserve(element) {
@@ -160,20 +159,21 @@ class ComponentsManager {
 		setInterval(function () {
 			let hasChange = false;
 			for (const key of Object.keys(self.observing)) {
+				const active = self.observing[key]._$pwActive;
 				const lastWidth = self.observing[key].lastWidth;
 				const currentWidth = self.observing[key].element.offsetWidth;
 				const lastHeight = self.observing[key].lastHeight;
 				const currentHeight = self.observing[key].element.offsetHeight;
-				const active = self.observing[key].element.classList.contains('power-active');
-				if ((!active && lastWidth && lastHeight) && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
-					self.observing[key].lastWidth = currentWidth;
-					self.observing[key].lastHeight = currentHeight;
-					hasChange = true;
+				if (!active) {
+					if (lastWidth && lastHeight && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
+						hasChange = true;
+					}
 				}
+				self.observing[key].lastWidth = currentWidth;
+				self.observing[key].lastHeight = currentHeight;
 			}
 
 			if (hasChange) {
-				self.running = true;
 				self.$powerUi.onBrowserWindowResize.broadcast();
 				self.hasChange = false;
 			}
