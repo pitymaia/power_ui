@@ -661,6 +661,129 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
+	toolbar(_toolbar) {
+		// Do not change the original JSON
+		const toolbar = this.cloneObject(_toolbar);
+		// This allow pass an array of menus
+		if (_toolbar.length) {
+			return this._arrayOfSchemas(_toolbar, 'toolbar');
+		} else if (_toolbar.$ref) {
+			// Use the original JSON
+			return this.toolbar(this.getNewJSON(_toolbar));
+		} else {
+			if (_toolbar.$id) {
+				// Register original JSON
+				this.registerJSONById(_toolbar);
+			}
+
+			if (this._validate(this.menuDef(), toolbar) === false) {
+				window.console.log('Failed JSON toolbar:', toolbar);
+				throw 'Failed JSON toolbar!';
+			}
+			if (toolbar.events) {
+				const result = this._validateEvents(toolbar.events, toolbar, 'toolbar');
+				if ( result !== true) {
+					throw result;
+				}
+			}
+
+			// Set dropmenu position
+			this._setBarDropmenuPosition(toolbar);
+
+			// Bar get its template from dropmenu
+			const tmpEl = document.createElement('div');
+			tmpEl.innerHTML =  this._buildbarEl(toolbar, toolbar.mirrored, false, toolbar.flip);
+
+			const toolbarEl = tmpEl.children[0];
+
+			// Set toolbar css styles
+			this._setBarCssStyles(toolbar, toolbarEl);
+
+			this._setBarOrientation(toolbar, toolbarEl);
+
+			// Add toolbar toggle
+			if (toolbar.colapse !== false) {
+				const dotsHolderEl = document.createElement('div');
+				dotsHolderEl.innerHTML = `<a id="${toolbar.id}-action" class="power-toggle" data-power-target="${toolbar.id}">
+					<i class="pw-icon icon-option-${toolbar.orientation}"></i>
+				</a>`;
+				const dotsEl = dotsHolderEl.children[0];
+				toolbarEl.appendChild(dotsEl);
+			}
+
+			console.log('toolbarEl', toolbarEl, toolbar.classList, toolbar);
+			// if (toolbar.classList) {
+			// 	this.appendClassList({element: toolbarEl, json: toolbar});
+			// }
+
+			return tmpEl.innerHTML;
+		}
+	}
+
+	_buildbarEl(bar, mirrored, kind, flip) {
+		if (!bar.classList) {
+			bar.classList = [];
+		}
+
+		bar.classList.push('power-toolbar pw-bar pw-icons-bar');
+
+		const tmpEl = document.createElement('div');
+		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
+
+		for (const item of bar.items) {
+			const itemHolderEl = document.createElement('div');
+			if (flip && item.status && item.status.active) {
+				if (item.status.active.includes('down')) {
+					item.status.active = item.status.active.replace('down', 'up');
+				} else if (item.status.active.includes('up')) {
+					item.status.active = item.status.active.replace('up', 'down');
+				}
+			}
+			if (item.item) {
+				itemHolderEl.innerHTML = this.item({
+					item: item.item,
+					mirrored: item.mirrored === undefined ? mirrored : item.mirrored,
+					dropmenuId: item.dropmenu ? item.dropmenu.id : false
+				});
+			} else if (item.button && item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					item.button.mirrored = mirrored;
+				}
+				itemHolderEl.innerHTML = this.dropMenuButton(item);
+			} else if (item.button && !item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					itemHolderEl.innerHTML = this.button(item.button, mirrored);
+				} else {
+					itemHolderEl.innerHTML = this.button(item.button);
+				}
+				// Buttons inside menu needs the 'power-item' class
+				itemHolderEl.children[0].classList.add('power-item');
+			}
+
+			const anchorEl = itemHolderEl.children[0];
+
+			if (item.item && !item.button) {
+				if (item.status) {
+					this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
+				}
+			}
+
+			tmpEl.children[0].appendChild(anchorEl);
+
+			// Buttons already have the menu created by dropMenuButton inside itemHolderEl
+			if (item.button && item.dropmenu) {
+				tmpEl.children[0].appendChild(itemHolderEl.children[0]);
+			} else if (item.dropmenu && !item.button) {
+				// Add submenu if have one and is not a button
+				const submenuHolderEl = document.createElement('div');
+				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, null, flip);
+				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
+			}
+		}
+
+		return tmpEl.innerHTML;
+	}
+
 	dropmenu(_dropmenu, mirrored, isMenu, flip) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);

@@ -103,7 +103,7 @@ class PowerToolbar extends PowerActionsBar {
 		let maxWidth =  firstItemWidth + firstItemWidth;
 		let needIncrease = true;
 		let loops = 0;
-		while (needIncrease || loops > 30) {
+		while (needIncrease && loops < 30) {
 			loops = loops + 1;
 			this.element.style.width = maxWidth + 'px';
 			needIncrease = false;
@@ -119,6 +119,10 @@ class PowerToolbar extends PowerActionsBar {
 				}
 			}
 			maxWidth = maxWidth + firstItemWidth;
+		}
+
+		if (loops >= 30) {
+			this.element.style.width = null;
 		}
 	}
 

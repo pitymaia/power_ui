@@ -1673,6 +1673,88 @@ class RootScopeTemplate extends PowerTemplate {
 
 		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu4);
 
+		const toolbar1 = {
+			"classList": ["pw-blue-white"],
+			"id": 'my-tool-12',
+			"mirrored": true,
+			"position": "fixed-right",
+			"ignore": false,
+			"priority": 10,
+			"items": [
+				{
+					"item": {
+						"id": "tool-item-12",
+						"label": " ",
+						"icon": "icon-power-logo",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "more-t12",
+						"label": " ",
+						"icon": "icon-food-mushroom"
+					},
+					"status": {
+						"active": "icon-caret-up",
+						"inactive": "icon-caret-down",
+					},
+					"dropmenu": {
+						"id": "my-tool-menu-22",
+						"position": "left-bottom",
+						"items": [
+							{
+								"item": {
+									"id": "sst-12",
+									"label": "Doom",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "rrt-12",
+									"label": "Quake",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+										}
+									]
+								}
+							},
+							{
+								"item": {
+									"id": "ddt-12",
+									"label": "Sim City 2000",
+									"icon": "icon-power-logo",
+									"events": [
+										{
+											"event": "onclick",
+											"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		};
+
+		// newTmpl = newTmpl + this.$service('JSONSchema').toolbar(toolbar1);
+
 		newTmpl = newTmpl + `<h1>Cats list {{ rootValue() }}</h1>
 			<div data-pow-for="cat of cats">
 				<div data-pow-event="" onclick="getCatsObj(cat)">
