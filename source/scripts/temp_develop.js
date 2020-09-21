@@ -1753,7 +1753,7 @@ class RootScopeTemplate extends PowerTemplate {
 			]
 		};
 
-		// newTmpl = newTmpl + this.$service('JSONSchema').toolbar(toolbar1);
+		newTmpl = newTmpl + this.$service('JSONSchema').toolbar(toolbar1);
 
 		newTmpl = newTmpl + `<h1>Cats list {{ rootValue() }}</h1>
 			<div data-pow-for="cat of cats">

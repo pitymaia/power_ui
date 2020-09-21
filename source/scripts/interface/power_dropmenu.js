@@ -364,7 +364,7 @@ class PowerDropmenu extends PowerTarget {
 			// Also add anny scrollTop and scrollLeft
 			scrollTop = scrollTop + element.scrollTop;
 			scrollLeft = scrollLeft + element.scrollLeft;
-			if (window.getComputedStyle(element).getPropertyValue('position') === 'fixed') {
+			if (window.getComputedStyle(element).getPropertyValue('position') === 'fixed' || element.id === 'app-container') {
 				return true;
 			}
 		});

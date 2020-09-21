@@ -570,6 +570,14 @@ class JSONSchemaService extends PowerServices {
 		if (bar.priority) {
 			element.dataset.pwPriority = bar.priority;
 		}
+		// Set orientation
+		if (!bar.orientation) {
+			if (element.classList.contains('pw-vertical')) {
+				bar.orientation = 'vertical';
+			} else {
+				bar.orientation = 'horizontal';
+			}
+		}
 	}
 
 	_setBarOrientation(bar, element) {
