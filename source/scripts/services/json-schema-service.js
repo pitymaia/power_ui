@@ -501,6 +501,85 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
+	_setBarDropmenuPosition(bar) {
+		if (!bar.dropMenuPosition) {
+			if (!bar.orientation || bar.orientation === 'horizontal') {
+				if (bar.mirrored === true) {
+					if (bar.position === undefined || bar.position === 'fixed-top') {
+						bar.dropMenuPosition = 'bottom-left';
+					} else if (bar.position === 'fixed-bottom') {
+						bar.dropMenuPosition = 'top-left';
+					}
+				} else {
+					if (bar.position === undefined || bar.position === 'fixed-top') {
+						bar.dropMenuPosition = 'bottom-right';
+					} else if (bar.position === 'fixed-bottom') {
+						bar.dropMenuPosition = 'top-right';
+					}
+				}
+			} else if (bar.orientation === 'vertical') {
+				if (bar.mirrored === true || (bar.mirrored === undefined && (bar.position === 'fixed-right' || bar.position === 'float-right'))) {
+					bar.dropMenuPosition = 'left-bottom';
+				} else {
+					bar.dropMenuPosition = 'right-bottom';
+				}
+			}
+		}
+	}
+
+	_setBarCssStyles(bar, element) {
+		if (bar.mirrored) {
+			element.classList.add('pw-mirrored');
+		}
+		if (bar.position === 'fixed-top') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-top');
+			if (!bar.orientation || bar.orientation === 'horizontal') {
+				element.classList.add('pw-horizontal');
+			}
+		} else if (bar.position === 'fixed-bottom') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-bottom');
+			if (!bar.orientation || bar.orientation === 'horizontal') {
+				element.classList.add('pw-horizontal');
+			}
+		} else if (bar.position === 'fixed-left') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-left');
+			if (!bar.orientation || bar.orientation === 'vertical') {
+				element.classList.add('pw-vertical');
+			}
+		} else if (bar.position === 'fixed-right') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-right');
+			if (!bar.orientation || bar.orientation === 'vertical') {
+				element.classList.add('pw-vertical');
+			}
+		} else if (bar.position === 'float-left') {
+			element.classList.add('pw-bar-float');
+			element.classList.add('pw-left');
+		} else if (bar.position === 'float-right') {
+			element.classList.add('pw-bar-float');
+			element.classList.add('pw-right');
+		}
+		// Window can ignore bar
+		if (bar.ignore) {
+			element.classList.add('pw-ignore');
+		}
+		// Set priority
+		if (bar.priority) {
+			element.dataset.pwPriority = bar.priority;
+		}
+	}
+
+	_setBarOrientation(bar, element) {
+		if (bar.orientation === 'horizontal') {
+			element.classList.add('pw-horizontal');
+		} else if (bar.orientation === 'vertical') {
+			element.classList.add('pw-vertical');
+		}
+	}
+
 	menu(_menu) {
 		// Do not change the original JSON
 		const menu = this.cloneObject(_menu);
@@ -531,76 +610,14 @@ class JSONSchemaService extends PowerServices {
 			const tmpEl = document.createElement('div');
 
 			// Set dropmenu position
-			if (!menu.dropMenuPosition) {
-				if (!menu.orientation || menu.orientation === 'horizontal') {
-					if (menu.mirrored === true) {
-						if (menu.position === undefined || menu.position === 'fixed-top') {
-							menu.dropMenuPosition = 'bottom-left';
-						} else if (menu.position === 'fixed-bottom') {
-							menu.dropMenuPosition = 'top-left';
-						}
-					} else {
-						if (menu.position === undefined || menu.position === 'fixed-top') {
-							menu.dropMenuPosition = 'bottom-right';
-						} else if (menu.position === 'fixed-bottom') {
-							menu.dropMenuPosition = 'top-right';
-						}
-					}
-				} else if (menu.orientation === 'vertical') {
-					if (menu.mirrored === true || (menu.mirrored === undefined && (menu.position === 'fixed-right' || menu.position === 'float-right'))) {
-						menu.dropMenuPosition = 'left-bottom';
-					} else {
-						menu.dropMenuPosition = 'right-bottom';
-					}
-				}
-			}
+			this._setBarDropmenuPosition(menu);
+
 			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true, menu.flip);
 
 			const menuEl = tmpEl.children[0];
 
 			// Set menu css styles
-			if (menu.mirrored) {
-				menuEl.classList.add('pw-mirrored');
-			}
-			if (menu.position === 'fixed-top') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-top');
-				if (!menu.orientation || menu.orientation === 'horizontal') {
-					menuEl.classList.add('pw-horizontal');
-				}
-			} else if (menu.position === 'fixed-bottom') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-bottom');
-				if (!menu.orientation || menu.orientation === 'horizontal') {
-					menuEl.classList.add('pw-horizontal');
-				}
-			} else if (menu.position === 'fixed-left') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-left');
-				if (!menu.orientation || menu.orientation === 'vertical') {
-					menuEl.classList.add('pw-vertical');
-				}
-			} else if (menu.position === 'fixed-right') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-right');
-				if (!menu.orientation || menu.orientation === 'vertical') {
-					menuEl.classList.add('pw-vertical');
-				}
-			} else if (menu.position === 'float-left') {
-				menuEl.classList.add('pw-menu-float');
-				menuEl.classList.add('pw-left');
-			} else if (menu.position === 'float-right') {
-				menuEl.classList.add('pw-menu-float');
-				menuEl.classList.add('pw-right');
-			}
-			// Window can ignore menu
-			if (menu.ignore) {
-				menuEl.classList.add('pw-ignore');
-			}
-			// Set priority
-			if (menu.priority) {
-				menuEl.dataset.pwPriority = menu.priority;
-			}
+			this._setBarCssStyles(menu, menuEl);
 
 			// Brand
 			if (menu.brand) {
@@ -623,11 +640,7 @@ class JSONSchemaService extends PowerServices {
 				menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
 			}
 
-			if (menu.orientation === 'horizontal') {
-				menuEl.classList.add('pw-horizontal');
-			} else if (menu.orientation === 'vertical') {
-				menuEl.classList.add('pw-vertical');
-			}
+			this._setBarOrientation(menu, menuEl);
 
 			// Add hamburger menu toggle
 			if (menu.colapse !== false) {
