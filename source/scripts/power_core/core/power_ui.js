@@ -174,7 +174,7 @@ class ComponentsManager {
 			}
 
 			if (hasChange) {
-				self.$powerUi.onBrowserWindowResize.broadcast();
+				self.onBarSizeChange();
 				self.hasChange = false;
 			}
 		}, 100);
@@ -191,10 +191,22 @@ class ComponentsManager {
 		}
 	}
 
+	onBarSizeChange() {
+		for (const bar of this.bars) {
+			if (bar.bar._$pwActive) {
+				return;
+			}
+		}
+		this.barsSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
+	}
+
 	_browserWindowResize() {
 		for (const bar of this.bars) {
 			if (bar.bar._$pwActive) {
-				bar.bar.powerAction.toggle(true);
+				bar.bar.powerAction.toggle();
 				return;
 			}
 		}
