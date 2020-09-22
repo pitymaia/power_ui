@@ -143,8 +143,11 @@ body, html {
 .pw-bar.pw-icons-bar .pw-icon.pw-status, .pw-bar.pw-icons-bar .power-status {
     font-size: 1em;
 }
-.pw-bar.pw-icons-bar .power-action {
+.pw-bar.pw-icons-bar:not(.pw-mirrored) .power-action {
     padding-right: 0;
+}
+.pw-bar.pw-icons-bar.pw-mirrored .power-action {
+    padding-left: 0;
 }
 
 @media screen and (max-width: 768px) {

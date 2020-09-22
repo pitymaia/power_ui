@@ -928,7 +928,9 @@ class JSONSchemaService extends PowerServices {
 
 			newItem.classList.push(dropmenuId ? 'power-action' : 'power-item');
 
-			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(newItem)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${newItem.label}</span></a>`;
+			const label = `<span class="pw-label">${newItem.label}</span>`;
+
+			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(newItem)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}>${newItem.label ? label : ''}</a>`;
 
 			const itemEl = tmpEl.children[0];
 
@@ -1760,7 +1762,7 @@ class JSONSchemaService extends PowerServices {
 					"required": ["event", "fn"]
 				}
 			},
-			"required": ["label"]
+			// "required": []
 		};
 	}
 

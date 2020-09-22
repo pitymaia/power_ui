@@ -1684,8 +1684,7 @@ class RootScopeTemplate extends PowerTemplate {
 				{
 					"item": {
 						"id": "tool-item-12",
-						"label": " ",
-						"icon": "icon-power-logo",
+						"icon": "icon-star-fill",
 						"events": [
 							{
 								"event": "onclick",
@@ -1697,7 +1696,6 @@ class RootScopeTemplate extends PowerTemplate {
 				{
 					"item": {
 						"id": "more-t12",
-						"label": " ",
 						"icon": "icon-food-mushroom"
 					},
 					"status": {
@@ -1706,13 +1704,12 @@ class RootScopeTemplate extends PowerTemplate {
 					},
 					"dropmenu": {
 						"id": "my-tool-menu-22",
-						"position": "left-bottom",
 						"items": [
 							{
 								"item": {
 									"id": "sst-12",
 									"label": "Doom",
-									"icon": "icon-power-logo",
+									"icon": "icon-game-fill",
 									"events": [
 										{
 											"event": "onclick",
@@ -1725,7 +1722,7 @@ class RootScopeTemplate extends PowerTemplate {
 								"item": {
 									"id": "rrt-12",
 									"label": "Quake",
-									"icon": "icon-power-logo",
+									"icon": "icon-game-joystick",
 									"events": [
 										{
 											"event": "onclick",
@@ -1737,19 +1734,199 @@ class RootScopeTemplate extends PowerTemplate {
 							{
 								"item": {
 									"id": "ddt-12",
-									"label": "Sim City 2000",
-									"icon": "icon-power-logo",
+									"label": "Heretic",
+									"icon": "icon-game-round",
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+											"fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
 										}
 									]
 								}
 							}
 						]
 					}
-				}
+				},
+				{
+					"item": {
+						"id": "tool-item-13",
+						"icon": "icon-phone-ringing",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-14",
+						"icon": "icon-pig-bank",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-15",
+						"icon": "icon-scale-justice",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-23",
+						"icon": "icon-gift-heart",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-24",
+						"icon": "icon-pacman",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-25",
+						"icon": "icon-graphic-pizza",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-33",
+						"icon": "icon-icecream-stroke",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-34",
+						"icon": "icon-food-carot",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-35",
+						"icon": "icon-food-cake-stroke",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-43",
+						"icon": "icon-food-hamburguer",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-44",
+						"icon": "icon-food-hotdog",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-45",
+						"icon": "icon-food-lemon",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-53",
+						"icon": "icon-coffee-bean",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-54",
+						"icon": "icon-glass-coffe",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
+				{
+					"item": {
+						"id": "tool-item-55",
+						"icon": "icon-glass-drink-half",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openSimpleDialog()"
+							}
+						]
+					}
+				},
 			]
 		};
 
