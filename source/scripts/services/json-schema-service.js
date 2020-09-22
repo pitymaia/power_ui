@@ -684,7 +684,7 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_toolbar);
 			}
 
-			if (this._validate(this.menuDef(), toolbar) === false) {
+			if (this._validate(this.toolbarDef(), toolbar) === false) {
 				window.console.log('Failed JSON toolbar:', toolbar);
 				throw 'Failed JSON toolbar!';
 			}
@@ -695,15 +695,30 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
-			// Set dropmenu position
-			this._setBarDropmenuPosition(toolbar);
+			if (!toolbar.orientation) {
+				if (!toolbar.position || toolbar.position.includes('top') || toolbar.position.includes('bottom')) {
+					toolbar.orientation = 'horizontal';
+				} else {
+					toolbar.orientation = 'vertical';
+				}
+			}
+
+
+			if (!toolbar.classList) {
+				toolbar.classList = [];
+			}
+
+			toolbar.classList.push('power-toolbar pw-bar pw-icons-bar');
 
 			// Bar get its template from dropmenu
 			const tmpEl = document.createElement('div');
+
+			// Set dropmenu position
+			this._setBarDropmenuPosition(toolbar);
+
 			tmpEl.innerHTML =  this._buildbarEl(toolbar, toolbar.mirrored, false, toolbar.flip);
 
 			const toolbarEl = tmpEl.children[0];
-
 			// Set toolbar css styles
 			this._setBarCssStyles(toolbar, toolbarEl);
 
@@ -724,12 +739,6 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_buildbarEl(bar, mirrored, kind, flip) {
-		if (!bar.classList) {
-			bar.classList = [];
-		}
-
-		bar.classList.push('power-toolbar pw-bar pw-icons-bar');
-
 		const tmpEl = document.createElement('div');
 		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
@@ -779,6 +788,10 @@ class JSONSchemaService extends PowerServices {
 			} else if (item.dropmenu && !item.button) {
 				// Add submenu if have one and is not a button
 				const submenuHolderEl = document.createElement('div');
+				// Set dropMenuPosition
+				if (!item.dropmenu.position && bar.dropMenuPosition) {
+					item.dropmenu.position = bar.dropMenuPosition;
+				}
 				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, null, flip);
 				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 			}
@@ -1705,6 +1718,36 @@ class JSONSchemaService extends PowerServices {
 		return {
 			"$schema": "http://json-schema.org/draft-07/schema#",
 			"$id": "#/schema/draft-07/menu",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"mirrored": {"type": "boolean"},
+				"dropMenuPosition": {"type": "string"},
+				"orientation": {"type": "string"},
+				"position": {"type": "string"},
+				"priority": {"type": "number"},
+				"ignore": {"type": "boolean"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					}
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
+	toolbarDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/toolbar",
 			"type": "object",
 			"properties": {
 				"$id": {"type": "string"},

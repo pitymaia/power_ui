@@ -3,13 +3,11 @@ class PowerActionsBar extends _PowerBarsBase {
 		super(bar, $powerUi);
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
-		// If user does not define a default position, see if is horizontal or vertical bar and set a defeult value
+		// If user does not define a default position, see if is horizontal or vertical bar
 		if (this.element.classList.contains('pw-horizontal')) {
 			this.orientation = 'horizontal';
-			this.defaultPosition = this.defaultPosition || 'bottom-right';
 		} else {
 			this.orientation = 'vertical';
-			this.defaultPosition = this.defaultPosition || 'right-bottom';
 		}
 	}
 
