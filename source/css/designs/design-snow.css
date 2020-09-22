@@ -26,6 +26,10 @@
 .pwdesign-white-smoke .power-dropmenu {
     z-index: 1004;
 }
+.pwdesign-white-smoke .power-dropmenu.power-active, .pwdesign-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
+    border-style: solid;
+    border-width: 1px;
+}
 
 .pwdesign-white-smoke .power-toggle {
     padding: 0.3em 0.5em;
@@ -200,6 +204,31 @@
 .pwdesign-white-smoke .pw-icon {
     font-size: 1em;
 }
+
+.pwdesign-white-smoke .pw-bar.pw-icons-bar .pw-icon {
+    font-size: 1.7em;
+}
+.pwdesign-white-smoke .pw-bar.pw-icons-bar .pw-icon.pw-status, .pwdesign-white-smoke .pw-bar.pw-icons-bar .power-status {
+    font-size: 1em;
+}
+.pwdesign-white-smoke .pw-bar.pw-icons-bar:not(.pw-mirrored) .power-action {
+    padding-right: 0;
+}
+.pwdesign-white-smoke .pw-bar.pw-icons-bar.pw-mirrored .power-action {
+    padding-left: 0;
+}
+.pwdesign-white-smoke .pw-bar.pw-icons-bar .power-dropmenu .pw-icon {
+    font-size: 1em;
+}
+
+/* power menu-break query*/
+.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar .pw-icon {
+    font-size: 1.4em;
+}
+.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar .pw-icon.pw-status, .pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar .power-status {
+    font-size: 1em;
+}
+/* power menu-break query*/
 
 /* buttons start*/
 
