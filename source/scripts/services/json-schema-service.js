@@ -719,11 +719,6 @@ class JSONSchemaService extends PowerServices {
 				toolbarEl.appendChild(dotsEl);
 			}
 
-			console.log('toolbarEl', toolbarEl, toolbar.classList, toolbar);
-			// if (toolbar.classList) {
-			// 	this.appendClassList({element: toolbarEl, json: toolbar});
-			// }
-
 			return tmpEl.innerHTML;
 		}
 	}

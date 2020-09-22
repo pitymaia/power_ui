@@ -192,6 +192,12 @@ class ComponentsManager {
 	}
 
 	_browserWindowResize() {
+		for (const bar of this.bars) {
+			if (bar.bar._$pwActive) {
+				bar.bar.powerAction.toggle(true);
+				return;
+			}
+		}
 		// window.alert(window.innerWidth);
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.barsSizeAndPosition();
