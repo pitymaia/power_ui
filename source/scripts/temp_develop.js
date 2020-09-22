@@ -1619,9 +1619,9 @@ class RootScopeTemplate extends PowerTemplate {
 			"classList": ["pw-black-white"],
 			"id": 'my-aaa-12',
 			"mirrored": false,
-			"position": "fixed-left",
-			"ignore": false,
-			"priority": 5,
+			"position": "fixed-top",
+			"ignore": true,
+			"priority": 15,
 			"brand": {
 				"content": "SuperGame",
 			},
