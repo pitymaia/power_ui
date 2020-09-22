@@ -195,7 +195,7 @@ body, html {
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-item {
         display: block;
-        width: max-content;
+        /*width: max-content;*/
     }
 
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse .power-action,

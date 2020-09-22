@@ -63,7 +63,11 @@
     vertical-align: middle;
 }
 
-.pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-list {
+.pwdesign-white-smoke .power-item,
+.pwdesign-white-smoke .power-action,
+.pwdesign-white-smoke .power-list,
+.pwdesign-white-smoke .power-toggle,
+.pwdesign-white-smoke .power-brand {
     padding: 0.5em;
 }
 .pwdesign-white-smoke button.power-item {

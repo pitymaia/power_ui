@@ -154,11 +154,21 @@ html {
 .pw-black-white, .pw-black-white .power-dropmenu {
     background-color: #000000 !important;
     color: white;
+ /*   border-style: solid;
+    border-width: 1px;*/
 }
 
 .pw-blue-white, .pw-blue-white .power-dropmenu {
     background-color: blue !important;
     color: white;
+    /*border-top: 2px solid black;*/
     /*border-style: solid;
     border-width: 1px;*/
+}
+.pw-orange-white, .pw-orange-white .power-dropmenu {
+    background-color: #e6b800 !important;
+    color: red;
+   /* border-style: solid;
+    border-width: 1px;
+    border-color: white;*/
 }

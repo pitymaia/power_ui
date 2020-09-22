@@ -141,7 +141,6 @@ class ComponentsManager {
 		this.bars = [];
 		this.observing = {};
 		this.startObserver();
-		this.pixelAdjust = -1;
 	}
 
 	observe(bar) {
@@ -280,9 +279,9 @@ class ComponentsManager {
 			bar.adjusts.right = currentTotalRightWidth;
 
 			if (bar.bar.barPosition === 'top') {
-				currentTotalTopHeight = currentTotalTopHeight + bar.bar.element.offsetHeight + this.pixelAdjust;
+				currentTotalTopHeight = currentTotalTopHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.barPosition === 'bottom') {
-				currentTotalBottomHeight = currentTotalBottomHeight + bar.bar.element.offsetHeight + this.pixelAdjust;
+				currentTotalBottomHeight = currentTotalBottomHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.barPosition === 'left') {
 				currentTotalLeftWidth = currentTotalLeftWidth + bar.bar.element.offsetWidth;
 			} else if (bar.bar.barPosition === 'right') {
@@ -307,16 +306,16 @@ class ComponentsManager {
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
 			if (bar.bar.barPosition === 'top') {
-				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight + this.pixelAdjust;
-				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight + this.pixelAdjust;
+				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
+				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
 				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
-				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight + this.pixelAdjust;
-				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight + this.pixelAdjust;
+				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
+				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;

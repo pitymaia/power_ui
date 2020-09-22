@@ -411,7 +411,7 @@ class PowerMainTemplate extends PowerTemplate {
 			// "classList": ["pw-black-white"],
 			"id": 'my-menu-main',
 			"mirrored": true,
-			"position": "fixed-right",
+			"position": "fixed-top",
 			"priority": 2,
 			"ignore": false,
 			"brand": {
@@ -1251,8 +1251,8 @@ class RootScopeTemplate extends PowerTemplate {
 			"id": 'my-menu-12',
 			"mirrored": false,
 			"flip": true,
-			"position": "fixed-bottom",
-			"priority": 1,
+			"position": "fixed-top",
+			"priority": 7,
 			"ignore": false,
 			"brand": {
 				"content": "PowerEasy",
@@ -1491,9 +1491,9 @@ class RootScopeTemplate extends PowerTemplate {
 			"classList": ["pw-blue-white"],
 			"id": 'my-sss-12',
 			"mirrored": false,
-			"position": "fixed-top",
-			"ignore": true,
-			"priority": 3,
+			"position": "fixed-left",
+			"ignore": false,
+			"priority": 6,
 			"brand": {
 				"content": "PowerUi",
 			},
@@ -1621,7 +1621,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"mirrored": false,
 			"position": "fixed-left",
 			"ignore": false,
-			"priority": 2,
+			"priority": 5,
 			"brand": {
 				"content": "SuperGame",
 			},
@@ -1649,7 +1649,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"id": 'my-ccc-12',
 			"mirrored": false,
 			"position": "fixed-bottom",
-			"ignore": true,
+			"ignore": false,
 			"priority": 4,
 			"brand": {
 				"content": "Great",
@@ -1676,10 +1676,10 @@ class RootScopeTemplate extends PowerTemplate {
 		const toolbar1 = {
 			"classList": ["pw-blue-white"],
 			"id": 'my-tool-12',
-			"mirrored": true,
-			"position": "fixed-right",
+			// "mirrored": true,
+			"position": "fixed-top",
 			"ignore": false,
-			"priority": 10,
+			"priority": 11,
 			"items": [
 				{
 					"item": {
