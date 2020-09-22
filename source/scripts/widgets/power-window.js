@@ -77,6 +77,7 @@ class PowerWindow extends PowerDialogBase {
 		this.adjustHeight = 0;
 		this.adjustWidth = 0;
 		this.adjustLeft = 0;
+		const pixelFix = 1;
 		const bars = this.$powerUi.componentsManager.bars.filter(b=> b.bar.isFixed === true);
 		for (const bar of bars) {
 			if (!bar.bar.ignore && bar.bar.barPosition === 'top') {
@@ -92,7 +93,7 @@ class PowerWindow extends PowerDialogBase {
 		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
 			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
-			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + pixelFix + this.adjustWidth + this.adjustLeft + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 
@@ -405,7 +406,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	setAllWindowElements() {
-		this._dialog.style.width =  this._width + 'px';
+		this._dialog.style.width =  this._width +'px';
 		this._dialog.style.height =  this._height + 'px';
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		this._dialog.style.left = this._left + 'px';

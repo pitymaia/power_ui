@@ -182,7 +182,7 @@ class ComponentsManager {
 
 	toggleSmallWindowMode() {
 		const _appContainer = document.getElementById('app-container');
-		if (window.innerWidth <= 768 || (this.$powerUi.touchdevice && window.innerWidth <= 1024)) {
+		if (window.innerWidth <= 768 || this.$powerUi.touchdevice) {
 			this.smallWindowMode = true;
 			_appContainer.classList.add('pw-small-window-mode');
 		} else {

@@ -1674,12 +1674,12 @@ class RootScopeTemplate extends PowerTemplate {
 		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu4);
 
 		const toolbar1 = {
-			"classList": ["pw-blue-white"],
+			// "classList": ["pw-blue-white"],
 			"id": 'my-tool-12',
 			// "mirrored": true,
 			"position": "fixed-top",
-			"ignore": false,
-			"priority": 11,
+			"ignore": true,
+			"priority": 16,
 			"items": [
 				{
 					"item": {
