@@ -385,6 +385,11 @@ body, html {
     /*text-align: center;*/
 }
 
+.pw-small-window-mode .pw-window, .pw-small-window-mode .pw-window .pw-body, .pw-small-window-mode .pw-window iframe {
+    min-width: 100px;
+    min-height: 50px;
+}
+
 .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window iframe {
     min-width: 100%;
     max-width: 100%;
