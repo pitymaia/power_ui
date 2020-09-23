@@ -1252,7 +1252,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"mirrored": false,
 			"flip": false,
 			"position": "fixed-bottom",
-			// "dropMenuPosition": "bottom-right",
+			"dropMenuPosition": "top-right",
 			"priority": 7,
 			"ignore": false,
 			"brand": {
@@ -1489,6 +1489,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"id": 'my-sss-12',
 			"mirrored": false,
 			"position": "fixed-left",
+			"dropMenuPosition": "right-bottom",
 			"ignore": false,
 			"priority": 6,
 			"brand": {
@@ -1507,7 +1508,6 @@ class RootScopeTemplate extends PowerTemplate {
 					},
 					"dropmenu": {
 						"id": "the-hjh-12",
-						"position": "top-right",
 						"items": [
 							{
 								"item": {
@@ -1560,7 +1560,6 @@ class RootScopeTemplate extends PowerTemplate {
 								},
 								"dropmenu": {
 									"id": "my-sdf-menu-22",
-									"position": "top-right",
 									"items": [
 										{
 											"item": {

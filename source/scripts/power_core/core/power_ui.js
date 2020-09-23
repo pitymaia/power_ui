@@ -1,46 +1,28 @@
 // Define the powerDropmenus defaultPosition for all the child Power dropmenus
 // The right-bottom is the standard position
 function defineInnerDropmenusPosition(self, powerElement) {
-	// if (self.defaultPosition) {
-	// 	return;
-	// }
-	if (['right-bottom', 'bottom-right', 'bottom', 'right'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = 'right-bottom';
-	} else if (['left-bottom', 'bottom-left', 'left'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = 'left-bottom';
-	} else if (['right-top', 'top-right', 'top',  'right'].includes(self.defaultPosition)) {
+	if (powerElement.defaultPosition) {
+		return;
+	}
+	if (self.element.classList.contains('pw-bottom')) {
 		powerElement.defaultPosition = 'right-top';
-	} else if (['left-top', 'top-left'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = 'left-top';
+	} else if (self.element.classList.contains('pw-right')) {
+		powerElement.defaultPosition = 'left-bottom';
+	} else if (self.element.classList.contains('pw-left')) {
+		powerElement.defaultPosition = 'right-bottom';
 	} else {
-		powerElement.defaultPosition = 'right-bottom'; // Default value;
+		powerElement.defaultPosition = 'right-bottom';
 	}
 }
 
 // Define the powerDropmenus defaultPosition for the first level Power dropmenus
 // The right-bottom is the standard position
 function defineRootDropmenusPosition(self, powerElement) {
-	if (self.defaultPosition) {
+	if (powerElement.defaultPosition) {
 		return;
 	}
-	if (['right-bottom', 'bottom-right', 'left-bottom', 'bottom-left',
-		'right-top', 'top-right', 'left-top', 'top-left'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = self.defaultPosition;
-	} else if (self.defaultPosition === 'top') {
-		powerElement.defaultPosition = 'top-right';
-	} else if (self.defaultPosition === 'bottom') {
-		powerElement.defaultPosition = 'bottom-right';
-	} else if (self.defaultPosition === 'right') {
-		powerElement.defaultPosition = 'bottom-right';
-	} else if (self.defaultPosition === 'left') {
-		powerElement.defaultPosition = 'bottom-left';
-	} else {
-		if (self.element.classList.contains('power-horizontal')) {
-			self.defaultPosition = 'bottom-right';
-		} else {
-			self.defaultPosition = 'right-bottom';
-		}
-	}
+
+	powerElement.defaultPosition = self.defaultPosition;
 }
 
 

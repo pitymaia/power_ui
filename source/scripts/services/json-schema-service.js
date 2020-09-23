@@ -748,7 +748,7 @@ class JSONSchemaService extends PowerServices {
 
 	_buildbarEl(bar, mirrored, flip) {
 		const tmpEl = document.createElement('div');
-		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
+		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''} data-pw-position="${bar.dropMenuPosition}"></nav>`;
 
 		for (const item of bar.items) {
 			const itemHolderEl = document.createElement('div');
@@ -796,10 +796,6 @@ class JSONSchemaService extends PowerServices {
 			} else if (item.dropmenu && !item.button) {
 				// Add submenu if have one and is not a button
 				const submenuHolderEl = document.createElement('div');
-				// Set dropMenuPosition
-				if (!item.dropmenu.position && bar.dropMenuPosition) {
-					item.dropmenu.position = bar.dropMenuPosition;
-				}
 				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, flip);
 				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 			}
@@ -845,10 +841,10 @@ class JSONSchemaService extends PowerServices {
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
-			// Set menu position
+			// Set dropmenu position
 			if (dropmenuPosition) {
-					const menu = tmpEl.children[0];
-					menu.dataset.pwPosition = dropmenuPosition;
+					const dropmenuEl = tmpEl.children[0];
+					dropmenuEl.dataset.pwPosition = dropmenuPosition;
 			}
 
 			for (const item of dropmenu.items) {
