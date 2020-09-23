@@ -209,6 +209,11 @@ class ComponentsManager {
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
+		for (const dialog of this.$powerUi.dialogs) {
+			if (dialog.ctrl.isWindow && (dialog.ctrl.isMaximized || this.smallWindowMode)) {
+				dialog.ctrl.adjustWindowWithComponents();
+			}
+		}
 	}
 
 	_browserWindowResize() {
