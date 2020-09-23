@@ -439,6 +439,10 @@ class PowerUi extends _PowerUiBase {
 		// On the first run broadcast a browser window resize so any window or other
 		// component can adapt it's size with the 'app-container'
 		this._events.ready.subscribe(()=>this.onBrowserWindowResize.broadcast());
+		// Check if app-container exists
+		if (!document.getElementById('app-container')) {
+			throw 'Missing element with "app-container" id! Check PowerUi documentation for more detais.';
+		}
 	}
 
 	// Return the "view" controller of any element inside the current view
