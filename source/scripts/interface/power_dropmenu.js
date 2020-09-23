@@ -290,9 +290,6 @@ class PowerDropmenu extends PowerTarget {
 	toggle() {
 		this.resetDropmenuPosition();
 
-		if (this.id === 'the-books-menu-12') {
-			console.log('this.defaultPosition', this.id, this.defaultPosition);
-		}
 		// Hide the element when add to DOM
 		// This allow get the dropmenu sizes and position before adjust and show
 		this.element.classList.add('power-hide');

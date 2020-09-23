@@ -1250,9 +1250,9 @@ class RootScopeTemplate extends PowerTemplate {
 			"classList": ["pw-blue-white"],
 			"id": 'my-menu-12',
 			"mirrored": false,
-			"flip": true,
-			"position": "fixed-top",
-			"dropMenuPosition": "bottom-right",
+			"flip": false,
+			"position": "fixed-bottom",
+			// "dropMenuPosition": "bottom-right",
 			"priority": 7,
 			"ignore": false,
 			"brand": {
