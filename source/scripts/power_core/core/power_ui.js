@@ -157,27 +157,35 @@ class ComponentsManager {
 	startObserver() {
 		const self = this;
 		setInterval(function () {
-			let hasChange = false;
-			for (const key of Object.keys(self.observing)) {
-				const active = self.observing[key]._$pwActive;
-				const lastWidth = self.observing[key].lastWidth;
-				const currentWidth = self.observing[key].element.offsetWidth;
-				const lastHeight = self.observing[key].lastHeight;
-				const currentHeight = self.observing[key].element.offsetHeight;
-				if (!active) {
-					if (lastWidth && lastHeight && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
-						hasChange = true;
-					}
-				}
-				self.observing[key].lastWidth = currentWidth;
-				self.observing[key].lastHeight = currentHeight;
-			}
+			self.runObserver();
+		}, 500);
+	}
 
-			if (hasChange) {
-				self.onBarSizeChange();
-				self.hasChange = false;
+	runObserver() {
+		let hasChange = false;
+		for (const key of Object.keys(this.observing)) {
+			const active = this.observing[key]._$pwActive;
+			const lastWidth = this.observing[key].lastWidth;
+			const currentWidth = this.observing[key].element.offsetWidth;
+			const lastHeight = this.observing[key].lastHeight;
+			const currentHeight = this.observing[key].element.offsetHeight;
+			if (!active) {
+				if (lastWidth && lastHeight && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
+					hasChange = true;
+				}
+
+				if (this.observing[key].isToolbar && this.observing[key].powerAction.element.offsetLeft > this.observing[key].element.offsetWidth) {
+					hasChange = true;
+				}
 			}
-		}, 100);
+			this.observing[key].lastWidth = currentWidth;
+			this.observing[key].lastHeight = currentHeight;
+		}
+
+		if (hasChange) {
+			this.onBarSizeChange();
+			this.hasChange = false;
+		}
 	}
 
 	toggleSmallWindowMode() {
@@ -284,8 +292,9 @@ class ComponentsManager {
 				currentTotalBottomHeight = currentTotalBottomHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.barPosition === 'left') {
 				currentTotalLeftWidth = currentTotalLeftWidth + bar.bar.element.offsetWidth;
+
 			} else if (bar.bar.barPosition === 'right') {
-				currentTotalRightWidth = currentTotalRightWidth + bar.bar.element.offsetWidth;
+				currentTotalRightWidth = currentTotalRightWidth + this.$powerUi._offsetComputedWidth(bar.bar.element);//bar.bar.element.offsetWidth;
 			}
 		}
 
@@ -311,7 +320,7 @@ class ComponentsManager {
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
@@ -319,7 +328,7 @@ class ComponentsManager {
 				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
@@ -419,6 +428,7 @@ class PowerUi extends _PowerUiBase {
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		this.router = new Router(config, this); // Router calls this.init();
 		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
+		this.router.onRouteChange.subscribe(this.componentsManager.runObserver.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 		// On the first run broadcast a browser window resize so any window or other
@@ -937,7 +947,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_offsetComputedWidth(element) {
-		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
+		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - (parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0));
 	}
 	_offsetComputedAdjustSides(element) {
 		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
