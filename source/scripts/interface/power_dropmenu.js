@@ -4,6 +4,7 @@ class PowerDropmenu extends PowerTarget {
 
 		// The position the dropmenu will try to appear by default
 		this.defaultPosition = this.element.getAttribute('data-pw-position') || 'bottom-right';
+
 		// Mark the root of the dropmenu tree, first level element
 		this._markRootAndMenuDropmenu();
 	}
@@ -288,6 +289,10 @@ class PowerDropmenu extends PowerTarget {
 
 	toggle() {
 		this.resetDropmenuPosition();
+
+		if (this.id === 'the-books-menu-12') {
+			console.log('this.defaultPosition', this.id, this.defaultPosition);
+		}
 		// Hide the element when add to DOM
 		// This allow get the dropmenu sizes and position before adjust and show
 		this.element.classList.add('power-hide');

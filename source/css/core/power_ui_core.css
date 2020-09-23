@@ -142,8 +142,16 @@ body, html {
     .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-item  {
         display: block;
-        /*width: max-content;*/
+        width: max-content;
     }
+
+   .pw-bar.pw-horizontal.pw-colapse.power-active .power-dropmenu .power-action,
+   .pw-bar.pw-horizontal.pw-colapse.power-active .power-dropmenu .power-item,
+   .pw-bar.pw-vertical.pw-colapse.power-active .power-dropmenu .power-action,
+   .pw-bar.pw-vertical.pw-colapse.power-active .power-dropmenu .power-item  {
+       display: block;
+       width: initial;
+   }
 
     .pw-bar.pw-horizontal.pw-colapse .power-action,
     .pw-bar.pw-horizontal.pw-colapse .power-item,
@@ -195,7 +203,15 @@ body, html {
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-item {
         display: block;
-        /*width: max-content;*/
+        width: max-content;
+    }
+
+    .pw-bar-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-dropmenu .power-action,
+    .pw-bar-break .pw-bar.pw-horizontal.pw-colapse.power-active .power-dropmenu .power-item,
+    .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-dropmenu .power-action,
+    .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active .power-dropmenu .power-item {
+        display: block;
+        width: initial;
     }
 
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse .power-action,

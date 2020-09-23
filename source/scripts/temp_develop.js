@@ -1252,6 +1252,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"mirrored": false,
 			"flip": true,
 			"position": "fixed-top",
+			"dropMenuPosition": "bottom-right",
 			"priority": 7,
 			"ignore": false,
 			"brand": {
@@ -1270,7 +1271,6 @@ class RootScopeTemplate extends PowerTemplate {
 					},
 					"dropmenu": {
 						"id": "my-books-menu-12",
-						"position": "top-right",
 						"items": [
 							{
 								"item": {
@@ -1323,7 +1323,6 @@ class RootScopeTemplate extends PowerTemplate {
 								},
 								"dropmenu": {
 									"id": "my-books-menu-22",
-									"position": "top-right",
 									"items": [
 										{
 											"item": {
@@ -1382,7 +1381,6 @@ class RootScopeTemplate extends PowerTemplate {
 					},
 					"dropmenu": {
 						"id": "the-books-menu-12",
-						"position": "top-right",
 						"items": [
 							{
 								"item": {
@@ -1435,7 +1433,6 @@ class RootScopeTemplate extends PowerTemplate {
 								},
 								"dropmenu": {
 									"id": "my-games-menu-22",
-									"position": "top-right",
 									"items": [
 										{
 											"item": {

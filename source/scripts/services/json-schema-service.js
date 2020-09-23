@@ -614,18 +614,32 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
-			// Menus extends dropmenu
+			if (!menu.orientation) {
+				if (!menu.position || menu.position.includes('top') || menu.position.includes('bottom')) {
+					menu.orientation = 'horizontal';
+				} else {
+					menu.orientation = 'vertical';
+				}
+			}
+
+			if (!menu.classList) {
+				menu.classList = [];
+			}
+
+			menu.classList.push('power-menu pw-bar');
+
+			// Bar get its template from dropmenu
 			const tmpEl = document.createElement('div');
 
 			// Set dropmenu position
 			this._setBarDropmenuPosition(menu);
 
-			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true, menu.flip);
+			tmpEl.innerHTML =  this._buildbarEl(menu, menu.mirrored, menu.flip);
 
 			const menuEl = tmpEl.children[0];
-
 			// Set menu css styles
 			this._setBarCssStyles(menu, menuEl);
+			this._setBarOrientation(menu, menuEl);
 
 			// Brand
 			if (menu.brand) {
@@ -648,8 +662,6 @@ class JSONSchemaService extends PowerServices {
 				menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
 			}
 
-			this._setBarOrientation(menu, menuEl);
-
 			// Add hamburger menu toggle
 			if (menu.colapse !== false) {
 				menuEl.classList.add('pw-colapse');
@@ -659,10 +671,6 @@ class JSONSchemaService extends PowerServices {
 				</a>`;
 				const hamburgerEl = hamburgerHolderEl.children[0];
 				menuEl.appendChild(hamburgerEl);
-			}
-
-			if (menu.classList) {
-				this.appendClassList({element: menuEl, json: menu});
 			}
 
 			return tmpEl.innerHTML;
@@ -716,7 +724,7 @@ class JSONSchemaService extends PowerServices {
 			// Set dropmenu position
 			this._setBarDropmenuPosition(toolbar);
 
-			tmpEl.innerHTML =  this._buildbarEl(toolbar, toolbar.mirrored, false, toolbar.flip);
+			tmpEl.innerHTML =  this._buildbarEl(toolbar, toolbar.mirrored, toolbar.flip);
 
 			const toolbarEl = tmpEl.children[0];
 			// Set toolbar css styles
@@ -738,7 +746,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	_buildbarEl(bar, mirrored, kind, flip) {
+	_buildbarEl(bar, mirrored, flip) {
 		const tmpEl = document.createElement('div');
 		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
@@ -792,7 +800,7 @@ class JSONSchemaService extends PowerServices {
 				if (!item.dropmenu.position && bar.dropMenuPosition) {
 					item.dropmenu.position = bar.dropMenuPosition;
 				}
-				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, null, flip);
+				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, flip);
 				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 			}
 		}
@@ -800,10 +808,10 @@ class JSONSchemaService extends PowerServices {
 		return tmpEl.innerHTML;
 	}
 
-	dropmenu(_dropmenu, mirrored, isMenu, flip) {
+	dropmenu(_dropmenu, mirrored, flip) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);
-		const dropmenuPosition = isMenu ? dropmenu.dropMenuPosition : dropmenu.position;
+		const dropmenuPosition = dropmenu.position;
 		// This allow pass an array of dropmenus
 		if (_dropmenu.length) {
 			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
@@ -833,18 +841,14 @@ class JSONSchemaService extends PowerServices {
 				dropmenu.classList = [];
 			}
 
-			dropmenu.classList.push(isMenu ? 'power-menu pw-bar' : 'power-dropmenu');
+			dropmenu.classList.push('power-dropmenu');
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
 			// Set menu position
 			if (dropmenuPosition) {
 					const menu = tmpEl.children[0];
-					if (isMenu) {
-						menu.dataset.pwDropmenu = dropmenuPosition;
-					} else {
-						menu.dataset.pwPosition = dropmenuPosition;
-					}
+					menu.dataset.pwPosition = dropmenuPosition;
 			}
 
 			for (const item of dropmenu.items) {
