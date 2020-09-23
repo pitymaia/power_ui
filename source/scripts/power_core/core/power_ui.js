@@ -20,9 +20,19 @@ function defineInnerDropmenusPosition(self, powerElement) {
 function defineRootDropmenusPosition(self, powerElement) {
 	if (powerElement.defaultPosition) {
 		return;
+	} else if (self.defaultPosition) {
+		powerElement.defaultPosition = self.defaultPosition;
+	} else {
+		if (self.element.classList.contains('pw-bottom')) {
+			powerElement.defaultPosition = 'top-right';
+		} else if (self.element.classList.contains('pw-right')) {
+			powerElement.defaultPosition = 'left-bottom';
+		} else if (self.element.classList.contains('pw-left')) {
+			powerElement.defaultPosition = 'right-bottom';
+		} else {
+			powerElement.defaultPosition = 'bottom-right';
+		}
 	}
-
-	powerElement.defaultPosition = self.defaultPosition;
 }
 
 
