@@ -17,6 +17,19 @@ class PowerWindow extends PowerDialogBase {
 	_onViewLoad(view) {
 		super._onViewLoad(view, true, true);
 		this.currentView = view;
+		this.fixedBars = {left: [], right: [], top: [], bottom: []};
+		const fixedBars = this.currentView.getElementsByClassName('pw-bar-fixed');
+		for (const bar of fixedBars) {
+			if (bar.classList.contains('pw-left')) {
+				this.fixedBars.left.push(bar);
+			} else if (bar.classList.contains('pw-right')) {
+				this.fixedBars.right.push(bar);
+			} else if (bar.classList.contains('pw-top')) {
+				this.fixedBars.top.push(bar);
+			} else if (bar.classList.contains('pw-bottom')) {
+				this.fixedBars.bottom.push(bar);
+			}
+		}
 
 		if (!this.isHiddenRoute) {
 			this.loadWindowState();
@@ -585,18 +598,54 @@ class PowerWindow extends PowerDialogBase {
 		this._left = this._dialog.offsetLeft;
 	}
 
+	minTop() {
+		let minTop = 0;
+		for (const bar of this.fixedBars.top) {
+			minTop = minTop + bar.offsetHeight;
+		}
+		return minTop;
+	}
+
+	maxBottom() {
+		let maxBottom = 0;
+		for (const bar of this.fixedBars.bottom) {
+			maxBottom = maxBottom + bar.offsetHeight;
+		}
+		return maxBottom;
+	}
+
+	minLeft() {
+		let minLeft = 0;
+		for (const bar of this.fixedBars.left) {
+			minLeft = minLeft + bar.offsetWidth;
+		}
+		return minLeft;
+	}
+
+	maxRight() {
+		let maxRight = 0;
+		for (const bar of this.fixedBars.right) {
+			maxRight = maxRight + bar.offsetWidth;
+		}
+		return maxRight;
+	}
+
 	avoidDragOutOfScreen() {
-		if (this._top + this._height + 10 > window.innerHeight) {
-			this._top = window.innerHeight - this._height - 10;
+		const minTop = this.minTop();
+		const maxBottom = this.maxBottom();
+		const minLeft = this.minLeft();
+		const maxRight = this.maxRight();
+		if (this._top + this._height + 10 > window.innerHeight - maxBottom) {
+			this._top = window.innerHeight - (this._height + maxBottom) - 10;
 		}
-		if (this._top < 0) {
-			this._top = 0;
+		if (this._top < minTop) {
+			this._top = minTop;
 		}
-		if (this._left + this._width + 10 >= window.innerWidth) {
-			this._left = window.innerWidth - this._width - 10;
+		if (this._left + this._width + 10 >= window.innerWidth - maxRight) {
+			this._left = window.innerWidth - (this._width + maxRight) - 10;
 		}
-		if (this._left < 0) {
-			this._left = 0;
+		if (this._left < minLeft) {
+			this._left = minLeft;
 		}
 	}
 
