@@ -241,6 +241,11 @@ class ComponentsManager {
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
 	}
+
+	powerWindowChange() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.barsSizeAndPosition();
+	}
 	// This change the "app-container" and body element to allow adjust for fixed bars/menus
 	_setAppContainerHeight() {
 		const _appContainer = document.getElementById('app-container');
@@ -275,7 +280,7 @@ class ComponentsManager {
 
 	}
 	getBarsWithPrioritySizes() {
-		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true);
+		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true && window.getComputedStyle(b.bar.element).visibility !== 'hidden');
 		this._reorderBars(fixedBars);
 
 		let currentTotalTopHeight = 0;
@@ -414,6 +419,7 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
+		this.onPowerWindowChange = new UEvent('onPowerWindowChange');
 		this.componentsManager = new ComponentsManager(this);
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
@@ -432,6 +438,7 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
 		this.router.onRouteChange.subscribe(this.componentsManager.runObserver.bind(this.componentsManager));
+		this.onPowerWindowChange.subscribe(this.componentsManager.powerWindowChange.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 		// On the first run broadcast a browser window resize so any window or other

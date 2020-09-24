@@ -1089,7 +1089,7 @@ class SimpleTemplate extends PowerTemplate {
 		    "classList": ["pw-red-white"],
 		    "id": 'my-window-toolbar',
 		    "position": "fixed-top",
-		    "ignore": false,
+		    "ignore": true,
 		    "priority": 2,
 		    "items": [
 		        {
@@ -1346,7 +1346,7 @@ class SimpleTemplate extends PowerTemplate {
 			"id": 'my-win-menu',
 			"mirrored": false,
 			"position": "fixed-top",
-			"ignore": false,
+			"ignore": true,
 			"priority": 1,
 			"brand": {
 				"content": "WinMenu",

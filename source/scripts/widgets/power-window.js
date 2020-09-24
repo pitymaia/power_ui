@@ -72,15 +72,18 @@ class PowerWindow extends PowerDialogBase {
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
 
+		const minTop = this.minTop();
+		const minLeft = this.minLeft();
+
+		this.topLeftLimits(minTop + 5, minLeft + 5);
 
 		if (this.isMaximized) {
-			this.maximize();
+			this.maximize(null, true);
 		} else {
-			this.restore();
+			this.restore(null, true);
 		}
 
 		this.replaceSizeQueries();
-
 		this.restoreScrollPosition(view);
 	}
 
@@ -105,8 +108,8 @@ class PowerWindow extends PowerDialogBase {
 		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
 			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
-			// this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
-			this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.adjustWidth + this.adjustLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
+			// this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.adjustWidth + this.adjustLeft + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 
@@ -380,7 +383,7 @@ class PowerWindow extends PowerDialogBase {
 		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 	}
 
-	maximize(event) {
+	maximize(event, preventBroadcast) {
 		if (event) {
 			event.preventDefault();
 		}
@@ -394,9 +397,14 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.adjustWindowWithComponents();
 		this.replaceSizeQueries();
+
+		if (preventBroadcast) {
+			return;
+		}
+		this.$powerUi.onPowerWindowChange.broadcast();
 	}
 
-	restore(event) {
+	restore(event, preventBroadcast) {
 		if (event) {
 			event.preventDefault();
 		}
@@ -416,6 +424,11 @@ class PowerWindow extends PowerDialogBase {
 		this.removeWindowIsMaximizedFromBody();
 		this.adjustWindowWithComponents();
 		this.replaceSizeQueries();
+
+		if (preventBroadcast) {
+			return;
+		}
+		this.$powerUi.onPowerWindowChange.broadcast();
 	}
 
 	setAllWindowElements() {

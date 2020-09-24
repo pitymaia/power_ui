@@ -15,9 +15,13 @@ body, html {
     overflow: hidden;
 }
 
-.window-is-maximized .pw-small-window-mode .pw-window .pw-bar-fixed {
+.window-is-maximized .pw-small-window-mode .pw-window .pw-bar-fixed,
+.window-is-maximized .pw-window .pw-bar-fixed.pw-ignore,
+.pw-small-window-mode .pw-window .pw-bar-fixed.pw-ignore {
     visibility: hidden;
+    /*display: none;*/
 }
+
 /* Dropdown */
 .power-dropmenu, .power-dropmenu.power-active > .power-dropmenu {
     display: none !important;
