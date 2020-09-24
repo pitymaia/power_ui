@@ -3166,17 +3166,18 @@ body, html {
 .pw-window .pw-body:not(.pw-body-iframe) {
     overflow: auto;
 }
-.pw-window, .pw-window .pw-body, .pw-window iframe {
+.pw-window, .pw-window .pw-body, .pw-window .pw-body iframe {
     max-width: 100%;
     max-height: 100vh;
-    min-width: 250px;
-    min-height: 50px;
-    /*text-align: center;*/
 }
 
-.pw-small-window-mode .pw-window, .pw-small-window-mode .pw-window .pw-body, .pw-small-window-mode .pw-window iframe {
-    min-width: 100px;
+.pw-window {
+    min-width: 250px;
     min-height: 50px;
+}
+
+.pw-small-window-mode .pw-window {
+    min-width: 150px;
 }
 
 .pw-window .pw-title-bar, .pw-window .pw-body, .pw-window iframe {
