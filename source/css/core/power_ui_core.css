@@ -11,6 +11,9 @@ body, html {
     height: 100%;
     overflow: auto;
 }
+.window-is-maximized #app-container {
+    overflow: hidden;
+}
 /* Dropdown */
 .power-dropmenu, .power-dropmenu.power-active > .power-dropmenu {
     display: none !important;
