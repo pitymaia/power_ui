@@ -65,6 +65,10 @@ class PowerDialogBase extends PowerWidget {
 
 	_onRemoveView() {
 		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d=> d.id !== this.dialogId);
+		this.$powerUi.onBrowserWindowResize.unsubscribe(this.browserWindowResize, this);
+		if (this.$powerUi.touchdevice) {
+			this.$powerUi.onBrowserOrientationChange.unsubscribe(this.orientationChange, this);
+		}
 		if (!this.isWindow) {
 			this.$powerUi._events.Escape.unsubscribe(this._closeWindow);
 		}
@@ -76,9 +80,10 @@ class PowerDialogBase extends PowerWidget {
 		if (!this.isWindow) {
 			this.$powerUi._events.Escape.subscribe(this._closeWindow);
 		}
-		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize.bind(this));
+
+		this.$powerUi.onBrowserWindowResize.subscribe(this.browserWindowResize, this);
 		if (this.$powerUi.touchdevice) {
-			this.$powerUi.onBrowserOrientationChange.subscribe(this._orientationChange.bind(this));
+			this.$powerUi.onBrowserOrientationChange.subscribe(this.orientationChange, this);
 		}
 		this.isHiddenRoute = this.$powerUi.router.routes[this._routeId].isHidden || false;
 		const route = this.$powerUi.router.getOpenedRoute({routeId: this._routeId, viewId: this._viewId});
@@ -124,7 +129,7 @@ class PowerDialogBase extends PowerWidget {
 		this.setHeightLimits();
 	}
 
-	_orientationChange() {
+	orientationChange() {
 		this.browserWindowResize();
 	}
 
