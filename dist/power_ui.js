@@ -1474,38 +1474,36 @@ _PowerUiBase.injectPow({name: 'data-pow-if',
 // Define the powerDropmenus defaultPosition for all the child Power dropmenus
 // The right-bottom is the standard position
 function defineInnerDropmenusPosition(self, powerElement) {
-	if (['right-bottom', 'bottom-right', 'bottom', 'right'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = 'right-bottom';
-	} else if (['left-bottom', 'bottom-left', 'left'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = 'left-bottom';
-	} else if (['right-top', 'top-right', 'top',  'right'].includes(self.defaultPosition)) {
+	if (powerElement.defaultPosition) {
+		return;
+	}
+	if (self.element.classList.contains('pw-bottom')) {
 		powerElement.defaultPosition = 'right-top';
-	} else if (['left-top', 'top-left'].includes(self.defaultPosition)) {
-		powerElement.defaultPosition = 'left-top';
+	} else if (self.element.classList.contains('pw-right')) {
+		powerElement.defaultPosition = 'left-bottom';
+	} else if (self.element.classList.contains('pw-left')) {
+		powerElement.defaultPosition = 'right-bottom';
 	} else {
-		powerElement.defaultPosition = 'right-bottom'; // Default value;
+		powerElement.defaultPosition = 'right-bottom';
 	}
 }
 
 // Define the powerDropmenus defaultPosition for the first level Power dropmenus
 // The right-bottom is the standard position
 function defineRootDropmenusPosition(self, powerElement) {
-	if (['right-bottom', 'bottom-right', 'left-bottom', 'bottom-left',
-		'right-top', 'top-right', 'left-top', 'top-left'].includes(self.defaultPosition)) {
+	if (powerElement.defaultPosition) {
+		return;
+	} else if (self.defaultPosition) {
 		powerElement.defaultPosition = self.defaultPosition;
-	} else if (self.defaultPosition === 'top') {
-		powerElement.defaultPosition = 'top-right';
-	} else if (self.defaultPosition === 'bottom') {
-		powerElement.defaultPosition = 'bottom-right';
-	} else if (self.defaultPosition === 'right') {
-		powerElement.defaultPosition = 'bottom-right';
-	} else if (self.defaultPosition === 'left') {
-		powerElement.defaultPosition = 'bottom-left';
 	} else {
-		if (self.element.classList.contains('power-horizontal')) {
-			self.defaultPosition = 'bottom-right';
+		if (self.element.classList.contains('pw-bottom')) {
+			powerElement.defaultPosition = 'top-right';
+		} else if (self.element.classList.contains('pw-right')) {
+			powerElement.defaultPosition = 'left-bottom';
+		} else if (self.element.classList.contains('pw-left')) {
+			powerElement.defaultPosition = 'right-bottom';
 		} else {
-			self.defaultPosition = 'right-bottom';
+			powerElement.defaultPosition = 'bottom-right';
 		}
 	}
 }
@@ -1616,11 +1614,10 @@ class ComponentsManager {
 		this.startObserver();
 	}
 
-	observe(element) {
-		this.observing[element.id] = {};
-		this.observing[element.id].element = element;
-		this.observing[element.id].lastWidth = element.offsetWidth;
-		this.observing[element.id].lastHeight = element.offsetHeight;
+	observe(bar) {
+		this.observing[bar.id] = bar;
+		this.observing[bar.id].lastWidth = bar.element.offsetWidth;
+		this.observing[bar.id].lastHeight = bar.element.offsetHeight;
 	}
 
 	stopObserve(element) {
@@ -1631,31 +1628,40 @@ class ComponentsManager {
 	startObserver() {
 		const self = this;
 		setInterval(function () {
-			let hasChange = false;
-			for (const key of Object.keys(self.observing)) {
-				const lastWidth = self.observing[key].lastWidth;
-				const currentWidth = self.observing[key].element.offsetWidth;
-				const lastHeight = self.observing[key].lastHeight;
-				const currentHeight = self.observing[key].element.offsetHeight;
-				const active = self.observing[key].element.classList.contains('power-active');
-				if ((!active && lastWidth && lastHeight) && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
-					self.observing[key].lastWidth = currentWidth;
-					self.observing[key].lastHeight = currentHeight;
+			self.runObserver();
+		}, 500);
+	}
+
+	runObserver() {
+		let hasChange = false;
+		for (const key of Object.keys(this.observing)) {
+			const active = this.observing[key]._$pwActive;
+			const lastWidth = this.observing[key].lastWidth;
+			const currentWidth = this.observing[key].element.offsetWidth;
+			const lastHeight = this.observing[key].lastHeight;
+			const currentHeight = this.observing[key].element.offsetHeight;
+			if (!active) {
+				if (lastWidth && lastHeight && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
+					hasChange = true;
+				}
+
+				if (this.observing[key].isToolbar && this.observing[key].powerAction.element.offsetLeft > this.observing[key].element.offsetWidth) {
 					hasChange = true;
 				}
 			}
+			this.observing[key].lastWidth = currentWidth;
+			this.observing[key].lastHeight = currentHeight;
+		}
 
-			if (hasChange) {
-				self.running = true;
-				self.$powerUi.onBrowserWindowResize.broadcast();
-				self.hasChange = false;
-			}
-		}, 100);
+		if (hasChange) {
+			this.onBarSizeChange();
+			this.hasChange = false;
+		}
 	}
 
 	toggleSmallWindowMode() {
 		const _appContainer = document.getElementById('app-container');
-		if (window.innerWidth <= 768 || (this.$powerUi.touchdevice && window.innerWidth <= 1024)) {
+		if (window.innerWidth <= 768 || this.$powerUi.touchdevice) {
 			this.smallWindowMode = true;
 			_appContainer.classList.add('pw-small-window-mode');
 		} else {
@@ -1664,7 +1670,30 @@ class ComponentsManager {
 		}
 	}
 
+	onBarSizeChange() {
+		for (const bar of this.bars) {
+			if (bar.bar._$pwActive) {
+				return;
+			}
+		}
+		this.barsSizeAndPosition();
+		this._addMarginToBody();
+		this._setAppContainerHeight();
+		this.toggleSmallWindowMode();
+		for (const dialog of this.$powerUi.dialogs) {
+			if (dialog.ctrl.isWindow && (dialog.ctrl.isMaximized || this.smallWindowMode)) {
+				dialog.ctrl.adjustWindowWithComponents();
+			}
+		}
+	}
+
 	_browserWindowResize() {
+		for (const bar of this.bars) {
+			if (bar.bar._$pwActive) {
+				bar.bar.powerAction.toggle();
+				return;
+			}
+		}
 		// window.alert(window.innerWidth);
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.barsSizeAndPosition();
@@ -1693,12 +1722,9 @@ class ComponentsManager {
 	// This change the "app-container" and body element to allow adjust for fixed bars/menus
 	_addMarginToBody() {
 		const body = document.body;
-		const currentStyleMarginTop = 0;
-		body.style['margin-top'] = currentStyleMarginTop + this.topTotalHeight + 'px';
-		const currentStyleMarginLeft = 0;
-		body.style['margin-left'] = currentStyleMarginLeft + this.leftTotalWidth + 'px';
-		const currentStyleMarginRight = 0;
-		body.style['margin-right'] = currentStyleMarginRight + this.rightTotalWidth + 'px';
+		body.style['margin-top'] = this.topTotalHeight + 'px';
+		body.style['margin-left'] = this.leftTotalWidth + 'px';
+		body.style['margin-right'] = this.rightTotalWidth + 'px';
 	}
 	_reorderBars(fixedBars) {
 		let priority = fixedBars.length + 20;
@@ -1742,10 +1768,12 @@ class ComponentsManager {
 				currentTotalBottomHeight = currentTotalBottomHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.barPosition === 'left') {
 				currentTotalLeftWidth = currentTotalLeftWidth + bar.bar.element.offsetWidth;
+
 			} else if (bar.bar.barPosition === 'right') {
-				currentTotalRightWidth = currentTotalRightWidth + bar.bar.element.offsetWidth;
+				currentTotalRightWidth = currentTotalRightWidth + this.$powerUi._offsetComputedWidth(bar.bar.element);//bar.bar.element.offsetWidth;
 			}
 		}
+
 		return fixedBars;
 	}
 	// This change the position for fixed bars/menus so it shows one after another
@@ -1765,40 +1793,35 @@ class ComponentsManager {
 			if (bar.bar.barPosition === 'top') {
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
 				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight;
-				bar.bar.element.style.top = null;
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
-				bar.bar.element.style.left = null;
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
 				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight;
-				bar.bar.element.style.bottom = null;
 				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
-				bar.bar.element.style.left = null;
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - bar.adjusts.left - bar.adjusts.right + 'px';
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
-				bar.bar.element.style.left = null;
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
-				bar.bar.element.style.top = null;
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
 				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.barPosition === 'right') {
 				this.rightTotalWidth = this.rightTotalWidth + bar.bar.element.offsetWidth;
-				bar.bar.element.style.right = null;
 				bar.bar.element.style.right = bar.adjusts.right + 'px';
-				bar.bar.element.style.top = null;
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
 				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+			if (bar.bar.isToolbar) {
+				bar.bar.setStatus();
 			}
 		}
 	}
@@ -1881,11 +1904,16 @@ class PowerUi extends _PowerUiBase {
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		this.router = new Router(config, this); // Router calls this.init();
 		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
+		this.router.onRouteChange.subscribe(this.componentsManager.runObserver.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 		// On the first run broadcast a browser window resize so any window or other
 		// component can adapt it's size with the 'app-container'
 		this._events.ready.subscribe(()=>this.onBrowserWindowResize.broadcast());
+		// Check if app-container exists
+		if (!document.getElementById('app-container')) {
+			throw 'Missing element with "app-container" id! Check PowerUi documentation for more detais.';
+		}
 	}
 
 	// Return the "view" controller of any element inside the current view
@@ -2399,7 +2427,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	_offsetComputedWidth(element) {
-		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
+		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - (parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0));
 	}
 	_offsetComputedAdjustSides(element) {
 		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
@@ -2941,6 +2969,93 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
+	_setBarDropmenuPosition(bar) {
+		if (!bar.dropMenuPosition) {
+			if (!bar.orientation || bar.orientation === 'horizontal') {
+				if (bar.mirrored === true) {
+					if (bar.position === undefined || bar.position === 'fixed-top') {
+						bar.dropMenuPosition = 'bottom-left';
+					} else if (bar.position === 'fixed-bottom') {
+						bar.dropMenuPosition = 'top-left';
+					}
+				} else {
+					if (bar.position === undefined || bar.position === 'fixed-top') {
+						bar.dropMenuPosition = 'bottom-right';
+					} else if (bar.position === 'fixed-bottom') {
+						bar.dropMenuPosition = 'top-right';
+					}
+				}
+			} else if (bar.orientation === 'vertical') {
+				if (bar.mirrored === true || (bar.mirrored === undefined && (bar.position === 'fixed-right' || bar.position === 'float-right'))) {
+					bar.dropMenuPosition = 'left-bottom';
+				} else {
+					bar.dropMenuPosition = 'right-bottom';
+				}
+			}
+		}
+	}
+
+	_setBarCssStyles(bar, element) {
+		if (bar.mirrored) {
+			element.classList.add('pw-mirrored');
+		}
+		if (bar.position === 'fixed-top') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-top');
+			if (!bar.orientation || bar.orientation === 'horizontal') {
+				element.classList.add('pw-horizontal');
+			}
+		} else if (bar.position === 'fixed-bottom') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-bottom');
+			if (!bar.orientation || bar.orientation === 'horizontal') {
+				element.classList.add('pw-horizontal');
+			}
+		} else if (bar.position === 'fixed-left') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-left');
+			if (!bar.orientation || bar.orientation === 'vertical') {
+				element.classList.add('pw-vertical');
+			}
+		} else if (bar.position === 'fixed-right') {
+			element.classList.add('pw-bar-fixed');
+			element.classList.add('pw-right');
+			if (!bar.orientation || bar.orientation === 'vertical') {
+				element.classList.add('pw-vertical');
+			}
+		} else if (bar.position === 'float-left') {
+			element.classList.add('pw-bar-float');
+			element.classList.add('pw-left');
+		} else if (bar.position === 'float-right') {
+			element.classList.add('pw-bar-float');
+			element.classList.add('pw-right');
+		}
+		// Window can ignore bar
+		if (bar.ignore) {
+			element.classList.add('pw-ignore');
+		}
+		// Set priority
+		if (bar.priority) {
+			element.dataset.pwPriority = bar.priority;
+		}
+		// Set orientation
+		if (!bar.orientation) {
+			if (element.classList.contains('pw-vertical')) {
+				bar.orientation = 'vertical';
+			} else {
+				bar.orientation = 'horizontal';
+			}
+		}
+	}
+
+	_setBarOrientation(bar, element) {
+		if (bar.orientation === 'horizontal') {
+			element.classList.add('pw-horizontal');
+		} else if (bar.orientation === 'vertical') {
+			element.classList.add('pw-vertical');
+		}
+	}
+
 	menu(_menu) {
 		// Do not change the original JSON
 		const menu = this.cloneObject(_menu);
@@ -2967,80 +3082,32 @@ class JSONSchemaService extends PowerServices {
 				}
 			}
 
-			// Menus extends dropmenu
+			if (!menu.orientation) {
+				if (!menu.position || menu.position.includes('top') || menu.position.includes('bottom')) {
+					menu.orientation = 'horizontal';
+				} else {
+					menu.orientation = 'vertical';
+				}
+			}
+
+			if (!menu.classList) {
+				menu.classList = [];
+			}
+
+			menu.classList.push('power-menu pw-bar');
+
+			// Bar get its template from dropmenu
 			const tmpEl = document.createElement('div');
 
 			// Set dropmenu position
-			if (!menu.dropMenuPosition) {
-				if (!menu.orientation || menu.orientation === 'horizontal') {
-					if (menu.mirrored === true) {
-						if (menu.position === undefined || menu.position === 'fixed-top') {
-							menu.dropMenuPosition = 'bottom-left';
-						} else if (menu.position === 'fixed-bottom') {
-							menu.dropMenuPosition = 'top-left';
-						}
-					} else {
-						if (menu.position === undefined || menu.position === 'fixed-top') {
-							menu.dropMenuPosition = 'bottom-right';
-						} else if (menu.position === 'fixed-bottom') {
-							menu.dropMenuPosition = 'top-right';
-						}
-					}
-				} else if (menu.orientation === 'vertical') {
-					if (menu.mirrored === true || (menu.mirrored === undefined && (menu.position === 'fixed-right' || menu.position === 'float-right'))) {
-						menu.dropMenuPosition = 'left-bottom';
-					} else {
-						menu.dropMenuPosition = 'right-bottom';
-					}
-				}
-			}
-			tmpEl.innerHTML =  this.dropmenu(menu, menu.mirrored, true, menu.flip);
+			this._setBarDropmenuPosition(menu);
+
+			tmpEl.innerHTML =  this._buildbarEl(menu, menu.mirrored, menu.flip);
 
 			const menuEl = tmpEl.children[0];
-
 			// Set menu css styles
-			if (menu.mirrored) {
-				menuEl.classList.add('pw-mirrored');
-			}
-			if (menu.position === 'fixed-top') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-top');
-				if (!menu.orientation || menu.orientation === 'horizontal') {
-					menuEl.classList.add('pw-horizontal');
-				}
-			} else if (menu.position === 'fixed-bottom') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-bottom');
-				if (!menu.orientation || menu.orientation === 'horizontal') {
-					menuEl.classList.add('pw-horizontal');
-				}
-			} else if (menu.position === 'fixed-left') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-left');
-				if (!menu.orientation || menu.orientation === 'vertical') {
-					menuEl.classList.add('pw-vertical');
-				}
-			} else if (menu.position === 'fixed-right') {
-				menuEl.classList.add('pw-bar-fixed');
-				menuEl.classList.add('pw-right');
-				if (!menu.orientation || menu.orientation === 'vertical') {
-					menuEl.classList.add('pw-vertical');
-				}
-			} else if (menu.position === 'float-left') {
-				menuEl.classList.add('pw-menu-float');
-				menuEl.classList.add('pw-left');
-			} else if (menu.position === 'float-right') {
-				menuEl.classList.add('pw-menu-float');
-				menuEl.classList.add('pw-right');
-			}
-			// Window can ignore menu
-			if (menu.ignore) {
-				menuEl.classList.add('pw-ignore');
-			}
-			// Set priority
-			if (menu.priority) {
-				menuEl.dataset.pwPriority = menu.priority;
-			}
+			this._setBarCssStyles(menu, menuEl);
+			this._setBarOrientation(menu, menuEl);
 
 			// Brand
 			if (menu.brand) {
@@ -3063,12 +3130,6 @@ class JSONSchemaService extends PowerServices {
 				menuEl.insertBefore(brandEl, menuEl.childNodes[0]);
 			}
 
-			if (menu.orientation === 'horizontal') {
-				menuEl.classList.add('pw-horizontal');
-			} else if (menu.orientation === 'vertical') {
-				menuEl.classList.add('pw-vertical');
-			}
-
 			// Add hamburger menu toggle
 			if (menu.colapse !== false) {
 				menuEl.classList.add('pw-colapse');
@@ -3080,18 +3141,141 @@ class JSONSchemaService extends PowerServices {
 				menuEl.appendChild(hamburgerEl);
 			}
 
-			if (menu.classList) {
-				this.appendClassList({element: menuEl, json: menu});
+			return tmpEl.innerHTML;
+		}
+	}
+
+	toolbar(_toolbar) {
+		// Do not change the original JSON
+		const toolbar = this.cloneObject(_toolbar);
+		// This allow pass an array of menus
+		if (_toolbar.length) {
+			return this._arrayOfSchemas(_toolbar, 'toolbar');
+		} else if (_toolbar.$ref) {
+			// Use the original JSON
+			return this.toolbar(this.getNewJSON(_toolbar));
+		} else {
+			if (_toolbar.$id) {
+				// Register original JSON
+				this.registerJSONById(_toolbar);
+			}
+
+			if (this._validate(this.toolbarDef(), toolbar) === false) {
+				window.console.log('Failed JSON toolbar:', toolbar);
+				throw 'Failed JSON toolbar!';
+			}
+			if (toolbar.events) {
+				const result = this._validateEvents(toolbar.events, toolbar, 'toolbar');
+				if ( result !== true) {
+					throw result;
+				}
+			}
+
+			if (!toolbar.orientation) {
+				if (!toolbar.position || toolbar.position.includes('top') || toolbar.position.includes('bottom')) {
+					toolbar.orientation = 'horizontal';
+				} else {
+					toolbar.orientation = 'vertical';
+				}
+			}
+
+
+			if (!toolbar.classList) {
+				toolbar.classList = [];
+			}
+
+			toolbar.classList.push('power-toolbar pw-bar pw-icons-bar');
+
+			// Bar get its template from dropmenu
+			const tmpEl = document.createElement('div');
+
+			// Set dropmenu position
+			this._setBarDropmenuPosition(toolbar);
+
+			tmpEl.innerHTML =  this._buildbarEl(toolbar, toolbar.mirrored, toolbar.flip);
+
+			const toolbarEl = tmpEl.children[0];
+			// Set toolbar css styles
+			this._setBarCssStyles(toolbar, toolbarEl);
+
+			this._setBarOrientation(toolbar, toolbarEl);
+
+			// Add toolbar toggle
+			if (toolbar.colapse !== false) {
+				const dotsHolderEl = document.createElement('div');
+				dotsHolderEl.innerHTML = `<a id="${toolbar.id}-action" class="power-toggle" data-power-target="${toolbar.id}">
+					<i class="pw-icon icon-option-${toolbar.orientation}"></i>
+				</a>`;
+				const dotsEl = dotsHolderEl.children[0];
+				toolbarEl.appendChild(dotsEl);
 			}
 
 			return tmpEl.innerHTML;
 		}
 	}
 
-	dropmenu(_dropmenu, mirrored, isMenu, flip) {
+	_buildbarEl(bar, mirrored, flip) {
+		const tmpEl = document.createElement('div');
+		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''} data-pw-position="${bar.dropMenuPosition}"></nav>`;
+
+		for (const item of bar.items) {
+			const itemHolderEl = document.createElement('div');
+			if (flip && item.status && item.status.active) {
+				if (item.status.active.includes('down')) {
+					item.status.active = item.status.active.replace('down', 'up');
+				} else if (item.status.active.includes('up')) {
+					item.status.active = item.status.active.replace('up', 'down');
+				}
+			}
+			if (item.item) {
+				itemHolderEl.innerHTML = this.item({
+					item: item.item,
+					mirrored: item.mirrored === undefined ? mirrored : item.mirrored,
+					dropmenuId: item.dropmenu ? item.dropmenu.id : false
+				});
+			} else if (item.button && item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					item.button.mirrored = mirrored;
+				}
+				itemHolderEl.innerHTML = this.dropMenuButton(item);
+			} else if (item.button && !item.dropmenu) {
+				if (mirrored !== undefined && item.button.mirrored === undefined) {
+					itemHolderEl.innerHTML = this.button(item.button, mirrored);
+				} else {
+					itemHolderEl.innerHTML = this.button(item.button);
+				}
+				// Buttons inside menu needs the 'power-item' class
+				itemHolderEl.children[0].classList.add('power-item');
+			}
+
+			const anchorEl = itemHolderEl.children[0];
+
+			if (item.item && !item.button) {
+				if (item.status) {
+					this.appendStatus({element: anchorEl, json: item.status, mirrored: mirrored});
+				}
+			}
+
+			tmpEl.children[0].appendChild(anchorEl);
+
+			// Buttons already have the menu created by dropMenuButton inside itemHolderEl
+			if (item.button && item.dropmenu) {
+				tmpEl.children[0].appendChild(itemHolderEl.children[0]);
+			} else if (item.dropmenu && !item.button) {
+				// Add submenu if have one and is not a button
+				const submenuHolderEl = document.createElement('div');
+				submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, flip);
+				tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
+			}
+		}
+
+		return tmpEl.innerHTML;
+	}
+
+	dropmenu(_dropmenu, mirrored, flip) {
 		// Do not change the original JSON
 		const dropmenu = this.cloneObject(_dropmenu);
-		const dropmenuPosition = isMenu ? dropmenu.dropMenuPosition : dropmenu.position;
+		const dropmenuPosition = dropmenu.position;
 		// This allow pass an array of dropmenus
 		if (_dropmenu.length) {
 			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
@@ -3121,18 +3305,14 @@ class JSONSchemaService extends PowerServices {
 				dropmenu.classList = [];
 			}
 
-			dropmenu.classList.push(isMenu ? 'power-menu pw-bar' : 'power-dropmenu');
+			dropmenu.classList.push('power-dropmenu');
 
 			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(dropmenu)} ${mirrored === true ? ' pw-mirrored' : ''}></nav>`;
 
-			// Set menu position
+			// Set dropmenu position
 			if (dropmenuPosition) {
-					const menu = tmpEl.children[0];
-					if (isMenu) {
-						menu.dataset.pwDropmenu = dropmenuPosition;
-					} else {
-						menu.dataset.pwPosition = dropmenuPosition;
-					}
+					const dropmenuEl = tmpEl.children[0];
+					dropmenuEl.dataset.pwPosition = dropmenuPosition;
 			}
 
 			for (const item of dropmenu.items) {
@@ -3224,7 +3404,9 @@ class JSONSchemaService extends PowerServices {
 
 			newItem.classList.push(dropmenuId ? 'power-action' : 'power-item');
 
-			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(newItem)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}><span class="pw-label">${newItem.label}</span></a>`;
+			const label = `<span class="pw-label">${newItem.label}</span>`;
+
+			tmpEl.innerHTML = `<a ${this._getHtmlBasicTmpl(newItem)} ${dropmenuId ? 'data-power-target="' + dropmenuId + '"' : ''}>${newItem.label ? label : ''}</a>`;
 
 			const itemEl = tmpEl.children[0];
 
@@ -4030,6 +4212,36 @@ class JSONSchemaService extends PowerServices {
 		};
 	}
 
+	toolbarDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/toolbar",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"mirrored": {"type": "boolean"},
+				"dropMenuPosition": {"type": "string"},
+				"orientation": {"type": "string"},
+				"position": {"type": "string"},
+				"priority": {"type": "number"},
+				"ignore": {"type": "boolean"},
+				"items": {
+					"type": "array",
+					"properties": {
+						"button": {"$ref": "#/schema/draft-07/item"},
+						"item": {"$ref": "#/schema/draft-07/item"},
+						"status": {"$ref": "#/schema/draft-07/status"},
+						"dropmenu": {"$ref": "#/schema/draft-07/dropmenu"}
+					}
+				}
+			},
+			"required": ["id"]
+		};
+	}
+
 	// Item can be a power-button, power-action or power-item
 	itemDef() {
 		return {
@@ -4056,7 +4268,7 @@ class JSONSchemaService extends PowerServices {
 					"required": ["event", "fn"]
 				}
 			},
-			"required": ["label"]
+			// "required": []
 		};
 	}
 
@@ -9646,15 +9858,16 @@ class PowerWindow extends PowerDialogBase {
 			} else if (!bar.bar.ignore && bar.bar.barPosition === 'bottom') {
 				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'right') {
-				this.adjustWidth = this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+				this.adjustWidth = bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'left') {
-				this.adjustLeft = this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+				this.adjustLeft = bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			}
 		}
 		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
 			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
-			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
+			// this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
+			this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.adjustWidth + this.adjustLeft + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 
@@ -9967,7 +10180,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	setAllWindowElements() {
-		this._dialog.style.width =  this._width + 'px';
+		this._dialog.style.width =  this._width +'px';
 		this._dialog.style.height =  this._height + 'px';
 		this.bodyEl.style.height = this._height - this.titleBarEl.offsetHeight + 'px';
 		this._dialog.style.left = this._left + 'px';
@@ -10330,7 +10543,7 @@ class _PowerBarsBase extends PowerTarget {
 		// Add this bar to componentsManager.bars
 		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
 		if (this.isFixed) {
-			this.$powerUi.componentsManager.observe(this.element);
+			this.$powerUi.componentsManager.observe(this);
 		}
 	}
 }
@@ -10548,14 +10761,12 @@ class PowerActionsBar extends _PowerBarsBase {
 	constructor(bar, $powerUi) {
 		super(bar, $powerUi);
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-pw-dropmenu');
-		// If user does not define a default position, see if is horizontal or vertical bar and set a defeult value
+		this.defaultPosition = this.element.getAttribute('data-pw-position');
+		// If user does not define a default position, see if is horizontal or vertical bar
 		if (this.element.classList.contains('pw-horizontal')) {
 			this.orientation = 'horizontal';
-			this.defaultPosition = this.defaultPosition || 'bottom-right';
 		} else {
 			this.orientation = 'vertical';
-			this.defaultPosition = this.defaultPosition || 'right-bottom';
 		}
 	}
 
@@ -10749,8 +10960,10 @@ class PowerActionsBar extends _PowerBarsBase {
 	toggle() {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
+
+		// Removed becouse power-toggle already implement a toggle event
 		// Broadcast toggle custom event
-		this.powerAction.broadcast('toggle', true);
+		// this.powerAction.broadcast('toggle', true);
 	}
 
 	// The powerToggle call this action method
@@ -10774,7 +10987,8 @@ class PowerDropmenu extends PowerTarget {
 		super(element);
 
 		// The position the dropmenu will try to appear by default
-		this.defaultPosition = this.element.getAttribute('data-pw-position') || 'bottom-right';
+		this.defaultPosition = this.element.getAttribute('data-pw-position');
+
 		// Mark the root of the dropmenu tree, first level element
 		this._markRootAndMenuDropmenu();
 	}
@@ -11059,6 +11273,7 @@ class PowerDropmenu extends PowerTarget {
 
 	toggle() {
 		this.resetDropmenuPosition();
+
 		// Hide the element when add to DOM
 		// This allow get the dropmenu sizes and position before adjust and show
 		this.element.classList.add('power-hide');
@@ -11135,7 +11350,7 @@ class PowerDropmenu extends PowerTarget {
 			// Also add anny scrollTop and scrollLeft
 			scrollTop = scrollTop + element.scrollTop;
 			scrollLeft = scrollLeft + element.scrollLeft;
-			if (window.getComputedStyle(element).getPropertyValue('position') === 'fixed') {
+			if (window.getComputedStyle(element).getPropertyValue('position') === 'fixed' || element.id === 'app-container') {
 				return true;
 			}
 		});
@@ -11322,14 +11537,157 @@ class PowerToolbar extends PowerActionsBar {
 	constructor(bar, $powerUi) {
 		super(bar, $powerUi);
 		this.isToolbar = true;
+		this.isColapsed = false;
 	}
 
 	onRemove() {
+		this.powerAction.unsubscribe({event: 'toggle', fn: this._setStatus, bar: this});
 		super.onRemove();
 	}
 
 	init() {
 		super.init();
+	}
+
+	getChildrenTotalWidth() {
+		let totalChildrenWidth = 0;
+		for (const action of this.childrenPowerActions) {
+			totalChildrenWidth = totalChildrenWidth + action.element.offsetWidth;
+		}
+
+		for (const item of this.childrenPowerItems) {
+			totalChildrenWidth = totalChildrenWidth + item.element.offsetWidth;
+		}
+		return totalChildrenWidth;
+	}
+
+	getChildrenTotalHeight() {
+		let totalChildrenHeight = 0;
+		for (const action of this.childrenPowerActions) {
+			totalChildrenHeight = totalChildrenHeight + action.element.offsetHeight;
+		}
+
+		for (const item of this.childrenPowerItems) {
+			totalChildrenHeight = totalChildrenHeight + item.element.offsetHeight;
+		}
+		return totalChildrenHeight;
+	}
+
+	_setStatus(ctx, event, params) {
+		params.bar.setStatus.bind(params.bar)();
+	}
+
+	setStatus() {
+		if (!this.powerToggle) {
+			if (!this.powerAction || !this.powerAction.element) {
+				throw `Toolbar ${this.id} is missing the "power-toggle" element or it's "data-power-target" attribute value is different from the toolbar id. See documentation for more details.`;
+			} else {
+				this.powerToggle = this.powerAction.element;
+				this.powerAction.subscribe({event: 'toggle', fn: this._setStatus, bar: this});
+			}
+		}
+		this.barWidth = parseInt(this.element.style.width.replace('px', ''));
+		this.barHeight = parseInt(this.element.style.height.replace('px', ''));
+		this.toggleWidth = this.powerToggle.offsetWidth;
+		this.toggleHeight = this.powerToggle.offsetHeight;
+
+		if (this.orientation === 'vertical') {
+			this.VerticalShowAndHiddeItems();
+		} else {
+			this.horizontalShowAndHiddeItems();
+		}
+	}
+
+	VerticalShowAndHiddeItems() {
+		if (this.getChildrenTotalHeight() >= this.barHeight) {
+			if (this.isColapsed === false) {
+				this.element.classList.add('pw-show-toggle');
+				this.isColapsed = true;
+			}
+		} else if (this.isColapsed === true) {
+			this.element.classList.remove('pw-show-toggle');
+			this.isColapsed = false;
+		}
+		let currentHeight = 0;
+		for (const child of this.element.children) {
+			const isAction = child.classList.contains('power-action');
+			const isItem = child.classList.contains('power-item');
+			if (isItem || isAction) {
+				currentHeight = currentHeight + child.offsetHeight;
+				if (this._$pwActive || (currentHeight < this.barHeight - this.toggleHeight)) {
+					child.classList.add('pw-force-show');
+					child.style['margin-top'] = null;
+					child.style['margin-bottom'] = null;
+				} else {
+					child.classList.remove('pw-force-show');
+					child.style['margin-top'] = -(child.offsetHeight) + 'px';
+				}
+			}
+		}
+		this.setMaxWidthOnActiveVerticalBar();
+	}
+
+	setMaxWidthOnActiveVerticalBar() {
+		if (!this._$pwActive) {
+			this.element.style.width = null;
+			return;
+		}
+		const firstItem = this.childrenPowerActions[0] || this.childrenPowerItems[0];
+		const firstItemWidth = firstItem.element.offsetWidth;
+
+		let maxWidth =  firstItemWidth + firstItemWidth;
+		let needIncrease = true;
+		let loops = 0;
+		while (needIncrease && loops < 30) {
+			loops = loops + 1;
+			this.element.style.width = maxWidth + 'px';
+			needIncrease = false;
+			for (const action of this.childrenPowerActions) {
+				if (action.element.offsetTop >= this.barHeight - firstItemWidth) {
+					needIncrease = true;
+				}
+			}
+
+			for (const item of this.childrenPowerItems) {
+				if (item.element.offsetTop >= this.barHeight - firstItemWidth) {
+					needIncrease = true;
+				}
+			}
+			maxWidth = maxWidth + firstItemWidth;
+		}
+
+		if (loops >= 30) {
+			this.element.style.width = null;
+		}
+	}
+
+	horizontalShowAndHiddeItems() {
+		if (this.getChildrenTotalWidth() >= this.barWidth) {
+			if (this.isColapsed === false) {
+				this.element.classList.add('pw-show-toggle');
+				this.isColapsed = true;
+			}
+		} else if (this.isColapsed === true) {
+			this.element.classList.remove('pw-show-toggle');
+			this.isColapsed = false;
+		}
+		let currentWidth = 0;
+		for (const child of this.element.children) {
+			const isAction = child.classList.contains('power-action');
+			const isItem = child.classList.contains('power-item');
+			if (isItem || isAction) {
+				currentWidth = currentWidth + child.offsetWidth;
+				if (this._$pwActive || (currentWidth < this.barWidth - this.toggleWidth)) {
+					child.classList.add('pw-force-show');
+					child.style['margin-left'] = null;
+					child.style['margin-right'] = null;
+				} else {
+					child.classList.remove('pw-force-show');
+					child.style['margin-left'] = -(child.offsetWidth) + 'px';
+					// child.style['margin-right'] = -(child.offsetWidth*0.5) + 'px';
+				}
+			}
+		}
 	}
 }
 // Inject the power css on PowerUi
