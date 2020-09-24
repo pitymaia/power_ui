@@ -408,7 +408,6 @@ class PowerMainTemplate extends PowerTemplate {
 		</div>`;
 
 		const menu1 = {
-			// "classList": ["pw-black-white"],
 			"id": 'my-menu-main',
 			"mirrored": true,
 			"position": "fixed-top",
@@ -1078,36 +1077,49 @@ class SimpleModal extends PowerModal {
 }
 
 class SimpleTemplate extends PowerTemplate {
-	template(resolve, reject) {
-		const self = this;
-		this.$powerUi.request({
-				url: '/some-window.html',
-				method: 'GET',
-				status: "Loading page",
-		}).then(function (response, xhr) {
-			let tmpEl = document.createElement("div");
-			tmpEl = document.createElement("div");
-			tmpEl.innerHTML = '<h1>Pity o bom</h1>';
-			tmpEl.innerHTML = tmpEl.innerHTML + response;
-			self.pity = "Pity o bom";
-			resolve(tmpEl.innerHTML);
-		}).catch(function (response, xhr) {
-			// console.log('SimpleTemplate', response, xhr);
-			reject();
-		});
+	async css(resolve, reject) {
+		const _css = await this.import('/css/some-window.css');
+		resolve(_css);
 	}
 
-	css(resolve, reject) {
-		this.$powerUi.request({
-				url: '/json/some-window.json',
-				method: 'GET',
-				status: "Loading json",
-		}).then(function (response, xhr) {
-			resolve(response.css);
-		}).catch(function (response, xhr) {
-			// window.console.log('css', response, xhr);
-			reject();
-		});
+	async template(resolve, reject) {
+		let page = await this.import('/some-window.html');
+
+		const menu = {
+			"classList": ["pw-red-white"],
+			"id": 'my-win-menu',
+			"mirrored": false,
+			"position": "fixed-top",
+			"ignore": false,
+			"priority": 1,
+			"brand": {
+				"content": "WinMenu",
+			},
+			"items": [
+				{
+					"item": {
+						"id": "Super3",
+						"label": "Super Mario",
+						"icon": "icon-pacman",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openWin()"
+							}
+						]
+					}
+				}
+			]
+		};
+
+		page = page + this.$service('JSONSchema').menu(menu);
+
+		let tmpEl = document.createElement("div");
+		tmpEl = document.createElement("div");
+		tmpEl.innerHTML = '<h1>Pity o bom!</h1>';
+		tmpEl.innerHTML = tmpEl.innerHTML + page;
+		self.pity = "Pity o bom";
+		resolve(tmpEl.innerHTML);
 	}
 }
 

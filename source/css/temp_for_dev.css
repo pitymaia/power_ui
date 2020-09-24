@@ -172,3 +172,8 @@ html {
     border-width: 1px;
     border-color: white;*/
 }
+
+.pw-red-white, .pw-red-white .power-dropmenu {
+    background-color: pink !important;
+    color: red;
+}
