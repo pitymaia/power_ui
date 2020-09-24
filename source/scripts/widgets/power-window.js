@@ -308,16 +308,20 @@ class PowerWindow extends PowerDialogBase {
 		}
 	}
 
-	topLeftLimits() {
-		if (this._left < 0) {
-			this._left = 0;
+	topLeftLimits(minTop, minLeft) {
+		if (this._left < minLeft) {
+			this._left = minLeft;
 		}
-		if (this._top < 0) {
-			this._top = 0;
+		if (this._top < minTop) {
+			this._top = minTop;
 		}
 	}
 
 	avoidExceedingLimits() {
+		const minTop = this.minTop();
+		const maxBottom = this.maxBottom();
+		const minLeft = this.minLeft();
+		const maxRight = this.maxRight();
 		let widthFix = 0;
 		let heightFix = 0;
 		if (this._width < this._minWidth) {
@@ -328,28 +332,28 @@ class PowerWindow extends PowerDialogBase {
 			heightFix = this._height - this._minHeight;
 			this._height = this._minHeight;
 		}
-		this.topLeftLimits();
+		this.topLeftLimits(minTop, minLeft);
 		// Left limits
 		if (this._width === this._minWidth && this._dialog.cursor.includes('left')) {
 			this._left = this._left + widthFix;
-		} else if (this._left <= 0 && this._lastWidth < this._width && this._dialog.cursor.includes('left')) {
+		} else if (this._left <= minLeft && this._lastWidth < this._width && this._dialog.cursor.includes('left')) {
 			this._width = this._lastWidth;
 		}
 		// Top limits
 		if (this._height === this._minHeight && this._dialog.cursor.includes('top')) {
 			this._top = this._top + heightFix;
-		} else if (this._top <= 0 && this._lastHeight < this._height && this._dialog.cursor.includes('top')) {
+		} else if (this._top <= minTop && this._lastHeight < this._height && this._dialog.cursor.includes('top')) {
 			this._height = this._lastHeight;
 		}
 		// Right limits
-		if (this._left + this._width + 10 > window.innerWidth) {
-			this._width = window.innerWidth - this._left - 10;
+		if ((this._left + this._width) + maxRight + 10 > window.innerWidth) {
+			this._width = (window.innerWidth - this._left) - maxRight - 10;
 		}
 		// Bottom limits
-		if (this._top + this._height + 10 > window.innerHeight) {
-			this._height = window.innerHeight - this._top - 10;
+		if ((this._top + this._height) + maxBottom + 10 > window.innerHeight) {
+			this._height = (window.innerHeight - this._top) - maxBottom - 10;
 		}
-		this.topLeftLimits();
+		this.topLeftLimits(minTop, minLeft);
 		this._lastHeight = this._height;
 		this._lastWidth = this._width;
 		this._lastTop = this._top;
