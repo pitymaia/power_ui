@@ -1085,8 +1085,264 @@ class SimpleTemplate extends PowerTemplate {
 	async template(resolve, reject) {
 		let page = await this.import('/some-window.html');
 
+		const toolbar = {
+		    "classList": ["pw-red-white"],
+		    "id": 'my-window-toolbar',
+		    "position": "fixed-top",
+		    "ignore": false,
+		    "priority": 2,
+		    "items": [
+		        {
+		            "item": {
+		                "id": "tool-item-123",
+		                "icon": "icon-star-fill",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "more-t123",
+		                "icon": "icon-food-mushroom"
+		            },
+		            "status": {
+		                "active": "icon-caret-up",
+		                "inactive": "icon-caret-down",
+		            },
+		            "dropmenu": {
+		                "id": "my-tool-menu-223",
+		                "items": [
+		                    {
+		                        "item": {
+		                            "id": "sst-123",
+		                            "label": "Doom",
+		                            "icon": "icon-game-fill",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+		                                }
+		                            ]
+		                        }
+		                    },
+		                    {
+		                        "item": {
+		                            "id": "rrt-123",
+		                            "label": "Quake",
+		                            "icon": "icon-game-joystick",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+		                                }
+		                            ]
+		                        }
+		                    },
+		                    {
+		                        "item": {
+		                            "id": "ddt-123",
+		                            "label": "Heretic",
+		                            "icon": "icon-game-round",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                                }
+		                            ]
+		                        }
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-133",
+		                "icon": "icon-phone-ringing",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-143",
+		                "icon": "icon-pig-bank",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-153",
+		                "icon": "icon-scale-justice",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-233",
+		                "icon": "icon-gift-heart",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-243",
+		                "icon": "icon-pacman",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-253",
+		                "icon": "icon-graphic-pizza",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-333",
+		                "icon": "icon-icecream-stroke",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-343",
+		                "icon": "icon-food-carot",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-353",
+		                "icon": "icon-food-cake-stroke",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-433",
+		                "icon": "icon-food-hamburguer",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-443",
+		                "icon": "icon-food-hotdog",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-453",
+		                "icon": "icon-food-lemon",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-533",
+		                "icon": "icon-coffee-bean",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-543",
+		                "icon": "icon-glass-coffe",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-553",
+		                "icon": "icon-glass-drink-half",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		    ]
+		};
+
 		const menu = {
-			"classList": ["pw-red-white"],
+			"classList": ["pw-orange-white"],
 			"id": 'my-win-menu',
 			"mirrored": false,
 			"position": "fixed-top",
@@ -1113,6 +1369,7 @@ class SimpleTemplate extends PowerTemplate {
 		};
 
 		page = page + this.$service('JSONSchema').menu(menu);
+		page = page + this.$service('JSONSchema').toolbar(toolbar);
 
 		let tmpEl = document.createElement("div");
 		tmpEl = document.createElement("div");

@@ -240,10 +240,11 @@
 }
 
 /* power menu-break query*/
-.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar .pw-icon {
+.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar:not(.pw-bar-fixed) .pw-icon {
     font-size: 1.4em;
 }
-.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar .pw-icon.pw-status, .pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar .power-status {
+.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar:not(.pw-bar-fixed) .pw-icon.pw-status,
+.pwdesign-white-smoke .pw-bar-break .pw-bar.pw-icons-bar:not(.pw-bar-fixed) .power-status {
     font-size: 1em;
 }
 /* power menu-break query*/
