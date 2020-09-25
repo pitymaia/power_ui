@@ -30,7 +30,7 @@ class _PowerBarsBase extends PowerTarget {
 		}
 		// Add this bar to componentsManager.bars
 		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
-		if (this.isFixed) {
+		if (this.isFixed || this.isWindowFixed) {
 			this.$powerUi.componentsManager.observe(this);
 		}
 	}
@@ -38,7 +38,7 @@ class _PowerBarsBase extends PowerTarget {
 	onRemove() {
 		// Remove this bar from componentsManager.bars
 		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
-		if (this.isFixed) {
+		if (this.isFixed || this.isWindowFixed) {
 			this.$powerUi.componentsManager.stopObserve(this.element);
 		}
 	}

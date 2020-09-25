@@ -25,7 +25,6 @@ class PowerToolbar extends PowerActionsBar {
 			totalChildrenWidth = totalChildrenWidth + item.element.offsetWidth;
 		}
 		totalChildrenWidth = totalChildrenWidth + this.powerToggle.offsetWidth;
-		this.lastTotalChildrenWidth = totalChildrenWidth;
 		return totalChildrenWidth;
 	}
 
@@ -153,6 +152,7 @@ class PowerToolbar extends PowerActionsBar {
 					child.style['margin-left'] = -(child.offsetWidth) + 'px';
 					// child.style['margin-right'] = -(child.offsetWidth*0.5) + 'px';
 				}
+				this.lastTotalChildrenWidth = currentWidth;
 			}
 		}
 	}

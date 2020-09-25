@@ -178,6 +178,12 @@ class ComponentsManager {
 			}
 			this.observing[key].lastWidth = currentWidth;
 			this.observing[key].lastHeight = currentHeight;
+			// Fix toolbar toggle if its out of the menu
+			if (this.observing[key].isWindowFixed && this.observing[key].lastTotalChildrenWidth) {
+				if (this.observing[key].lastTotalChildrenWidth >= currentWidth + this.observing[key].toggleWidth) {
+					this.observing[key].setStatus();
+				}
+			}
 		}
 
 		if (hasChange) {
