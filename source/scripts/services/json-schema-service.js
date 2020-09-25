@@ -531,8 +531,12 @@ class JSONSchemaService extends PowerServices {
 		if (bar.mirrored) {
 			element.classList.add('pw-mirrored');
 		}
+		if (bar.position.includes('fixed')) {
+			const fixedWindow = bar.position.includes('window');
+			element.classList.add(fixedWindow ? 'pw-bar-window-fixed' : 'pw-bar-fixed');
+		}
+
 		if (bar.position === 'fixed-top') {
-			element.classList.add('pw-bar-fixed');
 			element.classList.add('pw-top');
 			if (!bar.orientation || bar.orientation === 'horizontal') {
 				element.classList.add('pw-horizontal');

@@ -3,6 +3,7 @@ class PowerToolbar extends PowerActionsBar {
 		super(bar, $powerUi);
 		this.isToolbar = true;
 		this.isColapsed = false;
+		// this.$powerUi.router.onRouteChange.subscribe(this.setStatus, this);
 	}
 
 	onRemove() {
@@ -23,6 +24,8 @@ class PowerToolbar extends PowerActionsBar {
 		for (const item of this.childrenPowerItems) {
 			totalChildrenWidth = totalChildrenWidth + item.element.offsetWidth;
 		}
+		totalChildrenWidth = totalChildrenWidth + this.powerToggle.offsetWidth;
+		this.lastTotalChildrenWidth = totalChildrenWidth;
 		return totalChildrenWidth;
 	}
 
@@ -51,11 +54,10 @@ class PowerToolbar extends PowerActionsBar {
 				this.powerAction.subscribe({event: 'toggle', fn: this._setStatus, bar: this});
 			}
 		}
-		this.barWidth = parseInt(this.element.style.width.replace('px', ''));
-		this.barHeight = parseInt(this.element.style.height.replace('px', ''));
+		this.barWidth = parseInt(this.element.style.width.replace('px', '')) || this.element.offsetWidth;
+		this.barHeight = parseInt(this.element.style.height.replace('px', '')) || this.element.offsetHeight;
 		this.toggleWidth = this.powerToggle.offsetWidth;
 		this.toggleHeight = this.powerToggle.offsetHeight;
-
 		if (this.orientation === 'vertical') {
 			this.VerticalShowAndHiddeItems();
 		} else {
@@ -143,9 +145,9 @@ class PowerToolbar extends PowerActionsBar {
 			if (isItem || isAction) {
 				currentWidth = currentWidth + child.offsetWidth;
 				if (this._$pwActive || (currentWidth < this.barWidth - this.toggleWidth)) {
-					child.classList.add('pw-force-show');
 					child.style['margin-left'] = null;
 					child.style['margin-right'] = null;
+					child.classList.add('pw-force-show');
 				} else {
 					child.classList.remove('pw-force-show');
 					child.style['margin-left'] = -(child.offsetWidth) + 'px';

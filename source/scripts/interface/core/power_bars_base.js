@@ -11,6 +11,8 @@ class _PowerBarsBase extends PowerTarget {
 		this.priority = this.priority ? parseInt(this.priority) : null;
 		if (this.element.classList.contains('pw-bar-fixed')) {
 			this.isFixed = true;
+		} else if (this.element.classList.contains('pw-bar-window-fixed')) {
+			this.isWindowFixed = true;
 		} else {
 			this.isFixed = false;
 		}
@@ -26,6 +28,11 @@ class _PowerBarsBase extends PowerTarget {
 		if (this.element.classList.contains('pw-ignore')) {
 			this.ignore = true;
 		}
+		// Add this bar to componentsManager.bars
+		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
+		if (this.isFixed) {
+			this.$powerUi.componentsManager.observe(this);
+		}
 	}
 
 	onRemove() {
@@ -37,10 +44,5 @@ class _PowerBarsBase extends PowerTarget {
 	}
 
 	init() {
-		// Add this bar to componentsManager.bars
-		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
-		if (this.isFixed) {
-			this.$powerUi.componentsManager.observe(this);
-		}
 	}
 }
