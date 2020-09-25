@@ -414,10 +414,10 @@ class PowerWindow extends PowerDialogBase {
 		this.replaceSizeQueries();
 		this.refreshWindowToolbars();
 
-		if (preventBroadcast) {
-			return;
+		if (!preventBroadcast) {
+			this.$powerUi.onPowerWindowChange.broadcast();
 		}
-		this.$powerUi.onPowerWindowChange.broadcast();
+		this.$powerUi.componentsManager.runObserver();
 	}
 
 	restore(event, preventBroadcast) {
@@ -442,10 +442,10 @@ class PowerWindow extends PowerDialogBase {
 		this.replaceSizeQueries();
 		this.refreshWindowToolbars();
 
-		if (preventBroadcast) {
-			return;
+		if (!preventBroadcast) {
+			this.$powerUi.onPowerWindowChange.broadcast();
 		}
-		this.$powerUi.onPowerWindowChange.broadcast();
+		this.$powerUi.componentsManager.runObserver();
 	}
 
 	setAllWindowElements() {
