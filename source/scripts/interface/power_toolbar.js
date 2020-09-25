@@ -138,12 +138,14 @@ class PowerToolbar extends PowerActionsBar {
 			this.isColapsed = false;
 		}
 		let currentWidth = 0;
+		this.lastTotalChildrenWidth = 0;
 		for (const child of this.element.children) {
 			const isAction = child.classList.contains('power-action');
 			const isItem = child.classList.contains('power-item');
 			if (isItem || isAction) {
 				currentWidth = currentWidth + child.offsetWidth;
 				if (this._$pwActive || (currentWidth < this.barWidth - this.toggleWidth)) {
+					this.lastTotalChildrenWidth = currentWidth;
 					child.style['margin-left'] = null;
 					child.style['margin-right'] = null;
 					child.classList.add('pw-force-show');
@@ -152,7 +154,6 @@ class PowerToolbar extends PowerActionsBar {
 					child.style['margin-left'] = -(child.offsetWidth) + 'px';
 					// child.style['margin-right'] = -(child.offsetWidth*0.5) + 'px';
 				}
-				this.lastTotalChildrenWidth = currentWidth;
 			}
 		}
 	}
