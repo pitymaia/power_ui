@@ -528,6 +528,9 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_setBarCssStyles(bar, element) {
+		if (!bar.position) {
+			return;
+		}
 		if (bar.mirrored) {
 			element.classList.add('pw-mirrored');
 		}
