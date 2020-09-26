@@ -107,14 +107,17 @@ class PowerWindow extends PowerDialogBase {
 			this._currentTop = -5 + manager.topTotalHeight;
 			this._currentLeft = -5 + manager.leftTotalWidth;
 			this._currentWidth = this._dialog.offsetWidth;
+			this._currentHeight = this._dialog.offsetHeight;
 		} else if (this.isMaximized === true && manager.smallWindowMode) {
 			this._currentTop = -5;
 			this._currentLeft = -5;
 			this._currentWidth = this._dialog.offsetWidth - 10;
+			this._currentHeight = this._dialog.offsetHeight - 10;
 		} else {
 			this._currentLeft = this._left;
 			this._currentTop = this._top;
 			this._currentWidth = this._width;
+			this._currentHeight = this._height;
 		}
 		this.$powerUi.componentsManager.setWindowFixedBarsSizeAndPosition(this.windowBars, this);
 	}

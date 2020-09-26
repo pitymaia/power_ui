@@ -368,55 +368,54 @@ class ComponentsManager {
 	}
 
 	setWindowFixedBarsSizeAndPosition(bars, win) {
-		this.setWindowBarsSizeAndPosition(bars, win);
+		this.setWindowBarsSizeAndPosition(bars, win, win);
 	}
-	adjustWindowBody(body, topTotalHeight, leftTotalWidth, rightTotalWidth) {
-		body.style['margin-top'] = topTotalHeight + 'px';
-		body.style['margin-left'] = leftTotalWidth + 'px';
-		body.style['margin-right'] = rightTotalWidth + 'px';
+	adjustWindowBody(win) {
+		win.bodyEl.style['margin-top'] = win.topTotalHeight + 'px';
+		win.bodyEl.style['margin-left'] = win.leftTotalWidth + 'px';
+		win.bodyEl.style['margin-right'] = win.rightTotalWidth + 'px';
+		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.topTotalHeight + 'px';
+		win.bodyEl.style['min-height'] = '50px';
+		win._dialog.style['min-height'] = (50 + win.titleBarEl.offsetHeight) + win.topTotalHeight + 'px';
 	}
 
-	adjustWindowHeight(win, topTotalHeight) {
-		win._dialog.style.height = win._height + topTotalHeight + 'px';
-	}
-
-	setWindowBarsSizeAndPosition(bars, win) {
+	setWindowBarsSizeAndPosition(bars, win, ctx) {
 		bars = this.getBarsWithPrioritySizes(bars);
-		let topTotalHeight = 0;
-		let bottomTotalHeight = 0;
-		let leftTotalWidth = 0;
-		let rightTotalWidth = 0;
-		let totalHeight = 0;
+		ctx.topTotalHeight = 0;
+		ctx.bottomTotalHeight = 0;
+		ctx.leftTotalWidth = 0;
+		ctx.rightTotalWidth = 0;
+		ctx.totalHeight = 0;
 		let zIndex = 1000 + bars.length;
 		for (const bar of bars) {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
 			if (bar.bar.barPosition === 'top') {
-				totalHeight = totalHeight + bar.bar.element.offsetHeight;
-				topTotalHeight = topTotalHeight + bar.bar.element.offsetHeight;
+				ctx.totalHeight = ctx.totalHeight + bar.bar.element.offsetHeight;
+				ctx.topTotalHeight = ctx.topTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.top = win._currentTop + 5 + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
 				bar.bar.element.style.left = win._currentLeft + 5 + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
 				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._offsetComputedPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
-				totalHeight = totalHeight + bar.bar.element.offsetHeight;
-				bottomTotalHeight = bottomTotalHeight + bar.bar.element.offsetHeight;
+				ctx.totalHeight = ctx.totalHeight + bar.bar.element.offsetHeight;
+				ctx.bottomTotalHeight = ctx.bottomTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
 				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'left') {
-				leftTotalWidth = leftTotalWidth + bar.bar.element.offsetWidth;
+				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
 				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.barPosition === 'right') {
-				rightTotalWidth = rightTotalWidth + bar.bar.element.offsetWidth;
+				ctx.rightTotalWidth = ctx.rightTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.right = bar.adjusts.right + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
@@ -425,9 +424,7 @@ class ComponentsManager {
 			if (bar.bar.isToolbar) {
 				bar.bar.setStatus();
 			}
-			// console.log('win', win);
-			this.adjustWindowBody(win.bodyEl, topTotalHeight, leftTotalWidth, rightTotalWidth);
-			this.adjustWindowHeight(win, topTotalHeight);
+			this.adjustWindowBody(win);
 		}
 	}
 }
