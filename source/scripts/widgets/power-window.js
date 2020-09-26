@@ -30,12 +30,16 @@ class PowerWindow extends PowerDialogBase {
 				this.fixedBars.bottom.push(bar);
 			}
 		}
+		this.windowBars = [];
 		this.windowToolbars = [];
 		const winBars = this.currentView.getElementsByClassName('pw-bar-window-fixed');
 		for (const bar of winBars) {
-			const _bar = this.$powerUi.componentsManager.bars.find(b=> b.bar.isToolbar && b.id === bar.id);
+			const _bar = this.$powerUi.componentsManager.bars.find(b=> b.id === bar.id);
 			if (_bar) {
-				this.windowToolbars.push(_bar);
+				this.windowBars.push(_bar);
+				if (_bar.bar.isToolbar) {
+					this.windowToolbars.push(_bar);
+				}
 			}
 		}
 
@@ -93,7 +97,12 @@ class PowerWindow extends PowerDialogBase {
 
 		this.replaceSizeQueries();
 		this.restoreScrollPosition(view);
+		this.changeWindowBars();
 		this.refreshWindowToolbars();
+	}
+
+	changeWindowBars() {
+		this.$powerUi.componentsManager.setWindowFixedBarsSizeAndPosition(this.windowBars, this);
 	}
 
 	refreshWindowToolbars() {
@@ -412,6 +421,7 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.adjustWindowWithComponents();
 		this.replaceSizeQueries();
+		this.changeWindowBars();
 		this.refreshWindowToolbars();
 
 		if (!preventBroadcast) {
@@ -440,6 +450,7 @@ class PowerWindow extends PowerDialogBase {
 		this.removeWindowIsMaximizedFromBody();
 		this.adjustWindowWithComponents();
 		this.replaceSizeQueries();
+		this.changeWindowBars();
 		this.refreshWindowToolbars();
 
 		if (!preventBroadcast) {
@@ -458,6 +469,7 @@ class PowerWindow extends PowerDialogBase {
 		// Add the classes to create a css "midia query" for the window
 		this.replaceSizeQueries();
 		this.saveWindowState();
+		this.changeWindowBars();
 		this.refreshWindowToolbars();
 	}
 
@@ -631,6 +643,7 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.left = this._left + 'px';
 		this._top = this._dialog.offsetTop;
 		this._left = this._dialog.offsetLeft;
+		this.changeWindowBars();
 	}
 
 	minTop() {

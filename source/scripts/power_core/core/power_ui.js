@@ -209,7 +209,7 @@ class ComponentsManager {
 				return;
 			}
 		}
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
@@ -229,7 +229,7 @@ class ComponentsManager {
 		}
 		// window.alert(window.innerWidth);
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
@@ -242,7 +242,7 @@ class ComponentsManager {
 
 	_routeChange() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
@@ -250,7 +250,7 @@ class ComponentsManager {
 
 	powerWindowChange() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 	}
 	// This change the "app-container" and body element to allow adjust for fixed bars/menus
 	_setAppContainerHeight() {
@@ -285,15 +285,13 @@ class ComponentsManager {
 
 
 	}
-	getBarsWithPrioritySizes() {
-		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true && window.getComputedStyle(b.bar.element).visibility !== 'hidden');
-		this._reorderBars(fixedBars);
-
+	getBarsWithPrioritySizes(bars) {
+		this._reorderBars(bars);
 		let currentTotalTopHeight = 0;
 		let currentTotalBottomHeight = 0;
 		let currentTotalLeftWidth = 0;
 		let currentTotalRightWidth = 0;
-		for (const bar of fixedBars) {
+		for (const bar of bars) {
 			bar.adjusts = {};
 			bar.adjusts.top = currentTotalTopHeight;
 			bar.adjusts.bottom = currentTotalBottomHeight;
@@ -312,19 +310,24 @@ class ComponentsManager {
 			}
 		}
 
-		return fixedBars;
+		return bars;
 	}
 	// This change the position for fixed bars/menus so it shows one after another
 	// also register the info so "app-container" and body element can adjust for fixed bars/menus
-	barsSizeAndPosition() {
-		const fixedBars = this.getBarsWithPrioritySizes();
+	setFixedBarsSizeAndPosition() {
+		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true && window.getComputedStyle(b.bar.element).visibility !== 'hidden');
+		this.setBarsSizeAndPosition(fixedBars, window.innerHeight);
+	}
+
+	setBarsSizeAndPosition(bars, innerHeight) {
+		bars = this.getBarsWithPrioritySizes(bars);
 		this.topTotalHeight = 0;
 		this.bottomTotalHeight = 0;
 		this.leftTotalWidth = 0;
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
-		let zIndex = 1000 + fixedBars.length;
-		for (const bar of fixedBars) {
+		let zIndex = 1000 + bars.length;
+		for (const bar of bars) {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
@@ -349,18 +352,82 @@ class ComponentsManager {
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.barPosition === 'right') {
 				this.rightTotalWidth = this.rightTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.right = bar.adjusts.right + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.isToolbar) {
 				bar.bar.setStatus();
 			}
+		}
+	}
+
+	setWindowFixedBarsSizeAndPosition(bars, win) {
+		this.setWindowBarsSizeAndPosition(bars, win);
+	}
+	adjustWindowBody(body, topTotalHeight, leftTotalWidth, rightTotalWidth) {
+		body.style['margin-top'] = topTotalHeight + 'px';
+		body.style['margin-left'] = leftTotalWidth + 'px';
+		body.style['margin-right'] = rightTotalWidth + 'px';
+	}
+
+	adjustWindowHeight(win, topTotalHeight) {
+		win._dialog.style.height = win._height + topTotalHeight + 'px';
+	}
+
+	setWindowBarsSizeAndPosition(bars, win) {
+		bars = this.getBarsWithPrioritySizes(bars);
+		let topTotalHeight = 0;
+		let bottomTotalHeight = 0;
+		let leftTotalWidth = 0;
+		let rightTotalWidth = 0;
+		let totalHeight = 0;
+		let zIndex = 1000 + bars.length;
+		for (const bar of bars) {
+			bar.zIndex = zIndex;
+			zIndex = zIndex - 1;
+			bar.bar.element.style.zIndex = zIndex;
+			if (bar.bar.barPosition === 'top') {
+				totalHeight = totalHeight + bar.bar.element.offsetHeight;
+				topTotalHeight = topTotalHeight + bar.bar.element.offsetHeight;
+				bar.bar.element.style.top = win._top + 5 + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
+				bar.bar.element.style.left = win._left + 5 + bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = (win._width - this.$powerUi._offsetComputedPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+			}
+			if (bar.bar.barPosition === 'bottom') {
+				totalHeight = totalHeight + bar.bar.element.offsetHeight;
+				bottomTotalHeight = bottomTotalHeight + bar.bar.element.offsetHeight;
+				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+			}
+			if (bar.bar.barPosition === 'left') {
+				leftTotalWidth = leftTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+			if (bar.bar.barPosition === 'right') {
+				rightTotalWidth = rightTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.right = bar.adjusts.right + 'px';
+				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+			}
+			if (bar.bar.isToolbar) {
+				bar.bar.setStatus();
+			}
+			// console.log('win', win);
+			this.adjustWindowBody(win.bodyEl, topTotalHeight, leftTotalWidth, rightTotalWidth);
+			this.adjustWindowHeight(win, topTotalHeight);
 		}
 	}
 }

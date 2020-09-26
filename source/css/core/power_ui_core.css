@@ -260,7 +260,8 @@ body, html {
     }
 /* power menu-break query*/
 
-.pw-bar-fixed {
+.pw-bar-fixed,
+.pw-bar-window-fixed {
     position: fixed;
 }
 
@@ -287,6 +288,7 @@ body, html {
     width: auto;
     height: 100vh;
 }
+
 .pw-bar.pw-menu-float {
     width: auto;
 }
