@@ -1883,11 +1883,11 @@ class RootScopeTemplate extends PowerTemplate {
 		newTmpl = newTmpl + this.$service('JSONSchema').menu(menu2);
 
 		const menu3 = {
-			"classList": ["pw-black-white"],
+			"classList": ["pw-blue-white"],
 			"id": 'my-aaa-12',
 			"mirrored": false,
 			"position": "fixed-top",
-			"ignore": true,
+			"ignore": false,
 			"priority": 15,
 			"brand": {
 				"content": "SuperGame",
@@ -1945,7 +1945,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"id": 'my-tool-12',
 			// "mirrored": true,
 			"position": "fixed-top",
-			"ignore": true,
+			"ignore": false,
 			"priority": 16,
 			"items": [
 				{

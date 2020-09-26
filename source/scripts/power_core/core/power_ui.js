@@ -395,10 +395,10 @@ class ComponentsManager {
 			if (bar.bar.barPosition === 'top') {
 				totalHeight = totalHeight + bar.bar.element.offsetHeight;
 				topTotalHeight = topTotalHeight + bar.bar.element.offsetHeight;
-				bar.bar.element.style.top = win._top + 5 + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
-				bar.bar.element.style.left = win._left + 5 + bar.adjusts.left + 'px';
+				bar.bar.element.style.top = win._currentTop + 5 + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
+				bar.bar.element.style.left = win._currentLeft + 5 + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = (win._width - this.$powerUi._offsetComputedPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._offsetComputedPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
 				totalHeight = totalHeight + bar.bar.element.offsetHeight;
