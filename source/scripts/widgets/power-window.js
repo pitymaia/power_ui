@@ -2,8 +2,11 @@ class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi, promise=false}) {
 		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
-		this._minWidth = 250;
-		this._minHeight = 50;
+		this.defaultMinHeight = 50;
+		this.defaultMinWidth = 250;
+		this.defaultBorderSize = 5;
+		this._minWidth = this.defaultMinWidth;
+		this._minHeight = this.defaultMinHeight;
 		this.maximizeBt = true;
 		this.restoreBt = true;
 		this.isMaximized = false;
@@ -93,7 +96,7 @@ class PowerWindow extends PowerDialogBase {
 		const minTop = this.minTop();
 		const minLeft = this.minLeft();
 
-		this.topLeftLimits(minTop + 5, minLeft + 5);
+		this.topLeftLimits(minTop + this.defaultBorderSize, minLeft + this.defaultBorderSize);
 
 		if (this.isMaximized) {
 			this.maximize(null, true);
@@ -109,15 +112,15 @@ class PowerWindow extends PowerDialogBase {
 	changeWindowBars() {
 		const manager = this.$powerUi.componentsManager;
 		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
-			this._currentTop = -5 + manager.topTotalHeight;
-			this._currentLeft = -5 + manager.leftTotalWidth;
+			this._currentTop = -this.defaultBorderSize + manager.topTotalHeight;
+			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth;
 			this._currentWidth = this._dialog.offsetWidth;
 			this._currentHeight = this._dialog.offsetHeight;
 		} else if (this.isMaximized === true && manager.smallWindowMode) {
-			this._currentTop = -5;
-			this._currentLeft = -5;
-			this._currentWidth = this._dialog.offsetWidth - 10;
-			this._currentHeight = this._dialog.offsetHeight - 10;
+			this._currentTop = -this.defaultBorderSize;
+			this._currentLeft = -this.defaultBorderSize;
+			this._currentWidth = this._dialog.offsetWidth - (this.defaultBorderSize + this.defaultBorderSize);
+			this._currentHeight = this._dialog.offsetHeight - (this.defaultBorderSize + this.defaultBorderSize);
 		} else {
 			this._currentLeft = this._left;
 			this._currentTop = this._top;
@@ -308,10 +311,10 @@ class PowerWindow extends PowerDialogBase {
 		}
 		e.preventDefault();
 		if (this.isMaximized) {
-			this._height = window.innerHeight - 10;
-			this._width = window.innerWidth - 10;
-			this._top = 5;
-			this._left = 5;
+			this._height = window.innerHeight - (this.defaultBorderSize + this.defaultBorderSize);
+			this._width = window.innerWidth - (this.defaultBorderSize + this.defaultBorderSize);
+			this._top = this.defaultBorderSize;
+			this._left = this.defaultBorderSize;
 			this.setAllWindowElements();
 			this.restore();
 		}
@@ -424,8 +427,8 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	_maximizeDialog() {
-		this._dialog.style.top = -5 + 'px';
-		this._dialog.style.left = -5 + 'px';
+		this._dialog.style.top = -this.defaultBorderSize + 'px';
+		this._dialog.style.left = -this.defaultBorderSize + 'px';
 		this._dialog.style.height = window.innerHeight + 'px';
 		this._dialog.style.width = window.innerWidth + 'px';
 		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
@@ -808,7 +811,7 @@ class PowerWindowIframe extends PowerWindow {
 		this.iframe.style.height = this.bodyEl.style.height;
 		this.coverIframe.style.height = this.iframe.style.height;
 		this.coverIframe.style.width = this._width + 'px';
-		this.coverIframe.style.top = this.titleBarEl.offsetHeight + 5 + 'px';
+		this.coverIframe.style.top = this.titleBarEl.offsetHeight + this.defaultBorderSize + 'px';
 	}
 
 	setAllWindowElements() {
