@@ -176,14 +176,17 @@ class ComponentsManager {
 					hasChange = true;
 				}
 			}
-			this.observing[key].lastWidth = currentWidth;
-			this.observing[key].lastHeight = currentHeight;
 			// Fix toolbar toggle if its out of the menu
-			if (this.observing[key].isWindowFixed && !this.observing[key]._$pwActive && this.observing[key].lastTotalChildrenWidth) {
-				if (this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
+			if (this.observing[key].isWindowFixed && !this.observing[key]._$pwActive) {
+				if (this.observing[key].lastTotalChildrenWidth && this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
 					this.observing[key].setStatus();
 				}
+				if (currentWidth > this.observing[key]._window.bodyEl.offsetWidth) {
+					this.observing[key]._window.changeWindowBars();
+				}
 			}
+			this.observing[key].lastWidth = currentWidth;
+			this.observing[key].lastHeight = currentHeight;
 		}
 
 		if (hasChange) {
