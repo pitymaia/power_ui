@@ -383,6 +383,7 @@ class ComponentsManager {
 		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.topTotalHeight + 'px';
 		win.bodyEl.style['min-height'] = '50px';
 		win._dialog.style['min-height'] = (50 + win.titleBarEl.offsetHeight) + win.topTotalHeight + 'px';
+		win._minHeight = 50 + win.titleBarEl.offsetHeight + win.topTotalHeight;
 	}
 
 	setWindowBarsSizeAndPosition(bars, win, ctx) {
