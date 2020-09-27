@@ -295,6 +295,9 @@ class ComponentsManager {
 		let currentTotalLeftWidth = 0;
 		let currentTotalRightWidth = 0;
 		for (const bar of bars) {
+			if (bar.bar._$pwActive) {
+				bar.bar.powerAction.toggle();
+			}
 			bar.adjusts = {};
 			bar.adjusts.top = currentTotalTopHeight;
 			bar.adjusts.bottom = currentTotalBottomHeight;
