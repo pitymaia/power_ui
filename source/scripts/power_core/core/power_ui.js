@@ -154,9 +154,13 @@ class ComponentsManager {
 
 	startObserver() {
 		const self = this;
+		let interval = 5;
 		setInterval(function () {
 			self.runObserver();
-		}, 500);
+			if (interval < 500) {
+				interval = interval + 5;
+			}
+		}, interval);
 	}
 
 	runObserver() {

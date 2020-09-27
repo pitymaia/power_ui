@@ -11,22 +11,34 @@
 }
 
 /* Menu */
-.pwdesign-white-smoke .power-brand, .pwdesign-white-smoke .power-item, .pwdesign-white-smoke .power-action, .pwdesign-white-smoke .power-toggle {
+.pwdesign-white-smoke .power-brand,
+.pwdesign-white-smoke .power-item,
+.pwdesign-white-smoke .power-action,
+.pwdesign-white-smoke .power-toggle {
     cursor: pointer;
     list-style-type: none;
 }
 
 .pwdesign-white-smoke .pw-bar {
-    padding: 0.5em;
+    padding: 0.2em;
     background-color: #F5F5F5;
     vertical-align: middle;
     z-index: 1000;
 }
 
+.pwdesign-white-smoke .pw-colapse .power-brand {
+    margin: 0.5em 0.3em;
+}
+
+.pwdesign-white-smoke .pw-colapse .power-toggle {
+    margin-right: 0.3em;
+}
+
 .pwdesign-white-smoke .power-dropmenu {
     z-index: 1004;
 }
-.pwdesign-white-smoke .power-dropmenu.power-active, .pwdesign-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
+.pwdesign-white-smoke .power-dropmenu.power-active,
+.pwdesign-white-smoke .power-dropmenu.power-active > .power-dropmenu.power-active {
     border-style: solid;
     border-width: 1px;
 }
@@ -205,8 +217,28 @@
 
 .pwdesign-white-smoke .pw-bt-dialog-title {
     color: #FFF;
-    margin-top: .9rem;
     margin-right: .9rem;
+    line-height: normal;
+}
+.pwdesign-white-smoke .pw-title-bar {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    vertical-align: middle;
+}
+
+.window-is-maximized .pw-bt-dialog-title,
+.pw-small-window-mode .pw-bt-dialog-title,
+.window-is-maximized .pw-title-bar-label,
+.pw-small-window-mode .pw-title-bar-label,
+.pwdesign-white-smoke .pw-dialog .pw-bt-dialog-title,
+.pwdesign-white-smoke .pw-dialog .pw-title-bar-label,
+.pwdesign-white-smoke .pw-modal .pw-bt-dialog-title,
+.pwdesign-white-smoke .pw-modal .pw-title-bar-label {
+    margin-top: 5px;
+}
+
+.pwdesign-white-smoke .pw-title-bar .pw-title-bar-label {
+    line-height: normal;
 }
 /* Dialog-Modal-Window end */
 

@@ -449,11 +449,10 @@ body.modal-open, body.window-is-maximized {
 
 /* Start All dialogs */
 .pw-title-bar {
-    min-height: 3em;
+    /*min-height: 3em;*/
     background-color: rgb(0, 0, 0, 1);
 }
 .pw-title-bar-label {
-    margin-top: 1em;
     display: inline-block;
     color: #FFF;
     font-weight: bold;
