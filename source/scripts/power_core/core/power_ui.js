@@ -384,10 +384,10 @@ class ComponentsManager {
 		win.bodyEl.style['margin-top'] = win.topTotalHeight + 'px';
 		win.bodyEl.style['margin-left'] = win.leftTotalWidth + 'px';
 		win.bodyEl.style['margin-right'] = win.rightTotalWidth + 'px';
-		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.topTotalHeight + 'px';
+		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.totalHeight + 'px';
 		win.bodyEl.style['min-height'] = '50px';
 		win._dialog.style['min-height'] = (win.defaultMinHeight + win.titleBarEl.offsetHeight) + win.topTotalHeight + 'px';
-		win._minHeight = win.defaultMinHeight + win.titleBarEl.offsetHeight + win.topTotalHeight;
+		win._minHeight = win.defaultMinHeight + win.titleBarEl.offsetHeight + win.totalHeight;
 	}
 
 	setWindowBarsSizeAndPosition(bars, win, ctx) {

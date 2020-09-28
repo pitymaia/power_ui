@@ -1369,7 +1369,7 @@ class SimpleTemplate extends PowerTemplate {
 		};
 
 		const menu2 = {
-			"classList": ["pw-blue-white"],
+			// "classList": ["pw-black-white"],
 			"id": 'my-win-menu2',
 			"mirrored": false,
 			"position": "fixed-window-bottom",
