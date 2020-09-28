@@ -9,10 +9,11 @@ class _PowerBarsBase extends PowerTarget {
 		// Bar priority
 		this.priority = this.element.getAttribute('data-pw-priority');
 		this.priority = this.priority ? parseInt(this.priority) : null;
-		if (this.element.classList.contains('pw-bar-fixed')) {
-			this.isFixed = true;
-		} else if (this.element.classList.contains('pw-bar-window-fixed')) {
+		if (this.element.classList.contains('pw-bar-window-fixed')) {
 			this.isWindowFixed = true;
+			this.isFixed = false;
+		} else if (this.element.classList.contains('pw-bar-fixed')) {
+			this.isFixed = true;
 		} else {
 			this.isFixed = false;
 		}

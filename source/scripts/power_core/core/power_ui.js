@@ -154,7 +154,7 @@ class ComponentsManager {
 
 	startObserver() {
 		const self = this;
-		let interval = 5;
+		let interval = 500;
 		setInterval(function () {
 			self.runObserver();
 			if (interval < 500) {
@@ -362,14 +362,14 @@ class ComponentsManager {
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (innerHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.barPosition === 'right') {
 				this.rightTotalWidth = this.rightTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.right = bar.adjusts.right + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (innerHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.isToolbar) {
 				bar.bar.setStatus();
@@ -402,35 +402,37 @@ class ComponentsManager {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
+			const _top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top;
 			if (bar.bar.barPosition === 'top') {
-				ctx.totalHeight = ctx.totalHeight + bar.bar.element.offsetHeight;
-				ctx.topTotalHeight = ctx.topTotalHeight + bar.bar.element.offsetHeight;
-				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
+				ctx.totalHeight = ctx.totalHeight + (bar.bar.element.offsetHeight);
+				ctx.topTotalHeight = ctx.topTotalHeight + (bar.bar.element.offsetHeight);
+				bar.bar.element.style.top = _top + 'px';
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._offsetComputedPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
-				ctx.totalHeight = ctx.totalHeight + bar.bar.element.offsetHeight;
-				ctx.bottomTotalHeight = ctx.bottomTotalHeight + bar.bar.element.offsetHeight;
-				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
-				bar.bar.element.style.left = bar.adjusts.left + 'px';
+				ctx.totalHeight = ctx.totalHeight + (bar.bar.element.offsetHeight);
+				ctx.bottomTotalHeight = ctx.bottomTotalHeight + (bar.bar.element.offsetHeight);
+				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				const windowBottom = -(win._currentTop + win._currentHeight) + window.innerHeight;
+				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom - win.defaultBorderSize + 'px';
 			}
 			if (bar.bar.barPosition === 'left') {
 				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.barPosition === 'right') {
 				ctx.rightTotalWidth = ctx.rightTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.right = bar.adjusts.right + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.isToolbar) {
 				bar.bar.setStatus();
@@ -1034,18 +1036,31 @@ class PowerUi extends _PowerUiBase {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 	_offsetComputedHeight(element) {
-		return parseInt(getComputedStyle(element).height.split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-top'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-top-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-bottom'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-bottom-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element.height.split('px')[0] || 0) + parseInt(_element['margin-top'].split('px')[0] || 0) + parseInt(_element['border-top-width'].split('px')[0] || 0) + parseInt(_element['margin-bottom'].split('px')[0] || 0)  + parseInt(_element['border-bottom-width'].split('px')[0] || 0) + parseInt(_element['padding-top'].split('px')[0] || 0) + parseInt(_element['padding-bottom'].split('px')[0] || 0);
 	}
 
-	_offsetComputedPadding(element) {
-		return parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+	_computedTopBottomPadding(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-top'].split('px')[0] || 0) + parseInt(_element['padding-bottom'].split('px')[0] || 0);
+	}
+	_computedTopPadding(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-top'].split('px')[0] || 0);
+	}
+
+	_computedLeftRightPadding(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0);
 	}
 
 	_offsetComputedWidth(element) {
-		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - (parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0));
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element.width.split('px')[0] || 0) - (parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0));
 	}
 	_offsetComputedAdjustSides(element) {
-		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element.width.split('px')[0] || 0) + parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0);
 	}
 }
 

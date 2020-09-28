@@ -1088,7 +1088,7 @@ class SimpleTemplate extends PowerTemplate {
 		const toolbar = {
 		    "classList": ["pw-red-white"],
 		    "id": 'my-window-toolbar',
-		    "position": "fixed-window-top",
+		    "position": "fixed-window-bottom",
 		    "ignore": true,
 		    "priority": 2,
 		    "items": [
@@ -1345,7 +1345,7 @@ class SimpleTemplate extends PowerTemplate {
 			"classList": ["pw-orange-white"],
 			"id": 'my-win-menu',
 			"mirrored": false,
-			"position": "fixed-window-top",
+			"position": "fixed-window-bottom",
 			"ignore": true,
 			"priority": 1,
 			"brand": {
@@ -1368,7 +1368,8 @@ class SimpleTemplate extends PowerTemplate {
 			]
 		};
 
-		let bars = this.$service('JSONSchema').menu(menu);
+		let bars = '';
+		bars = bars + this.$service('JSONSchema').menu(menu);
 		bars = bars + this.$service('JSONSchema').toolbar(toolbar);
 
 		page = bars + page;

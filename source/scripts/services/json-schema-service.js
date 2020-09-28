@@ -545,19 +545,16 @@ class JSONSchemaService extends PowerServices {
 				element.classList.add('pw-horizontal');
 			}
 		} else if (bar.position === 'fixed-bottom' || bar.position === 'fixed-window-bottom') {
-			element.classList.add('pw-bar-fixed');
 			element.classList.add('pw-bottom');
 			if (!bar.orientation || bar.orientation === 'horizontal') {
 				element.classList.add('pw-horizontal');
 			}
 		} else if (bar.position === 'fixed-left' || bar.position === 'fixed-window-left') {
-			element.classList.add('pw-bar-fixed');
 			element.classList.add('pw-left');
 			if (!bar.orientation || bar.orientation === 'vertical') {
 				element.classList.add('pw-vertical');
 			}
 		} else if (bar.position === 'fixed-right' || bar.position === 'fixed-window-right') {
-			element.classList.add('pw-bar-fixed');
 			element.classList.add('pw-right');
 			if (!bar.orientation || bar.orientation === 'vertical') {
 				element.classList.add('pw-vertical');
