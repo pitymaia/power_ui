@@ -402,7 +402,7 @@ class ComponentsManager {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
-			const _top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top;
+			const _top = win._dialog.offsetTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top;
 			if (bar.bar.barPosition === 'top') {
 				ctx.totalHeight = ctx.totalHeight + (bar.bar.element.offsetHeight);
 				ctx.topTotalHeight = ctx.topTotalHeight + (bar.bar.element.offsetHeight);
@@ -417,8 +417,8 @@ class ComponentsManager {
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
 				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
-				const windowBottom = -(win._currentTop + win._currentHeight) + window.innerHeight;
-				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom - win.defaultBorderSize + 'px';
+				const windowBottom = -(win._dialog.offsetTop + win._dialog.offsetHeight) + window.innerHeight;
+				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom + win.defaultBorderSize + 'px';
 			}
 			if (bar.bar.barPosition === 'left') {
 				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
