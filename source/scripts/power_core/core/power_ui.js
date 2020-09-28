@@ -417,7 +417,7 @@ class ComponentsManager {
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
 				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
-				const windowBottom = -(win._currentTop + win._currentHeight) + window.innerHeight;
+				const windowBottom = -(win._currentBottom + win._currentHeight) + window.innerHeight;
 				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom - win.defaultBorderSize + 'px';
 			}
 			if (bar.bar.barPosition === 'left') {

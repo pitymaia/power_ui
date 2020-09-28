@@ -1090,7 +1090,7 @@ class SimpleTemplate extends PowerTemplate {
 		    "id": 'my-window-toolbar',
 		    "position": "fixed-window-bottom",
 		    "ignore": true,
-		    "priority": 2,
+		    "priority": 3,
 		    "items": [
 		        {
 		            "item": {
@@ -1347,7 +1347,7 @@ class SimpleTemplate extends PowerTemplate {
 			"mirrored": false,
 			"position": "fixed-window-bottom",
 			"ignore": true,
-			"priority": 1,
+			"priority": 2,
 			"brand": {
 				"content": "WinMenu",
 			},
@@ -1368,9 +1368,37 @@ class SimpleTemplate extends PowerTemplate {
 			]
 		};
 
+		const menu2 = {
+			"classList": ["pw-blue-white"],
+			"id": 'my-win-menu2',
+			"mirrored": false,
+			"position": "fixed-window-bottom",
+			"ignore": true,
+			"priority": 1,
+			"brand": {
+				"content": "WinMenu",
+			},
+			"items": [
+				{
+					"item": {
+						"id": "Super32",
+						"label": "Super Mario",
+						"icon": "icon-pacman",
+						"events": [
+							{
+								"event": "onclick",
+								"fn": "openWin()"
+							}
+						]
+					}
+				}
+			]
+		};
+
 		let bars = '';
 		bars = bars + this.$service('JSONSchema').menu(menu);
 		bars = bars + this.$service('JSONSchema').toolbar(toolbar);
+		bars = bars + this.$service('JSONSchema').menu(menu2);
 
 		page = bars + page;
 

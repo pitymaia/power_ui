@@ -113,17 +113,20 @@ class PowerWindow extends PowerDialogBase {
 		const manager = this.$powerUi.componentsManager;
 		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
 			this._currentTop = -this.defaultBorderSize + manager.topTotalHeight;
+			this._currentBottom = - this.defaultBorderSize + (this._dialog.offsetTop + manager.topTotalHeight) + this.topTotalHeight;
 			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth;
 			this._currentWidth = this._dialog.offsetWidth;
 			this._currentHeight = this._dialog.offsetHeight;
 		} else if (this.isMaximized === true && manager.smallWindowMode) {
 			this._currentTop = -this.defaultBorderSize;
+			this._currentBottom = this._currentTop;
 			this._currentLeft = -this.defaultBorderSize;
 			this._currentWidth = this._dialog.offsetWidth - (this.defaultBorderSize + this.defaultBorderSize);
 			this._currentHeight = this._dialog.offsetHeight - (this.defaultBorderSize + this.defaultBorderSize);
 		} else {
-			this._currentLeft = this._left;
 			this._currentTop = this._top;
+			this._currentBottom = this._currentTop;
+			this._currentLeft = this._left;
 			this._currentWidth = this._width;
 			this._currentHeight = this._height;
 		}
