@@ -180,10 +180,10 @@ class PowerWindow extends PowerDialogBase {
 				this._dialog.style['padding-bottom'] = 0;
 			}
 		} else {
-			this._dialog.style['padding-top'] = '5px';
-			this._dialog.style['padding-bottom'] = '5px';
-			this._dialog.style['padding-left'] = '5px';
-			this._dialog.style['padding-right'] = '5px';
+			this._dialog.style['padding-top'] = this.defaultBorderSize + 'px';
+			this._dialog.style['padding-bottom'] = this.defaultBorderSize + 'px';
+			this._dialog.style['padding-left'] = this.defaultBorderSize + 'px';
+			this._dialog.style['padding-right'] = this.defaultBorderSize + 'px';
 		}
 	}
 
@@ -403,14 +403,15 @@ class PowerWindow extends PowerDialogBase {
 			this._height = this._lastHeight;
 		}
 		// Right limits
-		if ((this._left + this._width) + maxRight + 10 > window.innerWidth) {
-			this._width = (window.innerWidth - this._left) - maxRight - 10;
+		if ((this._left + this._width) + maxRight + (this.defaultBorderSize + this.defaultBorderSize) > window.innerWidth) {
+			this._width = (window.innerWidth - this._left) - maxRight - (this.defaultBorderSize + this.defaultBorderSize);
 		}
 		// Bottom limits
-		if ((this._top + this._height) + maxBottom + 10 > window.innerHeight) {
-			this._height = (window.innerHeight - this._top) - maxBottom - 10;
+		if ((this._top + this._height) + maxBottom + (this.defaultBorderSize + this.defaultBorderSize) > window.innerHeight) {
+			this._height = (window.innerHeight - this._top) - maxBottom - (this.defaultBorderSize + this.defaultBorderSize);
 		}
 		this.topLeftLimits(minTop, minLeft);
+
 		this._lastHeight = this._height;
 		this._lastWidth = this._width;
 		this._lastTop = this._top;
@@ -487,6 +488,13 @@ class PowerWindow extends PowerDialogBase {
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
 		this.$powerUi.componentsManager.restartObserver();
+	}
+
+	setBorderSizes() {
+		this._top = this._top - this.defaultBorderSize;
+		this._left = this._left - this.defaultBorderSize;
+		this._width = this._width - this.defaultBorderSize;
+		this._height = this._height - this.defaultBorderSize;
 	}
 
 	setAllWindowElements() {

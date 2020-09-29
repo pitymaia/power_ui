@@ -6554,7 +6554,7 @@ class JSONViews extends PowerWindow {
 		window.console.log('oi');
 	}
 	ctrl() {
-		// this.defaultBorderSize = 2;
+		// this.defaultBorderSize = 0;
 		// window.console.log('JSONViews CTRL', this.$tscope);
 		this.name = 'Pity';
 		this.form = {
