@@ -386,7 +386,7 @@ class ComponentsManager {
 		win.bodyEl.style['margin-left'] = win.leftTotalWidth + 'px';
 		// win.bodyEl.style['margin-right'] = win.rightTotalWidth + 'px';
 		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.totalHeight + 'px';
-		win.bodyEl.style['min-height'] = '50px';
+		win.bodyEl.style['min-height'] = win._minHeight - win.totalHeight - win.titleBarEl.offsetHeight + 'px';
 		win._dialog.style['min-height'] = (win.defaultMinHeight + win.titleBarEl.offsetHeight) + win.topTotalHeight + 'px';
 		win._minHeight = win.defaultMinHeight + win.titleBarEl.offsetHeight + win.totalHeight;
 		const width = win._currentWidth - (win.rightTotalWidth + win.leftTotalWidth) + 'px';

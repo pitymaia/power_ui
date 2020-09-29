@@ -2,7 +2,7 @@ class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi, promise=false}) {
 		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
-		this.defaultMinHeight = 50;
+		this.defaultMinHeight = 100;
 		this.defaultMinWidth = 250;
 		this.defaultBorderSize = 5;
 		this._minWidth = this.defaultMinWidth;
