@@ -1342,11 +1342,525 @@ class SimpleTemplate extends PowerTemplate {
 		    ]
 		};
 
+		const toolbar2 = {
+		    // "classList": ["pw-red-white"],
+		    "id": 'my-window-toolbar2',
+		    "position": "fixed-window-right",
+		    "ignore": false,
+		    "priority": 2,
+		    "mirrored": true,
+		    "items": [
+		        {
+		            "item": {
+		                "id": "tool-item-1234",
+		                "icon": "icon-star-fill",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "more-t1234",
+		                "icon": "icon-food-mushroom"
+		            },
+		            "status": {
+		                "active": "icon-caret-up",
+		                "inactive": "icon-caret-down",
+		            },
+		            "dropmenu": {
+		                "id": "my-tool-menu-2234",
+		                "items": [
+		                    {
+		                        "item": {
+		                            "id": "sst-1234",
+		                            "label": "Doom",
+		                            "icon": "icon-game-fill",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+		                                }
+		                            ]
+		                        }
+		                    },
+		                    {
+		                        "item": {
+		                            "id": "rrt-1234",
+		                            "label": "Quake",
+		                            "icon": "icon-game-joystick",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+		                                }
+		                            ]
+		                        }
+		                    },
+		                    {
+		                        "item": {
+		                            "id": "ddt-1234",
+		                            "label": "Heretic",
+		                            "icon": "icon-game-round",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                                }
+		                            ]
+		                        }
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-1334",
+		                "icon": "icon-phone-ringing",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-1434",
+		                "icon": "icon-pig-bank",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-1534",
+		                "icon": "icon-scale-justice",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-2334",
+		                "icon": "icon-gift-heart",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-2434",
+		                "icon": "icon-pacman",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-2534",
+		                "icon": "icon-graphic-pizza",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-3334",
+		                "icon": "icon-icecream-stroke",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-3434",
+		                "icon": "icon-food-carot",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-3534",
+		                "icon": "icon-food-cake-stroke",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-4334",
+		                "icon": "icon-food-hamburguer",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-4434",
+		                "icon": "icon-food-hotdog",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-4534",
+		                "icon": "icon-food-lemon",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-5334",
+		                "icon": "icon-coffee-bean",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-5434",
+		                "icon": "icon-glass-coffe",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-5534",
+		                "icon": "icon-glass-drink-half",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		    ]
+		};
+
+		const toolbar3 = {
+		    "classList": ["pw-blue-white"],
+		    "id": 'my-window-toolbar3',
+		    "position": "fixed-window-right",
+		    "ignore": false,
+		    "priority": 21,
+		    "mirrored": true,
+		    "items": [
+		        {
+		            "item": {
+		                "id": "tool-item-12345",
+		                "icon": "icon-star-fill",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "more-t12345",
+		                "icon": "icon-food-mushroom"
+		            },
+		            "status": {
+		                "active": "icon-caret-up",
+		                "inactive": "icon-caret-down",
+		            },
+		            "dropmenu": {
+		                "id": "my-tool-menu-22345",
+		                "items": [
+		                    {
+		                        "item": {
+		                            "id": "sst-12345",
+		                            "label": "Doom",
+		                            "icon": "icon-game-fill",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+		                                }
+		                            ]
+		                        }
+		                    },
+		                    {
+		                        "item": {
+		                            "id": "rrt-12345",
+		                            "label": "Quake",
+		                            "icon": "icon-game-joystick",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+		                                }
+		                            ]
+		                        }
+		                    },
+		                    {
+		                        "item": {
+		                            "id": "ddt-12345",
+		                            "label": "Heretic",
+		                            "icon": "icon-game-round",
+		                            "events": [
+		                                {
+		                                    "event": "onclick",
+		                                    "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                                }
+		                            ]
+		                        }
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-13345",
+		                "icon": "icon-phone-ringing",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-14345",
+		                "icon": "icon-pig-bank",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-15345",
+		                "icon": "icon-scale-justice",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-23345",
+		                "icon": "icon-gift-heart",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-24345",
+		                "icon": "icon-pacman",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-25345",
+		                "icon": "icon-graphic-pizza",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-33345",
+		                "icon": "icon-icecream-stroke",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-34345",
+		                "icon": "icon-food-carot",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-35345",
+		                "icon": "icon-food-cake-stroke",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-43345",
+		                "icon": "icon-food-hamburguer",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-44345",
+		                "icon": "icon-food-hotdog",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-45345",
+		                "icon": "icon-food-lemon",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-53345",
+		                "icon": "icon-coffee-bean",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-54345",
+		                "icon": "icon-glass-coffe",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		        {
+		            "item": {
+		                "id": "tool-item-55345",
+		                "icon": "icon-glass-drink-half",
+		                "events": [
+		                    {
+		                        "event": "onclick",
+		                        "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                    }
+		                ]
+		            }
+		        },
+		    ]
+		};
+
 		const menu = {
-			"classList": ["pw-blue-white"],
+			"classList": ["pw-black-white"],
 			"id": 'my-win-menu',
 			"mirrored": false,
-			"position": "fixed-window-right",
+			"position": "fixed-window-left",
 			"priority": 2,
 			"brand": {
 				"content": "WinMenu",
@@ -1398,6 +1912,8 @@ class SimpleTemplate extends PowerTemplate {
 		let bars = '';
 		bars = bars + this.$service('JSONSchema').menu(menu);
 		bars = bars + this.$service('JSONSchema').toolbar(toolbar);
+		bars = bars + this.$service('JSONSchema').toolbar(toolbar2);
+		bars = bars + this.$service('JSONSchema').toolbar(toolbar3);
 		bars = bars + this.$service('JSONSchema').menu(menu2);
 
 		page = bars + page;
