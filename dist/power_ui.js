@@ -1627,9 +1627,13 @@ class ComponentsManager {
 
 	startObserver() {
 		const self = this;
+		let interval = 500;
 		setInterval(function () {
 			self.runObserver();
-		}, 500);
+			if (interval < 500) {
+				interval = interval + 5;
+			}
+		}, interval);
 	}
 
 	runObserver() {
@@ -1649,6 +1653,18 @@ class ComponentsManager {
 					hasChange = true;
 				}
 			}
+			if (hasChange && this.observing[key].setStatus) {
+				this.observing[key].setStatus();
+			}
+			// // Fix toolbar toggle if its out of the menu
+			// if (this.observing[key].isWindowFixed && this.observing[key].isToolbar && !this.observing[key]._$pwActive) {
+			// 	if (this.observing[key].lastTotalChildrenWidth && this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
+			// 		this.observing[key].setStatus();
+			// 	}
+			// 	if (currentWidth > this.observing[key]._window.bodyEl.offsetWidth) {
+			// 		this.observing[key]._window.changeWindowBars();
+			// 	}
+			// }
 			this.observing[key].lastWidth = currentWidth;
 			this.observing[key].lastHeight = currentHeight;
 		}
@@ -1676,13 +1692,14 @@ class ComponentsManager {
 				return;
 			}
 		}
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
 		for (const dialog of this.$powerUi.dialogs) {
 			if (dialog.ctrl.isWindow && (dialog.ctrl.isMaximized || this.smallWindowMode)) {
 				dialog.ctrl.adjustWindowWithComponents();
+				dialog.ctrl.changeWindowBars();
 			}
 		}
 	}
@@ -1696,7 +1713,7 @@ class ComponentsManager {
 		}
 		// window.alert(window.innerWidth);
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
@@ -1709,10 +1726,15 @@ class ComponentsManager {
 
 	_routeChange() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.barsSizeAndPosition();
+		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
+	}
+
+	powerWindowChange() {
+		// This change the "app-container" and body element to allow adjust for fixed bars/menus
+		this.setFixedBarsSizeAndPosition();
 	}
 	// This change the "app-container" and body element to allow adjust for fixed bars/menus
 	_setAppContainerHeight() {
@@ -1747,15 +1769,16 @@ class ComponentsManager {
 
 
 	}
-	getBarsWithPrioritySizes() {
-		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true);
-		this._reorderBars(fixedBars);
-
+	getBarsWithPrioritySizes(bars) {
+		this._reorderBars(bars);
 		let currentTotalTopHeight = 0;
 		let currentTotalBottomHeight = 0;
 		let currentTotalLeftWidth = 0;
 		let currentTotalRightWidth = 0;
-		for (const bar of fixedBars) {
+		for (const bar of bars) {
+			if (bar.bar._$pwActive) {
+				bar.bar.powerAction.toggle();
+			}
 			bar.adjusts = {};
 			bar.adjusts.top = currentTotalTopHeight;
 			bar.adjusts.bottom = currentTotalBottomHeight;
@@ -1770,27 +1793,37 @@ class ComponentsManager {
 				currentTotalLeftWidth = currentTotalLeftWidth + bar.bar.element.offsetWidth;
 
 			} else if (bar.bar.barPosition === 'right') {
-				currentTotalRightWidth = currentTotalRightWidth + this.$powerUi._offsetComputedWidth(bar.bar.element);//bar.bar.element.offsetWidth;
+				currentTotalRightWidth = currentTotalRightWidth + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedWidth(bar.bar.element);//bar.bar.element.offsetWidth;
 			}
 		}
 
-		return fixedBars;
+		return bars;
 	}
 	// This change the position for fixed bars/menus so it shows one after another
 	// also register the info so "app-container" and body element can adjust for fixed bars/menus
-	barsSizeAndPosition() {
-		const fixedBars = this.getBarsWithPrioritySizes();
+	setFixedBarsSizeAndPosition() {
+		const fixedBars = this.bars.filter(b=> b.bar.isFixed === true && window.getComputedStyle(b.bar.element).visibility !== 'hidden');
+		this.setBarsSizeAndPosition(fixedBars, window.innerHeight);
+	}
+
+	setBarsSizeAndPosition(bars, innerHeight) {
+		bars = this.getBarsWithPrioritySizes(bars);
 		this.topTotalHeight = 0;
 		this.bottomTotalHeight = 0;
 		this.leftTotalWidth = 0;
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
-		let zIndex = 1000 + fixedBars.length;
-		for (const bar of fixedBars) {
+		this.totalIgnoredHeight = 0;
+		this.totalIgnoredLeft = 0;
+		let zIndex = 1000 + bars.length;
+		for (const bar of bars) {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
 			if (bar.bar.barPosition === 'top') {
+				if (bar.bar.ignore === true) {
+					this.totalIgnoredHeight = this.totalIgnoredHeight + bar.bar.element.offsetHeight;
+				}
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
 				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
@@ -1799,6 +1832,9 @@ class ComponentsManager {
 				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
+				if (bar.bar.ignore === true) {
+					this.totalIgnoredHeight = this.totalIgnoredHeight + bar.bar.element.offsetHeight;
+				}
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
 				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
@@ -1808,21 +1844,93 @@ class ComponentsManager {
 			}
 			if (bar.bar.barPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
+				if (bar.bar.ignore === true) {
+					this.totalIgnoredLeft = this.totalIgnoredLeft + bar.bar.element.offsetWidth;
+				}
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (innerHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.barPosition === 'right') {
 				this.rightTotalWidth = this.rightTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.right = bar.adjusts.right + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (window.innerHeight - this.$powerUi._offsetComputedPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				bar.bar.element.style.height = (innerHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
 			}
 			if (bar.bar.isToolbar) {
 				bar.bar.setStatus();
 			}
+		}
+	}
+
+	setWindowFixedBarsSizeAndPosition(bars, win) {
+		this.setWindowBarsSizeAndPosition(bars, win, win);
+	}
+	adjustWindowBody(win) {
+		win.bodyEl.style['margin-top'] = win.topTotalHeight + 'px';
+		win.bodyEl.style['margin-left'] = win.leftTotalWidth + 'px';
+		// win.bodyEl.style['margin-right'] = win.rightTotalWidth + 'px';
+		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.totalHeight + 'px';
+		win.bodyEl.style['min-height'] = win._minHeight - win.totalHeight - win.titleBarEl.offsetHeight + 'px';
+		win._dialog.style['min-height'] = (win.defaultMinHeight + win.titleBarEl.offsetHeight) + win.topTotalHeight + 'px';
+		win._minHeight = win.defaultMinHeight + win.titleBarEl.offsetHeight + win.totalHeight;
+		const width = win._currentWidth - (win.rightTotalWidth + win.leftTotalWidth) + 'px';
+		win.bodyEl.style.width = width;
+		win.bodyEl.style['min-width'] = width;
+	}
+
+	setWindowBarsSizeAndPosition(bars, win, ctx) {
+		bars = this.getBarsWithPrioritySizes(bars);
+		ctx.topTotalHeight = 0;
+		ctx.bottomTotalHeight = 0;
+		ctx.leftTotalWidth = 0;
+		ctx.rightTotalWidth = 0;
+		ctx.totalHeight = 0;
+		let zIndex = 1000 + bars.length;
+		for (const bar of bars) {
+			bar.zIndex = zIndex;
+			zIndex = zIndex - 1;
+			bar.bar.element.style.zIndex = zIndex;
+			if (bar.bar.barPosition === 'top') {
+				ctx.totalHeight = ctx.totalHeight + (bar.bar.element.offsetHeight);
+				ctx.topTotalHeight = ctx.topTotalHeight + (bar.bar.element.offsetHeight);
+				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
+				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+			}
+			if (bar.bar.barPosition === 'bottom') {
+				ctx.totalHeight = ctx.totalHeight + (bar.bar.element.offsetHeight);
+				ctx.bottomTotalHeight = ctx.bottomTotalHeight + (bar.bar.element.offsetHeight);
+				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
+				bar.bar.element.style.width = null;
+				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				const windowBottom = -(win._currentBottom + win._currentHeight) + window.innerHeight;
+				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom - win.defaultBorderSize + 'px';
+			}
+			if (bar.bar.barPosition === 'left') {
+				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
+				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				const height = (win._currentHeight - win.titleBarEl.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
+				bar.bar.element.style.height = height;
+			}
+			if (bar.bar.barPosition === 'right') {
+				const windowRight = -(win._currentLeft + win._currentWidth + win.defaultBorderSize) + window.innerWidth;
+				ctx.rightTotalWidth = ctx.rightTotalWidth + bar.bar.element.offsetWidth;
+				bar.bar.element.style.right = windowRight + bar.adjusts.right + 'px';
+				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
+				bar.bar.element.style.height = null;
+				const height = (win._currentHeight - win.titleBarEl.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
+				bar.bar.element.style.height = height;
+			}
+			if (bar.bar.isToolbar) {
+				bar.bar.setStatus();
+			}
+			this.adjustWindowBody(win);
 		}
 	}
 }
@@ -1887,6 +1995,7 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
+		this.onPowerWindowChange = new UEvent('onPowerWindowChange');
 		this.componentsManager = new ComponentsManager(this);
 		this.interpolation = new PowerInterpolation(config, this);
 		this._events = {};
@@ -1905,6 +2014,7 @@ class PowerUi extends _PowerUiBase {
 		this.router = new Router(config, this); // Router calls this.init();
 		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
 		this.router.onRouteChange.subscribe(this.componentsManager.runObserver.bind(this.componentsManager));
+		this.onPowerWindowChange.subscribe(this.componentsManager.powerWindowChange.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);
 		// On the first run broadcast a browser window resize so any window or other
@@ -2419,18 +2529,31 @@ class PowerUi extends _PowerUiBase {
 		return parseInt(styles['margin-left'].split('px')[0] || 0);// + parseInt(styles['border-width'].split('px')[0] || 0);
 	}
 	_offsetComputedHeight(element) {
-		return parseInt(getComputedStyle(element).height.split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-top'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-top-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['margin-bottom'].split('px')[0] || 0)  + parseInt(getComputedStyle(element)['border-bottom-width'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) - parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element.height.split('px')[0] || 0) + parseInt(_element['margin-top'].split('px')[0] || 0) + parseInt(_element['border-top-width'].split('px')[0] || 0) + parseInt(_element['margin-bottom'].split('px')[0] || 0)  + parseInt(_element['border-bottom-width'].split('px')[0] || 0) + parseInt(_element['padding-top'].split('px')[0] || 0) + parseInt(_element['padding-bottom'].split('px')[0] || 0);
 	}
 
-	_offsetComputedPadding(element) {
-		return parseInt(getComputedStyle(element)['padding-top'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-bottom'].split('px')[0] || 0);
+	_computedTopBottomPadding(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-top'].split('px')[0] || 0) + parseInt(_element['padding-bottom'].split('px')[0] || 0);
+	}
+	_computedTopPadding(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-top'].split('px')[0] || 0);
+	}
+
+	_computedLeftRightPadding(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0);
 	}
 
 	_offsetComputedWidth(element) {
-		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) - (parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0));
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element.width.split('px')[0] || 0) - (parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0));
 	}
 	_offsetComputedAdjustSides(element) {
-		return parseInt(getComputedStyle(element).width.split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-left'].split('px')[0] || 0) + parseInt(getComputedStyle(element)['padding-right'].split('px')[0] || 0);
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element.width.split('px')[0] || 0) + parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0);
 	}
 }
 
@@ -2996,29 +3119,33 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	_setBarCssStyles(bar, element) {
+		if (!bar.position) {
+			return;
+		}
 		if (bar.mirrored) {
 			element.classList.add('pw-mirrored');
 		}
-		if (bar.position === 'fixed-top') {
-			element.classList.add('pw-bar-fixed');
+		if (bar.position.includes('fixed')) {
+			const fixedWindow = bar.position.includes('window');
+			element.classList.add(fixedWindow ? 'pw-bar-window-fixed' : 'pw-bar-fixed');
+		}
+
+		if (bar.position === 'fixed-top' || bar.position === 'fixed-window-top') {
 			element.classList.add('pw-top');
 			if (!bar.orientation || bar.orientation === 'horizontal') {
 				element.classList.add('pw-horizontal');
 			}
-		} else if (bar.position === 'fixed-bottom') {
-			element.classList.add('pw-bar-fixed');
+		} else if (bar.position === 'fixed-bottom' || bar.position === 'fixed-window-bottom') {
 			element.classList.add('pw-bottom');
 			if (!bar.orientation || bar.orientation === 'horizontal') {
 				element.classList.add('pw-horizontal');
 			}
-		} else if (bar.position === 'fixed-left') {
-			element.classList.add('pw-bar-fixed');
+		} else if (bar.position === 'fixed-left' || bar.position === 'fixed-window-left') {
 			element.classList.add('pw-left');
 			if (!bar.orientation || bar.orientation === 'vertical') {
 				element.classList.add('pw-vertical');
 			}
-		} else if (bar.position === 'fixed-right') {
-			element.classList.add('pw-bar-fixed');
+		} else if (bar.position === 'fixed-right' || bar.position === 'fixed-window-right') {
 			element.classList.add('pw-right');
 			if (!bar.orientation || bar.orientation === 'vertical') {
 				element.classList.add('pw-vertical');
@@ -9781,11 +9908,19 @@ class PowerWindow extends PowerDialogBase {
 	constructor({$powerUi, promise=false}) {
 		super({$powerUi: $powerUi, noEsc: true, promise: promise});
 		this.isWindow = true;
-		this._minWidth = 250;
-		this._minHeight = 50;
+		this.defaultMinHeight = 100;
+		this.defaultMinWidth = 250;
+		this.defaultBorderSize = 5;
+		this._minWidth = this.defaultMinWidth;
+		this._minHeight = this.defaultMinHeight;
 		this.maximizeBt = true;
 		this.restoreBt = true;
 		this.isMaximized = false;
+		this.topTotalHeight = 0;
+		this.bottomTotalHeight = 0;
+		this.leftTotalWidth = 0;
+		this.rightTotalWidth = 0;
+		this.totalHeight = 0;
 	}
 
 	// Allow async calls to implement onCancel
@@ -9796,6 +9931,32 @@ class PowerWindow extends PowerDialogBase {
 	_onViewLoad(view) {
 		super._onViewLoad(view, true, true);
 		this.currentView = view;
+		this.fixedBars = {left: [], right: [], top: [], bottom: []};
+		const fixedBars = this.currentView.getElementsByClassName('pw-bar-fixed');
+		for (const bar of fixedBars) {
+			if (bar.classList.contains('pw-left')) {
+				this.fixedBars.left.push(bar);
+			} else if (bar.classList.contains('pw-right')) {
+				this.fixedBars.right.push(bar);
+			} else if (bar.classList.contains('pw-top')) {
+				this.fixedBars.top.push(bar);
+			} else if (bar.classList.contains('pw-bottom')) {
+				this.fixedBars.bottom.push(bar);
+			}
+		}
+		this.windowBars = [];
+		this.windowToolbars = [];
+		const winBars = this.currentView.getElementsByClassName('pw-bar-window-fixed');
+		for (const bar of winBars) {
+			const _bar = this.$powerUi.componentsManager.bars.find(b=> b.id === bar.id);
+			if (_bar) {
+				_bar.bar._window = this;
+				this.windowBars.push(_bar);
+				if (_bar.bar.isToolbar) {
+					this.windowToolbars.push(_bar);
+				}
+			}
+		}
 
 		if (!this.isHiddenRoute) {
 			this.loadWindowState();
@@ -9838,25 +9999,60 @@ class PowerWindow extends PowerDialogBase {
 		this.addOnMouseBorderEvents();
 		this.setAllWindowElements();
 
+		const minTop = this.minTop();
+		const minLeft = this.minLeft();
+
+		this.topLeftLimits(minTop + this.defaultBorderSize, minLeft + this.defaultBorderSize);
 
 		if (this.isMaximized) {
-			this.maximize();
+			this.maximize(null, true);
 		} else {
-			this.restore();
+			this.restore(null, true);
 		}
 
 		this.replaceSizeQueries();
-
 		this.restoreScrollPosition(view);
+		this.refreshWindowToolbars();
+	}
+
+	changeWindowBars() {
+		const manager = this.$powerUi.componentsManager;
+		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
+			this._currentTop = -this.defaultBorderSize + this._dialog.offsetTop;
+			this._currentBottom = -this.defaultBorderSize + this._dialog.offsetTop;
+			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth - manager.totalIgnoredLeft;
+			this._currentWidth = this._dialog.offsetWidth;
+			this._currentHeight = this._dialog.offsetHeight + manager.totalIgnoredHeight;
+		} else if (this.isMaximized === true && manager.smallWindowMode) {
+			this._currentTop = -this.defaultBorderSize;
+			this._currentBottom = this._currentTop;
+			this._currentLeft = -this.defaultBorderSize;
+			this._currentWidth = this._dialog.offsetWidth - (this.defaultBorderSize + this.defaultBorderSize);
+			this._currentHeight = this._dialog.offsetHeight - (this.defaultBorderSize + this.defaultBorderSize);
+		} else {
+			this._currentTop = this._top;
+			this._currentBottom = this._currentTop;
+			this._currentLeft = this._left;
+			this._currentWidth = this._width;
+			this._currentHeight = this._height;
+		}
+		this.$powerUi.componentsManager.setWindowFixedBarsSizeAndPosition(this.windowBars, this);
+	}
+
+	refreshWindowToolbars() {
+		for (const bar of this.windowToolbars) {
+			bar.bar.setStatus();
+		}
 	}
 
 	// Adapt window to fixed bars and maybe also other power components
 	adjustWindowWithComponents() {
 		this.adjustTop = 0;
-		this.adjustHeight = 0;
+		this.adjustHeight = this.totalHeight;
 		this.adjustWidth = 0;
 		this.adjustLeft = 0;
-		const bars = this.$powerUi.componentsManager.bars.filter(b=> b.bar.isFixed === true);
+		const manager = this.$powerUi.componentsManager;
+		const bars = manager.bars.filter(b=> b.bar.isFixed === true);
 		for (const bar of bars) {
 			if (!bar.bar.ignore && bar.bar.barPosition === 'top') {
 				this.adjustTop = this.adjustTop + bar.bar.element.offsetHeight;
@@ -9868,11 +10064,12 @@ class PowerWindow extends PowerDialogBase {
 				this.adjustLeft = bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			}
 		}
-		if (this.isMaximized && !(this.$powerUi.componentsManager.smallWindowMode) || (!this.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
+
+		if (this.isMaximized && !(manager.smallWindowMode) || (!this.isMaximized && manager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
 			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
-			// this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
-			this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.adjustWidth + this.adjustLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
+			// this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.adjustWidth + this.adjustLeft + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 
@@ -9884,7 +10081,7 @@ class PowerWindow extends PowerDialogBase {
 			}
 
 			if (this.adjustHeight) {
-				this._dialog.style.height = window.innerHeight - this.adjustTop - this.adjustHeight + 'px';
+				this._dialog.style.height = window.innerHeight - manager.totalHeight + 'px';
 				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
 				this._dialog.style['padding-bottom'] = 0;
 			}
@@ -10023,10 +10220,10 @@ class PowerWindow extends PowerDialogBase {
 		}
 		e.preventDefault();
 		if (this.isMaximized) {
-			this._height = window.innerHeight - 10;
-			this._width = window.innerWidth - 10;
-			this._top = 5;
-			this._left = 5;
+			this._height = window.innerHeight - (this.defaultBorderSize + this.defaultBorderSize);
+			this._width = window.innerWidth - (this.defaultBorderSize + this.defaultBorderSize);
+			this._top = this.defaultBorderSize;
+			this._left = this.defaultBorderSize;
 			this.setAllWindowElements();
 			this.restore();
 		}
@@ -10074,16 +10271,20 @@ class PowerWindow extends PowerDialogBase {
 		}
 	}
 
-	topLeftLimits() {
-		if (this._left < 0) {
-			this._left = 0;
+	topLeftLimits(minTop, minLeft) {
+		if (this._left < minLeft) {
+			this._left = minLeft;
 		}
-		if (this._top < 0) {
-			this._top = 0;
+		if (this._top < minTop) {
+			this._top = minTop;
 		}
 	}
 
 	avoidExceedingLimits() {
+		const minTop = this.minTop();
+		const maxBottom = this.maxBottom();
+		const minLeft = this.minLeft();
+		const maxRight = this.maxRight();
 		let widthFix = 0;
 		let heightFix = 0;
 		if (this._width < this._minWidth) {
@@ -10094,28 +10295,28 @@ class PowerWindow extends PowerDialogBase {
 			heightFix = this._height - this._minHeight;
 			this._height = this._minHeight;
 		}
-		this.topLeftLimits();
+		this.topLeftLimits(minTop, minLeft);
 		// Left limits
 		if (this._width === this._minWidth && this._dialog.cursor.includes('left')) {
 			this._left = this._left + widthFix;
-		} else if (this._left <= 0 && this._lastWidth < this._width && this._dialog.cursor.includes('left')) {
+		} else if (this._left <= minLeft && this._lastWidth < this._width && this._dialog.cursor.includes('left')) {
 			this._width = this._lastWidth;
 		}
 		// Top limits
 		if (this._height === this._minHeight && this._dialog.cursor.includes('top')) {
 			this._top = this._top + heightFix;
-		} else if (this._top <= 0 && this._lastHeight < this._height && this._dialog.cursor.includes('top')) {
+		} else if (this._top <= minTop && this._lastHeight < this._height && this._dialog.cursor.includes('top')) {
 			this._height = this._lastHeight;
 		}
 		// Right limits
-		if (this._left + this._width + 10 > window.innerWidth) {
-			this._width = window.innerWidth - this._left - 10;
+		if ((this._left + this._width) + maxRight + 10 > window.innerWidth) {
+			this._width = (window.innerWidth - this._left) - maxRight - 10;
 		}
 		// Bottom limits
-		if (this._top + this._height + 10 > window.innerHeight) {
-			this._height = window.innerHeight - this._top - 10;
+		if ((this._top + this._height) + maxBottom + 10 > window.innerHeight) {
+			this._height = (window.innerHeight - this._top) - maxBottom - 10;
 		}
-		this.topLeftLimits();
+		this.topLeftLimits(minTop, minLeft);
 		this._lastHeight = this._height;
 		this._lastWidth = this._width;
 		this._lastTop = this._top;
@@ -10135,14 +10336,14 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	_maximizeDialog() {
-		this._dialog.style.top = -5 + 'px';
-		this._dialog.style.left = -5 + 'px';
+		this._dialog.style.top = -this.defaultBorderSize + 'px';
+		this._dialog.style.left = -this.defaultBorderSize + 'px';
 		this._dialog.style.height = window.innerHeight + 'px';
 		this._dialog.style.width = window.innerWidth + 'px';
 		this.bodyEl.style.height = window.innerHeight - this.titleBarEl.offsetHeight + 'px';
 	}
 
-	maximize(event) {
+	maximize(event, preventBroadcast) {
 		if (event) {
 			event.preventDefault();
 		}
@@ -10156,9 +10357,16 @@ class PowerWindow extends PowerDialogBase {
 		}
 		this.adjustWindowWithComponents();
 		this.replaceSizeQueries();
+		this.changeWindowBars();
+		this.refreshWindowToolbars();
+
+		if (!preventBroadcast) {
+			this.$powerUi.onPowerWindowChange.broadcast();
+		}
+		this.$powerUi.componentsManager.runObserver();
 	}
 
-	restore(event) {
+	restore(event, preventBroadcast) {
 		if (event) {
 			event.preventDefault();
 		}
@@ -10178,6 +10386,13 @@ class PowerWindow extends PowerDialogBase {
 		this.removeWindowIsMaximizedFromBody();
 		this.adjustWindowWithComponents();
 		this.replaceSizeQueries();
+		this.changeWindowBars();
+		this.refreshWindowToolbars();
+
+		if (!preventBroadcast) {
+			this.$powerUi.onPowerWindowChange.broadcast();
+		}
+		this.$powerUi.componentsManager.runObserver();
 	}
 
 	setAllWindowElements() {
@@ -10190,6 +10405,8 @@ class PowerWindow extends PowerDialogBase {
 		// Add the classes to create a css "midia query" for the window
 		this.replaceSizeQueries();
 		this.saveWindowState();
+		this.changeWindowBars();
+		this.refreshWindowToolbars();
 	}
 
 	replaceSizeQueries() {
@@ -10362,20 +10579,57 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.style.left = this._left + 'px';
 		this._top = this._dialog.offsetTop;
 		this._left = this._dialog.offsetLeft;
+		this.changeWindowBars();
+	}
+
+	minTop() {
+		let minTop = 0;
+		for (const bar of this.fixedBars.top) {
+			minTop = minTop + bar.offsetHeight;
+		}
+		return minTop;
+	}
+
+	maxBottom() {
+		let maxBottom = 0;
+		for (const bar of this.fixedBars.bottom) {
+			maxBottom = maxBottom + bar.offsetHeight;
+		}
+		return maxBottom;
+	}
+
+	minLeft() {
+		let minLeft = 0;
+		for (const bar of this.fixedBars.left) {
+			minLeft = minLeft + bar.offsetWidth;
+		}
+		return minLeft;
+	}
+
+	maxRight() {
+		let maxRight = 0;
+		for (const bar of this.fixedBars.right) {
+			maxRight = maxRight + bar.offsetWidth;
+		}
+		return maxRight;
 	}
 
 	avoidDragOutOfScreen() {
-		if (this._top + this._height + 10 > window.innerHeight) {
-			this._top = window.innerHeight - this._height - 10;
+		const minTop = this.minTop();
+		const maxBottom = this.maxBottom();
+		const minLeft = this.minLeft();
+		const maxRight = this.maxRight();
+		if (this._top + this._height + 10 > window.innerHeight - maxBottom) {
+			this._top = window.innerHeight - (this._height + maxBottom) - 10;
 		}
-		if (this._top < 0) {
-			this._top = 0;
+		if (this._top < minTop) {
+			this._top = minTop;
 		}
-		if (this._left + this._width + 10 >= window.innerWidth) {
-			this._left = window.innerWidth - this._width - 10;
+		if (this._left + this._width + 10 >= window.innerWidth - maxRight) {
+			this._left = window.innerWidth - (this._width + maxRight) - 10;
 		}
-		if (this._left < 0) {
-			this._left = 0;
+		if (this._left < minLeft) {
+			this._left = minLeft;
 		}
 	}
 
@@ -10466,7 +10720,7 @@ class PowerWindowIframe extends PowerWindow {
 		this.iframe.style.height = this.bodyEl.style.height;
 		this.coverIframe.style.height = this.iframe.style.height;
 		this.coverIframe.style.width = this._width + 'px';
-		this.coverIframe.style.top = this.titleBarEl.offsetHeight + 5 + 'px';
+		this.coverIframe.style.top = this.titleBarEl.offsetHeight + this.defaultBorderSize + 'px';
 	}
 
 	setAllWindowElements() {
@@ -10513,7 +10767,10 @@ class _PowerBarsBase extends PowerTarget {
 		// Bar priority
 		this.priority = this.element.getAttribute('data-pw-priority');
 		this.priority = this.priority ? parseInt(this.priority) : null;
-		if (this.element.classList.contains('pw-bar-fixed')) {
+		if (this.element.classList.contains('pw-bar-window-fixed')) {
+			this.isWindowFixed = true;
+			this.isFixed = false;
+		} else if (this.element.classList.contains('pw-bar-fixed')) {
 			this.isFixed = true;
 		} else {
 			this.isFixed = false;
@@ -10530,22 +10787,22 @@ class _PowerBarsBase extends PowerTarget {
 		if (this.element.classList.contains('pw-ignore')) {
 			this.ignore = true;
 		}
+		// Add this bar to componentsManager.bars
+		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
+		if (this.isFixed || this.isWindowFixed) {
+			this.$powerUi.componentsManager.observe(this);
+		}
 	}
 
 	onRemove() {
 		// Remove this bar from componentsManager.bars
 		this.$powerUi.componentsManager.bars = this.$powerUi.componentsManager.bars.filter(bar=> bar.id !== this.id);
-		if (this.isFixed) {
+		if (this.isFixed || this.isWindowFixed) {
 			this.$powerUi.componentsManager.stopObserve(this.element);
 		}
 	}
 
 	init() {
-		// Add this bar to componentsManager.bars
-		this.$powerUi.componentsManager.bars.push({id: this.id, bar: this});
-		if (this.isFixed) {
-			this.$powerUi.componentsManager.observe(this);
-		}
 	}
 }
 
@@ -11539,6 +11796,7 @@ class PowerToolbar extends PowerActionsBar {
 		super(bar, $powerUi);
 		this.isToolbar = true;
 		this.isColapsed = false;
+		// this.$powerUi.router.onRouteChange.subscribe(this.setStatus, this);
 	}
 
 	onRemove() {
@@ -11559,6 +11817,7 @@ class PowerToolbar extends PowerActionsBar {
 		for (const item of this.childrenPowerItems) {
 			totalChildrenWidth = totalChildrenWidth + item.element.offsetWidth;
 		}
+		totalChildrenWidth = totalChildrenWidth + this.powerToggle.offsetWidth;
 		return totalChildrenWidth;
 	}
 
@@ -11587,11 +11846,10 @@ class PowerToolbar extends PowerActionsBar {
 				this.powerAction.subscribe({event: 'toggle', fn: this._setStatus, bar: this});
 			}
 		}
-		this.barWidth = parseInt(this.element.style.width.replace('px', ''));
-		this.barHeight = parseInt(this.element.style.height.replace('px', ''));
+		this.barWidth = parseInt(this.element.style.width.replace('px', '')) || this.element.offsetWidth;
+		this.barHeight = parseInt(this.element.style.height.replace('px', '')) || this.element.offsetHeight;
 		this.toggleWidth = this.powerToggle.offsetWidth;
 		this.toggleHeight = this.powerToggle.offsetHeight;
-
 		if (this.orientation === 'vertical') {
 			this.VerticalShowAndHiddeItems();
 		} else {
@@ -11673,15 +11931,17 @@ class PowerToolbar extends PowerActionsBar {
 			this.isColapsed = false;
 		}
 		let currentWidth = 0;
+		this.lastTotalChildrenWidth = 0;
 		for (const child of this.element.children) {
 			const isAction = child.classList.contains('power-action');
 			const isItem = child.classList.contains('power-item');
 			if (isItem || isAction) {
 				currentWidth = currentWidth + child.offsetWidth;
 				if (this._$pwActive || (currentWidth < this.barWidth - this.toggleWidth)) {
-					child.classList.add('pw-force-show');
+					this.lastTotalChildrenWidth = currentWidth;
 					child.style['margin-left'] = null;
 					child.style['margin-right'] = null;
+					child.classList.add('pw-force-show');
 				} else {
 					child.classList.remove('pw-force-show');
 					child.style['margin-left'] = -(child.offsetWidth) + 'px';
