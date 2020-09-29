@@ -1088,7 +1088,7 @@ class SimpleTemplate extends PowerTemplate {
 		const toolbar = {
 		    "classList": ["pw-red-white"],
 		    "id": 'my-window-toolbar',
-		    "position": "fixed-window-left",
+		    "position": "fixed-window-top",
 		    "ignore": false,
 		    "priority": 2,
 		    "items": [
@@ -1368,7 +1368,7 @@ class SimpleTemplate extends PowerTemplate {
 		};
 
 		const menu2 = {
-			// "classList": ["pw-black-white"],
+			"classList": ["pw-orange-white"],
 			"id": 'my-win-menu2',
 			"mirrored": false,
 			"position": "fixed-window-left",
@@ -1973,7 +1973,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"id": 'my-tool-12',
 			// "mirrored": true,
 			"position": "fixed-top",
-			"ignore": false,
+			"ignore": true,
 			"priority": 16,
 			"items": [
 				{

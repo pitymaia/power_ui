@@ -340,12 +340,17 @@ class ComponentsManager {
 		this.leftTotalWidth = 0;
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
+		this.totalIgnoredHeight = 0;
+		this.totalIgnoredLeft = 0;
 		let zIndex = 1000 + bars.length;
 		for (const bar of bars) {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
 			if (bar.bar.barPosition === 'top') {
+				if (bar.bar.ignore === true) {
+					this.totalIgnoredHeight = this.totalIgnoredHeight + bar.bar.element.offsetHeight;
+				}
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
 				this.topTotalHeight = this.topTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
@@ -354,6 +359,9 @@ class ComponentsManager {
 				bar.bar.element.style.width = this.$powerUi._offsetComputedWidth(bar.bar.element) - (bar.adjusts.left + bar.adjusts.right) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
+				if (bar.bar.ignore === true) {
+					this.totalIgnoredHeight = this.totalIgnoredHeight + bar.bar.element.offsetHeight;
+				}
 				this.totalHeight = this.totalHeight + bar.bar.element.offsetHeight;
 				this.bottomTotalHeight = this.bottomTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.bottom = bar.adjusts.bottom + 'px';
@@ -363,6 +371,9 @@ class ComponentsManager {
 			}
 			if (bar.bar.barPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
+				if (bar.bar.ignore === true) {
+					this.totalIgnoredLeft = this.totalIgnoredLeft + bar.bar.element.offsetWidth;
+				}
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;

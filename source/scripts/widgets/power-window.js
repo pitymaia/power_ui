@@ -112,11 +112,11 @@ class PowerWindow extends PowerDialogBase {
 	changeWindowBars() {
 		const manager = this.$powerUi.componentsManager;
 		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
-			this._currentTop = -this.defaultBorderSize + manager.topTotalHeight;
+			this._currentTop = -this.defaultBorderSize + this._dialog.offsetTop;
 			this._currentBottom = -this.defaultBorderSize + this._dialog.offsetTop;
-			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth;
+			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth - manager.totalIgnoredLeft;
 			this._currentWidth = this._dialog.offsetWidth;
-			this._currentHeight = this._dialog.offsetHeight;
+			this._currentHeight = this._dialog.offsetHeight + manager.totalIgnoredHeight;
 		} else if (this.isMaximized === true && manager.smallWindowMode) {
 			this._currentTop = -this.defaultBorderSize;
 			this._currentBottom = this._currentTop;
