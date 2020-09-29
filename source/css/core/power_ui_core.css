@@ -212,6 +212,7 @@ body, html {
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse.power-active:not(.pw-bar-fixed) .power-action,
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse.power-active:not(.pw-bar-fixed) .power-item,
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active:not(.pw-bar-fixed) .power-action,
+    .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active:not(.pw-bar-fixed) .power-brand,
     .pw-bar-break .pw-bar.pw-vertical.pw-colapse.power-active:not(.pw-bar-fixed) .power-item {
         display: block;
         width: max-content;
@@ -226,7 +227,10 @@ body, html {
     }
 
     .pw-bar-break .pw-bar.pw-horizontal.pw-colapse:not(.pw-bar-fixed) .power-action,
-    .pw-bar-break .pw-bar.pw-horizontal.pw-colapse:not(.pw-bar-fixed) .power-item {
+    .pw-bar-break .pw-bar.pw-horizontal.pw-colapse:not(.pw-bar-fixed) .power-item,
+    .pw-bar-break .pw-bar.pw-vertical.pw-colapse:not(.pw-bar-fixed) .power-action,
+    .pw-bar-break .pw-bar.pw-vertical.pw-colapse:not(.pw-bar-fixed) .power-brand,
+    .pw-bar-break .pw-bar.pw-vertical.pw-colapse:not(.pw-bar-fixed) .power-item {
         display: none;
     }
 

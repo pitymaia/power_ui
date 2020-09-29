@@ -181,11 +181,12 @@ class ComponentsManager {
 				}
 			}
 			// Fix toolbar toggle if its out of the menu
-			if (this.observing[key].isWindowFixed && !this.observing[key]._$pwActive) {
+			if (this.observing[key].isWindowFixed && this.observing[key].isToolbar && !this.observing[key]._$pwActive) {
 				if (this.observing[key].lastTotalChildrenWidth && this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
 					this.observing[key].setStatus();
 				}
 				if (currentWidth > this.observing[key]._window.bodyEl.offsetWidth) {
+					console.log('rodou', this.observing[key].id);
 					this.observing[key]._window.changeWindowBars();
 				}
 			}
