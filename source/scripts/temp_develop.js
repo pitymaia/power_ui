@@ -1088,9 +1088,10 @@ class SimpleTemplate extends PowerTemplate {
 		const toolbar = {
 		    "classList": ["pw-red-white"],
 		    "id": 'my-window-toolbar',
-		    "position": "fixed-window-bottom",
-		    "ignore": true,
-		    "priority": 3,
+		    "position": "fixed-window-left",
+		    "ignore": false,
+		    "priority": 5,
+		    // "orientation": "vertical",
 		    "items": [
 		        {
 		            "item": {
@@ -1346,6 +1347,7 @@ class SimpleTemplate extends PowerTemplate {
 			"id": 'my-win-menu',
 			"mirrored": false,
 			"position": "fixed-window-bottom",
+			"orientation": "horizontal",
 			"ignore": true,
 			"priority": 2,
 			"brand": {
@@ -1374,7 +1376,7 @@ class SimpleTemplate extends PowerTemplate {
 			"mirrored": false,
 			"position": "fixed-window-bottom",
 			"ignore": true,
-			"priority": 1,
+			"priority": 3,
 			"brand": {
 				"content": "WinMenu",
 			},

@@ -113,7 +113,7 @@ class PowerWindow extends PowerDialogBase {
 		const manager = this.$powerUi.componentsManager;
 		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
 			this._currentTop = -this.defaultBorderSize + manager.topTotalHeight;
-			this._currentBottom = -this.defaultBorderSize + (this._dialog.offsetTop + manager.topTotalHeight + this.totalHeight);
+			this._currentBottom = -this.defaultBorderSize + this._dialog.offsetTop;
 			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth;
 			this._currentWidth = this._dialog.offsetWidth;
 			this._currentHeight = this._dialog.offsetHeight;
@@ -175,7 +175,7 @@ class PowerWindow extends PowerDialogBase {
 			}
 
 			if (this.adjustHeight) {
-				this._dialog.style.height = window.innerHeight - this.adjustTop - (this.adjustHeight + manager.topTotalHeight) + 'px';
+				this._dialog.style.height = window.innerHeight - manager.totalHeight + 'px';
 				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
 				this._dialog.style['padding-bottom'] = 0;
 			}

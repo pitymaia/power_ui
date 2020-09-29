@@ -383,11 +383,14 @@ class ComponentsManager {
 	adjustWindowBody(win) {
 		win.bodyEl.style['margin-top'] = win.topTotalHeight + 'px';
 		win.bodyEl.style['margin-left'] = win.leftTotalWidth + 'px';
-		win.bodyEl.style['margin-right'] = win.rightTotalWidth + 'px';
+		// win.bodyEl.style['margin-right'] = win.rightTotalWidth + 'px';
 		win.bodyEl.style.height = (win._currentHeight - win.titleBarEl.offsetHeight) - win.totalHeight + 'px';
 		win.bodyEl.style['min-height'] = '50px';
 		win._dialog.style['min-height'] = (win.defaultMinHeight + win.titleBarEl.offsetHeight) + win.topTotalHeight + 'px';
 		win._minHeight = win.defaultMinHeight + win.titleBarEl.offsetHeight + win.totalHeight;
+		const width = win._currentWidth - (win.rightTotalWidth + win.leftTotalWidth) + 'px';
+		win.bodyEl.style.width = width;
+		win.bodyEl.style['min-width'] = width;
 	}
 
 	setWindowBarsSizeAndPosition(bars, win, ctx) {
@@ -422,10 +425,11 @@ class ComponentsManager {
 			}
 			if (bar.bar.barPosition === 'left') {
 				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
-				bar.bar.element.style.left = bar.adjusts.left + 'px';
-				bar.bar.element.style.top = bar.adjusts.top + 'px';
+				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
+				bar.bar.element.style.top = _top + bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				bar.bar.element.style.height = (win.currentView.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - bar.adjusts.top - bar.adjusts.bottom + 'px';
+				const height = (win._currentHeight - win.titleBarEl.offsetHeight) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
+				bar.bar.element.style.height = height;
 			}
 			if (bar.bar.barPosition === 'right') {
 				ctx.rightTotalWidth = ctx.rightTotalWidth + bar.bar.element.offsetWidth;
