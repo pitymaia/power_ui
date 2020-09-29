@@ -389,7 +389,7 @@ body, html {
 
 .pw-window {
     min-width: 250px;
-    min-height: 50px;
+    min-height: 100px;
 }
 
 .pw-small-window-mode .pw-window {

@@ -180,16 +180,18 @@ class ComponentsManager {
 					hasChange = true;
 				}
 			}
-			// Fix toolbar toggle if its out of the menu
-			if (this.observing[key].isWindowFixed && this.observing[key].isToolbar && !this.observing[key]._$pwActive) {
-				if (this.observing[key].lastTotalChildrenWidth && this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
-					this.observing[key].setStatus();
-				}
-				if (currentWidth > this.observing[key]._window.bodyEl.offsetWidth) {
-					console.log('rodou', this.observing[key].id);
-					this.observing[key]._window.changeWindowBars();
-				}
+			if (hasChange && this.observing[key].setStatus) {
+				this.observing[key].setStatus();
 			}
+			// // Fix toolbar toggle if its out of the menu
+			// if (this.observing[key].isWindowFixed && this.observing[key].isToolbar && !this.observing[key]._$pwActive) {
+			// 	if (this.observing[key].lastTotalChildrenWidth && this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
+			// 		this.observing[key].setStatus();
+			// 	}
+			// 	if (currentWidth > this.observing[key]._window.bodyEl.offsetWidth) {
+			// 		this.observing[key]._window.changeWindowBars();
+			// 	}
+			// }
 			this.observing[key].lastWidth = currentWidth;
 			this.observing[key].lastHeight = currentHeight;
 		}
@@ -224,6 +226,7 @@ class ComponentsManager {
 		for (const dialog of this.$powerUi.dialogs) {
 			if (dialog.ctrl.isWindow && (dialog.ctrl.isMaximized || this.smallWindowMode)) {
 				dialog.ctrl.adjustWindowWithComponents();
+				dialog.ctrl.changeWindowBars();
 			}
 		}
 	}
@@ -406,11 +409,10 @@ class ComponentsManager {
 			bar.zIndex = zIndex;
 			zIndex = zIndex - 1;
 			bar.bar.element.style.zIndex = zIndex;
-			const _top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top;
 			if (bar.bar.barPosition === 'top') {
 				ctx.totalHeight = ctx.totalHeight + (bar.bar.element.offsetHeight);
 				ctx.topTotalHeight = ctx.topTotalHeight + (bar.bar.element.offsetHeight);
-				bar.bar.element.style.top = _top + 'px';
+				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
 				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
@@ -427,9 +429,9 @@ class ComponentsManager {
 			if (bar.bar.barPosition === 'left') {
 				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
-				bar.bar.element.style.top = _top + bar.adjusts.top + 'px';
+				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				const height = (win._currentHeight - win.titleBarEl.offsetHeight) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
+				const height = (win._currentHeight - win.titleBarEl.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
 				bar.bar.element.style.height = height;
 			}
 			if (bar.bar.barPosition === 'right') {
