@@ -1090,7 +1090,8 @@ class SimpleTemplate extends PowerTemplate {
 		    "id": 'my-window-toolbar',
 		    "position": "fixed-window-top",
 		    "ignore": false,
-		    "priority": 2,
+		    "priority": 1,
+		    "mirrored": false,
 		    "items": [
 		        {
 		            "item": {
@@ -1345,8 +1346,8 @@ class SimpleTemplate extends PowerTemplate {
 			"classList": ["pw-blue-white"],
 			"id": 'my-win-menu',
 			"mirrored": false,
-			"position": "fixed-window-left",
-			"priority": 3,
+			"position": "fixed-window-right",
+			"priority": 2,
 			"brand": {
 				"content": "WinMenu",
 			},
@@ -1371,9 +1372,9 @@ class SimpleTemplate extends PowerTemplate {
 			"classList": ["pw-orange-white"],
 			"id": 'my-win-menu2',
 			"mirrored": false,
-			"position": "fixed-window-left",
+			"position": "fixed-window-bottom",
 			"ignore": true,
-			"priority": 1,
+			"priority": 3,
 			"brand": {
 				"content": "WinMenu",
 			},
