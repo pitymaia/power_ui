@@ -152,19 +152,35 @@ class ComponentsManager {
 		delete this.observing[element.id];
 	}
 
-	startObserver() {
+	restartObserver() {
+		if (this.interval >= 500) {
+			this.interval = 300;
+		} else {
+			return;
+		}
+		this.startObserver();
+	}
+
+	observerInterval() {
 		const self = this;
-		let interval = 500;
-		setInterval(function () {
+		self.interval = self.interval || 10;
+
+		return setInterval(function () {
 			self.runObserver();
-			if (interval < 500) {
-				interval = interval + 5;
+			clearInterval(self._observerInterval);
+			self.interval = self.interval + 10;
+			if (self.interval < 500) {
+				self.startObserver();
 			}
-		}, interval);
+		}, self.interval);
+	}
+
+	startObserver() {
+		this.hasChange = false;
+		this._observerInterval = this.observerInterval();
 	}
 
 	runObserver() {
-		let hasChange = false;
 		for (const key of Object.keys(this.observing)) {
 			const active = this.observing[key]._$pwActive;
 			const lastWidth = this.observing[key].lastWidth;
@@ -173,14 +189,14 @@ class ComponentsManager {
 			const currentHeight = this.observing[key].element.offsetHeight;
 			if (!active) {
 				if (lastWidth && lastHeight && ((lastWidth !== currentWidth) || (lastHeight !== currentHeight))) {
-					hasChange = true;
+					this.hasChange = true;
 				}
 
 				if (this.observing[key].isToolbar && this.observing[key].powerAction.element.offsetLeft > this.observing[key].element.offsetWidth) {
-					hasChange = true;
+					this.hasChange = true;
 				}
 			}
-			if (hasChange && this.observing[key].setStatus) {
+			if (this.hasChange && this.observing[key].setStatus) {
 				this.observing[key].setStatus();
 			}
 			// // Fix toolbar toggle if its out of the menu
@@ -196,7 +212,7 @@ class ComponentsManager {
 			this.observing[key].lastHeight = currentHeight;
 		}
 
-		if (hasChange) {
+		if (this.hasChange) {
 			this.onBarSizeChange();
 			this.hasChange = false;
 		}
@@ -224,7 +240,7 @@ class ComponentsManager {
 		this._setAppContainerHeight();
 		this.toggleSmallWindowMode();
 		for (const dialog of this.$powerUi.dialogs) {
-			if (dialog.ctrl.isWindow && (dialog.ctrl.isMaximized || this.smallWindowMode)) {
+			if (dialog.ctrl.isWindow) {
 				dialog.ctrl.adjustWindowWithComponents();
 				dialog.ctrl.changeWindowBars();
 			}

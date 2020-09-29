@@ -457,7 +457,7 @@ class PowerWindow extends PowerDialogBase {
 		if (!preventBroadcast) {
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
-		this.$powerUi.componentsManager.runObserver();
+		this.$powerUi.componentsManager.restartObserver();
 	}
 
 	restore(event, preventBroadcast) {
@@ -486,7 +486,7 @@ class PowerWindow extends PowerDialogBase {
 		if (!preventBroadcast) {
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
-		this.$powerUi.componentsManager.runObserver();
+		this.$powerUi.componentsManager.restartObserver();
 	}
 
 	setAllWindowElements() {

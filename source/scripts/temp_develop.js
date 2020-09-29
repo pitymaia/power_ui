@@ -3568,9 +3568,10 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
 		this.$classList = ['blue-bg'];
 		const menu1 = {
-			"classList": ["custom-menu"],
+			// "classList": ["custom-menu"],
+			"position": "fixed-window-top",
 			"id": 'my-menu-1',
-			"orientation": "horizontal",
+			// "orientation": "horizontal",
 			"brand": {
 				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
 				"events": [
@@ -3583,7 +3584,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"mirrored": false,
 			// "dropMenuPosition": "bottom-left",
 			// "orientation": "vertical",
-			// "kind": "float-right",
 			"items": [
 				{
 					"item": {
@@ -5568,8 +5568,8 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"brand": {"content": "PowerUi"},
 			"mirrored": false,
 			"dropMenuPostision": "top-right",
-			"orientation": "horizontal",
-			// "kind": "float-right",
+			// "orientation": "horizontal",
+			"position": "fixed-window-left",
 			"items": [
 				{
 					"item": {
@@ -6554,6 +6554,7 @@ class JSONViews extends PowerWindow {
 		window.console.log('oi');
 	}
 	ctrl() {
+		// this.defaultBorderSize = 2;
 		// window.console.log('JSONViews CTRL', this.$tscope);
 		this.name = 'Pity';
 		this.form = {
