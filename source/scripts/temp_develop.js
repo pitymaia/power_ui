@@ -1079,6 +1079,7 @@ class SimpleModal extends PowerModal {
 class SimpleTemplate extends PowerTemplate {
 	async css(resolve, reject) {
 		const _css = await this.import('/css/some-window.css');
+		this.$classList = ['orange-bg'];
 		resolve(_css);
 	}
 
@@ -2434,7 +2435,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"mirrored": false,
 			"position": "fixed-top",
 			"ignore": false,
-			"priority": 15,
+			"priority": 1,
 			"brand": {
 				"content": "SuperGame",
 			},
@@ -3567,7 +3568,7 @@ class GridPageCtrl extends PowerController {
 
 class JSONViewsTemplateComponent extends PowerTemplate {
 	template(resolve, reject) {
-		this.$classList = ['blue-bg'];
+		this.$classList = ['red-bg'];
 		const menu1 = {
 			// "classList": ["custom-menu"],
 			"position": "fixed-window-top",
