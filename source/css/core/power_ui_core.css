@@ -15,6 +15,20 @@ body, html {
     overflow: hidden;
 }
 
+/* Anime dialogs fade in*/
+/*.pw-dialog-container {
+    animation: pw-window 0.5s ease-in-out;
+}
+
+@keyframes pw-window {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}*/
+
 .window-is-maximized .pw-small-window-mode .pw-window .pw-bar-fixed,
 .window-is-maximized .pw-window .pw-bar-fixed.pw-ignore,
 .pw-small-window-mode .pw-window .pw-bar-fixed.pw-ignore {

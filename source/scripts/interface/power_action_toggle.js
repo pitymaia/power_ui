@@ -24,31 +24,15 @@ class PowerList extends PowerTarget {
 
 	toggle() {
 		if (this._$pwActive) {
-			this._$pwActive = false; // powerAction
+			this._$pwActive = false;
 			this.targetObj._$pwActive = false;
 			this.targetObj.element.classList.remove('power-active');
 			this.element.classList.remove('power-active');
-			// Give menu a z-index to put it on top of any windows
-			if (this.$pwMain.isBar) {
-				if (this.$pwMain.order > 0) {
-					this.$pwMain.order = this.$pwMain.order - 1;
-					if (this.$pwMain.order === 0) {
-						this.$pwMain.element.classList.remove('pw-order');
-					}
-				}
-			}
 		} else {
-			this._$pwActive = true; // powerAction
+			this._$pwActive = true;
 			this.targetObj._$pwActive = true;
 			this.targetObj.element.classList.add('power-active');
 			this.element.classList.add('power-active');
-			// Give menu its normal z-index
-			if (this.$pwMain.isBar) {
-				if (this.$pwMain.order === 0) {
-					this.$pwMain.element.classList.add('pw-order');
-				}
-				this.$pwMain.order = this.$pwMain.order + 1;
-			}
 		}
 		// Broadcast toggle custom event
 		this.broadcast('toggle', true);
@@ -74,6 +58,25 @@ class PowerAction extends PowerList {
 	// The avoidCallAction flag avoid the loop
 	toggle(params={}) {
 		if (this.targetObj.action && !params.avoidCallAction) this.targetObj.action();
+		if (this._$pwActive) {
+			// Give menu a z-index to put it on top of any windows
+			if (this.$pwMain.isBar) {
+				if (this.$pwMain.order > 0) {
+					this.$pwMain.order = this.$pwMain.order - 1;
+					if (this.$pwMain.order === 0) {
+						this.$pwMain.element.classList.remove('pw-order');
+					}
+				}
+			}
+		} else {
+			// Give menu its normal z-index
+			if (this.$pwMain.isBar) {
+				if (this.$pwMain.order === 0) {
+					this.$pwMain.element.classList.add('pw-order');
+				}
+				this.$pwMain.order = this.$pwMain.order + 1;
+			}
+		}
 		super.toggle();
 	}
 
@@ -112,6 +115,7 @@ class PowerAction extends PowerList {
 
 		// This is an outside click
 		this.toggle();
+
 	}
 }
 // Inject the power css on PowerUi
