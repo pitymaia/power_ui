@@ -2071,7 +2071,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"position": "fixed-bottom",
 			"dropMenuPosition": "top-right",
 			"priority": 7,
-			"ignore": false,
+			"ignore": true,
 			"brand": {
 				"content": "PowerEasy",
 			},

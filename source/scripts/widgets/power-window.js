@@ -116,7 +116,7 @@ class PowerWindow extends PowerDialogBase {
 			this._currentBottom = -this.defaultBorderSize + this._dialog.offsetTop;
 			this._currentLeft = -this.defaultBorderSize + this.respectLeft;
 			this._currentWidth = this._dialog.offsetWidth;
-			this._currentHeight = this._dialog.offsetHeight + manager.totalIgnoredHeight;
+			this._currentHeight = this._dialog.offsetHeight + this.ignoreTop + this.ignoreBottom;
 		} else if (this.isMaximized === true && manager.smallWindowMode) {
 			this._currentTop = -this.defaultBorderSize;
 			this._currentBottom = this._currentTop;
@@ -141,8 +141,10 @@ class PowerWindow extends PowerDialogBase {
 
 	// Adapt window to fixed bars and maybe also other power components
 	adjustWindowWithComponents() {
-		this.adjustTop = 0;
-		this.adjustHeight = this.totalHeight;
+		this.respectTop = 0;
+		this.ignoreTop = 0;
+		this.respectBottom = 0; //this.totalHeight;
+		this.ignoreBottom = 0;
 		this.respectRight = 0;
 		this.respectLeft = 0;
 		this.ignoreLeft = 0;
@@ -150,9 +152,13 @@ class PowerWindow extends PowerDialogBase {
 		const bars = manager.bars.filter(b=> b.bar.isFixed === true);
 		for (const bar of bars) {
 			if (!bar.bar.ignore && bar.bar.barPosition === 'top') {
-				this.adjustTop = this.adjustTop + bar.bar.element.offsetHeight;
+				this.respectTop = this.respectTop + bar.bar.element.offsetHeight;
+			} else if (bar.bar.ignore && bar.bar.barPosition === 'top') {
+				this.ignoreTop = this.ignoreTop + bar.bar.element.offsetHeight;
 			} else if (!bar.bar.ignore && bar.bar.barPosition === 'bottom') {
-				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
+				this.respectBottom = this.respectBottom + bar.bar.element.offsetHeight;
+			} else if (bar.bar.ignore && bar.bar.barPosition === 'bottom') {
+				this.ignoreBottom = this.ignoreBottom + bar.bar.element.offsetHeight;
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'right') {
 				this.respectRight = this.respectRight + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			} else if (!bar.bar.ignore && bar.bar.barPosition === 'left') {
@@ -170,16 +176,16 @@ class PowerWindow extends PowerDialogBase {
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 
-			if (this._dialog.offsetTop < this.adjustTop) {
+			if (this._dialog.offsetTop < this.respectTop) {
 				this._dialog.style['padding-top'] = 0;
-				this._dialog.style.top = this.adjustTop + 'px';
-				this._dialog.style.height = window.innerHeight - this.adjustTop + 'px';
-				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.titleBarEl.offsetHeight + 'px';
+				this._dialog.style.top = this.respectTop + 'px';
+				this._dialog.style.height = window.innerHeight - this.respectTop + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.respectTop - this.titleBarEl.offsetHeight + 'px';
 			}
 
-			if (this.adjustHeight) {
+			if (this.respectBottom) {
 				this._dialog.style.height = window.innerHeight - manager.totalHeight + 'px';
-				this.bodyEl.style.height = window.innerHeight - this.adjustTop - this.adjustHeight - this.titleBarEl.offsetHeight + 'px';
+				this.bodyEl.style.height = window.innerHeight - this.respectTop - this.respectBottom - this.titleBarEl.offsetHeight + 'px';
 				this._dialog.style['padding-bottom'] = 0;
 			}
 		} else {
