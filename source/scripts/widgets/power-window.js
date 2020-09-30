@@ -153,9 +153,9 @@ class PowerWindow extends PowerDialogBase {
 			} else if (!bar.bar.ignore && bar.bar.barPosition === 'bottom') {
 				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'right') {
-				this.adjustWidth = bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+				this.adjustWidth = this.adjustWidth + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'left') {
-				this.adjustLeft = bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+				this.adjustLeft = this.adjustLeft + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			}
 		}
 

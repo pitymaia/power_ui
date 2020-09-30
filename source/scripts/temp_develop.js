@@ -1947,6 +1947,7 @@ class SimpleDialog extends PowerWindow {
 	}
 
 	ctrl({lock, $powerUi}) {
+		// this.defaultBorderSize = 2;
 		// console.log('SimpleDialog ctrl');
 	}
 
