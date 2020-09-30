@@ -955,6 +955,9 @@ class PowerUi extends _PowerUiBase {
 	_powerMenu(element) {
 		return new PowerMenu(element, this);
 	}
+	_powerSplitMenu(element) {
+		return new PowerSplitMenu(element, this);
+	}
 
 	_powerToolbar(element) {
 		return new PowerToolbar(element, this);
