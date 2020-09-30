@@ -357,7 +357,6 @@ class ComponentsManager {
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
 		this.totalIgnoredHeight = 0;
-		this.totalIgnoredLeft = 0;
 		let zIndex = 1000 + bars.length;
 		for (const bar of bars) {
 			bar.zIndex = zIndex;
@@ -387,9 +386,6 @@ class ComponentsManager {
 			}
 			if (bar.bar.barPosition === 'left') {
 				this.leftTotalWidth = this.leftTotalWidth + bar.bar.element.offsetWidth;
-				if (bar.bar.ignore === true) {
-					this.totalIgnoredLeft = this.totalIgnoredLeft + bar.bar.element.offsetWidth;
-				}
 				bar.bar.element.style.left = bar.adjusts.left + 'px';
 				bar.bar.element.style.top = bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;

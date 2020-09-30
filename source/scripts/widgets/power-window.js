@@ -114,7 +114,7 @@ class PowerWindow extends PowerDialogBase {
 		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
 			this._currentTop = -this.defaultBorderSize + this._dialog.offsetTop;
 			this._currentBottom = -this.defaultBorderSize + this._dialog.offsetTop;
-			this._currentLeft = -this.defaultBorderSize + manager.leftTotalWidth - manager.totalIgnoredLeft;
+			this._currentLeft = -this.defaultBorderSize + this.respectLeft;
 			this._currentWidth = this._dialog.offsetWidth;
 			this._currentHeight = this._dialog.offsetHeight + manager.totalIgnoredHeight;
 		} else if (this.isMaximized === true && manager.smallWindowMode) {
@@ -143,8 +143,9 @@ class PowerWindow extends PowerDialogBase {
 	adjustWindowWithComponents() {
 		this.adjustTop = 0;
 		this.adjustHeight = this.totalHeight;
-		this.adjustWidth = 0;
-		this.adjustLeft = 0;
+		this.respectRight = 0;
+		this.respectLeft = 0;
+		this.ignoreLeft = 0;
 		const manager = this.$powerUi.componentsManager;
 		const bars = manager.bars.filter(b=> b.bar.isFixed === true);
 		for (const bar of bars) {
@@ -153,17 +154,19 @@ class PowerWindow extends PowerDialogBase {
 			} else if (!bar.bar.ignore && bar.bar.barPosition === 'bottom') {
 				this.adjustHeight = this.adjustHeight + bar.bar.element.offsetHeight;
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'right') {
-				this.adjustWidth = this.adjustWidth + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+				this.respectRight = this.respectRight + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+			} else if (!bar.bar.ignore && bar.bar.barPosition === 'left') {
+				this.respectLeft = this.respectLeft + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			} else if (bar.bar.ignore && bar.bar.barPosition === 'left') {
-				this.adjustLeft = this.adjustLeft + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
+				this.ignoreLeft = this.ignoreLeft + bar.bar.element.offsetWidth;//this.$powerUi._offsetComputedAdjustSides(bar.bar.element);
 			}
 		}
 
 		if (this.isMaximized && !(manager.smallWindowMode) || (!this.isMaximized && manager.smallWindowMode)) {
 			const _appContainer = document.getElementById('app-container');
-			this._dialog.style.left = _appContainer.offsetLeft - this.adjustLeft + 'px';
-			this._dialog.style.width = _appContainer.offsetWidth + this.adjustWidth + this.adjustLeft + 'px';
-			// this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.adjustWidth + this.adjustLeft + 'px';
+			this._dialog.style.left = _appContainer.offsetLeft - this.ignoreLeft + 'px';
+			this._dialog.style.width = _appContainer.offsetWidth + this.respectRight + this.ignoreLeft + 'px';
+			// this._dialog.style.width = this.$powerUi._offsetComputedWidth(_appContainer) + this.respectRight + this.respectLeft + 'px';
 			this._dialog.style['padding-left'] = 0;
 			this._dialog.style['padding-right'] = 0;
 
