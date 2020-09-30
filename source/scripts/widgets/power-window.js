@@ -828,9 +828,9 @@ class PowerWindowIframe extends PowerWindow {
 	}
 
 	resizeIframeAndCover() {
-		this.iframe.style.height = this.bodyEl.style.height;
+		this.iframe.style.height = this._currentHeight - this.titleBarEl.offsetHeight + 'px';
 		this.coverIframe.style.height = this.iframe.style.height;
-		this.coverIframe.style.width = this._width + 'px';
+		this.coverIframe.style.width = this._currentWidth + 'px';
 		this.coverIframe.style.top = this.titleBarEl.offsetHeight + this.defaultBorderSize + 'px';
 	}
 
