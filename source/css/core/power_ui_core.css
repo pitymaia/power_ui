@@ -187,8 +187,8 @@ body, html {
     .pw-bar.pw-horizontal.pw-colapse.power-active .power-item,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-item,
-    .power-split-menu.pw-bar.pw-horizontal.pw-colapse.power-active .pw-menu-body,
-    .power-split-menu.pw-bar.pw-vertical.pw-colapse.power-active .pw-menu-body  {
+    .power-split-menu.pw-bar.pw-horizontal.pw-colapse.power-active .pw-menu-content,
+    .power-split-menu.pw-bar.pw-vertical.pw-colapse.power-active .pw-menu-content  {
         display: block;
         width: max-content;
     }
@@ -205,8 +205,8 @@ body, html {
     .pw-bar.pw-horizontal.pw-colapse .power-item,
     .pw-bar.pw-vertical.pw-colapse .power-action,
     .pw-bar.pw-vertical.pw-colapse .power-item,
-    .power-split-menu.pw-bar.pw-horizontal.pw-colapse .pw-menu-body,
-    .power-split-menu.pw-bar.pw-vertical.pw-colapse .pw-menu-body {
+    .power-split-menu.pw-bar.pw-horizontal.pw-colapse .pw-menu-content,
+    .power-split-menu.pw-bar.pw-vertical.pw-colapse .pw-menu-content {
         display: none;
     }
 
