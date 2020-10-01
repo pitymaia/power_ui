@@ -11,7 +11,16 @@ class PowerSplitMenu extends _PowerBarsBase {
 
 	init() {
 		super.init();
-		this.addOnMouseBorderEvents();
+
+		const split = this.element.classList.contains('pw-split');
+		this.resizeRight = this.element.classList.contains('pw-left');
+		this.resizeLeft = this.element.classList.contains('pw-right');
+		this.resizeTop = this.element.classList.contains('pw-bottom');
+		this.resizeBottom = this.element.classList.contains('pw-top');
+
+		if (split) {
+			this.addOnMouseBorderEvents();
+		}
 	}
 
 	cursorPositionOnMenuBound(e) {
@@ -22,9 +31,13 @@ class PowerSplitMenu extends _PowerBarsBase {
 		this.height = this.element.offsetHeight;
 
 		// right
-		if (this.isOverRightBorder()) {
+		if (this.resizeRight && this.isOverRightBorder()) {
 			this.$powerUi.addCss(this.element.id, 'cursor-width');
-		} else if (this.x < this.width - 5) {
+		} else if (this.resizeRight && (this.x < this.width - this.borderSize)) {
+			this.removeAllCursorClasses();
+		} else if (this.resizeLeft && this.isOverLeftBorder()) {
+			this.$powerUi.addCss(this.element.id, 'cursor-width');
+		} else if (this.resizeLeft && (this.x > this.borderSize)) {
 			this.removeAllCursorClasses();
 		}
 	}
@@ -45,6 +58,11 @@ class PowerSplitMenu extends _PowerBarsBase {
 	}
 
 	onMouseMoveBorder(e) {
+		// Return if click in inner elements, not in the border itself
+		if (e.target !== e.currentTarget || this.$powerUi._mouseIsDown || this.$powerUi._dragging) {
+			return;
+		}
+
 		window.onmouseup = this.onMouseUp.bind(this);
 		window.onmousemove = this.changeMenuSize.bind(this);
 
@@ -66,13 +84,18 @@ class PowerSplitMenu extends _PowerBarsBase {
 		this._initialOffsetWidth = this.element.offsetWidth;
 		this._initialOffsetHeight = this.element.offsetHeight;
 
-		if (this.isOverRightBorder()) {
+		if (this.resizeRight && this.isOverRightBorder()) {
 			this.resizingRight = true;
+		}
+
+		if (this.resizeLeft && this.isOverLeftBorder()) {
+			this.resizingLeft = true;
 		}
 	}
 
 	onMouseUp(e) {
 		this.resizingRight = false;
+		this.resizingLeft = false;
 		this.allowResize = false;
 		window.onmousemove = null;
 		window.onmouseup = null;
@@ -88,6 +111,8 @@ class PowerSplitMenu extends _PowerBarsBase {
 
 		if (this.resizingRight) {
 			this.resizeRightBorder(x);
+		} else if (this.resizingLeft) {
+			this.resizeLeftBorder(x);
 		}
 	}
 
@@ -100,6 +125,25 @@ class PowerSplitMenu extends _PowerBarsBase {
 		if (width + this.element.offsetLeft > window.innerWidth - 100) {
 			width = window.innerWidth - this.element.offsetLeft - 100;
 		}
+		this.element.style.width = width + 'px';
+	}
+
+	isOverLeftBorder() {
+		return (this.y > 0 && this.y <= this.height - this.borderSize) && (this.x <= this.borderSize) === true;
+	}
+
+	resizeLeftBorder(x) {
+		// const diff = (x - this._initialX);
+		// let left = this._initialLeft + this.element.offsetLeft + diff;
+		// let width = this.element.offsetWidth - (this._initialLeft + diff);
+
+		// this.element.style.left = left + 'px';
+
+		let width = this.element.offsetWidth + -x;
+		// if (width + this.element.offsetLeft > window.innerWidth - 100) {
+		// 	width = window.innerWidth - this.element.offsetLeft - 100;
+		// }
+
 		this.element.style.width = width + 'px';
 	}
 

@@ -63,9 +63,24 @@ body, html {
     height: 100%;
 }
 
-.power-split-menu.pw-left {
+.power-split-menu.pw-split.pw-left {
     border-right-width: 5px;
     border-right-style: solid;
+}
+
+.power-split-menu.pw-split.pw-right {
+    border-left-width: 5px;
+    border-left-style: solid;
+}
+
+.power-split-menu.pw-split.pw-top {
+    border-bottom-width: 5px;
+    border-bottom-style: solid;
+}
+
+.power-split-menu.pw-split.pw-bottom {
+    border-top-width: 5px;
+    border-top-style: solid;
 }
 
 .power-split-menu .power-list, .power-split-menu .power-item {
