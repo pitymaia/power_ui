@@ -204,6 +204,10 @@
     margin-bottom: 0.2em;
 }
 
+.pwdesign-white-smoke .pw-menu-body {
+    padding: 0.5em;
+}
+
 /* Dialog-Modal-Window start */
 .pwdesign-white-smoke .pw-modal .pw-body, .pwdesign-white-smoke .pw-dialog .pw-body, .pwdesign-white-smoke .pw-window .pw-body {
     background-color: #F5F5F5;

@@ -99,7 +99,7 @@ class PowerAction extends PowerList {
 		let elementToCheck = event.target; // clicked element
 
 		// Do not close if click some power-action
-		if ((!elementToCheck.classList.contains('power-action') && !elementToCheck.classList.contains('power-toggle')) && ((elementToCheck.parentNode && elementToCheck.parentNode.classList) && (!elementToCheck.parentNode.classList.contains('power-action') && !elementToCheck.parentNode.classList.contains('power-toggle')))) {
+		if ((!elementToCheck.classList.contains('power-action') && !elementToCheck.classList.contains('power-list') && !elementToCheck.classList.contains('power-toggle')) && ((elementToCheck.parentNode && elementToCheck.parentNode.classList) && (!elementToCheck.parentNode.classList.contains('power-action') && !elementToCheck.classList.contains('power-list') && !elementToCheck.parentNode.classList.contains('power-toggle')))) {
 			this.toggle();
 			return;
 		}

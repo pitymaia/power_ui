@@ -15,6 +15,12 @@ body, html {
     overflow: hidden;
 }
 
+/*.pw-bar {
+    border-width: 5px;
+    border-style: solid;
+    border-color: red;
+}*/
+
 /* Anime dialogs fade in*/
 /*.pw-dialog-container {
     animation: pw-window 0.5s ease-in-out;
@@ -49,6 +55,16 @@ body, html {
         margin-left: 0 !important;
         position: relative;
     }
+}
+
+.power-split-menu {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.power-split-menu .power-list, .power-split-menu .power-item {
+    white-space: nowrap;
 }
 
 /* power menu-break query*/
@@ -165,7 +181,9 @@ body, html {
     .pw-bar.pw-horizontal.pw-colapse.power-active .power-action,
     .pw-bar.pw-horizontal.pw-colapse.power-active .power-item,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
-    .pw-bar.pw-vertical.pw-colapse.power-active .power-item  {
+    .pw-bar.pw-vertical.pw-colapse.power-active .power-item,
+    .power-split-menu.pw-bar.pw-horizontal.pw-colapse.power-active .pw-menu-body,
+    .power-split-menu.pw-bar.pw-vertical.pw-colapse.power-active .pw-menu-body  {
         display: block;
         width: max-content;
     }
@@ -181,7 +199,9 @@ body, html {
     .pw-bar.pw-horizontal.pw-colapse .power-action,
     .pw-bar.pw-horizontal.pw-colapse .power-item,
     .pw-bar.pw-vertical.pw-colapse .power-action,
-    .pw-bar.pw-vertical.pw-colapse .power-item {
+    .pw-bar.pw-vertical.pw-colapse .power-item,
+    .power-split-menu.pw-bar.pw-horizontal.pw-colapse .pw-menu-body,
+    .power-split-menu.pw-bar.pw-vertical.pw-colapse .pw-menu-body {
         display: none;
     }
 
