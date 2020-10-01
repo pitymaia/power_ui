@@ -376,23 +376,24 @@ class ComponentsManager {
 				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				bar.bar.element.style.width = (win._currentWidth) - (bar.adjusts.left + bar.adjusts.right + this.$powerUi._offsetComputedAdjustSides(bar.bar.element)) + 'px';
 			}
 			if (bar.bar.barPosition === 'bottom') {
 				ctx.totalHeight = ctx.totalHeight + bar.bar.element.offsetHeight;
 				ctx.bottomTotalHeight = ctx.bottomTotalHeight + bar.bar.element.offsetHeight;
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.width = null;
-				bar.bar.element.style.width = (win._currentWidth - this.$powerUi._computedLeftRightPadding(bar.bar.element)) - (bar.adjusts.left + bar.adjusts.right) + 'px';
+				bar.bar.element.style.width = (win._currentWidth) - (bar.adjusts.left + bar.adjusts.right + this.$powerUi._offsetComputedAdjustSides(bar.bar.element)) + 'px';
 				const windowBottom = -(win._currentBottom + win._currentHeight) + window.innerHeight;
 				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom - win.defaultBorderSize + 'px';
+				console.log('bottom', bar.id, this.$powerUi._offsetComputedAdjustSides(bar.bar.element));
 			}
 			if (bar.bar.barPosition === 'left') {
 				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
 				bar.bar.element.style.left = win._currentLeft + win.defaultBorderSize + bar.adjusts.left + 'px';
 				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				const height = (win._currentHeight - win.titleBarEl.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
+				const height = (win._currentHeight - win.titleBarEl.offsetHeight) - (bar.adjusts.top + bar.adjusts.bottom + this.$powerUi._offsetComputedAdjustTopBottom(bar.bar.element)) + 'px';
 				bar.bar.element.style.height = height;
 			}
 			if (bar.bar.barPosition === 'right') {
@@ -401,7 +402,7 @@ class ComponentsManager {
 				bar.bar.element.style.right = windowRight + bar.adjusts.right + 'px';
 				bar.bar.element.style.top = win._currentTop + win.defaultBorderSize + win.titleBarEl.offsetHeight + bar.adjusts.top + 'px';
 				bar.bar.element.style.height = null;
-				const height = (win._currentHeight - win.titleBarEl.offsetHeight - this.$powerUi._computedTopBottomPadding(bar.bar.element)) - (bar.adjusts.top + bar.adjusts.bottom) + 'px';
+				const height = (win._currentHeight - win.titleBarEl.offsetHeight) - (bar.adjusts.top + bar.adjusts.bottom + this.$powerUi._offsetComputedAdjustTopBottom(bar.bar.element)) + 'px';
 				bar.bar.element.style.height = height;
 			}
 
@@ -1052,7 +1053,11 @@ class PowerUi extends _PowerUiBase {
 	}
 	_offsetComputedAdjustSides(element) {
 		const _element = window.getComputedStyle(element);
-		return parseInt(_element.width.split('px')[0] || 0) + parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0);
+		return parseInt(_element['padding-left'].split('px')[0] || 0) + parseInt(_element['padding-right'].split('px')[0] || 0) + parseInt(_element['border-left-width'].split('px')[0] || 0) + parseInt(_element['border-right-width'].split('px')[0] || 0);
+	}
+	_offsetComputedAdjustTopBottom(element) {
+		const _element = window.getComputedStyle(element);
+		return parseInt(_element['padding-top'].split('px')[0] || 0) + parseInt(_element['padding-bottom'].split('px')[0] || 0) + parseInt(_element['border-top-width'].split('px')[0] || 0) + parseInt(_element['border-bottom-width'].split('px')[0] || 0);
 	}
 }
 
