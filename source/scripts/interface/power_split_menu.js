@@ -76,6 +76,7 @@ class PowerSplitMenu extends _PowerBarsBase {
 			return;
 		}
 		e.preventDefault();
+		const manager = this.$powerUi.componentsManager;
 		this.allowResize = true;
 		this._initialX = e.clientX;
 		this._initialY = e.clientY;
@@ -83,6 +84,7 @@ class PowerSplitMenu extends _PowerBarsBase {
 		this._initialTop = this.element.offsetTop;
 		this._initialOffsetWidth = this.element.offsetWidth;
 		this._initialOffsetHeight = this.element.offsetHeight;
+		this._initialRightTotalWidthDiff = manager.rightTotalWidth - this._initialOffsetWidth;
 
 		if (this.resizeRight && this.isOverRightBorder()) {
 			this.resizingRight = true;
@@ -121,9 +123,10 @@ class PowerSplitMenu extends _PowerBarsBase {
 	}
 
 	resizeRightBorder(x) {
+		const manager = this.$powerUi.componentsManager;
 		let width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
-		if (width + this.element.offsetLeft > window.innerWidth - 100) {
-			width = window.innerWidth - this.element.offsetLeft - 100;
+		if (width + this.element.offsetLeft > window.innerWidth - manager.rightTotalWidth - 50) {
+			width = window.innerWidth - this.element.offsetLeft - manager.rightTotalWidth - 50;
 		}
 		this.element.style.width = width + 'px';
 	}
@@ -133,17 +136,11 @@ class PowerSplitMenu extends _PowerBarsBase {
 	}
 
 	resizeLeftBorder(x) {
-		// const diff = (x - this._initialX);
-		// let left = this._initialLeft + this.element.offsetLeft + diff;
-		// let width = this.element.offsetWidth - (this._initialLeft + diff);
-
-		// this.element.style.left = left + 'px';
-
-		let width = this.element.offsetWidth + -x;
-		// if (width + this.element.offsetLeft > window.innerWidth - 100) {
-		// 	width = window.innerWidth - this.element.offsetLeft - 100;
-		// }
-
+		const manager = this.$powerUi.componentsManager;
+		let width = this.element.offsetWidth - x;
+		if (manager.leftTotalWidth + 50 > window.innerWidth - width - this._initialRightTotalWidthDiff) {
+			width = window.innerWidth - this._initialRightTotalWidthDiff - manager.leftTotalWidth - 60;
+		}
 		this.element.style.width = width + 'px';
 	}
 
