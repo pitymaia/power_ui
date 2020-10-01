@@ -96,16 +96,16 @@ class PowerSplitMenu extends _PowerBarsBase {
 	}
 
 	resizeRightBorder(x) {
-		this.element.style.width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10 + 'px';
+		let width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
+		if (width + this.element.offsetLeft > window.innerWidth - 100) {
+			width = window.innerWidth - this.element.offsetLeft - 100;
+		}
+		this.element.style.width = width + 'px';
 	}
 
 	toggle() {
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
-
-		// Removed becouse power-toggle already implement a toggle event
-		// Broadcast toggle custom event
-		// this.powerAction.broadcast('toggle', true);
 	}
 
 	// The powerToggle call this action method
