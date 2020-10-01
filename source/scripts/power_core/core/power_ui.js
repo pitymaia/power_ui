@@ -386,7 +386,6 @@ class ComponentsManager {
 				bar.bar.element.style.width = (win._currentWidth) - (bar.adjusts.left + bar.adjusts.right + this.$powerUi._offsetComputedAdjustSides(bar.bar.element)) + 'px';
 				const windowBottom = -(win._currentBottom + win._currentHeight) + window.innerHeight;
 				bar.bar.element.style.bottom = windowBottom + bar.adjusts.bottom - win.defaultBorderSize + 'px';
-				console.log('bottom', bar.id, this.$powerUi._offsetComputedAdjustSides(bar.bar.element));
 			}
 			if (bar.bar.barPosition === 'left') {
 				ctx.leftTotalWidth = ctx.leftTotalWidth + bar.bar.element.offsetWidth;
@@ -465,7 +464,7 @@ class PowerUi extends _PowerUiBase {
 					}
 
 				} else {
-					console.log('DANGER', event.origin);
+					window.console.log('DANGER', event.origin);
 					// The data was NOT sent from your site!
 					// Be careful! Do not use it. This else branch is
 					// here just for clarity, you usually shouldn't need it.
