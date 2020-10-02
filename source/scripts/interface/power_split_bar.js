@@ -1,4 +1,4 @@
-class PowerSplitMenu extends _PowerBarsBase {
+class PowerSplitBar extends _PowerBarsBase {
 	constructor(menu, $powerUi) {
 		super(menu, $powerUi);
 		this.isMenu = true;
@@ -169,4 +169,4 @@ class PowerSplitMenu extends _PowerBarsBase {
 	}
 }
 // Inject the power css on PowerUi
-PowerUi.injectPowerCss({name: 'power-split-menu', isMain: true});
+PowerUi.injectPowerCss({name: 'power-split-bar', isMain: true});
