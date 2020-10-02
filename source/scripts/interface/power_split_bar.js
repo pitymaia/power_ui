@@ -115,6 +115,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		this._initialOffsetWidth = this.element.offsetWidth;
 		this._initialOffsetHeight = this.element.offsetHeight;
 		this._initialRightTotalWidthDiff = manager.rightTotalWidth - this._initialOffsetWidth;
+		this._initialTopTotalHeightDiff = manager.topTotalHeight + this._initialOffsetHeight;
 
 		if (this.resizeRight && this.isOverRightBorder()) {
 			this.resizingRight = true;
@@ -189,7 +190,12 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeBottomBorder(y) {
-		this.element.style.height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10 + 'px';
+		const manager = this.$powerUi.componentsManager;
+		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
+		if (window.innerHeight - 50 < this._initialTop + height + manager.bottomTotalHeight) {
+			height = window.innerHeight - this._initialTop - manager.bottomTotalHeight - 50;
+		}
+		this.element.style.height = height + 'px';
 	}
 
 	toggle() {
