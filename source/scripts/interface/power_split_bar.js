@@ -52,6 +52,12 @@ class PowerSplitBar extends _PowerBarsBase {
 			} else if (this.x > this.borderSize) {
 				this.removeAllCursorClasses();
 			}
+		} else if (this.resizeBottom) {
+			if (this.isOverBottomBorder()) {
+				this.$powerUi.addCss(this.element.id, 'cursor-height');
+			} else if (this.x > this.borderSize) {
+				this.removeAllCursorClasses();
+			}
 		}
 	}
 
@@ -70,8 +76,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	onDoubleClickBorder(e) {
 		e.preventDefault();
 
-		if (this.isOverRightBorder() || this.isOverLeftBorder()) {
+		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder()) {
 			this.element.style.width = null;
+			this.element.style.height = null;
 			this.onMouseUp(e);
 		}
 	}
@@ -116,11 +123,16 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (this.resizeLeft && this.isOverLeftBorder()) {
 			this.resizingLeft = true;
 		}
+
+		if (this.resizeBottom && this.isOverBottomBorder()) {
+			this.resizingBottom = true;
+		}
 	}
 
 	onMouseUp(e) {
 		this.resizingRight = false;
 		this.resizingLeft = false;
+		this.resizingBottom = false;
 		this.allowResize = false;
 		window.onmousemove = null;
 		window.onmouseup = null;
@@ -141,6 +153,8 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.resizeRightBorder(x);
 		} else if (this.resizingLeft) {
 			this.resizeLeftBorder(x);
+		} else if (this.resizingBottom) {
+			this.resizeBottomBorder(y);
 		}
 	}
 
@@ -168,6 +182,14 @@ class PowerSplitBar extends _PowerBarsBase {
 			width = window.innerWidth - this._initialRightTotalWidthDiff - manager.leftTotalWidth - 60;
 		}
 		this.element.style.width = width + 'px';
+	}
+
+	isOverBottomBorder() {
+		return this.y >= this.height - this.borderSize && (this.x > 0 && this.x <= this.width);
+	}
+
+	resizeBottomBorder(y) {
+		this.element.style.height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10 + 'px';
 	}
 
 	toggle() {
