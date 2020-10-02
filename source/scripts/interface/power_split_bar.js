@@ -55,7 +55,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		} else if (this.resizeBottom) {
 			if (this.isOverBottomBorder()) {
 				this.$powerUi.addCss(this.element.id, 'cursor-height');
-			} else if (this.x > this.borderSize) {
+			} else if (this.y < this.height - this.borderSize) {
 				this.removeAllCursorClasses();
 			}
 		}
