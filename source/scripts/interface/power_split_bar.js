@@ -19,8 +19,17 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.resizeBottom = this.element.classList.contains('pw-top');
 
 		if (split) {
-			// this._initialWidth = this.element.offsetWidth;
+			this.setBorder();
 			this.addOnMouseBorderEvents();
+		}
+	}
+
+	setBorder() {
+		this.defaultBorderSize = this.element.getAttribute('border');
+		if (this.defaultBorderSize) {
+			const borderSide = this.resizeRight ? 'right' : this.resizeLeft ? 'left' : this.resizeTop ? 'top' : this.resizeBottom ? 'bottom' : null;
+			this.borderSize = parseInt(this.defaultBorderSize);
+			this.element.style[`border-${borderSide}-width`] = this.defaultBorderSize + 'px';
 		}
 	}
 
@@ -31,15 +40,18 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.width = this.element.offsetWidth;
 		this.height = this.element.offsetHeight;
 
-		// right
-		if (this.resizeRight && this.isOverRightBorder()) {
-			this.$powerUi.addCss(this.element.id, 'cursor-width');
-		} else if (this.resizeRight && (this.x < this.width - this.borderSize)) {
-			this.removeAllCursorClasses();
-		} else if (this.resizeLeft && this.isOverLeftBorder()) {
-			this.$powerUi.addCss(this.element.id, 'cursor-width');
-		} else if (this.resizeLeft && (this.x > this.borderSize)) {
-			this.removeAllCursorClasses();
+		if (this.resizeRight) {
+			if (this.isOverRightBorder()) {
+				this.$powerUi.addCss(this.element.id, 'cursor-width');
+			} else if (this.x < this.width - this.borderSize) {
+				this.removeAllCursorClasses();
+			}
+		} else if (this.resizeLeft) {
+			if (this.isOverLeftBorder()) {
+				this.$powerUi.addCss(this.element.id, 'cursor-width');
+			} else if (this.x > this.borderSize) {
+				this.removeAllCursorClasses();
+			}
 		}
 	}
 
@@ -70,7 +82,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onMouseMoveBorder(e) {
 		// Return if click in inner elements, not in the border itself
-		if (e.target !== e.currentTarget || this.$powerUi._mouseIsDown || this.$powerUi._dragging) {
+		if (e.target !== e.currentTarget || this.$powerUi._mouseIsDown || this.$powerUi._dragging || window.innerWidth < 768) {
 			return;
 		}
 
