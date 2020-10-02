@@ -19,6 +19,7 @@ class PowerSplitMenu extends _PowerBarsBase {
 		this.resizeBottom = this.element.classList.contains('pw-top');
 
 		if (split) {
+			// this._initialWidth = this.element.offsetWidth;
 			this.addOnMouseBorderEvents();
 		}
 	}
@@ -51,6 +52,16 @@ class PowerSplitMenu extends _PowerBarsBase {
 		this.element.onmousemove = this.onMouseMoveBorder.bind(this);
 		this.element.onmouseout = this.onMouseOutBorder.bind(this);
 		this.element.onmousedown = this.onMouseDownBorder.bind(this);
+		this.element.ondblclick = this.onDoubleClickBorder.bind(this);
+	}
+
+	onDoubleClickBorder(e) {
+		e.preventDefault();
+
+		if (this.isOverRightBorder() || this.isOverLeftBorder()) {
+			this.element.style.width = null;
+			this.onMouseUp(e);
+		}
 	}
 
 	onMouseOutBorder(e) {
@@ -107,6 +118,9 @@ class PowerSplitMenu extends _PowerBarsBase {
 	}
 
 	changeMenuSize(e) {
+		if (this.allowResize === false) {
+			return;
+		}
 		const rect = this.element.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
