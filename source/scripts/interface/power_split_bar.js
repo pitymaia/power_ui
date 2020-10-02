@@ -58,6 +58,12 @@ class PowerSplitBar extends _PowerBarsBase {
 			} else if (this.y < this.height - this.borderSize) {
 				this.removeAllCursorClasses();
 			}
+		} else if (this.resizeTop) {
+			if (this.isOverTopBorder()) {
+				this.$powerUi.addCss(this.element.id, 'cursor-height');
+			} else if ((this.y <= this.borderSize) === false) {
+				this.removeAllCursorClasses();
+			}
 		}
 	}
 
@@ -76,7 +82,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	onDoubleClickBorder(e) {
 		e.preventDefault();
 
-		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder()) {
+		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder() || this.isOverTopBorder()) {
 			this.element.style.width = null;
 			this.element.style.height = null;
 			this.onMouseUp(e);
@@ -115,7 +121,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		this._initialOffsetWidth = this.element.offsetWidth;
 		this._initialOffsetHeight = this.element.offsetHeight;
 		this._initialRightTotalWidthDiff = manager.rightTotalWidth - this._initialOffsetWidth;
-		this._initialTopTotalHeightDiff = manager.topTotalHeight + this._initialOffsetHeight;
+		this._initialBottomTotalHeightDiff = manager.bottomTotalHeight - this._initialOffsetHeight;
 
 		if (this.resizeRight && this.isOverRightBorder()) {
 			this.resizingRight = true;
@@ -127,6 +133,10 @@ class PowerSplitBar extends _PowerBarsBase {
 
 		if (this.resizeBottom && this.isOverBottomBorder()) {
 			this.resizingBottom = true;
+		}
+
+		if (this.resizeTop && this.isOverTopBorder()) {
+			this.resizingTop = true;
 		}
 	}
 
@@ -156,6 +166,8 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.resizeLeftBorder(x);
 		} else if (this.resizingBottom) {
 			this.resizeBottomBorder(y);
+		} else if (this.resizingTop) {
+			this.resizeTopBorder(y);
 		}
 	}
 
@@ -194,6 +206,20 @@ class PowerSplitBar extends _PowerBarsBase {
 		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
 		if (window.innerHeight - 50 < this._initialTop + height + manager.bottomTotalHeight) {
 			height = window.innerHeight - this._initialTop - manager.bottomTotalHeight - 50;
+		}
+		this.element.style.height = height + 'px';
+	}
+
+	isOverTopBorder() {
+		return this.y > 0 && this.y <= this.borderSize && (this.x > 0 && this.x <= this.width);
+	}
+
+	resizeTopBorder(y) {
+		const manager = this.$powerUi.componentsManager;
+		let height = this.element.offsetHeight - y;
+		const maxHeight = window.innerHeight - (this._initialBottomTotalHeightDiff + manager.topTotalHeight + 50);
+		if (height + 50 > maxHeight) {
+			height = maxHeight;
 		}
 		this.element.style.height = height + 'px';
 	}
