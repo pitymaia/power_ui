@@ -6,6 +6,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onRemove() {
+		this.unsubscribe({event: 'click', fn: this.onClick, bar: this});
 		super.onRemove();
 	}
 
@@ -19,9 +20,14 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.resizeBottom = this.element.classList.contains('pw-top');
 
 		if (split) {
+			this.subscribe({event: 'click', fn: this.onClick, bar: this});
 			this.setBorder();
 			this.addOnMouseBorderEvents();
 		}
+	}
+
+	onClick(fn, self) {
+		self.$powerUi.componentsManager.runObserverFewTimes(10);
 	}
 
 	setBorder() {

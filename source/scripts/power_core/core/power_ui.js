@@ -161,6 +161,12 @@ class ComponentsManager {
 		this.startObserver();
 	}
 
+	runObserverFewTimes(initInterval) {
+		this.interval = initInterval || 300;
+		this.startObserver();
+		this.interval = 400;
+	}
+
 	observerInterval() {
 		const self = this;
 		self.interval = self.interval || 10;
@@ -168,8 +174,8 @@ class ComponentsManager {
 		return setInterval(function () {
 			self.runObserver();
 			clearInterval(self._observerInterval);
-			self.interval = self.interval + 10;
-			if (self.interval < 500) {
+			self.interval = self.interval + 25;
+			if (self.interval <= 500) {
 				self.startObserver();
 			}
 		}, self.interval);
