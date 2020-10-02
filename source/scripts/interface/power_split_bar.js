@@ -25,7 +25,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	setBorder() {
-		this.defaultBorderSize = this.element.getAttribute('border');
+		this.defaultBorderSize = this.element.getAttribute('data-pw-border');
 		if (this.defaultBorderSize) {
 			const borderSide = this.resizeRight ? 'right' : this.resizeLeft ? 'left' : this.resizeTop ? 'top' : this.resizeBottom ? 'bottom' : null;
 			this.borderSize = parseInt(this.defaultBorderSize);
