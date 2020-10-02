@@ -20,9 +20,16 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.resizeBottom = this.element.classList.contains('pw-top');
 
 		if (split) {
+			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this);
 			this.subscribe({event: 'click', fn: this.onClick, bar: this});
 			this.setBorder();
 			this.addOnMouseBorderEvents();
+		}
+	}
+
+	onWindowModeChange() {
+		if (this.$powerUi.componentsManager.smallWindowMode) {
+			this.removeStyles();
 		}
 	}
 
@@ -87,12 +94,15 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onDoubleClickBorder(e) {
 		e.preventDefault();
-
 		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder() || this.isOverTopBorder()) {
-			this.element.style.width = null;
-			this.element.style.height = null;
+			this.removeStyles();
 			this.onMouseUp(e);
 		}
+	}
+
+	removeStyles() {
+		this.element.style.width = null;
+		this.element.style.height = null;
 	}
 
 	onMouseOutBorder(e) {

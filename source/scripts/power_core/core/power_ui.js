@@ -227,9 +227,17 @@ class ComponentsManager {
 	toggleSmallWindowMode() {
 		const _appContainer = document.getElementById('app-container');
 		if (window.innerWidth <= 768 || this.$powerUi.touchdevice) {
+			if (this.smallWindowMode !== true) {
+				this.smallWindowMode = true;
+				this.$powerUi.windowModeChange.broadcast();
+			}
 			this.smallWindowMode = true;
 			_appContainer.classList.add('pw-small-window-mode');
 		} else {
+			if (this.smallWindowMode === true) {
+				this.smallWindowMode = false;
+				this.$powerUi.windowModeChange.broadcast();
+			}
 			this.smallWindowMode = false;
 			_appContainer.classList.remove('pw-small-window-mode');
 		}
@@ -503,6 +511,7 @@ class PowerUi extends _PowerUiBase {
 		this._events = {};
 		this._events.ready = new UEvent();
 		this._events.Escape = new UEvent();
+		this.windowModeChange = new UEvent('windowModeChange');
 		this.request = new Request({config, $powerUi: this});
 		this.componentsManager.toggleSmallWindowMode();
 		this.onBrowserWindowResize = new UEvent('onBrowserWindowResize');
