@@ -3,6 +3,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		super(menu, $powerUi);
 		this.isMenu = true;
 		this.borderSize = 5;
+		this._currentHeight = null;
+		this._currentWidth = null;
 	}
 
 	onRemove() {
@@ -30,6 +32,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	onWindowModeChange() {
 		if (this.$powerUi.componentsManager.smallWindowMode) {
 			this.removeStyles();
+		} else {
+			this.element.style.width = this._currentWidth;
+			this.element.style.height = this._currentHeight;
 		}
 	}
 
@@ -95,6 +100,8 @@ class PowerSplitBar extends _PowerBarsBase {
 	onDoubleClickBorder(e) {
 		e.preventDefault();
 		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder() || this.isOverTopBorder()) {
+			this._currentHeight = null;
+			this._currentWidth = null;
 			this.removeStyles();
 			this.onMouseUp(e);
 		}
@@ -197,7 +204,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (width + this.element.offsetLeft > window.innerWidth - manager.rightTotalWidth - 50) {
 			width = window.innerWidth - this.element.offsetLeft - manager.rightTotalWidth - 50;
 		}
-		this.element.style.width = width + 'px';
+		this._currentWidth = width + 'px';
+		this.element.style.width = this._currentWidth;
 	}
 
 	isOverLeftBorder() {
@@ -210,7 +218,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (manager.leftTotalWidth + 50 > window.innerWidth - width - this._initialRightTotalWidthDiff) {
 			width = window.innerWidth - this._initialRightTotalWidthDiff - manager.leftTotalWidth - 60;
 		}
-		this.element.style.width = width + 'px';
+		this._currentWidth = width + 'px';
+		this.element.style.width = this._currentWidth;
 	}
 
 	isOverBottomBorder() {
@@ -223,7 +232,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (window.innerHeight - 50 < this._initialTop + height + manager.bottomTotalHeight) {
 			height = window.innerHeight - this._initialTop - manager.bottomTotalHeight - 50;
 		}
-		this.element.style.height = height + 'px';
+		this._currentHeight = height + 'px';
+		this.element.style.height = this._currentHeight;
 	}
 
 	isOverTopBorder() {
@@ -237,7 +247,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (height + 50 > maxHeight) {
 			height = maxHeight;
 		}
-		this.element.style.height = height + 'px';
+		this._currentHeight = height + 'px';
+		this.element.style.height = this._currentHeight;
 	}
 
 	toggle() {
