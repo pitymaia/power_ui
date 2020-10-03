@@ -604,7 +604,7 @@ class PowerMainTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openSimpleDialog()"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -617,7 +617,7 @@ class PowerMainTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openSimpleDialog()"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -630,7 +630,7 @@ class PowerMainTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openSimpleDialog()"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -1126,7 +1126,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+		                                    "fn": "openGame()"
 		                                }
 		                            ]
 		                        }
@@ -1139,7 +1139,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+		                                    "fn": "openGame()"
 		                                }
 		                            ]
 		                        }
@@ -1152,7 +1152,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                                    "fn": "openGame()"
 		                                }
 		                            ]
 		                        }
@@ -1383,7 +1383,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+		                                    "fn": "openGame()"
 		                                }
 		                            ]
 		                        }
@@ -1396,7 +1396,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+		                                    "fn": "openGame()"
 		                                }
 		                            ]
 		                        }
@@ -1409,7 +1409,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                                    "fn": "openGame()"
 		                                }
 		                            ]
 		                        }
@@ -1640,7 +1640,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+		                                    "fn": "openGame({'name': 'Hell on Earth', 'title': 'Doom'})"
 		                                }
 		                            ]
 		                        }
@@ -1653,7 +1653,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+		                                    "fn": "openGame({'name': '3Dfx', 'title': 'Quake'})"
 		                                }
 		                            ]
 		                        }
@@ -1666,7 +1666,7 @@ class SimpleTemplate extends PowerTemplate {
 		                            "events": [
 		                                {
 		                                    "event": "onclick",
-		                                    "fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+		                                    "fn": "openGame({'name': 'Underrated', 'title': 'Heretic'})"
 		                                }
 		                            ]
 		                        }
@@ -2260,7 +2260,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openSimpleDialog()"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -2273,7 +2273,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openSimpleDialog()"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -2286,7 +2286,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openSimpleDialog()"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -2387,7 +2387,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+														"fn": "openGame({'name': 'Hell on Earth', 'title': 'Doom'})"
 													}
 												]
 											}
@@ -2400,7 +2400,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+														"fn": "openGame({'name': '3Dfx', 'title': 'Quake'})"
 													}
 												]
 											}
@@ -2413,7 +2413,7 @@ class RootScopeTemplate extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+														"fn": "openGame({'name': 'Best game ever', 'title': 'Sim City 2000'})"
 													}
 												]
 											}
@@ -2527,7 +2527,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+											"fn": "openGame()"
 										}
 									]
 								}
@@ -2540,7 +2540,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+											"fn": "openGame()"
 										}
 									]
 								}
@@ -2553,7 +2553,7 @@ class RootScopeTemplate extends PowerTemplate {
 									"events": [
 										{
 											"event": "onclick",
-											"fn": "openModal({'name': 'Underrated', 'title': 'Heretic'})"
+											"fn": "openGame()"
 										}
 									]
 								}
@@ -2982,6 +2982,13 @@ class RootScope extends PowerController {
 		});
 	}
 
+	openGame() {
+		this.openRoute({
+			routeId: "menu-window",
+			target: "_blank",
+		});
+	}
+
 	openFakeModal(params) {
 		this.openRoute({
 			params: params,
@@ -3018,6 +3025,108 @@ class RootScope extends PowerController {
 		this.changeCats();
 		this.refresh('$root');
 	}
+}
+
+class MenuWindowTemplate extends PowerTemplate {
+	template(resolve) {
+		const template = `<nav id="split-menu2" data-pw-priority="1" data-pw-border="6" class="power-split-bar pw-orange-white pw-bar ppw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-left">
+		    <a class="power-toggle" id="toggle-3445" data-power-target="split-menu2">
+		        <i class="pw-icon icon-hamburguer"></i>
+		    </a>
+		    <div class="pw-menu-content">
+		        <nav class="power-tree-view">
+		        	<a class="power-list" data-power-target="timem66">
+		        	    <span class="power-status pw-icon icon-folder-close"
+		        	        data-power-active="icon-folder-open"
+		        	        data-power-inactive="icon-folder-close"
+		        	    >
+		        	    </span> models
+		        	</a>
+		        	<nav id="timem66" class="power-tree-view">
+		        	    <a class="power-item">
+		        	        <i class="pw-icon icon-document-blank"></i> menu.js
+		        	    </a> <a class="power-item">
+		        	        <i class="pw-icon icon-document-blank"></i> front-page.js
+		        	    </a>
+		        	    <a class="power-item">
+		        	        <i class="pw-icon icon-document-blank"></i> main.js
+		        	    </a>
+		        	</nav>
+		            <a class="power-item">
+		                <i class="pw-icon icon-document-blank"></i> home.html
+		            </a>
+		            <a class="power-item">
+		                <i class="pw-icon icon-document-blank"></i> home.js
+		            </a>
+		            <a class="power-item">
+		                <i class="pw-icon icon-document-blank"></i> home.css
+		            </a>
+		            <a class="power-list" data-power-target="titem15">
+		                <span class="power-status pw-icon icon-folder-close"
+		                    data-power-active="icon-folder-open"
+		                    data-power-inactive="icon-folder-close"
+		                >
+		                </span> templates
+		            </a>
+		            <nav id="titem15" class="power-tree-view">
+		                <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> page-1.html
+		                </a>
+		                <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> page-2.html
+		                </a>
+		                <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> page-3.html
+		                </a>
+		                <a class="power-list" data-power-target="titem25">
+		                    <span class="power-status pw-icon icon-folder-close"
+		                        data-power-active="icon-folder-open"
+		                        data-power-inactive="icon-folder-close"
+		                    >
+		                    </span> editor
+		                </a>
+		                <nav id="titem25" class="power-tree-view">
+		                    <a class="power-item">
+		                        <i class="pw-icon icon-document-blank"></i> menu.html
+		                    </a>
+		                    <a class="power-item">
+		                        <i class="pw-icon icon-document-blank"></i> front-page.html
+		                    </a>
+		                    <a class="power-item">
+		                        <i class="pw-icon icon-document-blank"></i> tabs.html
+		                    </a>
+		                </nav>
+		                <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> zendex.html
+		                </a>
+		            </nav>
+		            <a class="power-list" data-power-target="titem37">
+		                <span class="power-status pw-icon icon-folder-close"
+		                    data-power-active="icon-folder-open"
+		                    data-power-inactive="icon-folder-close"
+		                >
+		                </span> scripts
+		            </a>
+		            <nav id="titem37" class="power-tree-view">
+		                <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> menu.js
+		                </a> <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> front-page.js
+		                </a>
+		                <a class="power-item">
+		                    <i class="pw-icon icon-document-blank"></i> main.js
+		                </a>
+		            </nav>
+		        </nav>
+		    </div>
+		</nav>
+		<h1>Split Menu on Window!</h1>`;
+		resolve(template);
+	}
+}
+
+class MenuWindowCtrl extends PowerWindow {
+
 }
 
 class GridPageTemplate extends PowerTemplate {
@@ -3770,7 +3879,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -3783,7 +3892,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -3796,7 +3905,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -5756,7 +5865,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Hell on Earth', 'title': 'Doom'})"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -5769,7 +5878,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': '3Dfx', 'title': 'Quake'})"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -5782,7 +5891,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 												"events": [
 													{
 														"event": "onclick",
-														"fn": "openModal({'name': 'Best game ever', 'title': 'Sim City 2000'})"
+														"fn": "openGame()"
 													}
 												]
 											}
@@ -6781,6 +6890,13 @@ class FakeModal extends PowerModal {
 }
 
 const routes = [
+		{
+			id: 'menu-window',
+			title: 'Split Menu',
+			route: 'split',
+			templateComponent: MenuWindowTemplate,
+			ctrl: MenuWindowCtrl,
+		},
 		{
 			id: 'grid-page',
 			title: 'Grid Page | PowerUI',
