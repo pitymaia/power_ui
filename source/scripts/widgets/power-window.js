@@ -81,6 +81,9 @@ class PowerWindow extends PowerDialogBase {
 		this._left = this._dialog.offsetLeft;
 		this._lastHeight = 0;
 		this._lastwidth = 0;
+		// Register events
+		this._changeWindowSize = this.changeWindowSize.bind(this);
+		this._onMouseUp = this.onMouseUp.bind(this);
 		// Make it draggable
 		this.addDragWindow();
 
@@ -259,9 +262,6 @@ class PowerWindow extends PowerDialogBase {
 			return;
 		}
 
-		window.onmouseup = this.onMouseUp.bind(this);
-		window.onmousemove = this.changeWindowSize.bind(this);
-
 		e.preventDefault();
 		const viewId = this.$root ? 'root-view' : this._viewId;
 
@@ -325,6 +325,8 @@ class PowerWindow extends PowerDialogBase {
 		if (e.target !== e.currentTarget) {
 			return;
 		}
+		window.addEventListener("mousemove", this._changeWindowSize);
+		window.addEventListener("mouseup", this._onMouseUp);
 		e.preventDefault();
 		if (this.isMaximized) {
 			this._height = window.innerHeight - (this.defaultBorderSize + this.defaultBorderSize);
@@ -551,10 +553,10 @@ class PowerWindow extends PowerDialogBase {
 
 	onMouseUp() {
 		this.allowResize = false;
-		window.onmousemove = null;
-		window.onmouseup = null;
 		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
+		window.removeEventListener("mousemove", this._changeWindowSize);
+		window.removeEventListener("mouseup", this._onMouseUp);
 		if (this.onResize) {
 			this.onResize();
 		}
@@ -678,10 +680,12 @@ class PowerWindow extends PowerDialogBase {
 		// get initial mouse cursor position
 		this.pos3 = event.clientX;
 		this.pos4 = event.clientY;
-		// Cancel if user giveup
-		window.onmouseup = this.endDragWindow.bind(this);
 		// call a function when the cursor moves
-		window.onmousemove = this.elementDrag.bind(this);
+		this._elementDrag = this.elementDrag.bind(this);
+		// Cancel if user giveup
+		this._endDragWindow = this.endDragWindow.bind(this);
+		window.addEventListener("mousemove", this._elementDrag);
+		window.addEventListener("mouseup", this._endDragWindow);
 	}
 
 	elementDrag(event) {
@@ -760,8 +764,8 @@ class PowerWindow extends PowerDialogBase {
 		this._dialog.classList.add('pw-active');
 		this._bodyHeight = window.getComputedStyle(this.bodyEl).height;
 		// stop moving when mouse button is released:
-		window.onmouseup = null;
-		window.onmousemove = null;
+		window.removeEventListener("mouseup", this._endDragWindow);
+		window.removeEventListener("mousemove", this._elementDrag);
 		this.$powerUi._dragging = false;
 		this.$powerUi._mouseIsDown = false;
 		this.saveWindowState();

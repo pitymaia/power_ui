@@ -209,7 +209,6 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onMouseUp(e) {
-		console.log("rodou");
 		this.resizingRight = false;
 		this.resizingLeft = false;
 		this.resizingBottom = false;
@@ -222,7 +221,6 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	changeMenuSize(e) {
-		console.log('changeMenuSize');
 		if (this.allowResize === false) {
 			return;
 		}
