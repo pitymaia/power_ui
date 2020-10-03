@@ -131,7 +131,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onMouseMoveBorder(e) {
 		// Return if click in inner elements, not in the border itself
-		if (e.target !== e.currentTarget || this.$powerUi._mouseIsDown || this.$powerUi._dragging || window.innerWidth < 768) {
+		if (e.target !== e.currentTarget || this.$powerUi._mouseIsDown || this.$powerUi._dragging || window.innerWidth < 768 || (this._window && this._window.currentBarBreakQuery !== false)) {
 			return;
 		}
 
@@ -142,13 +142,43 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.cursorPositionOnMenuBound(e);
 	}
 
+	getBrowserWindowContext() {
+		const component = this.$powerUi.componentsManager;
+		const win = {
+			_currentWidth: window.innerWidth,
+			_currentHeight: window.innerHeight,
+			rightTotalWidth: component.rightTotalWidth,
+			bottomTotalHeight: component.bottomTotalHeight,
+			leftTotalWidth: component.leftTotalWidth,
+			topTotalHeight: component.topTotalHeight,
+			defaultMinWidth: 250,
+			defaultMinHeight: 150,
+		};
+		return win;
+	}
+
+	getPowerWindowContext() {
+		const win = {
+			_currentWidth: this._window._currentWidth,
+			_currentHeight: this._window._currentHeight,
+			rightTotalWidth: this._window.rightTotalWidth - this._window._dialog.offsetLeft,
+			bottomTotalHeight: this._window.bottomTotalHeight - this._window._dialog.offsetTop,
+			leftTotalWidth: this._window.leftTotalWidth,
+			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
+			defaultMinWidth: this._window.defaultMinWidth,
+			defaultMinHeight: this._window.defaultMinHeight + 50,
+		};
+		this._initialBottomTotalHeightDiff = win.bottomTotalHeight - this._initialOffsetHeight;
+		return win;
+	}
+
 	onMouseDownBorder(e) {
 		// Return if click in inner elements, not in the border itself
 		if (e.target !== e.currentTarget) {
 			return;
 		}
 		e.preventDefault();
-		const manager = this.$powerUi.componentsManager;
+		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		this.allowResize = true;
 		this._initialX = e.clientX;
 		this._initialY = e.clientY;
@@ -156,8 +186,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		this._initialTop = this.element.offsetTop;
 		this._initialOffsetWidth = this.element.offsetWidth;
 		this._initialOffsetHeight = this.element.offsetHeight;
-		this._initialRightTotalWidthDiff = manager.rightTotalWidth - this._initialOffsetWidth;
-		this._initialBottomTotalHeightDiff = manager.bottomTotalHeight - this._initialOffsetHeight;
+		this._initialRightTotalWidthDiff = this.ctx.rightTotalWidth - this._initialOffsetWidth;
+		this._initialBottomTotalHeightDiff = this.ctx.bottomTotalHeight - this._initialOffsetHeight;
 
 		if (this.resizeRight && this.isOverRightBorder()) {
 			this.resizingRight = true;
@@ -192,6 +222,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (this.allowResize === false) {
 			return;
 		}
+		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		const rect = this.element.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
@@ -212,10 +243,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeRightBorder(x) {
-		const manager = this.$powerUi.componentsManager;
 		let width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
-		if (width + this.element.offsetLeft > window.innerWidth - manager.rightTotalWidth - 50) {
-			width = window.innerWidth - this.element.offsetLeft - manager.rightTotalWidth - 50;
+		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth) {
+			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth;
 		}
 		this._currentWidth = width + 'px';
 		this.element.style.width = this._currentWidth;
@@ -226,10 +256,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeLeftBorder(x) {
-		const manager = this.$powerUi.componentsManager;
 		let width = this.element.offsetWidth - x;
-		if (manager.leftTotalWidth + 50 > window.innerWidth - width - this._initialRightTotalWidthDiff) {
-			width = window.innerWidth - this._initialRightTotalWidthDiff - manager.leftTotalWidth - 60;
+		if (this.ctx.leftTotalWidth + this.ctx.defaultMinWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
+			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - this.ctx.defaultMinWidth;
 		}
 		this._currentWidth = width + 'px';
 		this.element.style.width = this._currentWidth;
@@ -240,10 +269,12 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeBottomBorder(y) {
-		const manager = this.$powerUi.componentsManager;
 		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
-		if (window.innerHeight - 50 < this._initialTop + height + manager.bottomTotalHeight) {
-			height = window.innerHeight - this._initialTop - manager.bottomTotalHeight - 50;
+		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
+			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight;
+		}
+		if (height > window.innerHeight - this.ctx.defaultMinHeight) {
+			height = window.innerHeight - this.ctx.defaultMinHeight;
 		}
 		this._currentHeight = height + 'px';
 		this.element.style.height = this._currentHeight;
@@ -254,10 +285,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeTopBorder(y) {
-		const manager = this.$powerUi.componentsManager;
 		let height = this.element.offsetHeight - y;
-		const maxHeight = window.innerHeight - (this._initialBottomTotalHeightDiff + manager.topTotalHeight + 50);
-		if (height + 50 > maxHeight) {
+		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
+		if (height > maxHeight) {
 			height = maxHeight;
 		}
 		this._currentHeight = height + 'px';
