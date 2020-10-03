@@ -46,7 +46,9 @@ class PowerWindow extends PowerDialogBase {
 			const _bar = this.$powerUi.componentsManager.bars.find(b=> b.id === bar.id);
 			if (_bar) {
 				_bar.bar._window = this;
-				_bar.bar.subscribeToPowerWindowModeChange();
+				if (_bar.bar.subscribeToPowerWindowModeChange) {
+					_bar.bar.subscribeToPowerWindowModeChange();
+				}
 				this.windowBars.push(_bar);
 				if (_bar.bar.isToolbar) {
 					this.windowToolbars.push(_bar);

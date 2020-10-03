@@ -22,6 +22,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.resizeBottom = this.element.classList.contains('pw-top');
 
 		if (split) {
+			this._changeMenuSize = this.changeMenuSize.bind(this);
+			this._onMouseUp = this.onMouseUp.bind(this);
 			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this);
 			this.subscribe({event: 'click', fn: this.onClick, bar: this});
 			this.setBorder();
@@ -104,8 +106,8 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	addOnMouseBorderEvents() {
-		this.element.onmousemove = this.onMouseMoveBorder.bind(this);
 		this.element.onmouseout = this.onMouseOutBorder.bind(this);
+		this.element.onmousemove = this.onMouseMoveBorder.bind(this);
 		this.element.onmousedown = this.onMouseDownBorder.bind(this);
 		this.element.ondblclick = this.onDoubleClickBorder.bind(this);
 	}
@@ -135,9 +137,6 @@ class PowerSplitBar extends _PowerBarsBase {
 			return;
 		}
 
-		window.onmouseup = this.onMouseUp.bind(this);
-		window.onmousemove = this.changeMenuSize.bind(this);
-
 		e.preventDefault();
 		this.cursorPositionOnMenuBound(e);
 	}
@@ -166,7 +165,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			leftTotalWidth: this._window.leftTotalWidth,
 			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
 			defaultMinWidth: this._window.defaultMinWidth,
-			defaultMinHeight: this._window.defaultMinHeight + 50,
+			defaultMinHeight: this._window.defaultMinHeight,
 		};
 		this._initialBottomTotalHeightDiff = win.bottomTotalHeight - this._initialOffsetHeight;
 		return win;
@@ -178,6 +177,9 @@ class PowerSplitBar extends _PowerBarsBase {
 			return;
 		}
 		e.preventDefault();
+		this.$powerUi._mouseIsDown = true;
+		window.addEventListener("mousemove", this._changeMenuSize);
+		window.addEventListener("mouseup", this._onMouseUp);
 		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		this.allowResize = true;
 		this._initialX = e.clientX;
@@ -207,18 +209,20 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onMouseUp(e) {
+		console.log("rodou");
 		this.resizingRight = false;
 		this.resizingLeft = false;
 		this.resizingBottom = false;
 		this.allowResize = false;
-		window.onmousemove = null;
-		window.onmouseup = null;
+		window.removeEventListener("mousemove", this._changeMenuSize);
+		window.removeEventListener("mouseup", this._onMouseUp);
 		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
 		this.$powerUi.componentsManager.runObserver();
 	}
 
 	changeMenuSize(e) {
+		console.log('changeMenuSize');
 		if (this.allowResize === false) {
 			return;
 		}
@@ -235,6 +239,10 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.resizeBottomBorder(y);
 		} else if (this.resizingTop) {
 			this.resizeTopBorder(y);
+		}
+
+		if (this.isWindowFixed === true) {
+			this._window.changeWindowBars();
 		}
 	}
 
@@ -256,7 +264,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeLeftBorder(x) {
-		let width = this.element.offsetWidth - x;
+		let width = (this.element.offsetWidth - x);
 		if (this.ctx.leftTotalWidth + this.ctx.defaultMinWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
 			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - this.ctx.defaultMinWidth;
 		}
@@ -272,9 +280,6 @@ class PowerSplitBar extends _PowerBarsBase {
 		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
 		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
 			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight;
-		}
-		if (height > window.innerHeight - this.ctx.defaultMinHeight) {
-			height = window.innerHeight - this.ctx.defaultMinHeight;
 		}
 		this._currentHeight = height + 'px';
 		this.element.style.height = this._currentHeight;
