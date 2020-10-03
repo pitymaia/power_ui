@@ -15,6 +15,7 @@ class PowerWindow extends PowerDialogBase {
 		this.leftTotalWidth = 0;
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
+		this.powerWindowModeChange = new UEvent('powerWindowModeChange');
 	}
 
 	// Allow async calls to implement onCancel
@@ -45,6 +46,7 @@ class PowerWindow extends PowerDialogBase {
 			const _bar = this.$powerUi.componentsManager.bars.find(b=> b.id === bar.id);
 			if (_bar) {
 				_bar.bar._window = this;
+				_bar.bar.subscribeToPowerWindowModeChange();
 				this.windowBars.push(_bar);
 				if (_bar.bar.isToolbar) {
 					this.windowToolbars.push(_bar);
@@ -613,8 +615,16 @@ class PowerWindow extends PowerDialogBase {
 		}
 
 		if (width <= 768) {
+			if (this.currentBarBreakQuery !== 'pw-bar-break') {
+				changeBarBreakQueryTo = 'pw-bar-break';
+				this.powerWindowModeChange.broadcast();
+			}
 			changeBarBreakQueryTo = 'pw-bar-break';
 		} else {
+			if (this.currentBarBreakQuery === 'pw-bar-break') {
+				changeBarBreakQueryTo = false;
+				this.powerWindowModeChange.broadcast();
+			}
 			changeBarBreakQueryTo = false;
 		}
 

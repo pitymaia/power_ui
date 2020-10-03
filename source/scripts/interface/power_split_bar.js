@@ -29,6 +29,19 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
+	subscribeToPowerWindowModeChange() {
+		this._window.powerWindowModeChange.subscribe(this.onPowerWindowModeChange, this);
+	}
+
+	onPowerWindowModeChange() {
+		if (this._window.currentBarBreakQuery === false) {
+			this.removeStyles();
+		} else {
+			this.element.style.width = this._currentWidth;
+			this.element.style.height = this._currentHeight;
+		}
+	}
+
 	onWindowModeChange() {
 		if (this.$powerUi.componentsManager.smallWindowMode) {
 			this.removeStyles();
