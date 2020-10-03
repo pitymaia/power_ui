@@ -152,6 +152,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			topTotalHeight: component.topTotalHeight,
 			defaultMinWidth: 250,
 			defaultMinHeight: 150,
+			defaultBorderSize: 0,
 		};
 		return win;
 	}
@@ -161,11 +162,12 @@ class PowerSplitBar extends _PowerBarsBase {
 			_currentWidth: this._window._currentWidth,
 			_currentHeight: this._window._currentHeight,
 			rightTotalWidth: this._window.rightTotalWidth - this._window._dialog.offsetLeft,
-			bottomTotalHeight: this._window.bottomTotalHeight - this._window._dialog.offsetTop,
+			bottomTotalHeight: this._window.bottomTotalHeight - (this._window._dialog.offsetTop - this._window.titleBarEl.offsetHeight),
 			leftTotalWidth: this._window.leftTotalWidth + this._window._dialog.offsetLeft,
 			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
 			defaultMinWidth: this._window.defaultMinWidth,
-			defaultMinHeight: this._window.defaultMinHeight + this._window.titleBarEl.offsetHeight,
+			defaultMinHeight: this._window.defaultMinHeight + this._window.defaultBorderSize,
+			defaultBorderSize: this._window.defaultBorderSize + 1,
 		};
 		return win;
 	}
@@ -277,7 +279,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	resizeBottomBorder(y) {
 		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
 		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
-			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight;
+			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight - this.ctx.defaultBorderSize;
 		}
 		this._currentHeight = height + 'px';
 		this.element.style.height = this._currentHeight;
