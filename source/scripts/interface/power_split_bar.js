@@ -162,7 +162,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			_currentHeight: this._window._currentHeight,
 			rightTotalWidth: this._window.rightTotalWidth - this._window._dialog.offsetLeft,
 			bottomTotalHeight: this._window.bottomTotalHeight - this._window._dialog.offsetTop,
-			leftTotalWidth: this._window.leftTotalWidth,
+			leftTotalWidth: this._window.leftTotalWidth + this._window._dialog.offsetLeft,
 			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
 			defaultMinWidth: this._window.defaultMinWidth,
 			defaultMinHeight: this._window.defaultMinHeight,
@@ -240,7 +240,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 
 		if (this.isWindowFixed === true) {
-			this._window.changeWindowBars();
+			// this._window.changeWindowBars();
+			this.$powerUi.componentsManager.setWindowFixedBarsSizeAndPosition(this._window.windowBars, this._window);
 		}
 	}
 
