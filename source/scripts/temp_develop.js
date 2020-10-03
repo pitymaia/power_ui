@@ -2072,7 +2072,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"position": "fixed-bottom",
 			"dropMenuPosition": "top-right",
 			"priority": 7,
-			"ignore": true,
+			"ignore": false,
 			"brand": {
 				"content": "PowerEasy",
 			},
@@ -3029,7 +3029,7 @@ class RootScope extends PowerController {
 
 class MenuWindowTemplate extends PowerTemplate {
 	template(resolve) {
-		const template = `<nav id="split-menu2" data-pw-priority="1" data-pw-border="6" class="power-split-bar pw-red-white pw-bar ppw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-right">
+		const template = `<nav id="split-menu2" data-pw-priority="1" data-pw-border="6" class="power-split-bar pw-red-white pw-bar ppw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-bottom">
 		    <a class="power-toggle" id="toggle-3445" data-power-target="split-menu2">
 		        <i class="pw-icon icon-hamburguer"></i>
 		    </a>

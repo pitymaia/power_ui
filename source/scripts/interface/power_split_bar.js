@@ -161,13 +161,12 @@ class PowerSplitBar extends _PowerBarsBase {
 			_currentWidth: this._window._currentWidth,
 			_currentHeight: this._window._currentHeight,
 			rightTotalWidth: this._window.rightTotalWidth - this._window._dialog.offsetLeft,
-			bottomTotalHeight: this._window.bottomTotalHeight - this._window._dialog.offsetTop,
+			bottomTotalHeight: this._window.bottomTotalHeight - (this._window._dialog.offsetTop + this._window.bodyEl.offsetTop),
 			leftTotalWidth: this._window.leftTotalWidth + this._window._dialog.offsetLeft,
 			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
 			defaultMinWidth: this._window.defaultMinWidth,
 			defaultMinHeight: this._window.defaultMinHeight,
 		};
-		this._initialBottomTotalHeightDiff = win.bottomTotalHeight - this._initialOffsetHeight;
 		return win;
 	}
 
