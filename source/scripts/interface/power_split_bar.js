@@ -75,12 +75,13 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.removeStyles(keepWidth);
 		if (this.isWindowFixed && this._window) {
 			const bodyHeight = this._window.bodyEl.offsetHeight;
-			const diff = this.element.offsetTop - this._window._dialog.offsetTop - this._window.defaultBorderSize - this._window.bodyEl.offsetTop;
+			const diff = this.element.offsetTop - this._window._dialog.offsetTop - this._window.defaultBorderSize - this._window.bodyEl.offsetTop + 1;
 			let height = bodyHeight + diff + this._window.titleBarEl.offsetHeight + this.element.offsetHeight;
 			if (this._window.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
 				height = height - this._window.defaultBorderSize;
 			}
 			this.element.style['max-height'] = height + 'px';
+			console.log('diff', diff + this._window.defaultBorderSize, 'menu height', this.element.offsetHeight);
 		}
 	}
 
