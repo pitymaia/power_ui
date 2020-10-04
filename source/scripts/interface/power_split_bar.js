@@ -9,22 +9,32 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onRemove() {
 		this.unsubscribe({event: 'click', fn: this.onClick, bar: this});
+		if (this.pwSplit) {
+			this.$powerUi.windowModeChange.unsubscribe(this.onWindowModeChange, this, this.id);
+			this.unsubscribe({event: 'click', fn: this.onClick, bar: this});
+			window.removeEventListener("mousemove", this._changeMenuSize);
+			window.removeEventListener("mouseup", this._onMouseUp);
+			this.$powerUi._mouseIsDown = false;
+			if (this.isWindowFixed === true) {
+				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
+			}
+		}
 		super.onRemove();
 	}
 
 	init() {
 		super.init();
 
-		const split = this.element.classList.contains('pw-split');
+		this.pwSplit = this.element.classList.contains('pw-split');
 		this.resizeRight = this.element.classList.contains('pw-left');
 		this.resizeLeft = this.element.classList.contains('pw-right');
 		this.resizeTop = this.element.classList.contains('pw-bottom');
 		this.resizeBottom = this.element.classList.contains('pw-top');
 
-		if (split) {
+		if (this.pwSplit) {
 			this._changeMenuSize = this.changeMenuSize.bind(this);
 			this._onMouseUp = this.onMouseUp.bind(this);
-			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this);
+			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this, this.id);
 			this.subscribe({event: 'click', fn: this.onClick, bar: this});
 			this.setBorder();
 			this.addOnMouseBorderEvents();
