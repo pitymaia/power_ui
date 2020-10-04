@@ -147,7 +147,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onDoubleClickBorder(e) {
 		e.preventDefault();
-		if ((this._window.isMaximized && this.$powerUi.componentsManager.smallWindowMode) || this.$powerUi.componentsManager.smallWindowMode) {
+		if (this.$powerUi.componentsManager.smallWindowMode || (this._window && this._window.isMaximized && this.$powerUi.componentsManager.smallWindowMode)) {
 			return;
 		}
 		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder() || this.isOverTopBorder()) {
