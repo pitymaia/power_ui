@@ -74,6 +74,9 @@
 .pwdesign-white-smoke .power-brand > * {
     vertical-align: middle;
 }
+.pwdesign-white-smoke .power-list > * {
+    display: inline-block;
+}
 
 .pwdesign-white-smoke .power-item,
 .pwdesign-white-smoke .power-action,

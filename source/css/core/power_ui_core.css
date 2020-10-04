@@ -204,6 +204,7 @@ body, html {
     display: block;
     cursor: pointer;
 }
+
 .power-tree-view .power-tree-view {
     display: none;
 }

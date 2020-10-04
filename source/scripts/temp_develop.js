@@ -3040,139 +3040,139 @@ class MenuWindowTemplate extends PowerTemplate {
 		        	        data-power-active="icon-folder-open"
 		        	        data-power-inactive="icon-folder-close"
 		        	    >
-		        	    </span> models
+		        	    </span> <span>models</span>
 		        	</a>
 		        	<nav id="timem66" class="power-tree-view">
 		        	    <a class="power-item">
-		        	        <i class="pw-icon icon-document-blank"></i> menu.js
+		        	        <i class="pw-icon icon-document-blank"></i> <span>menu.js</span>
 		        	    </a> <a class="power-item">
-		        	        <i class="pw-icon icon-document-blank"></i> front-page.js
+		        	        <i class="pw-icon icon-document-blank"></i> <span>front-page.js</span>
 		        	    </a>
 		        	    <a class="power-item">
-		        	        <i class="pw-icon icon-document-blank"></i> main.js
+		        	        <i class="pw-icon icon-document-blank"></i> <span>main.js</span>
 		        	    </a>
 		        	</nav>
 		            <a class="power-item">
-		                <i class="pw-icon icon-document-blank"></i> home.html
+		                <i class="pw-icon icon-document-blank"></i> <span>home.html</span>
 		            </a>
 		            <a class="power-item">
-		                <i class="pw-icon icon-document-blank"></i> home.js
+		                <i class="pw-icon icon-document-blank"></i> <span>home.js</span>
 		            </a>
 		            <a class="power-item">
-		                <i class="pw-icon icon-document-blank"></i> home.css
+		                <i class="pw-icon icon-document-blank"></i> <span>home.css</span>
 		            </a>
 		            <a class="power-list" data-power-target="titem15">
 		                <span class="power-status pw-icon icon-folder-close"
 		                    data-power-active="icon-folder-open"
 		                    data-power-inactive="icon-folder-close"
 		                >
-		                </span> templates
+		                </span> <span>templates</span>
 		            </a>
 		            <nav id="titem15" class="power-tree-view">
 		                <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> page-1.html
+		                    <i class="pw-icon icon-document-blank"></i> <span>page-1.html</span>
 		                </a>
 		                <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> page-2.html
+		                    <i class="pw-icon icon-document-blank"></i> <span>page-2.html</span>
 		                </a>
 		                <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> page-3.html
+		                    <i class="pw-icon icon-document-blank"></i> <span>page-3.html</span>
 		                </a>
 		                <a class="power-list" data-power-target="titem25">
 		                    <span class="power-status pw-icon icon-folder-close"
 		                        data-power-active="icon-folder-open"
 		                        data-power-inactive="icon-folder-close"
 		                    >
-		                    </span> editor
+		                    </span> <span>editor</span>
 		                </a>
 		                <nav id="titem25" class="power-tree-view">
 		                    <a class="power-item">
-		                        <i class="pw-icon icon-document-blank"></i> menu.html
+		                        <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
 		                    </a>
 		                    <a class="power-item">
-		                        <i class="pw-icon icon-document-blank"></i> front-page.html
+		                        <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
 		                    </a>
 		                    <a class="power-item">
-		                        <i class="pw-icon icon-document-blank"></i> tabs.html
+		                        <i class="pw-icon icon-document-blank"></i> <span>tabs.html</span>
 		                    </a>
 		                    <a class="power-list" data-power-target="titem156">
 		                        <span class="power-status pw-icon icon-folder-close"
 		                            data-power-active="icon-folder-open"
 		                            data-power-inactive="icon-folder-close"
 		                        >
-		                        </span> More
+		                        </span> <span>More</span>
 		                    </a>
 		                    <nav id="titem156" class="power-tree-view">
 		                        <a class="power-item">
-		                            <i class="pw-icon icon-document-blank"></i> design-1.html
+		                            <i class="pw-icon icon-document-blank"></i> <span>design-1.html</span>
 		                        </a>
 		                        <a class="power-item">
-		                            <i class="pw-icon icon-document-blank"></i> design-2.html
+		                            <i class="pw-icon icon-document-blank"></i> <span>design-2.html</span>
 		                        </a>
 		                        <a class="power-item">
-		                            <i class="pw-icon icon-document-blank"></i> design-3.html
+		                            <i class="pw-icon icon-document-blank"></i> <span>design-3.html</span>
 		                        </a>
 		                        <a class="power-list" data-power-target="titem256">
 		                            <span class="power-status pw-icon icon-folder-close"
 		                                data-power-active="icon-folder-open"
 		                                data-power-inactive="icon-folder-close"
 		                            >
-		                            </span> things
+		                            </span> <span>things</span>
 		                        </a>
 		                        <nav id="titem256" class="power-tree-view">
 		                            <a class="power-item">
-		                                <i class="pw-icon icon-document-blank"></i> menu.html
+		                                <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
 		                            </a>
 		                            <a class="power-item">
-		                                <i class="pw-icon icon-document-blank"></i> front-page.html
+		                                <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
 		                            </a>
 		                            <a class="power-item">
-		                                <i class="pw-icon icon-document-blank"></i> tabs.html
+		                                <i class="pw-icon icon-document-blank"></i> <span>tabs.html</span>
 		                            </a>
 		                            <a class="power-list" data-power-target="titem2567">
 		                                <span class="power-status pw-icon icon-folder-close"
 		                                    data-power-active="icon-folder-open"
 		                                    data-power-inactive="icon-folder-close"
 		                                >
-		                                </span> more things
+		                                </span> <span>more things</span>
 		                            </a>
 		                            <nav id="titem2567" class="power-tree-view">
 		                                <a class="power-item">
-		                                    <i class="pw-icon icon-document-blank"></i> menu.html
+		                                    <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
 		                                </a>
 		                                <a class="power-item">
-		                                    <i class="pw-icon icon-document-blank"></i> front-page.html
+		                                    <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
 		                                </a>
 		                                <a class="power-item">
-		                                    <i class="pw-icon icon-document-blank"></i> tabs.html
+		                                    <i class="pw-icon icon-document-blank"></i> <span>tabs.html</span>
 		                                </a>
 		                                <a class="power-list" data-power-target="titem25678">
 		                                    <span class="power-status pw-icon icon-folder-close"
 		                                        data-power-active="icon-folder-open"
 		                                        data-power-inactive="icon-folder-close"
 		                                    >
-		                                    </span> final things
+		                                    </span> <span>final things</span>
 		                                </a>
 		                                <nav id="titem25678" class="power-tree-view">
 		                                    <a class="power-item">
-		                                        <i class="pw-icon icon-document-blank"></i> menu.html
+		                                        <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
 		                                    </a>
 		                                    <a class="power-item">
-		                                        <i class="pw-icon icon-document-blank"></i> front-page.html
+		                                        <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
 		                                    </a>
 		                                    <a class="power-item">
-		                                        <i class="pw-icon icon-document-blank"></i> tabs.html
+		                                        <i class="pw-icon icon-document-blank"></i> <span>tabs.html</span>
 		                                    </a>
 		                                </nav>
 		                            </nav>
 		                        </nav>
 		                        <a class="power-item">
-		                            <i class="pw-icon icon-document-blank"></i> zendex.html
+		                            <i class="pw-icon icon-document-blank"></i> <span>zendex.html</span>
 		                        </a>
 		                    </nav>
 		                </nav>
 		                <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> zendex.html
+		                    <i class="pw-icon icon-document-blank"></i> <span>zendex.html</span>
 		                </a>
 		            </nav>
 		            <a class="power-list" data-power-target="titem37">
@@ -3180,16 +3180,16 @@ class MenuWindowTemplate extends PowerTemplate {
 		                    data-power-active="icon-folder-open"
 		                    data-power-inactive="icon-folder-close"
 		                >
-		                </span> scripts
+		                </span> <span>scripts</span>
 		            </a>
 		            <nav id="titem37" class="power-tree-view">
 		                <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> menu.js
+		                    <i class="pw-icon icon-document-blank"></i> <span>menu.js</span>
 		                </a> <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> front-page.js
+		                    <i class="pw-icon icon-document-blank"></i> <span>front-page.js</span>
 		                </a>
 		                <a class="power-item">
-		                    <i class="pw-icon icon-document-blank"></i> main.js
+		                    <i class="pw-icon icon-document-blank"></i> <span>main.js</span>
 		                </a>
 		            </nav>
 		        </nav>
