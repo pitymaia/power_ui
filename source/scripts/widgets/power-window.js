@@ -444,6 +444,7 @@ class PowerWindow extends PowerDialogBase {
 
 	orientationChange() {
 		this.browserWindowResize();
+		this.powerWindowStateChange.broadcast();
 	}
 
 	_maximizeDialog() {

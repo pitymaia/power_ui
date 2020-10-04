@@ -15,7 +15,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			window.removeEventListener("mousemove", this._changeMenuSize);
 			window.removeEventListener("mouseup", this._onMouseUp);
 			this.$powerUi._mouseIsDown = false;
-			if (this.isWindowFixed === true) {
+			if (this.isWindowFixed) {
 				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 				this.$powerUi.onBrowserWindowResize.unsubscribe(this.onBrowserWindowResize, this);
 			}
@@ -49,8 +49,9 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onPowerWindowModeChange() {
 		if (this._window.currentBarBreakQuery === 'pw-bar-break') {
-			this.removeStyles();
+			this.setSmallWindowModeHeight();
 		} else {
+			this.removeStyles();
 			this.element.style.width = this._currentWidth;
 			this.element.style.height = this._currentHeight;
 		}
@@ -62,13 +63,26 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onWindowModeChange() {
 		if (this.$powerUi.componentsManager.smallWindowMode) {
-			this.removeStyles();
+			this.setSmallWindowModeHeight();
 		} else {
+			this.removeStyles();
 			this.element.style.width = this._currentWidth;
 			this.element.style.height = this._currentHeight;
 		}
 	}
 
+	setSmallWindowModeHeight(keepWidth) {
+		this.removeStyles(keepWidth);
+		if (this.isWindowFixed && this._window) {
+			let height = '';
+			if (this._window.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
+				height = this._window._currentHeight - (this._window.titleBarEl.offsetHeight + this._window.defaultBorderSize) + 'px';
+			} else {
+				height = this._window._height - (this._window.titleBarEl.offsetHeight + this._window.defaultBorderSize) + 'px';
+			}
+			this.element.style['max-height'] = height;
+		}
+	}
 
 	onClick(fn, self) {
 		self.$powerUi.componentsManager.runObserverFewTimes(10);
@@ -139,9 +153,12 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
-	removeStyles() {
-		this.element.style.width = null;
+	removeStyles(keepWidth) {
+		if (!keepWidth) {
+			this.element.style.width = null;
+		}
 		this.element.style.height = null;
+		this.element.style['max-height'] = null;
 	}
 
 	onMouseOutBorder(e) {
@@ -317,6 +334,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	toggle() {
+		if (this.isWindowFixed && this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
+			this.setSmallWindowModeHeight(true);
+		}
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();
 	}
