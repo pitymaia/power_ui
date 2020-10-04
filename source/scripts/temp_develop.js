@@ -1344,7 +1344,7 @@ class SimpleTemplate extends PowerTemplate {
 		};
 
 		const toolbar2 = {
-		    // "classList": ["pw-red-white"],
+		    "classList": ["pw-black-white"],
 		    "id": 'my-window-toolbar2',
 		    "position": "fixed-window-right",
 		    "ignore": false,

@@ -73,15 +73,16 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	setSmallWindowModeHeight(keepWidth) {
 		this.removeStyles(keepWidth);
+		// When counting position we need compensate a pixel
+		const fixOffsetPosition = 1;
 		if (this.isWindowFixed && this._window) {
 			const bodyHeight = this._window.bodyEl.offsetHeight;
-			const diff = this.element.offsetTop - this._window._dialog.offsetTop - this._window.defaultBorderSize - this._window.bodyEl.offsetTop + 1;
+			const diff = this.element.offsetTop - this._window._dialog.offsetTop - this._window.defaultBorderSize - this._window.bodyEl.offsetTop + fixOffsetPosition;
 			let height = bodyHeight + diff + this._window.titleBarEl.offsetHeight + this.element.offsetHeight;
 			if (this._window.isMaximized || this.$powerUi.componentsManager.smallWindowMode) {
 				height = height - this._window.defaultBorderSize;
 			}
 			this.element.style['max-height'] = height + 'px';
-			console.log('diff', diff + this._window.defaultBorderSize, 'menu height', this.element.offsetHeight);
 		}
 	}
 
@@ -146,6 +147,9 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onDoubleClickBorder(e) {
 		e.preventDefault();
+		if ((this._window.isMaximized && this.$powerUi.componentsManager.smallWindowMode) || this.$powerUi.componentsManager.smallWindowMode) {
+			return;
+		}
 		if (this.isOverRightBorder() || this.isOverLeftBorder() || this.isOverBottomBorder() || this.isOverTopBorder()) {
 			this._currentHeight = null;
 			this._currentWidth = null;
