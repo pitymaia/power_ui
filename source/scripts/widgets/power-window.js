@@ -16,6 +16,7 @@ class PowerWindow extends PowerDialogBase {
 		this.rightTotalWidth = 0;
 		this.totalHeight = 0;
 		this.powerWindowModeChange = new UEvent('powerWindowModeChange');
+		this.powerWindowStateChange = new UEvent('powerWindowStateChange');
 	}
 
 	// Allow async calls to implement onCancel
@@ -471,6 +472,7 @@ class PowerWindow extends PowerDialogBase {
 		this.refreshWindowToolbars();
 
 		if (!preventBroadcast) {
+			this.powerWindowStateChange.broadcast();
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
 		this.$powerUi.componentsManager.restartObserver();
@@ -500,6 +502,7 @@ class PowerWindow extends PowerDialogBase {
 		this.refreshWindowToolbars();
 
 		if (!preventBroadcast) {
+			this.powerWindowStateChange.broadcast();
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
 		this.$powerUi.componentsManager.restartObserver();
@@ -618,17 +621,9 @@ class PowerWindow extends PowerDialogBase {
 			width = window.innerWidth;
 		}
 
-		if (width <= 768) {
-			if (this.currentBarBreakQuery !== 'pw-bar-break') {
-				changeBarBreakQueryTo = 'pw-bar-break';
-				this.powerWindowModeChange.broadcast();
-			}
+		if (width <= 768 || this.$powerUi.componentsManager.smallWindowMode) {
 			changeBarBreakQueryTo = 'pw-bar-break';
 		} else {
-			if (this.currentBarBreakQuery === 'pw-bar-break') {
-				changeBarBreakQueryTo = false;
-				this.powerWindowModeChange.broadcast();
-			}
 			changeBarBreakQueryTo = false;
 		}
 
@@ -637,6 +632,7 @@ class PowerWindow extends PowerDialogBase {
 			this._dialog.classList.add(changeBarBreakQueryTo);
 		}
 		this.currentBarBreakQuery = changeBarBreakQueryTo;
+		this.powerWindowModeChange.broadcast();
 	}
 
 	removeBarBreakQuery() {

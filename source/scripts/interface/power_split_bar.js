@@ -17,6 +17,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.$powerUi._mouseIsDown = false;
 			if (this.isWindowFixed === true) {
 				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
+				this.$powerUi.onBrowserWindowResize.unsubscribe(this.onBrowserWindowResize, this);
 			}
 		}
 		super.onRemove();
@@ -34,7 +35,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		if (this.pwSplit) {
 			this._changeMenuSize = this.changeMenuSize.bind(this);
 			this._onMouseUp = this.onMouseUp.bind(this);
-			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this, this.id);
+			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this);
+			this.$powerUi.onBrowserWindowResize.subscribe(this.onWindowModeChange, this);
 			this.subscribe({event: 'click', fn: this.onClick, bar: this});
 			this.setBorder();
 			this.addOnMouseBorderEvents();
@@ -46,12 +48,16 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onPowerWindowModeChange() {
-		if (this._window.currentBarBreakQuery === false) {
+		if (this._window.currentBarBreakQuery === 'pw-bar-break') {
 			this.removeStyles();
 		} else {
 			this.element.style.width = this._currentWidth;
 			this.element.style.height = this._currentHeight;
 		}
+	}
+
+	onBrowserWindowResize() {
+		this.onPowerWindowModeChange();
 	}
 
 	onWindowModeChange() {
@@ -62,6 +68,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.element.style.height = this._currentHeight;
 		}
 	}
+
 
 	onClick(fn, self) {
 		self.$powerUi.componentsManager.runObserverFewTimes(10);
