@@ -49,7 +49,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onPowerWindowModeChange() {
 		if (this._window.currentBarBreakQuery === 'pw-bar-break') {
-			this.setSmallWindowModeHeight();
+			this.setSmallWindowModeSize();
 		} else {
 			this.removeStyles();
 			this.element.style.width = this._currentWidth;
@@ -63,7 +63,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onWindowModeChange() {
 		if (this.$powerUi.componentsManager.smallWindowMode) {
-			this.setSmallWindowModeHeight();
+			this.setSmallWindowModeSize();
 		} else {
 			this.removeStyles();
 			this.element.style.width = this._currentWidth;
@@ -71,8 +71,21 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
-	setSmallWindowModeHeight(keepWidth) {
+	// Size when menu is colapsed
+	setSmallWindowModeSize(keepWidth) {
 		this.removeStyles(keepWidth);
+		if (this.barPosition === 'top') {
+			this.setTopMenuSize();
+		} else if (this.barPosition === 'bottom') {
+			this.setBottomMenuSize();
+		} else if (this.barPosition === 'left') {
+			this.setLeftMenuSize();
+		} else if (this.barPosition === 'right') {
+			this.setRightMenuSize();
+		}
+	}
+	// Size when menu is colapsed
+	setTopMenuSize() {
 		// When counting position we need compensate a pixel
 		const fixOffsetPosition = 1;
 		if (this.isWindowFixed && this._window) {
@@ -83,6 +96,43 @@ class PowerSplitBar extends _PowerBarsBase {
 				height = height - this._window.defaultBorderSize;
 			}
 			this.element.style['max-height'] = height + 'px';
+			this.element.style['min-width'] = this._currentWidth + 'px';
+		}
+	}
+	// Size when menu is colapsed
+	setBottomMenuSize() {
+		// When counting position we need compensate a pixel
+		const fixOffsetPosition = 1;
+		if (this.isWindowFixed && this._window) {
+			const diff = this.element.offsetTop - this._window._dialog.offsetTop;
+			let height = diff - this._window.defaultBorderSize - this._window.defaultBorderSize + fixOffsetPosition;
+			this.element.style['max-height'] = height + 'px';
+			this.element.style['min-width'] = this._currentWidth + 'px';
+		}
+	}
+	// Size when menu is colapsed
+	setLeftMenuSize() {
+		// When counting position we need compensate a pixel
+		const fixOffsetPosition = 1;
+		if (this.isWindowFixed && this._window) {
+			const height = this._window.bodyEl.offsetHeight - this._window.defaultBorderSize - fixOffsetPosition;
+			const diff = (this.element.offsetLeft - this._window._dialog.offsetLeft) - this._window.bodyEl.offsetLeft;
+			let width = this._window.bodyEl.offsetWidth -diff - this._window.defaultBorderSize - fixOffsetPosition;
+			this.element.style['min-height'] = height + 'px';
+			this.element.style.height = height + 'px';
+			this.element.style['max-width'] = width + 'px';
+		}
+	}
+	// Size when menu is colapsed
+	setRightMenuSize() {
+		// When counting position we need compensate a pixel
+		const fixOffsetPosition = 1;
+		if (this.isWindowFixed && this._window) {
+			const height = this._window.bodyEl.offsetHeight - this._window.defaultBorderSize - fixOffsetPosition;
+			const diff = (this.element.offsetLeft - this._window._dialog.offsetLeft) - this._window.bodyEl.offsetLeft;
+			let width = this._window.bodyEl.offsetWidth -diff - this._window.defaultBorderSize - fixOffsetPosition;
+			this.element.style.height = height + 'px';
+			this.element.style['max-width'] = width + 'px';
 		}
 	}
 
@@ -163,7 +213,10 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.element.style.width = null;
 		}
 		this.element.style.height = null;
+		this.element.style['min-height'] = null;
 		this.element.style['max-height'] = null;
+		this.element.style['min-width'] = null;
+		this.element.style['max-width'] = null;
 	}
 
 	onMouseOutBorder(e) {
@@ -340,7 +393,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	toggle() {
 		if (this.isWindowFixed && this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
-			this.setSmallWindowModeHeight(true);
+			this.setSmallWindowModeSize(true);
 		}
 		// PowerAction implements an optional "click out" system to allow toggles to hide
 		this.powerAction.ifClickOut();

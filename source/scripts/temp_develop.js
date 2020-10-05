@@ -3029,7 +3029,7 @@ class RootScope extends PowerController {
 
 class MenuWindowTemplate extends PowerTemplate {
 	template(resolve) {
-		const template = `<nav id="split-menu2" data-pw-priority="1" data-pw-border="6" class="power-split-bar pw-red-white pw-bar ppw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-top">
+		const template = `<nav id="split-menu2" data-pw-priority="1" data-pw-border="6" class="power-split-bar pw-red-white pw-bar ppw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-right">
 		    <a class="power-toggle" id="toggle-3445" data-power-target="split-menu2">
 		        <i class="pw-icon icon-hamburguer"></i>
 		    </a>
@@ -3157,6 +3157,24 @@ class MenuWindowTemplate extends PowerTemplate {
 		                                    <a class="power-item">
 		                                        <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
 		                                    </a>
+		                                    <a class="power-list" data-power-target="titem256789">
+		                                        <span class="power-status pw-icon icon-folder-close"
+		                                            data-power-active="icon-folder-open"
+		                                            data-power-inactive="icon-folder-close"
+		                                        >
+		                                        </span> <span>after final things</span>
+		                                    </a>
+		                                    <nav id="titem256789" class="power-tree-view">
+		                                        <a class="power-item">
+		                                            <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
+		                                        </a>
+		                                        <a class="power-item">
+		                                            <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
+		                                        </a>
+		                                        <a class="power-item">
+		                                            <i class="pw-icon icon-document-blank"></i> <span>tabs.html</span>
+		                                        </a>
+		                                    </nav>
 		                                    <a class="power-item">
 		                                        <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
 		                                    </a>
