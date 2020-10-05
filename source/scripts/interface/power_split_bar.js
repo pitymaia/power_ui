@@ -75,17 +75,17 @@ class PowerSplitBar extends _PowerBarsBase {
 	setSmallWindowModeSize(keepWidth) {
 		this.removeStyles(keepWidth);
 		if (this.barPosition === 'top') {
-			this.setTopMenuSize();
+			this.setTopColapsedMenuSize();
 		} else if (this.barPosition === 'bottom') {
-			this.setBottomMenuSize();
+			this.setBottomColapsedMenuSize();
 		} else if (this.barPosition === 'left') {
-			this.setLeftMenuSize();
+			this.setLeftColapsedMenuSize();
 		} else if (this.barPosition === 'right') {
-			this.setRightMenuSize();
+			this.setRightColapsedMenuSize();
 		}
 	}
 	// Size when menu is colapsed
-	setTopMenuSize() {
+	setTopColapsedMenuSize() {
 		// When counting position we need compensate a pixel
 		const fixOffsetPosition = 1;
 		if (this.isWindowFixed && this._window) {
@@ -100,7 +100,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 	// Size when menu is colapsed
-	setBottomMenuSize() {
+	setBottomColapsedMenuSize() {
 		// When counting position we need compensate a pixel
 		const fixOffsetPosition = 1;
 		if (this.isWindowFixed && this._window) {
@@ -111,27 +111,28 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 	// Size when menu is colapsed
-	setLeftMenuSize() {
+	setLeftColapsedMenuSize() {
 		// When counting position we need compensate a pixel
 		const fixOffsetPosition = 1;
 		if (this.isWindowFixed && this._window) {
 			const height = this._window.bodyEl.offsetHeight - this._window.defaultBorderSize - fixOffsetPosition;
 			const diff = (this.element.offsetLeft - this._window._dialog.offsetLeft) - this._window.bodyEl.offsetLeft;
-			let width = this._window.bodyEl.offsetWidth -diff - this._window.defaultBorderSize - fixOffsetPosition;
-			this.element.style['min-height'] = height + 'px';
+			let width = this._window.bodyEl.offsetWidth - diff - this._window.defaultBorderSize - fixOffsetPosition;
 			this.element.style.height = height + 'px';
+			this.element.style['min-height'] = height + 'px';
 			this.element.style['max-width'] = width + 'px';
 		}
 	}
 	// Size when menu is colapsed
-	setRightMenuSize() {
+	setRightColapsedMenuSize() {
 		// When counting position we need compensate a pixel
 		const fixOffsetPosition = 1;
 		if (this.isWindowFixed && this._window) {
 			const height = this._window.bodyEl.offsetHeight - this._window.defaultBorderSize - fixOffsetPosition;
-			const diff = (this.element.offsetLeft - this._window._dialog.offsetLeft) - this._window.bodyEl.offsetLeft;
-			let width = this._window.bodyEl.offsetWidth -diff - this._window.defaultBorderSize - fixOffsetPosition;
+			const diff = (this._window._dialog.offsetLeft + this._window.bodyEl.offsetLeft) - this.element.offsetLeft;
+			let width = this.element.offsetWidth - diff - this._window.defaultBorderSize - fixOffsetPosition;
 			this.element.style.height = height + 'px';
+			this.element.style['min-height'] = height + 'px';
 			this.element.style['max-width'] = width + 'px';
 		}
 	}
