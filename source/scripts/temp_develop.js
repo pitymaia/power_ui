@@ -3169,7 +3169,7 @@ class MenuWindowTemplate extends PowerTemplate {
 		                                            <i class="pw-icon icon-document-blank"></i> <span>menu.html</span>
 		                                        </a>
 		                                        <a class="power-item">
-		                                            <i class="pw-icon icon-document-blank"></i> <span>front-page.html</span>
+		                                            <i class="pw-icon icon-document-blank"></i> <span>my-front-page-with-big-name-to-force-width-goes-far-far-away.html</span>
 		                                        </a>
 		                                        <a class="power-item">
 		                                            <i class="pw-icon icon-document-blank"></i> <span>tabs.html</span>

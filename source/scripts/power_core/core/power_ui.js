@@ -505,6 +505,7 @@ class PowerUi extends _PowerUiBase {
 		this._services = config.services || {}; // TODO is done, need document it. Format 'widget', {component: WidgetService, params: {foo: 'bar'}}
 		this._addPowerServices();
 
+		this.onFixedPowerSplitBarChange = new UEvent('onFixedPowerSplitBarChange');
 		this.onPowerWindowChange = new UEvent('onPowerWindowChange');
 		this.componentsManager = new ComponentsManager(this);
 		this.interpolation = new PowerInterpolation(config, this);

@@ -43,6 +43,12 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
+	broadcastFixedBarWhenSizeChange() {
+		if (this.isFixed) {
+			this.$powerUi.onFixedPowerSplitBarChange.broadcast();
+		}
+	}
+
 	subscribeToPowerWindowModeChange() {
 		this._window.powerWindowModeChange.subscribe(this.onPowerWindowModeChange, this);
 	}
@@ -207,6 +213,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.removeStyles();
 			this.onMouseUp(e);
 		}
+		this.broadcastFixedBarWhenSizeChange();
 	}
 
 	removeStyles(keepWidth) {
@@ -312,6 +319,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
 		this.$powerUi.componentsManager.runObserver();
+		this.broadcastFixedBarWhenSizeChange();
 	}
 
 	changeMenuSize(e) {

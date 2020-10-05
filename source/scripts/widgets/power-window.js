@@ -17,6 +17,7 @@ class PowerWindow extends PowerDialogBase {
 		this.totalHeight = 0;
 		this.powerWindowModeChange = new UEvent('powerWindowModeChange');
 		this.powerWindowStateChange = new UEvent('powerWindowStateChange');
+		this.$powerUi.onFixedPowerSplitBarChange.subscribe(this.onFixedPowerSplitBarChange, this);
 	}
 
 	// Allow async calls to implement onCancel
@@ -117,6 +118,10 @@ class PowerWindow extends PowerDialogBase {
 		this.refreshWindowToolbars();
 	}
 
+	onFixedPowerSplitBarChange() {
+		this.browserWindowResize();
+	}
+
 	changeWindowBars() {
 		const manager = this.$powerUi.componentsManager;
 		if ((this.isMaximized === true && !manager.smallWindowMode) || (this.isMaximized === false && manager.smallWindowMode)) {
@@ -208,6 +213,7 @@ class PowerWindow extends PowerDialogBase {
 		delete this.zIndex;
 		this.saveWindowState();
 		this.removeWindowIsMaximizedFromBody();
+		this.$powerUi.onFixedPowerSplitBarChange.unsubscribe(this.onFixedPowerSplitBarChange, this);
 	}
 
 	_onRemoveView() {
@@ -619,7 +625,7 @@ class PowerWindow extends PowerDialogBase {
 		let changeBarBreakQueryTo = this.currentBarBreakQuery;
 		let width = this._width;
 		if (this.isMaximized) {
-			width = window.innerWidth;
+			width = this._dialog.offsetWidth;
 		}
 
 		if (width <= 768 || this.$powerUi.componentsManager.smallWindowMode) {
