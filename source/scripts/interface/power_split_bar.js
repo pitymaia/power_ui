@@ -69,7 +69,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onBrowserWindowResize() {
 		this.onPowerWindowModeChange();
-		this.adjustSizeWhenResize();
+		this.adjustBarSizeIfNeeded();
 	}
 
 	// Only for powerWindow split bars
@@ -154,6 +154,9 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	onClick(fn, self) {
 		self.$powerUi.componentsManager.runObserverFewTimes(10);
+		setTimeout(function () {
+			self.adjustBarSizeIfNeeded();
+		}, 50);
 	}
 
 	setBorder() {
@@ -223,6 +226,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.onMouseUp(e);
 		}
 		this.broadcastFixedBarWhenSizeChange();
+		this.adjustBarSizeIfNeeded();
 	}
 
 	removeStyles(keepWidth) {
@@ -362,7 +366,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
-	adjustSizeWhenResize() {
+	adjustBarSizeIfNeeded() {
 		if (this.$powerUi.componentsManager.smallWindowMode) {
 			this.removeStyles();
 			return;
