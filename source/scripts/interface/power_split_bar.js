@@ -68,7 +68,6 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onBrowserWindowResize() {
-		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		this.onPowerWindowModeChange();
 		this.adjustSizeWhenResize();
 	}
@@ -369,15 +368,16 @@ class PowerSplitBar extends _PowerBarsBase {
 			return;
 		}
 
+		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
+		this.setInitialValues();
+
 		let width = this.element.style.width;
 		if (width) {
 			width = parseInt(width.replace('px', ''));
-			this.setInitialValues();
 		}
 		let height = this.element.style.height;
 		if (height) {
 			height = parseInt(height.replace('px', ''));
-			this.setInitialValues();
 		}
 		if (this.barPosition === 'top') {
 			this.setTopMenuSize(height);
@@ -393,6 +393,14 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	setTopMenuSize(height) {
+		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
+			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight - this.ctx.defaultBorderSize;
+		}
+		this._currentHeight = height + 'px';
+		this.element.style.height = this._currentHeight;
+	}
+
+	setBottomMenuSize(height) {
 		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
 		if (height > maxHeight) {
 			height = maxHeight;
@@ -401,25 +409,17 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.element.style.height = this._currentHeight;
 	}
 
-	setBottomMenuSize(height) {
-		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
-			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight - this.ctx.defaultBorderSize;
-		}
-		this._currentHeight = height + 'px';
-		this.element.style.height = this._currentHeight;
-	}
-
 	setLeftMenuSize(width) {
-		if (this.ctx.leftTotalWidth + this.ctx.defaultMinWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
-			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - this.ctx.defaultMinWidth;
+		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth) {
+			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth;
 		}
 		this._currentWidth = width + 'px';
 		this.element.style.width = this._currentWidth;
 	}
 
 	setRightMenuSize(width) {
-		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth) {
-			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth;
+		if (this.ctx.leftTotalWidth + this.ctx.defaultMinWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
+			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - this.ctx.defaultMinWidth;
 		}
 		this._currentWidth = width + 'px';
 		this.element.style.width = this._currentWidth;
@@ -431,7 +431,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	resizeRightBorder(x) {
 		let width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
-		this.setRightMenuSize(width);
+		this.setLeftMenuSize(width);
 	}
 
 	isOverLeftBorder() {
@@ -440,7 +440,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	resizeLeftBorder(x) {
 		let width = (this.element.offsetWidth - x);
-		this.setLeftMenuSize(width);
+		this.setRightMenuSize(width);
 	}
 
 	isOverBottomBorder() {
@@ -449,7 +449,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	resizeBottomBorder(y) {
 		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
-		this.setBottomMenuSize(height);
+		this.setTopMenuSize(height);
 	}
 
 	isOverTopBorder() {
@@ -458,7 +458,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	resizeTopBorder(y) {
 		let height = this.element.offsetHeight - y;
-		this.setTopMenuSize(height);
+		this.setBottomMenuSize(height);
 	}
 
 	toggle() {
