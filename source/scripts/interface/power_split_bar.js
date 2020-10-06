@@ -263,7 +263,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			leftTotalWidth: component.leftTotalWidth,
 			topTotalHeight: component.topTotalHeight,
 			defaultMinWidth: 270,
-			defaultMinHeight: 150,
+			defaultMinHeight: 170,
 			defaultBorderSize: 0,
 		};
 		return win;
@@ -278,7 +278,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			leftTotalWidth: this._window.leftTotalWidth + this._window._dialog.offsetLeft,
 			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
 			defaultMinWidth: this._window.defaultMinWidth + 20,
-			defaultMinHeight: this._window.defaultMinHeight + this._window.defaultBorderSize,
+			defaultMinHeight: this._window.defaultMinHeight + this._window.defaultBorderSize + 20,
 			defaultBorderSize: this._window.defaultBorderSize + 1,
 		};
 		return win;
@@ -380,8 +380,10 @@ class PowerSplitBar extends _PowerBarsBase {
 			height = parseInt(height.replace('px', ''));
 		}
 		if (this.barPosition === 'top') {
+			if (!height) return;
 			this.setTopMenuSize(height);
 		} else if (this.barPosition === 'bottom') {
+			if (!height) return;
 			this.setBottomMenuSize(height);
 		} else if (this.barPosition === 'left') {
 			if (!width) return;
@@ -393,8 +395,13 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	setTopMenuSize(height) {
-		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
-			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight - this.ctx.defaultBorderSize;
+		// Compesate for window title bar if there is some opened and maximized
+		let titleBar = 0;
+		if (this.isFixed) {
+			titleBar = 40;
+		}
+		if (this.ctx._currentHeight - (this.ctx.defaultMinHeight + titleBar) < this._initialTop + height + this.ctx.bottomTotalHeight) {
+			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - (this.ctx.defaultMinHeight + titleBar) - this.ctx.defaultBorderSize;
 		}
 		this._currentHeight = height + 'px';
 		this.element.style.height = this._currentHeight;
