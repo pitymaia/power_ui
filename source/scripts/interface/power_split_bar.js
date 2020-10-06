@@ -380,6 +380,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	adjustBarSizeIfNeeded() {
+		if (this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
+			return;
+		}
 		if (this.$powerUi.componentsManager.smallWindowMode) {
 			this.removeStyles();
 			return;
