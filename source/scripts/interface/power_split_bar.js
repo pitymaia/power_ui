@@ -44,7 +44,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	broadcastFixedBarWhenSizeChange() {
-		if (this.isFixed) {
+		if (this.isFixed && this.element) {
 			this.$powerUi.onFixedPowerSplitBarChange.broadcast();
 		}
 	}
@@ -68,6 +68,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onWindowModeChange() {
+		if (!this.element) {
+			return;
+		}
 		if (this.$powerUi.componentsManager.smallWindowMode) {
 			this.setSmallWindowModeSize();
 		} else {
@@ -217,6 +220,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	removeStyles(keepWidth) {
+		if (!this.element) {
+			 return;
+		}
 		if (!keepWidth) {
 			this.element.style.width = null;
 		}
@@ -352,9 +358,10 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeRightBorder(x) {
+		const minWidth = this.ctx.defaultMinWidth + 20;
 		let width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
-		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth) {
-			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth;
+		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - minWidth) {
+			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - minWidth;
 		}
 		this._currentWidth = width + 'px';
 		this.element.style.width = this._currentWidth;
@@ -365,9 +372,10 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeLeftBorder(x) {
+		const minWidth = this.ctx.defaultMinWidth + 20;
 		let width = (this.element.offsetWidth - x);
-		if (this.ctx.leftTotalWidth + this.ctx.defaultMinWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
-			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - this.ctx.defaultMinWidth;
+		if (this.ctx.leftTotalWidth + minWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
+			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - minWidth;
 		}
 		this._currentWidth = width + 'px';
 		this.element.style.width = this._currentWidth;
