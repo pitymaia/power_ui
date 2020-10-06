@@ -165,7 +165,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	onClick(fn, self) {
 		self.$powerUi.componentsManager.runObserverFewTimes(10);
 		setTimeout(function () {
-			self.adjustBarSizeIfNeeded(true);
+			self.adjustBarSizeIfNeeded();
 		}, 50);
 	}
 
@@ -236,7 +236,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.onMouseUp(e);
 		}
 		this.broadcastFixedBarWhenSizeChange();
-		this.adjustBarSizeIfNeeded(true);
+		this.adjustBarSizeIfNeeded();
 		if (this.isWindowFixed && this._window) {
 			this._window.changeWindowBars();
 		}
@@ -379,8 +379,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
-	adjustBarSizeIfNeeded(fromClick) {
-		if (!fromClick && this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
+	adjustBarSizeIfNeeded() {
+		if (this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
 			return;
 		}
 		if (this.$powerUi.componentsManager.smallWindowMode) {
@@ -406,7 +406,17 @@ class PowerSplitBar extends _PowerBarsBase {
 				height = this.element.offsetHeight;
 			}
 			if (!height || height < minHeight) return;
+			if (this.isWindowFixed) {
+				this._lastWindowHeight = this._window._currentHeight;
+			}
 			this.setTopMenuSize(height);
+
+			if (this.isWindowFixed) {
+				if (this.element.offsetHeight > this._lastWindowHeight) {
+					this._currentHeight = minHeight + 'px';
+					this.element.style.height = this._currentHeight;
+				}
+			}
 		} else if (this.barPosition === 'bottom') {
 			if (!height && this.bottomHeightIsTooBig(this.element.offsetHeight)) {
 				height = this.element.offsetHeight;

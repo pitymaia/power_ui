@@ -204,9 +204,9 @@ class ComponentsManager {
 					this.hasChange = true;
 				}
 
-				if (this.observing[key].isSplitBar && (
+				if (this.observing[key].isSplitBar && this.observing[key].isWindowFixed && (
 					this.observing[key].barPosition === 'top' || this.observing[key].barPosition === 'bottom'
-					) && this.observing[key].adjustBarSizeIfNeeded) {
+					) && this.observing[key].adjustBarSizeIfNeeded && !(this.observing[key]._window && this.observing[key]._window.currentBarBreakQuery === 'pw-bar-break')) {
 					this.observing[key].adjustBarSizeIfNeeded();
 				}
 			}
