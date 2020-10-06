@@ -18,6 +18,9 @@ class PowerSplitBar extends _PowerBarsBase {
 			if (this.pwSplit) {
 				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 				this.$powerUi.onBrowserWindowResize.unsubscribe(this.onBrowserWindowResize, this);
+				if (this.isWindowFixed && this._window) {
+					this._window.onPowerWindowResize.unsubscribe(this.onPowerWindowResize, this);
+				}
 			}
 		}
 		super.onRemove();
@@ -49,6 +52,9 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
+	subscribeToOnPowerWindowResize() {
+		this._window.onPowerWindowResize.subscribe(this.onPowerWindowResize, this);
+	}
 	subscribeToPowerWindowModeChange() {
 		this._window.powerWindowModeChange.subscribe(this.onPowerWindowModeChange, this);
 	}
@@ -65,6 +71,10 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.element.style.width = this._currentWidth;
 			this.element.style.height = this._currentHeight;
 		}
+	}
+
+	onPowerWindowResize() {
+		this.adjustBarSizeIfNeeded();
 	}
 
 	onBrowserWindowResize() {
@@ -227,6 +237,9 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 		this.broadcastFixedBarWhenSizeChange();
 		this.adjustBarSizeIfNeeded();
+		if (this.isWindowFixed && this._window) {
+			this._window.changeWindowBars();
+		}
 	}
 
 	removeStyles(keepWidth) {
@@ -372,6 +385,8 @@ class PowerSplitBar extends _PowerBarsBase {
 			return;
 		}
 
+		const minHeight = 30;
+
 		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		this.setInitialValues();
 
@@ -387,13 +402,13 @@ class PowerSplitBar extends _PowerBarsBase {
 			if (!height && this.topHeightIsTooBig(this.element.offsetHeight)) {
 				height = this.element.offsetHeight;
 			}
-			if (!height) return;
+			if (!height || height < minHeight) return;
 			this.setTopMenuSize(height);
 		} else if (this.barPosition === 'bottom') {
 			if (!height && this.bottomHeightIsTooBig(this.element.offsetHeight)) {
 				height = this.element.offsetHeight;
 			}
-			if (!height) return;
+			if (!height || height < minHeight) return;
 			this.setBottomMenuSize(height);
 		} else if (this.barPosition === 'left') {
 			if (!width) return;

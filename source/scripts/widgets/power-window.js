@@ -17,6 +17,7 @@ class PowerWindow extends PowerDialogBase {
 		this.totalHeight = 0;
 		this.powerWindowModeChange = new UEvent('powerWindowModeChange');
 		this.powerWindowStateChange = new UEvent('powerWindowStateChange');
+		this.onPowerWindowResize = new UEvent('onPowerWindowResize');
 		this.$powerUi.onFixedPowerSplitBarChange.subscribe(this.onFixedPowerSplitBarChange, this);
 	}
 
@@ -50,6 +51,9 @@ class PowerWindow extends PowerDialogBase {
 				_bar.bar._window = this;
 				if (_bar.bar.subscribeToPowerWindowModeChange) {
 					_bar.bar.subscribeToPowerWindowModeChange();
+				}
+				if (_bar.bar.subscribeToOnPowerWindowResize) {
+					_bar.bar.subscribeToOnPowerWindowResize();
 				}
 				this.windowBars.push(_bar);
 				if (_bar.bar.isToolbar) {
@@ -384,6 +388,7 @@ class PowerWindow extends PowerDialogBase {
 
 			this.avoidExceedingLimits();
 			this.setAllWindowElements();
+			this.onPowerWindowResize.broadcast();
 		}
 	}
 
