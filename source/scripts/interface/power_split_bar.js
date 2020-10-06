@@ -1,7 +1,7 @@
 class PowerSplitBar extends _PowerBarsBase {
 	constructor(menu, $powerUi) {
 		super(menu, $powerUi);
-		this.isMenu = true;
+		this.isSplitBar = true;
 		this.borderSize = 5;
 		this._currentHeight = null;
 		this._currentWidth = null;
@@ -165,7 +165,7 @@ class PowerSplitBar extends _PowerBarsBase {
 	onClick(fn, self) {
 		self.$powerUi.componentsManager.runObserverFewTimes(10);
 		setTimeout(function () {
-			self.adjustBarSizeIfNeeded();
+			self.adjustBarSizeIfNeeded(true);
 		}, 50);
 	}
 
@@ -236,7 +236,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.onMouseUp(e);
 		}
 		this.broadcastFixedBarWhenSizeChange();
-		this.adjustBarSizeIfNeeded();
+		this.adjustBarSizeIfNeeded(true);
 		if (this.isWindowFixed && this._window) {
 			this._window.changeWindowBars();
 		}
@@ -379,8 +379,8 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
-	adjustBarSizeIfNeeded() {
-		if (this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
+	adjustBarSizeIfNeeded(fromClick) {
+		if (!fromClick && this._window && this._window.currentBarBreakQuery === 'pw-bar-break') {
 			return;
 		}
 		if (this.$powerUi.componentsManager.smallWindowMode) {
@@ -388,7 +388,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			return;
 		}
 
-		const minHeight = 30;
+		const minHeight = 50;
 
 		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		this.setInitialValues();
@@ -450,7 +450,10 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	setBottomMenuSize(height) {
-		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
+		let maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
+		if (maxHeight < 0) {
+			maxHeight = -maxHeight;
+		}
 		if (this.bottomHeightIsTooBig(height)) {
 			height = maxHeight;
 		}

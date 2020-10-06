@@ -171,6 +171,7 @@ class ComponentsManager {
 		const self = this;
 		self.interval = self.interval || 10;
 
+
 		return setInterval(function () {
 			self.runObserver();
 			clearInterval(self._observerInterval);
@@ -183,6 +184,7 @@ class ComponentsManager {
 
 	startObserver() {
 		this.hasChange = false;
+		clearInterval(this._observerInterval);
 		this._observerInterval = this.observerInterval();
 	}
 
@@ -201,19 +203,17 @@ class ComponentsManager {
 				if (this.observing[key].isToolbar && this.observing[key].powerAction.element.offsetLeft > this.observing[key].element.offsetWidth) {
 					this.hasChange = true;
 				}
+
+				if (this.observing[key].isSplitBar && (
+					this.observing[key].barPosition === 'top' || this.observing[key].barPosition === 'bottom'
+					) && this.observing[key].adjustBarSizeIfNeeded) {
+					this.observing[key].adjustBarSizeIfNeeded();
+				}
 			}
 			if (this.hasChange && this.observing[key].setStatus) {
 				this.observing[key].setStatus();
 			}
-			// // Fix toolbar toggle if its out of the menu
-			// if (this.observing[key].isWindowFixed && this.observing[key].isToolbar && !this.observing[key]._$pwActive) {
-			// 	if (this.observing[key].lastTotalChildrenWidth && this.observing[key].lastTotalChildrenWidth >= currentWidth - this.observing[key].powerToggle.offsetWidth) {
-			// 		this.observing[key].setStatus();
-			// 	}
-			// 	if (currentWidth > this.observing[key]._window.bodyEl.offsetWidth) {
-			// 		this.observing[key]._window.changeWindowBars();
-			// 	}
-			// }
+
 			this.observing[key].lastWidth = currentWidth;
 			this.observing[key].lastHeight = currentHeight;
 		}
