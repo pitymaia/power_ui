@@ -380,9 +380,15 @@ class PowerSplitBar extends _PowerBarsBase {
 			height = parseInt(height.replace('px', ''));
 		}
 		if (this.barPosition === 'top') {
+			if (!height && this.topHeightIsTooBig(this.element.offsetHeight)) {
+				height = this.element.offsetHeight;
+			}
 			if (!height) return;
 			this.setTopMenuSize(height);
 		} else if (this.barPosition === 'bottom') {
+			if (!height && this.bottomHeightIsTooBig(this.element.offsetHeight)) {
+				height = this.element.offsetHeight;
+			}
 			if (!height) return;
 			this.setBottomMenuSize(height);
 		} else if (this.barPosition === 'left') {
@@ -394,22 +400,36 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 	}
 
+	topHeightIsTooBig(height) {
+		let titleBar = 0;
+		if (this.isFixed) {
+			titleBar = 40;
+		}
+		const result = this.ctx._currentHeight - (this.ctx.defaultMinHeight + titleBar) < this._initialTop + height + this.ctx.bottomTotalHeight;
+		return result;
+	}
+
 	setTopMenuSize(height) {
 		// Compesate for window title bar if there is some opened and maximized
 		let titleBar = 0;
 		if (this.isFixed) {
 			titleBar = 40;
 		}
-		if (this.ctx._currentHeight - (this.ctx.defaultMinHeight + titleBar) < this._initialTop + height + this.ctx.bottomTotalHeight) {
+		if (this.topHeightIsTooBig(height)) {
 			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - (this.ctx.defaultMinHeight + titleBar) - this.ctx.defaultBorderSize;
 		}
 		this._currentHeight = height + 'px';
 		this.element.style.height = this._currentHeight;
 	}
 
+	bottomHeightIsTooBig(height) {
+		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
+		return height > maxHeight;
+	}
+
 	setBottomMenuSize(height) {
 		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
-		if (height > maxHeight) {
+		if (this.bottomHeightIsTooBig(height)) {
 			height = maxHeight;
 		}
 		this._currentHeight = height + 'px';
