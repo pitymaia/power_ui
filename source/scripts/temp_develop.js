@@ -2493,7 +2493,7 @@ class RootScopeTemplate extends PowerTemplate {
 			// "mirrored": true,
 			"position": "fixed-top",
 			"ignore": true,
-			"priority": 16,
+			"priority": 40,
 			"items": [
 				{
 					"item": {

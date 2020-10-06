@@ -15,7 +15,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			window.removeEventListener("mousemove", this._changeMenuSize);
 			window.removeEventListener("mouseup", this._onMouseUp);
 			this.$powerUi._mouseIsDown = false;
-			if (this.isWindowFixed) {
+			if (this.pwSplit) {
 				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 				this.$powerUi.onBrowserWindowResize.unsubscribe(this.onBrowserWindowResize, this);
 			}
@@ -36,7 +36,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			this._changeMenuSize = this.changeMenuSize.bind(this);
 			this._onMouseUp = this.onMouseUp.bind(this);
 			this.$powerUi.windowModeChange.subscribe(this.onWindowModeChange, this);
-			this.$powerUi.onBrowserWindowResize.subscribe(this.onWindowModeChange, this);
+			this.$powerUi.onBrowserWindowResize.subscribe(this.onBrowserWindowResize, this);
 			this.subscribe({event: 'click', fn: this.onClick, bar: this});
 			this.setBorder();
 			this.addOnMouseBorderEvents();
@@ -53,7 +53,11 @@ class PowerSplitBar extends _PowerBarsBase {
 		this._window.powerWindowModeChange.subscribe(this.onPowerWindowModeChange, this);
 	}
 
+	// Only for powerWindow split bars
 	onPowerWindowModeChange() {
+		if (!this.element || !this._window) {
+			return;
+		}
 		if (this._window.currentBarBreakQuery === 'pw-bar-break') {
 			this.setSmallWindowModeSize();
 		} else {
@@ -64,11 +68,14 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	onBrowserWindowResize() {
+		this.ctx = (this.isWindowFixed === true && this._window !== undefined) ? this.getPowerWindowContext() : this.getBrowserWindowContext();
 		this.onPowerWindowModeChange();
+		this.adjustSizeWhenResize();
 	}
 
+	// Only for powerWindow split bars
 	onWindowModeChange() {
-		if (!this.element) {
+		if (!this.element || !this._window) {
 			return;
 		}
 		if (this.$powerUi.componentsManager.smallWindowMode) {
@@ -256,7 +263,7 @@ class PowerSplitBar extends _PowerBarsBase {
 			bottomTotalHeight: component.bottomTotalHeight,
 			leftTotalWidth: component.leftTotalWidth,
 			topTotalHeight: component.topTotalHeight,
-			defaultMinWidth: 250,
+			defaultMinWidth: 270,
 			defaultMinHeight: 150,
 			defaultBorderSize: 0,
 		};
@@ -271,11 +278,20 @@ class PowerSplitBar extends _PowerBarsBase {
 			bottomTotalHeight: this._window.bottomTotalHeight - (this._window._dialog.offsetTop - this._window.titleBarEl.offsetHeight),
 			leftTotalWidth: this._window.leftTotalWidth + this._window._dialog.offsetLeft,
 			topTotalHeight: this._window.topTotalHeight + this._window._dialog.offsetTop + this._window.bodyEl.offsetTop,
-			defaultMinWidth: this._window.defaultMinWidth,
+			defaultMinWidth: this._window.defaultMinWidth + 20,
 			defaultMinHeight: this._window.defaultMinHeight + this._window.defaultBorderSize,
 			defaultBorderSize: this._window.defaultBorderSize + 1,
 		};
 		return win;
+	}
+
+	setInitialValues() {
+		this._initialLeft = this.element.offsetLeft;
+		this._initialTop = this.element.offsetTop;
+		this._initialOffsetWidth = this.element.offsetWidth;
+		this._initialOffsetHeight = this.element.offsetHeight;
+		this._initialRightTotalWidthDiff = this.ctx.rightTotalWidth - this._initialOffsetWidth;
+		this._initialBottomTotalHeightDiff = this.ctx.bottomTotalHeight - this._initialOffsetHeight;
 	}
 
 	onMouseDownBorder(e) {
@@ -291,12 +307,7 @@ class PowerSplitBar extends _PowerBarsBase {
 		this.allowResize = true;
 		this._initialX = e.clientX;
 		this._initialY = e.clientY;
-		this._initialLeft = this.element.offsetLeft;
-		this._initialTop = this.element.offsetTop;
-		this._initialOffsetWidth = this.element.offsetWidth;
-		this._initialOffsetHeight = this.element.offsetHeight;
-		this._initialRightTotalWidthDiff = this.ctx.rightTotalWidth - this._initialOffsetWidth;
-		this._initialBottomTotalHeightDiff = this.ctx.bottomTotalHeight - this._initialOffsetHeight;
+		this.setInitialValues();
 
 		if (this.resizeRight && this.isOverRightBorder()) {
 			this.resizingRight = true;
@@ -348,9 +359,70 @@ class PowerSplitBar extends _PowerBarsBase {
 		}
 
 		if (this.isWindowFixed === true) {
-			// this._window.changeWindowBars();
 			this.$powerUi.componentsManager.setWindowFixedBarsSizeAndPosition(this._window.windowBars, this._window);
 		}
+	}
+
+	adjustSizeWhenResize() {
+		if (this.$powerUi.componentsManager.smallWindowMode) {
+			this.removeStyles();
+			return;
+		}
+
+		let width = this.element.style.width;
+		if (width) {
+			width = parseInt(width.replace('px', ''));
+			this.setInitialValues();
+		}
+		let height = this.element.style.height;
+		if (height) {
+			height = parseInt(height.replace('px', ''));
+			this.setInitialValues();
+		}
+		if (this.barPosition === 'top') {
+			this.setTopMenuSize(height);
+		} else if (this.barPosition === 'bottom') {
+			this.setBottomMenuSize(height);
+		} else if (this.barPosition === 'left') {
+			if (!width) return;
+			this.setLeftMenuSize(width);
+		} else if (this.barPosition === 'right') {
+			if (!width) return;
+			this.setRightMenuSize(width);
+		}
+	}
+
+	setTopMenuSize(height) {
+		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
+		if (height > maxHeight) {
+			height = maxHeight;
+		}
+		this._currentHeight = height + 'px';
+		this.element.style.height = this._currentHeight;
+	}
+
+	setBottomMenuSize(height) {
+		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
+			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight - this.ctx.defaultBorderSize;
+		}
+		this._currentHeight = height + 'px';
+		this.element.style.height = this._currentHeight;
+	}
+
+	setLeftMenuSize(width) {
+		if (this.ctx.leftTotalWidth + this.ctx.defaultMinWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
+			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - this.ctx.defaultMinWidth;
+		}
+		this._currentWidth = width + 'px';
+		this.element.style.width = this._currentWidth;
+	}
+
+	setRightMenuSize(width) {
+		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth) {
+			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - this.ctx.defaultMinWidth;
+		}
+		this._currentWidth = width + 'px';
+		this.element.style.width = this._currentWidth;
 	}
 
 	isOverRightBorder() {
@@ -358,13 +430,8 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeRightBorder(x) {
-		const minWidth = this.ctx.defaultMinWidth + 20;
 		let width = this._initialOffsetWidth + this._initialLeft + (x - this._initialX) - 10;
-		if (width + this.element.offsetLeft > this.ctx._currentWidth - this.ctx.rightTotalWidth - minWidth) {
-			width = this.ctx._currentWidth - this.element.offsetLeft - this.ctx.rightTotalWidth - minWidth;
-		}
-		this._currentWidth = width + 'px';
-		this.element.style.width = this._currentWidth;
+		this.setRightMenuSize(width);
 	}
 
 	isOverLeftBorder() {
@@ -372,13 +439,8 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	resizeLeftBorder(x) {
-		const minWidth = this.ctx.defaultMinWidth + 20;
 		let width = (this.element.offsetWidth - x);
-		if (this.ctx.leftTotalWidth + minWidth > this.ctx._currentWidth - width - this._initialRightTotalWidthDiff) {
-			width = this.ctx._currentWidth - this._initialRightTotalWidthDiff - this.ctx.leftTotalWidth - minWidth;
-		}
-		this._currentWidth = width + 'px';
-		this.element.style.width = this._currentWidth;
+		this.setLeftMenuSize(width);
 	}
 
 	isOverBottomBorder() {
@@ -387,11 +449,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	resizeBottomBorder(y) {
 		let height = this._initialOffsetHeight + this._initialTop + (y - this._initialY) - 10;
-		if (this.ctx._currentHeight - this.ctx.defaultMinHeight < this._initialTop + height + this.ctx.bottomTotalHeight) {
-			height = this.ctx._currentHeight - this._initialTop - this.ctx.bottomTotalHeight - this.ctx.defaultMinHeight - this.ctx.defaultBorderSize;
-		}
-		this._currentHeight = height + 'px';
-		this.element.style.height = this._currentHeight;
+		this.setBottomMenuSize(height);
 	}
 
 	isOverTopBorder() {
@@ -400,12 +458,7 @@ class PowerSplitBar extends _PowerBarsBase {
 
 	resizeTopBorder(y) {
 		let height = this.element.offsetHeight - y;
-		const maxHeight = this.ctx._currentHeight - (this._initialBottomTotalHeightDiff + this.ctx.topTotalHeight + this.ctx.defaultMinHeight);
-		if (height > maxHeight) {
-			height = maxHeight;
-		}
-		this._currentHeight = height + 'px';
-		this.element.style.height = this._currentHeight;
+		this.setTopMenuSize(height);
 	}
 
 	toggle() {
