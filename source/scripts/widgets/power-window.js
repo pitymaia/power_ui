@@ -596,10 +596,7 @@ class PowerWindow extends PowerDialogBase {
 	// Allow simulate midia queries with power-window
 	replaceWindowSizeQuery() {
 		let changeWindowQueryTo = this.currentWindowQuery;
-		let width = this._dialog.offsetWidth;
-		if (this.isMaximized) {
-			width = window.innerWidth;
-		}
+		let width = this.bodyEl.offsetWidth;
 
 		if (width <= 600) {
 			changeWindowQueryTo = 'pw-wsize-tinny';
