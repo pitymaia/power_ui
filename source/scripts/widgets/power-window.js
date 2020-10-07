@@ -479,6 +479,7 @@ class PowerWindow extends PowerDialogBase {
 			document.body.classList.add('window-is-maximized');
 		}
 		this.adjustWindowWithComponents();
+		// Run once to adjust bars and other elements
 		this.replaceSizeQueries();
 		this.changeWindowBars();
 		this.refreshWindowToolbars();
@@ -488,6 +489,8 @@ class PowerWindow extends PowerDialogBase {
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
 		this.$powerUi.componentsManager.restartObserver();
+		// Run final to adjust final positions after body change size
+		this.replaceSizeQueries();
 	}
 
 	restore(event, preventBroadcast) {
@@ -509,6 +512,7 @@ class PowerWindow extends PowerDialogBase {
 		this.saveWindowState();
 		this.removeWindowIsMaximizedFromBody();
 		this.adjustWindowWithComponents();
+		// Run once to adjust bars and other elements
 		this.replaceSizeQueries();
 		this.changeWindowBars();
 		this.refreshWindowToolbars();
@@ -518,6 +522,8 @@ class PowerWindow extends PowerDialogBase {
 			this.$powerUi.onPowerWindowChange.broadcast();
 		}
 		this.$powerUi.componentsManager.restartObserver();
+		// Run final to adjust final positions after body change size
+		this.replaceSizeQueries();
 	}
 
 	setBorderSizes() {
@@ -597,7 +603,6 @@ class PowerWindow extends PowerDialogBase {
 	replaceWindowSizeQuery() {
 		let changeWindowQueryTo = this.currentWindowQuery;
 		let width = this.bodyEl.offsetWidth;
-
 		if (width <= 600) {
 			changeWindowQueryTo = 'pw-wsize-tinny';
 		} else if (width >= 601 && width <= 900) {
