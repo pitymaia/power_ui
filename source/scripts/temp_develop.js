@@ -3029,7 +3029,7 @@ class RootScope extends PowerController {
 
 class MenuWindowTemplate extends PowerTemplate {
 	template(resolve) {
-		const template = `<nav id="split-menu2" data-pw-priority="1" data-pw-border="6" class="power-split-bar pw-red-white pw-bar ppw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-right">
+		let template = `<nav id="split-menu2" data-pw-priority="10" data-pw-border="6" class="power-split-bar pw-red-white pw-bar pw-ignore pw-colapse pw-vertical pw-bar-window-fixed pw-split pw-right">
 		    <a class="power-toggle" id="toggle-3445" data-power-target="split-menu2">
 		        <i class="pw-icon icon-hamburguer"></i>
 		    </a>
@@ -3214,6 +3214,90 @@ class MenuWindowTemplate extends PowerTemplate {
 		    </div>
 		</nav>
 		<h1>Split Menu on Window!</h1>`;
+
+		const tree = {
+			// "classList": ["custom-tree"],
+			"id": 'my-fine-tree',
+			// "onClickFile": "clickTree",
+			"nodes": [
+				{
+					"name": "test",
+					"fullName": "test",
+					"extension": "",
+					"path": "/home/andre/test",
+					"kind": "folder",
+					"nodes": [
+						{
+							"name": "media",
+							"fullName": "media",
+							"extension": "",
+							"path": "/home/andre/test/media",
+							"kind": "folder",
+							"nodes": [
+								{
+									"name": "brand",
+									"fullName": "brand.png",
+									"icon": "icon-disc-front",
+									"extension": ".png",
+									"path": "/home/andre/test/media/brand.png",
+									"kind": "file"
+								},
+							]
+						},
+					]
+				},
+				{
+					"name": "frontpage",
+					"fullName": "frontpage.js",
+					"extension": ".js",
+					"path": "/home/andre/frontpage.js",
+					"kind": "file",
+				},
+				{
+					"name": "scripts",
+					"fullName": "scripts",
+					"extension": "",
+					"path": "/home/andre/scripts",
+					"kind": "folder",
+					"nodes": [
+						{
+							"name": "index",
+							"fullName": "index.js",
+							"extension": ".js",
+							"path": "/home/andre/scripts/index.js",
+							"kind": "file",
+						},
+						{
+							"name": "zendex",
+							"fullName": "zendex.html",
+							"extension": ".html",
+							"path": "/home/andre/scripts/zendex.html",
+							"kind": "file",
+						},
+					]
+				},
+				{
+					"name": "default-template",
+					"fullName": "default-template.html",
+					"extension": ".html",
+					"path": "/home/andre/default-template.html",
+					"kind": "file",
+				}
+			]
+		};
+
+		const content = this.$service('JSONSchema').tree(tree);
+
+		const splitbar = {
+			"classList": ["pw-orange-white"],
+			"position": "fixed-window-left",
+			"id": 'my-split-schema-1',
+			"content": content,
+			"priority": '20',
+		};
+
+		template = template + this.$service('JSONSchema').splitbar(splitbar);
+
 		resolve(template);
 	}
 }

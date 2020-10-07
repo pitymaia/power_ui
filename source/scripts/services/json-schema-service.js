@@ -750,6 +750,71 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
+	splitbar(_splitbar) {
+		// Do not change the original JSON
+		const splitbar = this.cloneObject(_splitbar);
+		// This allow pass an array of menus
+		if (_splitbar.length) {
+			return this._arrayOfSchemas(_splitbar, 'splitbar');
+		} else if (_splitbar.$ref) {
+			// Use the original JSON
+			return this.splitbar(this.getNewJSON(_splitbar));
+		} else {
+			if (_splitbar.$id) {
+				// Register original JSON
+				this.registerJSONById(_splitbar);
+			}
+
+			// if (this._validate(this.splitbarDef(), splitbar) === false) {
+			// 	window.console.log('Failed JSON splitbar:', splitbar);
+			// 	throw 'Failed JSON splitbar!';
+			// }
+			if (splitbar.events) {
+				const result = this._validateEvents(splitbar.events, splitbar, 'splitbar');
+				if ( result !== true) {
+					throw result;
+				}
+			}
+
+			if (!splitbar.orientation) {
+				if (!splitbar.position || splitbar.position.includes('top') || splitbar.position.includes('bottom')) {
+					splitbar.orientation = 'horizontal';
+				} else {
+					splitbar.orientation = 'vertical';
+				}
+			}
+
+			if (!splitbar.classList) {
+				splitbar.classList = [];
+			}
+
+			splitbar.classList.push('power-split-bar pw-bar pw-split');
+
+			// The nav bar
+			const tmpEl = document.createElement('div');
+			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(splitbar)}><div class="pw-menu-content">${splitbar.content}</div></nav>`;
+
+			const splitbarEl = tmpEl.children[0];
+			// Set splitbar css styles
+			this._setBarCssStyles(splitbar, splitbarEl);
+
+			this._setBarOrientation(splitbar, splitbarEl);
+
+			// Add hamburger menu toggle
+			if (splitbar.colapse !== false) {
+				splitbarEl.classList.add('pw-colapse');
+				const hamburgerHolderEl = document.createElement('div');
+				hamburgerHolderEl.innerHTML = `<a id="${splitbar.id}-action" class="power-toggle" data-power-target="${splitbar.id}">
+					<i class="pw-icon icon-hamburguer"></i>
+				</a>`;
+				const hamburgerEl = hamburgerHolderEl.children[0];
+				splitbarEl.appendChild(hamburgerEl);
+			}
+
+			return tmpEl.innerHTML;
+		}
+	}
+
 	_buildbarEl(bar, mirrored, flip) {
 		const tmpEl = document.createElement('div');
 		tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(bar)} ${mirrored === true ? ' pw-mirrored' : ''} data-pw-position="${bar.dropMenuPosition}"></nav>`;
