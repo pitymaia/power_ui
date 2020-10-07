@@ -765,10 +765,10 @@ class JSONSchemaService extends PowerServices {
 				this.registerJSONById(_splitbar);
 			}
 
-			// if (this._validate(this.splitbarDef(), splitbar) === false) {
-			// 	window.console.log('Failed JSON splitbar:', splitbar);
-			// 	throw 'Failed JSON splitbar!';
-			// }
+			if (this._validate(this.splitbarDef(), splitbar) === false) {
+				window.console.log('Failed JSON splitbar:', splitbar);
+				throw 'Failed JSON splitbar!';
+			}
 			if (splitbar.events) {
 				const result = this._validateEvents(splitbar.events, splitbar, 'splitbar');
 				if ( result !== true) {
@@ -792,7 +792,7 @@ class JSONSchemaService extends PowerServices {
 
 			// The nav bar
 			const tmpEl = document.createElement('div');
-			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(splitbar)}><div class="pw-menu-content">${splitbar.content}</div></nav>`;
+			tmpEl.innerHTML = `<nav ${this._getHtmlBasicTmpl(splitbar)} ${splitbar.border ? 'data-pw-border="' + splitbar.border + '" ' : ''}><div class="pw-bar-content">${splitbar.content}</div></nav>`;
 
 			const splitbarEl = tmpEl.children[0];
 			// Set splitbar css styles
@@ -1840,6 +1840,27 @@ class JSONSchemaService extends PowerServices {
 				}
 			},
 			"required": ["id"]
+		};
+	}
+
+	splitbarDef() {
+		return {
+			"$schema": "http://json-schema.org/draft-07/schema#",
+			"$id": "#/schema/draft-07/splitbar",
+			"type": "object",
+			"properties": {
+				"$id": {"type": "string"},
+				"$ref": {"type": "string"},
+				"id": {"type": "string"},
+				"classList": {"type": "array"},
+				"orientation": {"type": "string"},
+				"position": {"type": "string"},
+				"priority": {"type": "number"},
+				"border": {"type": "number"},
+				"ignore": {"type": "boolean"},
+				"content": {"type": "string"},
+			},
+			"required": ["id", "content"]
 		};
 	}
 

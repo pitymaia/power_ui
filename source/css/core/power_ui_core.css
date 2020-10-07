@@ -104,14 +104,14 @@ body, html {
         border-top-style: none;
     }
 
-    .pw-bar-break .power-split-bar.pw-bar.pw-horizontal.pw-colapse.power-active:not(.pw-bar-fixed) .pw-menu-content,
-    .pw-bar-break .power-split-bar.pw-bar.pw-vertical.pw-colapse.power-active:not(.pw-bar-fixed) .pw-menu-content  {
+    .pw-bar-break .power-split-bar.pw-bar.pw-horizontal.pw-colapse.power-active:not(.pw-bar-fixed) .pw-bar-content,
+    .pw-bar-break .power-split-bar.pw-bar.pw-vertical.pw-colapse.power-active:not(.pw-bar-fixed) .pw-bar-content  {
         display: block;
         width: max-content;
     }
 
-    .pw-bar-break .power-split-bar.pw-bar.pw-horizontal.pw-colapse:not(.pw-bar-fixed) .pw-menu-content,
-    .pw-bar-break .power-split-bar.pw-bar.pw-vertical.pw-colapse:not(.pw-bar-fixed) .pw-menu-content {
+    .pw-bar-break .power-split-bar.pw-bar.pw-horizontal.pw-colapse:not(.pw-bar-fixed) .pw-bar-content,
+    .pw-bar-break .power-split-bar.pw-bar.pw-vertical.pw-colapse:not(.pw-bar-fixed) .pw-bar-content {
         display: none;
     }
 /* power menu-break query*/
@@ -232,8 +232,8 @@ body, html {
     .pw-bar.pw-horizontal.pw-colapse.power-active .power-item,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-action,
     .pw-bar.pw-vertical.pw-colapse.power-active .power-item,
-    .power-split-bar.pw-bar.pw-horizontal.pw-colapse.power-active .pw-menu-content,
-    .power-split-bar.pw-bar.pw-vertical.pw-colapse.power-active .pw-menu-content  {
+    .power-split-bar.pw-bar.pw-horizontal.pw-colapse.power-active .pw-bar-content,
+    .power-split-bar.pw-bar.pw-vertical.pw-colapse.power-active .pw-bar-content  {
         display: block;
         width: max-content;
     }
@@ -250,8 +250,8 @@ body, html {
     .pw-bar.pw-horizontal.pw-colapse .power-item,
     .pw-bar.pw-vertical.pw-colapse .power-action,
     .pw-bar.pw-vertical.pw-colapse .power-item,
-    .power-split-bar.pw-bar.pw-horizontal.pw-colapse .pw-menu-content,
-    .power-split-bar.pw-bar.pw-vertical.pw-colapse .pw-menu-content {
+    .power-split-bar.pw-bar.pw-horizontal.pw-colapse .pw-bar-content,
+    .power-split-bar.pw-bar.pw-vertical.pw-colapse .pw-bar-content {
         display: none;
     }
 

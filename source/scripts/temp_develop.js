@@ -3033,7 +3033,7 @@ class MenuWindowTemplate extends PowerTemplate {
 		    <a class="power-toggle" id="toggle-3445" data-power-target="split-menu2">
 		        <i class="pw-icon icon-hamburguer"></i>
 		    </a>
-		    <div class="pw-menu-content">
+		    <div class="pw-bar-content">
 		        <nav class="power-tree-view">
 		        	<a class="power-list" data-power-target="timem66">
 		        	    <span class="power-status pw-icon icon-folder-close"
@@ -3278,9 +3278,9 @@ class MenuWindowTemplate extends PowerTemplate {
 				},
 				{
 					"name": "default-template",
-					"fullName": "default-template.html",
+					"fullName": "default.html",
 					"extension": ".html",
-					"path": "/home/andre/default-template.html",
+					"path": "/home/andre/default.html",
 					"kind": "file",
 				}
 			]
@@ -3293,7 +3293,8 @@ class MenuWindowTemplate extends PowerTemplate {
 			"position": "fixed-window-left",
 			"id": 'my-split-schema-1',
 			"content": content,
-			"priority": '20',
+			"priority": 20,
+			"border": 6,
 		};
 
 		template = template + this.$service('JSONSchema').splitbar(splitbar);
