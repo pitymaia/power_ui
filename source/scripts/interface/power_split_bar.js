@@ -246,11 +246,9 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	removeStyles(keepWidth) {
-		if (!this.element || window.innerWidth < 768) {
-			if (this.isFixed && (this.barPosition === 'top' || this.barPosition === 'bottom')) {
-				this.element.style['max-height'] = '50%';
-				this.element.style.height = null;
-			}
+		if (!this.element || (window.innerWidth < 768 && this.isFixed && (this.barPosition === 'top' || this.barPosition === 'bottom'))) {
+			this.element.style['max-height'] = '50%';
+			this.element.style.height = null;
 			return;
 		}
 		if (!keepWidth) {
