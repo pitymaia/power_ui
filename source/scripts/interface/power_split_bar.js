@@ -146,6 +146,9 @@ class PowerSplitBar extends _PowerBarsBase {
 			this.element.style.height = height + 'px';
 			this.element.style['min-height'] = height + 'px';
 			this.element.style['max-width'] = width + 'px';
+		} else {
+			this.element.style.height = '100%';
+			this.element.style['max-height'] = '100%';
 		}
 	}
 	// Size when menu is colapsed
@@ -243,17 +246,24 @@ class PowerSplitBar extends _PowerBarsBase {
 	}
 
 	removeStyles(keepWidth) {
-		if (!this.element) {
-			 return;
+		if (!this.element || window.innerWidth < 768) {
+			if (this.isFixed && (this.barPosition === 'top' || this.barPosition === 'bottom')) {
+				this.element.style['max-height'] = '50%';
+				this.element.style.height = null;
+			}
+			return;
 		}
 		if (!keepWidth) {
 			this.element.style.width = null;
 		}
+		this.element.style['min-width'] = null;
+		this.element.style['max-width'] = null;
+		if (this.isFixed && (this.barPosition === 'left' || this.barPosition === 'right')) {
+			return;
+		}
 		this.element.style.height = null;
 		this.element.style['min-height'] = null;
 		this.element.style['max-height'] = null;
-		this.element.style['min-width'] = null;
-		this.element.style['max-width'] = null;
 	}
 
 	onMouseOutBorder(e) {
@@ -424,9 +434,15 @@ class PowerSplitBar extends _PowerBarsBase {
 			if (!height || height < minHeight) return;
 			this.setBottomMenuSize(height);
 		} else if (this.barPosition === 'left') {
+			if (this.isWindowFixed && this._window) {
+				this.element.style.height = this._window.bodyEl.offsetHeight - this._window.defaultBorderSize - 1 + 'px';
+			}
 			if (!width) return;
 			this.setLeftMenuSize(width);
 		} else if (this.barPosition === 'right') {
+			if (this.isWindowFixed && this._window) {
+				this.element.style.height = this._window.bodyEl.offsetHeight - this._window.defaultBorderSize - 1 + 'px';
+			}
 			if (!width) return;
 			this.setRightMenuSize(width);
 		}

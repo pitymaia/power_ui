@@ -491,6 +491,7 @@ class PowerWindow extends PowerDialogBase {
 		this.$powerUi.componentsManager.restartObserver();
 		// Run final to adjust final positions after body change size
 		this.replaceSizeQueries();
+		this.onPowerWindowResize.broadcast();
 	}
 
 	restore(event, preventBroadcast) {
@@ -524,6 +525,7 @@ class PowerWindow extends PowerDialogBase {
 		this.$powerUi.componentsManager.restartObserver();
 		// Run final to adjust final positions after body change size
 		this.replaceSizeQueries();
+		this.onPowerWindowResize.broadcast();
 	}
 
 	setBorderSizes() {
