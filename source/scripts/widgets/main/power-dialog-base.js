@@ -189,6 +189,7 @@ class PowerDialogBase extends PowerWidget {
 	template({$title}) {
 		// This allow the user define a this.$title on controller constructor, otherwise use the route title
 		this.$title = this.$title || $title;
+		const buttons = this.$buttons();
 		return `<div class="pw-title-bar">
 					<span class="pw-title-bar-label">${this.$title}</span>
 					<div data-pow-event onclick="_cancel()" class="pw-bt-dialog-title pw-icon icon-cancel-black"></div>
@@ -198,9 +199,7 @@ class PowerDialogBase extends PowerWidget {
 				<div class="pw-body">
 					<div class="pw-container" data-pw-content>
 					</div>
-					<div class="pw-container">
-						${this.$buttons()}
-					</div>
+					${buttons ? '<div class="pw-container">' + buttons + '</div>' : ''}
 				</div>`;
 	}
 }
