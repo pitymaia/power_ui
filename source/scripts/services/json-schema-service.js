@@ -788,7 +788,10 @@ class JSONSchemaService extends PowerServices {
 				splitbar.classList = [];
 			}
 
-			splitbar.classList.push('power-split-bar pw-bar pw-split');
+			splitbar.classList.push('power-split-bar pw-bar');
+			if (splitbar.resize !== false) {
+				splitbar.classList.push('pw-split');
+			}
 
 			// The nav bar
 			const tmpEl = document.createElement('div');
@@ -1858,6 +1861,7 @@ class JSONSchemaService extends PowerServices {
 				"priority": {"type": "number"},
 				"border": {"type": "number"},
 				"ignore": {"type": "boolean"},
+				"resize": {"type": "boolean"},
 				"content": {"type": "string"},
 			},
 			"required": ["id", "content"]
