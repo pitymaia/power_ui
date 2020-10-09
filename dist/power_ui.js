@@ -5587,6 +5587,7 @@ class Router {
 		}
 		// Avoid blink uninterpolated data before call compile and interpolate
 		const app = document.getElementById('app-container');
+		app.classList.add('pw-show-spinner');
 		app.style.opacity = 0;
 	}
 
@@ -5601,6 +5602,7 @@ class Router {
 		}
 		// Avoid blink uninterpolated data before call compile and interpolate
 		const app = document.getElementById('app-container');
+		app.classList.remove('pw-show-spinner');
 		app.style.opacity = 1;
 	}
 
