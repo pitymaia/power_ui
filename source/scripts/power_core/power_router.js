@@ -687,7 +687,6 @@ class Router {
 
 	setNewRoutesAndbuildOrderedRoutesToLoad() {
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
-		console.log('currentRoutesTree', currentRoutesTree);
 		// First mach any main route and its children
 		this.setMainRouteAndAddToOrderedRoutesToLoad(currentRoutesTree);
 		// Second mach any secundary route and its children
@@ -746,6 +745,8 @@ class Router {
 			this.removeSpinnerAndShowContent();
 		}
 		this.engineIsRunning = true;
+		const routesToRunOnBeforeClose = this.getRoutesToRunOnBeforeClose();
+		// console.log('routesToRunOnBeforeClose', routesToRunOnBeforeClose);
 		this.orderedRoutesToOpen = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
@@ -1114,6 +1115,87 @@ class Router {
 		if (modals && modals.length === 0) {
 			document.body.classList.remove('modal-open');
 		}
+	}
+
+	recursivelyGetChildrenRoutesToRunOnBeforeClose(currentRoute, routesList) {
+		const route = this.matchRouteAndGetIdAndParamKeys(currentRoute);
+		routesList.push(route);
+		if (currentRoute.childRoute) {
+			this.recursivelyGetChildrenRoutesToRunOnBeforeClose(currentRoute.childRoute, routesList);
+		}
+	}
+
+	addRouteToRoutesToClose(routesToClose, oldRoutesList, currentRoutesList) {
+		for (const route of oldRoutesList) {
+			const thisRoute = currentRoutesList.find(r=> r.routeId === route.id);
+			if (thisRoute === undefined) {
+				const ctrl = this.$powerUi.getRouteCtrl(route.id);
+				if (ctrl && !ctrl.onBeforeClose) {
+					routesToClose.push(ctrl);
+				}
+			}
+		}
+	}
+
+	// Return a list of routes that are closing and have onBeforeRoute method
+	getRoutesToRunOnBeforeClose() {
+		const routesToClose = [];
+		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
+		// First check main route
+		const mainRoute = this.matchRouteAndGetIdAndParamKeys(currentRoutesTree.mainRoute);
+		// Will keep the route and only apply commands
+		if (this.oldRoutes.id !== mainRoute.routeId) {
+			const mainCtrl = this.$powerUi.getRouteCtrl(this.oldRoutes.id);
+			if (mainCtrl && mainCtrl.onBeforeClose) {
+				routesToClose.push(mainCtrl);
+			}
+			for (const child of this.oldRoutes.mainChildRoutes) {
+				const childCtrl = this.$powerUi.getRouteCtrl(child.id);
+				if (childCtrl && childCtrl.onBeforeClose) {
+					routesToClose.push(childCtrl);
+				}
+			}
+		} else if (this.oldRoutes.mainChildRoutes.length) {
+			// Only check chidren if not removing the role main route with it childrens
+			// Build a list with the current childrens to compare with old childrens
+			const currentChildrens = [];
+			this.recursivelyGetChildrenRoutesToRunOnBeforeClose(currentRoutesTree.mainRoute.childRoute, currentChildrens);
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.mainChildRoutes, currentChildrens);
+		}
+
+		// Secundary and secundary children routes
+		const currentSecundaryRoutes = [];
+		const currentSecundaryChildRoutes = [];
+		for (const route of currentRoutesTree.secundaryRoutes) {
+			const secRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			currentSecundaryRoutes.push(secRoute);
+			if (secRoute.childRoute) {
+				this.recursivelyGetChildrenRoutesToRunOnBeforeClose(secRoute.childRoute, currentSecundaryChildRoutes);
+			}
+		}
+		this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secundaryRoutes, currentSecundaryRoutes);
+		// Children
+		if (this.oldRoutes.secundaryChildRoutes.length) {
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secundaryChildRoutes, currentSecundaryChildRoutes);
+		}
+
+		// Hidden and hidden children routes
+		const currentHiddenRoutes = [];
+		const currentHiddenChildRoutes = [];
+		for (const route of currentRoutesTree.hiddenRoutes) {
+			const hiddenRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			currentHiddenRoutes.push(hiddenRoute);
+			if (hiddenRoute.childRoute) {
+				this.recursivelyGetChildrenRoutesToRunOnBeforeClose(hiddenRoute.childRoute, currentHiddenChildRoutes);
+			}
+		}
+		this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.hiddenRoutes, currentHiddenRoutes);
+		// Children
+		if (this.oldRoutes.hiddenChildRoutes.length) {
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.hiddenChildRoutes, currentHiddenChildRoutes);
+		}
+
+		return routesToClose;
 	}
 
 	buildOrderedRoutesToClose() {
