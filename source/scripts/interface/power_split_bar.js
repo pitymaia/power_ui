@@ -16,9 +16,9 @@ class PowerSplitBar extends _PowerBarsBase {
 			window.removeEventListener("mouseup", this._onMouseUp);
 			this.$powerUi._mouseIsDown = false;
 			if (this.pwSplit) {
-				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 				this.$powerUi.onBrowserWindowResize.unsubscribe(this.onBrowserWindowResize, this);
 				if (this.isWindowFixed && this._window) {
+					this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 					this._window.onPowerWindowResize.unsubscribe(this.onPowerWindowResize, this);
 				}
 			}
