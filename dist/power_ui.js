@@ -5879,17 +5879,20 @@ class Router {
 			this.removeSpinnerAndShowContent();
 		}
 		this.engineIsRunning = true;
+
+		const routesToRunOnBeforeClose = this.getRoutesToRunOnBeforeClose();
+		const abort = await this.resolveWhenListIsPopulated(
+			this.runBeforeCloseInOrder, routesToRunOnBeforeClose, 0, this);
+		if (abort === 'abort') {
+			this.abortCicle();
+			return;
+		}
+
 		this.orderedRoutesToOpen = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
 		this.engineCommands.buildOtherCicleCommands();
-		const abort = await this.resolveWhenListIsPopulated(
-			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
-		if (abort === 'abort') {
-			this.abortCicle();
-			return;
-		}
 		this.clearPhantomRouter();
 		await this.resolveWhenListIsPopulated(
 			this.removeViewInOrder, this.orderedRoutesToClose, 0, this);
@@ -5984,33 +5987,60 @@ class Router {
 		}
 	}
 
-	runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToClose[routeIndex];
-		if (!route) {
+	// THIS OLD VERSION FOLLOW THE PATTER OF ALL OTHER CICLE METHODS
+	// runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+	// 	const route = orderedRoutesToClose[routeIndex];
+	// 	if (!route) {
+	// 		return	_resolve();
+	// 	}
+	// 	// Run the controller onBeforeClose
+	// 	if (route.commands.runBeforeClose === true &&
+	// 		ctx.$powerUi.controllers[route.viewId] &&
+	// 		ctx.$powerUi.controllers[route.viewId].instance &&
+	// 		ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose) {
+	// 		const result = ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose();
+	// 		if (result && result.then) {
+	// 			result.then(function (response) {
+	// 				ctx.callNextLinkWhenReady(
+	// 					ctx.runBeforeCloseInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	// 			}).catch(function (error) {
+	// 				_resolve('abort');
+	// 				if (error) {
+	// 					window.console.log('Error running onBeforeClose: ', route.routeId, error);
+	// 				}
+	// 			});
+	// 		} else {
+	// 			ctx.runBeforeCloseInOrder(
+	// 				orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	// 		}
+	// 	} else {
+	// 		ctx.runBeforeCloseInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	// 	}
+	// }
+	runBeforeCloseInOrder(routesToRunOnBeforeClose, routeIndex, ctx, _resolve) {
+		const ctrl = routesToRunOnBeforeClose[routeIndex];
+		if (!ctrl) {
 			return	_resolve();
 		}
-		// Run the controller beforeClose
-		if (route.commands.runBeforeClose === true &&
-			ctx.$powerUi.controllers[route.viewId] &&
-			ctx.$powerUi.controllers[route.viewId].instance &&
-			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
-			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
+		// Run the controller onBeforeClose
+		if (ctrl.onBeforeClose) {
+			const result = ctrl.onBeforeClose();
 			if (result && result.then) {
 				result.then(function (response) {
 					ctx.callNextLinkWhenReady(
-						ctx.runBeforeCloseInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+						ctx.runBeforeCloseInOrder, routesToRunOnBeforeClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					_resolve('abort');
 					if (error) {
-						window.console.log('Error running beforeClose: ', route.routeId, error);
+						window.console.log('Error running onBeforeClose: ', ctrl.routeId, error);
 					}
 				});
 			} else {
 				ctx.runBeforeCloseInOrder(
-					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+					routesToRunOnBeforeClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			ctx.runBeforeCloseInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			ctx.runBeforeCloseInOrder(routesToRunOnBeforeClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -6247,6 +6277,87 @@ class Router {
 		if (modals && modals.length === 0) {
 			document.body.classList.remove('modal-open');
 		}
+	}
+
+	recursivelyGetChildrenRoutesToRunOnBeforeClose(currentRoute, routesList) {
+		const route = this.matchRouteAndGetIdAndParamKeys(currentRoute);
+		routesList.push(route);
+		if (currentRoute.childRoute) {
+			this.recursivelyGetChildrenRoutesToRunOnBeforeClose(currentRoute.childRoute, routesList);
+		}
+	}
+
+	addRouteToRoutesToClose(routesToClose, oldRoutesList, currentRoutesList) {
+		for (const route of oldRoutesList) {
+			const thisRoute = currentRoutesList.find(r=> r.routeId === route.id);
+			if (thisRoute === undefined) {
+				const ctrl = this.$powerUi.getRouteCtrl(route.id);
+				if (ctrl && ctrl.onBeforeClose) {
+					routesToClose.push(ctrl);
+				}
+			}
+		}
+	}
+
+	// Return a list of routes that are closing and have onBeforeRoute method
+	getRoutesToRunOnBeforeClose() {
+		const routesToClose = [];
+		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
+		// First check main route
+		const mainRoute = this.matchRouteAndGetIdAndParamKeys(currentRoutesTree.mainRoute);
+		// Will keep the route and only apply commands
+		if (this.oldRoutes.id !== mainRoute.routeId) {
+			const mainCtrl = this.$powerUi.getRouteCtrl(this.oldRoutes.id);
+			if (mainCtrl && mainCtrl.onBeforeClose) {
+				routesToClose.push(mainCtrl);
+			}
+			for (const child of this.oldRoutes.mainChildRoutes) {
+				const childCtrl = this.$powerUi.getRouteCtrl(child.id);
+				if (childCtrl && childCtrl.onBeforeClose) {
+					routesToClose.push(childCtrl);
+				}
+			}
+		} else if (this.oldRoutes.mainChildRoutes.length) {
+			// Only check chidren if not removing the role main route with it childrens
+			// Build a list with the current childrens to compare with old childrens
+			const currentChildrens = [];
+			this.recursivelyGetChildrenRoutesToRunOnBeforeClose(currentRoutesTree.mainRoute.childRoute, currentChildrens);
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.mainChildRoutes, currentChildrens);
+		}
+
+		// Secundary and secundary children routes
+		const currentSecundaryRoutes = [];
+		const currentSecundaryChildRoutes = [];
+		for (const route of currentRoutesTree.secundaryRoutes) {
+			const secRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			currentSecundaryRoutes.push(secRoute);
+			if (secRoute.childRoute) {
+				this.recursivelyGetChildrenRoutesToRunOnBeforeClose(secRoute.childRoute, currentSecundaryChildRoutes);
+			}
+		}
+		this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secundaryRoutes, currentSecundaryRoutes);
+		// Children
+		if (this.oldRoutes.secundaryChildRoutes.length) {
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secundaryChildRoutes, currentSecundaryChildRoutes);
+		}
+
+		// Hidden and hidden children routes
+		const currentHiddenRoutes = [];
+		const currentHiddenChildRoutes = [];
+		for (const route of currentRoutesTree.hiddenRoutes) {
+			const hiddenRoute = this.matchRouteAndGetIdAndParamKeys(route);
+			currentHiddenRoutes.push(hiddenRoute);
+			if (hiddenRoute.childRoute) {
+				this.recursivelyGetChildrenRoutesToRunOnBeforeClose(hiddenRoute.childRoute, currentHiddenChildRoutes);
+			}
+		}
+		this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.hiddenRoutes, currentHiddenRoutes);
+		// Children
+		if (this.oldRoutes.hiddenChildRoutes.length) {
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.hiddenChildRoutes, currentHiddenChildRoutes);
+		}
+
+		return routesToClose;
 	}
 
 	buildOrderedRoutesToClose() {
@@ -11812,9 +11923,9 @@ class PowerSplitBar extends _PowerBarsBase {
 			window.removeEventListener("mouseup", this._onMouseUp);
 			this.$powerUi._mouseIsDown = false;
 			if (this.pwSplit) {
-				this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 				this.$powerUi.onBrowserWindowResize.unsubscribe(this.onBrowserWindowResize, this);
 				if (this.isWindowFixed && this._window) {
+					this._window.powerWindowModeChange.unsubscribe(this.onPowerWindowModeChange, this);
 					this._window.onPowerWindowResize.unsubscribe(this.onPowerWindowResize, this);
 				}
 			}
