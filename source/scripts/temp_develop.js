@@ -398,6 +398,9 @@ class SecundaryChildOfChildCtrl2 extends PowerController {
 	ctrl() {
 		this.pity = 'Pity is here!';
 	}
+	onBeforeClose() {
+		console.log('RODOU onBeforeClose');
+	}
 }
 
 class PowerMainTemplate extends PowerTemplate {

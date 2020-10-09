@@ -745,19 +745,20 @@ class Router {
 			this.removeSpinnerAndShowContent();
 		}
 		this.engineIsRunning = true;
+
 		const routesToRunOnBeforeClose = this.getRoutesToRunOnBeforeClose();
-		// console.log('routesToRunOnBeforeClose', routesToRunOnBeforeClose);
+		const abort = await this.resolveWhenListIsPopulated(
+			this.runBeforeCloseInOrder, routesToRunOnBeforeClose, 0, this);
+		if (abort === 'abort') {
+			this.abortCicle();
+			return;
+		}
+
 		this.orderedRoutesToOpen = $root ? [$root] : [];
 		this.orderedRoutesToClose = [];
 		this.setNewRoutesAndbuildOrderedRoutesToLoad();
 		this.buildOrderedRoutesToClose();
 		this.engineCommands.buildOtherCicleCommands();
-		const abort = await this.resolveWhenListIsPopulated(
-			this.runBeforeCloseInOrder, this.orderedRoutesToClose, 0, this);
-		if (abort === 'abort') {
-			this.abortCicle();
-			return;
-		}
 		this.clearPhantomRouter();
 		await this.resolveWhenListIsPopulated(
 			this.removeViewInOrder, this.orderedRoutesToClose, 0, this);
@@ -852,33 +853,60 @@ class Router {
 		}
 	}
 
-	runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
-		const route = orderedRoutesToClose[routeIndex];
-		if (!route) {
+	// THIS OLD VERSION FOLLOW THE PATTER OF ALL OTHER CICLE METHODS
+	// runBeforeCloseInOrder(orderedRoutesToClose, routeIndex, ctx, _resolve) {
+	// 	const route = orderedRoutesToClose[routeIndex];
+	// 	if (!route) {
+	// 		return	_resolve();
+	// 	}
+	// 	// Run the controller onBeforeClose
+	// 	if (route.commands.runBeforeClose === true &&
+	// 		ctx.$powerUi.controllers[route.viewId] &&
+	// 		ctx.$powerUi.controllers[route.viewId].instance &&
+	// 		ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose) {
+	// 		const result = ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose();
+	// 		if (result && result.then) {
+	// 			result.then(function (response) {
+	// 				ctx.callNextLinkWhenReady(
+	// 					ctx.runBeforeCloseInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	// 			}).catch(function (error) {
+	// 				_resolve('abort');
+	// 				if (error) {
+	// 					window.console.log('Error running onBeforeClose: ', route.routeId, error);
+	// 				}
+	// 			});
+	// 		} else {
+	// 			ctx.runBeforeCloseInOrder(
+	// 				orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	// 		}
+	// 	} else {
+	// 		ctx.runBeforeCloseInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+	// 	}
+	// }
+	runBeforeCloseInOrder(routesToRunOnBeforeClose, routeIndex, ctx, _resolve) {
+		const ctrl = routesToRunOnBeforeClose[routeIndex];
+		if (!ctrl) {
 			return	_resolve();
 		}
 		// Run the controller onBeforeClose
-		if (route.commands.runBeforeClose === true &&
-			ctx.$powerUi.controllers[route.viewId] &&
-			ctx.$powerUi.controllers[route.viewId].instance &&
-			ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose) {
-			const result = ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose();
+		if (ctrl.onBeforeClose) {
+			const result = ctrl.onBeforeClose();
 			if (result && result.then) {
 				result.then(function (response) {
 					ctx.callNextLinkWhenReady(
-						ctx.runBeforeCloseInOrder, orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+						ctx.runBeforeCloseInOrder, routesToRunOnBeforeClose, routeIndex + 1, ctx, _resolve);
 				}).catch(function (error) {
 					_resolve('abort');
 					if (error) {
-						window.console.log('Error running onBeforeClose: ', route.routeId, error);
+						window.console.log('Error running onBeforeClose: ', ctrl.routeId, error);
 					}
 				});
 			} else {
 				ctx.runBeforeCloseInOrder(
-					orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+					routesToRunOnBeforeClose, routeIndex + 1, ctx, _resolve);
 			}
 		} else {
-			ctx.runBeforeCloseInOrder(orderedRoutesToClose, routeIndex + 1, ctx, _resolve);
+			ctx.runBeforeCloseInOrder(routesToRunOnBeforeClose, routeIndex + 1, ctx, _resolve);
 		}
 	}
 
@@ -1130,7 +1158,7 @@ class Router {
 			const thisRoute = currentRoutesList.find(r=> r.routeId === route.id);
 			if (thisRoute === undefined) {
 				const ctrl = this.$powerUi.getRouteCtrl(route.id);
-				if (ctrl && !ctrl.onBeforeClose) {
+				if (ctrl && ctrl.onBeforeClose) {
 					routesToClose.push(ctrl);
 				}
 			}
