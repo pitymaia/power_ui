@@ -687,6 +687,7 @@ class Router {
 
 	setNewRoutesAndbuildOrderedRoutesToLoad() {
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
+		console.log('currentRoutesTree', currentRoutesTree);
 		// First mach any main route and its children
 		this.setMainRouteAndAddToOrderedRoutesToLoad(currentRoutesTree);
 		// Second mach any secundary route and its children
@@ -855,12 +856,12 @@ class Router {
 		if (!route) {
 			return	_resolve();
 		}
-		// Run the controller beforeClose
+		// Run the controller onBeforeClose
 		if (route.commands.runBeforeClose === true &&
 			ctx.$powerUi.controllers[route.viewId] &&
 			ctx.$powerUi.controllers[route.viewId].instance &&
-			ctx.$powerUi.controllers[route.viewId].instance.beforeClose) {
-			const result = ctx.$powerUi.controllers[route.viewId].instance.beforeClose();
+			ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose) {
+			const result = ctx.$powerUi.controllers[route.viewId].instance.onBeforeClose();
 			if (result && result.then) {
 				result.then(function (response) {
 					ctx.callNextLinkWhenReady(
@@ -868,7 +869,7 @@ class Router {
 				}).catch(function (error) {
 					_resolve('abort');
 					if (error) {
-						window.console.log('Error running beforeClose: ', route.routeId, error);
+						window.console.log('Error running onBeforeClose: ', route.routeId, error);
 					}
 				});
 			} else {

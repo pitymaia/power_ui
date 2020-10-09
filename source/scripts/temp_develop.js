@@ -1058,7 +1058,7 @@ class SimpleModal extends PowerModal {
 		this.refresh();
 	}
 
-	beforeClose(data) {
+	onBeforeClose(data) {
 		const self = this;
 		const confirm = this.$service('widget').confirm({
 			title: 'This is a simple modal',
@@ -2017,7 +2017,7 @@ class MyWindow extends PowerWindowIframe {
 	// 	resolve();
 	// }
 
-	beforeClose(data) {
+	onBeforeClose(data) {
 		const self = this;
 		const confirm = this.$service('widget').confirm({
 			title: 'This is a confirm',
@@ -6891,7 +6891,7 @@ class JSONViews extends PowerWindow {
 	// 	}, 100);
 	// }
 
-	beforeClose(data) {
+	onBeforeClose(data) {
 		const self = this;
 		const confirm = this.$service('widget').confirm({
 			title: 'This is a confirm',
