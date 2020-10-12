@@ -10982,9 +10982,9 @@ class PowerWindowIframe extends PowerWindow {
 						${this.restoreBt ? '<div style="display:none;" data-pow-event onclick="restore(event)" class="pw-bt-dialog-title pw-icon icon-windows"></div>' : ''}
 						${this.maximizeBt ? '<div data-pow-event onclick="maximize(event)" class="pw-bt-dialog-title pw-icon icon-maximize"></div>' : ''}
 					</div>
-					<iframe class="pw-body pw-body-iframe" frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
-					</iframe>
-					<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
+					<div class="pw-body pw-body-iframe">
+						<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}"></iframe>
+						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()"></div>
 					</div>
 				</div>`;
 	}
