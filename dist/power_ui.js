@@ -10222,6 +10222,7 @@ class PowerWindow extends PowerDialogBase {
 		this.replaceSizeQueries();
 		this.restoreScrollPosition(view);
 		this.refreshWindowToolbars();
+		this._dialog.classList.add('pw-active');
 	}
 
 	onFixedPowerSplitBarChange() {
@@ -10677,6 +10678,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	onMouseUp() {
+		this._dialog.classList.add('pw-active');
 		this.allowResize = false;
 		this.$powerUi._mouseIsDown = false;
 		this.removeAllCursorClasses();
@@ -10980,11 +10982,9 @@ class PowerWindowIframe extends PowerWindow {
 						${this.restoreBt ? '<div style="display:none;" data-pow-event onclick="restore(event)" class="pw-bt-dialog-title pw-icon icon-windows"></div>' : ''}
 						${this.maximizeBt ? '<div data-pow-event onclick="maximize(event)" class="pw-bt-dialog-title pw-icon icon-maximize"></div>' : ''}
 					</div>
-					<div class="pw-body pw-body-iframe">
-						<iframe frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
-						</iframe>
-						<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
-						</div>
+					<iframe class="pw-body pw-body-iframe" frameBorder="0" name="${id}" id="${id}" data-pw-content src="${$url}">
+					</iframe>
+					<div class="pw-cover-iframe" data-pow-event onmousedown="dragMouseDown()">
 					</div>
 				</div>`;
 	}
