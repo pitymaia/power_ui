@@ -290,7 +290,7 @@
 
 /* buttons start*/
 
-.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secundary, .pw-btn-success, .pw-btn-basic {
+.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secondary, .pw-btn-success, .pw-btn-basic {
     margin-top: 1em;
     border: none;
     cursor: pointer;
@@ -302,7 +302,7 @@
 .pw-col .pw-btn-danger,
 .pw-col .pw-btn-primary,
 .pw-col .pw-btn-warning,
-.pw-col .pw-btn-secundary,
+.pw-col .pw-btn-secondary,
 .pw-col .pw-btn-success,
 .pw-col .pw-btn-basic {
     margin-top: 0;
@@ -313,7 +313,7 @@
 .pwdesign-white-smoke .pw-btn-danger .pw-label,
 .pwdesign-white-smoke .pw-btn-primary .pw-label,
 .pwdesign-white-smoke .pw-btn-warning .pw-label,
-.pwdesign-white-smoke .pw-btn-secundary .pw-label,
+.pwdesign-white-smoke .pw-btn-secondary .pw-label,
 .pwdesign-white-smoke .pw-btn-success .pw-label,
 .pwdesign-white-smoke .pw-btn-basic .pw-label,
 .pwdesign-white-smoke input[type='reset'],
@@ -354,7 +354,7 @@
     color: #FFFFFF;
     background-color: #4B0082;
 }
-.pwdesign-white-smoke .pw-btn-secundary, .pwdesign-white-smoke .pw-btn-secundary.power-action {
+.pwdesign-white-smoke .pw-btn-secondary, .pwdesign-white-smoke .pw-btn-secondary.power-action {
     color: #000000;
     padding: 0.65em;
     border: 1px solid #000000;

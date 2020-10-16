@@ -517,7 +517,7 @@ class TokensListener {
 			{name: 'separator', obj: DictPattern},
 			{name: 'short-hand', obj: ShortHandPattern},
 			{name: 'parentheses', obj: parenthesesPattern}
-			// {name: 'object', obj: ObjectPattern}, // this is a secundary detector
+			// {name: 'object', obj: ObjectPattern}, // this is a secondary detector
 		];
 		this.candidates = [];
 		this.checking = 'firstToken';

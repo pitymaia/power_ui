@@ -160,15 +160,15 @@ class PowerThirdCtrl2 extends PowerController {
 	}
 }
 
-class SecundaryMainTemplate extends PowerTemplate {
+class SecondaryMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		// console.log('Secundary main template');
+		// console.log('Secondary main template');
 		let newTmpl = `<div>
-			<div class="power-view" id="secundary-child-views"></div>
+			<div class="power-view" id="secondary-child-views"></div>
 		</div>`
 
 		const menu1 = {
-			"id": 'secundary-menu',
+			"id": 'secondary-menu',
 			"mirrored": false,
 			"position": "top-right",
 			"orientation": "horizontal",
@@ -229,7 +229,7 @@ class SecundaryMainTemplate extends PowerTemplate {
 	}
 }
 
-class SecundaryMainCtrl extends PowerModal {
+class SecondaryMainCtrl extends PowerModal {
 	ctrl() {
 		this.mainValue = -1;
 	}
@@ -270,10 +270,10 @@ class SecundaryMainCtrl extends PowerModal {
 	}
 }
 
-class SecundaryChildTemplate extends PowerTemplate {
+class SecondaryChildTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		this.$routeClassList['secundary-main'] = ['blue-bg'];
-		// console.log('Secundary child template');
+		this.$routeClassList['secondary-main'] = ['blue-bg'];
+		// console.log('Secondary child template');
 		resolve(`<div>
 			<h1>This is the child page</h1>
 			<div>LOL, THIS IS AWESOME!</div>
@@ -284,7 +284,7 @@ class SecundaryChildTemplate extends PowerTemplate {
 	}
 }
 
-class SecundaryChildCtrl extends PowerController {
+class SecondaryChildCtrl extends PowerController {
 	ctrl(data) {
 		this.myCats = ['Princesa', 'Sol', 'Penny', 'Riquinho', 'Drew'];
 		if (data.moreCats) {
@@ -293,10 +293,10 @@ class SecundaryChildCtrl extends PowerController {
 	}
 }
 
-class SecundaryChildTemplate2 extends PowerTemplate {
+class SecondaryChildTemplate2 extends PowerTemplate {
 	template(resolve, reject) {
-		this.$routeClassList['secundary-main'] = ['orange-bg'];
-		// console.log('Secundary child 2 template');
+		this.$routeClassList['secondary-main'] = ['orange-bg'];
+		// console.log('Secondary child 2 template');
 		resolve(`<div>
 			<h1>This is the child page 2</h1>
 			<div>SO GREAT FRAMEWORK!</div>
@@ -304,7 +304,7 @@ class SecundaryChildTemplate2 extends PowerTemplate {
 	}
 }
 
-class SecundaryChildCtrl2 extends PowerController {
+class SecondaryChildCtrl2 extends PowerController {
 	ctrl() {
 	}
 
@@ -316,19 +316,19 @@ class SecundaryChildCtrl2 extends PowerController {
 	}
 }
 
-class SecundaryChildMainTemplate extends PowerTemplate {
+class SecondaryChildMainTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		this.$routeClassList['secundary-main'] = ['red-bg'];
-		// console.log('Secundary child MAIN template', this.$ctrl.$root.getvalue());
+		this.$routeClassList['secondary-main'] = ['red-bg'];
+		// console.log('Secondary child MAIN template', this.$ctrl.$root.getvalue());
 		resolve(`<div>
 			<h1>This is the MAIN of a CHILD {{ getSecValue() }}</h1>
 			<div>And I Love it!!!! {{ pity }}</div>
-			<div class="power-view" id="secundary-child-another"></div>
+			<div class="power-view" id="secondary-child-another"></div>
 		</div>`);
 	}
 }
 
-class SecundaryChildMainCtrl extends PowerController {
+class SecondaryChildMainCtrl extends PowerController {
 	ctrl() {
 		this.secValue = -1;
 		this.pity = 'Pity o bom';
@@ -340,14 +340,14 @@ class SecundaryChildMainCtrl extends PowerController {
 	}
 }
 
-class SecundaryChildOfChildTemplate extends PowerTemplate {
+class SecondaryChildOfChildTemplate extends PowerTemplate {
 	async css(resolve, reject) {
 		const _css = await this.import(['css/tmp_dev_snipet.css', 'css/tmp_dev_snipet.css'], '\n');
 		resolve(_css);
 	}
 
 	async template(resolve, reject) {
-		// console.log('This a Secundary child of a child template');
+		// console.log('This a Secondary child of a child template');
 		const header = await this.import('header.html');
 		const footer = await this.import('footer.html');
 
@@ -363,7 +363,7 @@ class SecundaryChildOfChildTemplate extends PowerTemplate {
 	}
 }
 
-class SecundaryChildOfChildCtrl extends PowerController {
+class SecondaryChildOfChildCtrl extends PowerController {
 	openChildOfChild2() {
 		this.openRoute({
 			routeId: 'secmainchild2',
@@ -372,7 +372,7 @@ class SecundaryChildOfChildCtrl extends PowerController {
 	}
 }
 
-class SecundaryChildOfChildTemplate2 extends PowerTemplate {
+class SecondaryChildOfChildTemplate2 extends PowerTemplate {
 	async css(resolve, reject) {
 		const _css = await this.import('css/tmp_dev_snipet.css');
 		resolve(_css);
@@ -394,7 +394,7 @@ class SecundaryChildOfChildTemplate2 extends PowerTemplate {
 	}
 }
 
-class SecundaryChildOfChildCtrl2 extends PowerController {
+class SecondaryChildOfChildCtrl2 extends PowerController {
 	ctrl() {
 		this.pity = 'Pity is here!';
 	}
@@ -872,8 +872,8 @@ class PowerOnlyPage extends PowerController {
 		this.$powerUi.closeAllRoutes();
 	}
 
-	closeSecundary() {
-		this.$powerUi.closeAllSecundaryRoutes();
+	closeSecondary() {
+		this.$powerUi.closeAllSecondaryRoutes();
 	}
 
 	confirmExample() {
@@ -2064,7 +2064,7 @@ class RootScopeTemplate extends PowerTemplate {
 		// console.log('ROOT template');
 		let newTmpl = `
 			<div class="power-view" id="main-view"></div>
-			<div class="power-view" id="secundary-view"></div>
+			<div class="power-view" id="secondary-view"></div>
 			<div>{{ 2+2 }}</div>`;
 
 		const menu1 = {
@@ -2880,14 +2880,14 @@ class RootScopeTemplate extends PowerTemplate {
 		newTmpl = newTmpl + this.$service('JSONSchema').button(button7);
 
 		const button8 = {
-			"id": "go-secundary",
-			"label": "Open secundary",
+			"id": "go-secondary",
+			"label": "Open secondary",
 			"icon": "icon-disc-back",
-			"kind": "secundary",
+			"kind": "secondary",
 			"events": [
 				{
 					"event": "onclick",
-					"fn": "goPowerSecundary()"
+					"fn": "goPowerSecondary()"
 				}
 			]
 		};
@@ -2959,7 +2959,7 @@ class RootScope extends PowerController {
 		});
 	}
 
-	goPowerSecundary() {
+	goPowerSecondary() {
 		this.openRoute({
 			routeId: 'secchild',
 			target: '_blank',
@@ -4625,9 +4625,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		const button3 = {
 			"id": 'my-bt3',
-			"label": "Secundary",
+			"label": "Secondary",
 			"icon": "icon-disc-front",
-			"kind": "secundary",
+			"kind": "secondary",
 			"events": [
 				{
 					"event": "onclick",
@@ -5296,7 +5296,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				"label": "DropMenu",
 				"icon": "icon-disc-front",
 				"icon-position": "left",
-				"kind": "secundary",
+				"kind": "secondary",
 				"events": [
 					{
 						"event": "onclick",
@@ -6229,9 +6229,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 						{
 							"button": {
 								"id": 'my-bt-grid',
-								"label": "Secundary",
+								"label": "Secondary",
 								"icon": "icon-disc-front",
-								"kind": "secundary",
+								"kind": "secondary",
 								"events": [
 									{
 										"event": "onclick",
@@ -7182,56 +7182,56 @@ const routes = [
 			mainRouteId: 'power-mid',
 		},
 		{
-			id: 'secundary-main',
-			title: 'Secundary Main',
-			route: 'secundary_main',
-			templateComponent: SecundaryMainTemplate,
-			ctrl: SecundaryMainCtrl,
+			id: 'secondary-main',
+			title: 'Secondary Main',
+			route: 'secondary_main',
+			templateComponent: SecondaryMainTemplate,
+			ctrl: SecondaryMainCtrl,
 			data: {lock: true},
-			powerViewNodeId: 'secundary-child-views',
+			powerViewNodeId: 'secondary-child-views',
 		},
 		{
 			id: 'secchild',
-			title: 'Secundary child',
-			route: 'secundary_child',
-			templateComponent: SecundaryChildTemplate,
-			ctrl: SecundaryChildCtrl,
+			title: 'Secondary child',
+			route: 'secondary_child',
+			templateComponent: SecondaryChildTemplate,
+			ctrl: SecondaryChildCtrl,
 			data: {lock: true},
-			mainRouteId: 'secundary-main',
+			mainRouteId: 'secondary-main',
 		},
 		{
 			id: 'secchild2',
-			title: 'Secundary child',
-			route: 'secundary_child2',
-			templateComponent: SecundaryChildTemplate2,
-			ctrl: SecundaryChildCtrl2,
+			title: 'Secondary child',
+			route: 'secondary_child2',
+			templateComponent: SecondaryChildTemplate2,
+			ctrl: SecondaryChildCtrl2,
 			data: {lock: true},
-			mainRouteId: 'secundary-main',
+			mainRouteId: 'secondary-main',
 		},
 		{
 			id: 'secchildmain',
-			title: 'Secundary child',
+			title: 'Secondary child',
 			route: 'secchildmain',
-			templateComponent: SecundaryChildMainTemplate,
-			ctrl: SecundaryChildMainCtrl,
+			templateComponent: SecondaryChildMainTemplate,
+			ctrl: SecondaryChildMainCtrl,
 			data: {lock: true},
-			mainRouteId: 'secundary-main',
-			powerViewNodeId: 'secundary-child-another',
+			mainRouteId: 'secondary-main',
+			powerViewNodeId: 'secondary-child-another',
 		},
 		{
 			id: 'secmainchild',
 			title: 'Another main child',
-			route: 'secundary_mc/:id',
-			templateComponent: SecundaryChildOfChildTemplate,
-			ctrl: SecundaryChildOfChildCtrl,
+			route: 'secondary_mc/:id',
+			templateComponent: SecondaryChildOfChildTemplate,
+			ctrl: SecondaryChildOfChildCtrl,
 			mainRouteId: 'secchildmain',
 		},
 		{
 			id: 'secmainchild2',
 			title: 'Another main child 2',
-			route: 'secundary_mc2',
-			templateComponent: SecundaryChildOfChildTemplate2,
-			ctrl: SecundaryChildOfChildCtrl2,
+			route: 'secondary_mc2',
+			templateComponent: SecondaryChildOfChildTemplate2,
+			ctrl: SecondaryChildOfChildCtrl2,
 			mainRouteId: 'secchildmain',
 		},
 		{

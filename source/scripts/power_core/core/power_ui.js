@@ -583,10 +583,10 @@ class PowerUi extends _PowerUiBase {
 		return newHash;
 	}
 
-	closeAllSecundaryRoutes(supressNavigate=false) {
+	closeAllSecondaryRoutes(supressNavigate=false) {
 		const original = this.router.locationHashWithHiddenRoutes();
 		let currentHash = original;
-		for (const sr of this.router.currentRoutes.secundaryRoutes) {
+		for (const sr of this.router.currentRoutes.secondaryRoutes) {
 			const ctrl = this.controllers[sr.viewId] && this.controllers[sr.viewId].instance ? this.controllers[sr.viewId].instance : null;
 			if (ctrl) {
 				currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
@@ -602,9 +602,9 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	closeAllHiddenRoutes(hashFromSecundary=false) {
+	closeAllHiddenRoutes(hashFromSecondary=false) {
 		const original = this.router.locationHashWithHiddenRoutes();
-		let currentHash = hashFromSecundary ? hashFromSecundary : original;
+		let currentHash = hashFromSecondary ? hashFromSecondary : original;
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
 			const ctrl = this.controllers[hr.viewId] && this.controllers[hr.viewId].instance ? this.controllers[hr.viewId].instance : null;
 			if (ctrl) {
@@ -620,7 +620,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	closeAllRoutes() {
-		const hash = this.closeAllSecundaryRoutes(true);
+		const hash = this.closeAllSecondaryRoutes(true);
 		this.closeAllHiddenRoutes(hash);
 	}
 

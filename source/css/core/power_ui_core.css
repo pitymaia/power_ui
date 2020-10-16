@@ -575,19 +575,19 @@ body.modal-open, body.window-is-maximized {
 /* End All dialogs */
 
 /* buttons start*/
-.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secundary, .pw-btn-success, .pw-btn-basic {
+.pw-btn-default, .pw-btn-highlight, .pw-btn-danger, .pw-btn-primary, .pw-btn-warning, .pw-btn-secondary, .pw-btn-success, .pw-btn-basic {
     border: none;
     cursor: pointer;
 }
-.pw-bar button.pw-btn-default, .pw-bar button.pw-btn-highlight, .pw-bar button.pw-btn-danger, .pw-bar button.pw-btn-primary, .pw-bar button.pw-btn-warning, .pw-bar button.pw-btn-secundary, .pw-bar button.pw-btn-success, .pw-bar button.pw-btn-basic {
+.pw-bar button.pw-btn-default, .pw-bar button.pw-btn-highlight, .pw-bar button.pw-btn-danger, .pw-bar button.pw-btn-primary, .pw-bar button.pw-btn-warning, .pw-bar button.pw-btn-secondary, .pw-bar button.pw-btn-success, .pw-bar button.pw-btn-basic {
     margin-top: 0;
     vertical-align: middle;
 }
-.pw-bar .power-action.pw-btn-default, .pw-bar .power-action.pw-btn-highlight, .pw-bar .power-action.pw-btn-danger, .pw-bar .power-action.pw-btn-primary, .pw-bar .power-action.pw-btn-warning, .pw-bar .power-action.pw-btn-secundary, .pw-bar .power-action.pw-btn-success, .pw-bar .power-action.pw-btn-basic {
+.pw-bar .power-action.pw-btn-default, .pw-bar .power-action.pw-btn-highlight, .pw-bar .power-action.pw-btn-danger, .pw-bar .power-action.pw-btn-primary, .pw-bar .power-action.pw-btn-warning, .pw-bar .power-action.pw-btn-secondary, .pw-bar .power-action.pw-btn-success, .pw-bar .power-action.pw-btn-basic {
     margin-top: 0;
     vertical-align: middle;
 }
-.pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secundary span,  .pw-btn-success span, .pw-btn-basic span, .power-accordion .power-action span {
+.pw-btn-default span, .pw-btn-highlight span, .pw-btn-danger span, .pw-btn-primary span, .pw-btn-warning span, .pw-btn-secondary span,  .pw-btn-success span, .pw-btn-basic span, .power-accordion .power-action span {
     display: inline-block;
     vertical-align: middle;
 }

@@ -2058,10 +2058,10 @@ class PowerUi extends _PowerUiBase {
 		return newHash;
 	}
 
-	closeAllSecundaryRoutes(supressNavigate=false) {
+	closeAllSecondaryRoutes(supressNavigate=false) {
 		const original = this.router.locationHashWithHiddenRoutes();
 		let currentHash = original;
-		for (const sr of this.router.currentRoutes.secundaryRoutes) {
+		for (const sr of this.router.currentRoutes.secondaryRoutes) {
 			const ctrl = this.controllers[sr.viewId] && this.controllers[sr.viewId].instance ? this.controllers[sr.viewId].instance : null;
 			if (ctrl) {
 				currentHash = this.removeRouteFromHash(currentHash, ctrl._routeId, ctrl._viewId);
@@ -2077,9 +2077,9 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	closeAllHiddenRoutes(hashFromSecundary=false) {
+	closeAllHiddenRoutes(hashFromSecondary=false) {
 		const original = this.router.locationHashWithHiddenRoutes();
-		let currentHash = hashFromSecundary ? hashFromSecundary : original;
+		let currentHash = hashFromSecondary ? hashFromSecondary : original;
 		for (const hr of this.router.currentRoutes.hiddenRoutes) {
 			const ctrl = this.controllers[hr.viewId] && this.controllers[hr.viewId].instance ? this.controllers[hr.viewId].instance : null;
 			if (ctrl) {
@@ -2095,7 +2095,7 @@ class PowerUi extends _PowerUiBase {
 	}
 
 	closeAllRoutes() {
-		const hash = this.closeAllSecundaryRoutes(true);
+		const hash = this.closeAllSecondaryRoutes(true);
 		this.closeAllHiddenRoutes(hash);
 	}
 
@@ -5141,10 +5141,10 @@ function getEmptyRouteObjetc() {
 		parentRouteId: null,
 		parentViewId: null,
 		kind: '',
-		secundaryRoutes: [],
+		secondaryRoutes: [],
 		hiddenRoutes: [],
 		mainChildRoutes: [],
-		secundaryChildRoutes: [],
+		secondaryChildRoutes: [],
 		hiddenChildRoutes: [],
 	};
 }
@@ -5421,9 +5421,9 @@ class Router {
 
 	add(route) {
 		route.template = route.templateUrl || route.template || route.templateComponent || route.url || (route.dynamicUrl ? 'dynamicUrl' : false);
-		// main route and secundary routes view id
+		// main route and secondary routes view id
 		this.config.routerMainViewId = 'main-view';
-		this.config.routerSecundaryViewId = 'secundary-view';
+		this.config.routerSecondaryViewId = 'secondary-view';
 		// Ensure that the parameters are not empty
 		if (!route.id) {
 			throw new Error('A route ID must be given');
@@ -5470,7 +5470,7 @@ class Router {
 		}
 	}
 
-	// Copy the current open secundary route, and init the router with the new route
+	// Copy the current open secondary route, and init the router with the new route
 	hashChange(event) {
 		// This support the abort a cicle
 		if (this.engineIsRunning === true) {
@@ -5541,19 +5541,19 @@ class Router {
 			parentRouteId: source.parentRouteId,
 			parentViewId: source.parentViewId,
 			kind: source.kind,
-			secundaryRoutes: [],
+			secondaryRoutes: [],
 			hiddenRoutes: [],
 			mainChildRoutes: [],
-			secundaryChildRoutes: [],
+			secondaryChildRoutes: [],
 			hiddenChildRoutes: [],
 		};
 		for (const param of source.params) {
 			dest.params.push({key: param.key, value: param.value});
 		}
-		this.cloneRouteList(dest, source, 'secundaryRoutes');
+		this.cloneRouteList(dest, source, 'secondaryRoutes');
 		this.cloneRouteList(dest, source, 'hiddenRoutes');
 		this.cloneRouteList(dest, source, 'mainChildRoutes');
-		this.cloneRouteList(dest, source, 'secundaryChildRoutes');
+		this.cloneRouteList(dest, source, 'secondaryChildRoutes');
 		this.cloneRouteList(dest, source, 'hiddenChildRoutes');
 		return dest;
 	}
@@ -5610,7 +5610,7 @@ class Router {
 		const routeParts = {
 			full_path: path,
 			mainRoute: {path: path},
-			secundaryRoutes: [],
+			secondaryRoutes: [],
 			hiddenRoutes: [],
 		};
 		if (path.includes('?')) {
@@ -5622,7 +5622,7 @@ class Router {
 						if (fragment) {
 							const sroute = this.buildPathAndChildRoute(
 								this.config.rootPath + fragment);
-							routeParts.secundaryRoutes.push(sroute);
+							routeParts.secondaryRoutes.push(sroute);
 						}
 					}
 				} else	if (part.includes('hr=')) {
@@ -5767,7 +5767,7 @@ class Router {
 			return;
 		}
 	}
-	// Secundary and hidden routes
+	// Secondary and hidden routes
 	setOtherRoutesAndAddToOrderedRoutesToLoad(routesList, routesListName, kind, setRouteState) {
 		for (const route of routesList) {
 			const currentRoute = this.matchRouteAndGetIdAndParamKeys(route);
@@ -5825,9 +5825,9 @@ class Router {
 		const currentRoutesTree = this.buildRoutesTree(this.locationHashWithHiddenRoutes() || this.config.rootPath);
 		// First mach any main route and its children
 		this.setMainRouteAndAddToOrderedRoutesToLoad(currentRoutesTree);
-		// Second mach any secundary route and its children
+		// Second mach any secondary route and its children
 		this.setOtherRoutesAndAddToOrderedRoutesToLoad(
-			currentRoutesTree.secundaryRoutes, 'secundaryRoutes', 'secundary', this.setSecundaryRouteState.bind(this));
+			currentRoutesTree.secondaryRoutes, 'secondaryRoutes', 'secondary', this.setSecondaryRouteState.bind(this));
 		// Third mach any hidden route and its children
 		this.setOtherRoutesAndAddToOrderedRoutesToLoad(
 			currentRoutesTree.hiddenRoutes, 'hiddenRoutes', 'hidden', this.setHiddenRouteState.bind(this));
@@ -5852,11 +5852,11 @@ class Router {
 
 	setDefaultCommands() {
 		if (this.engineCommands.default.close.rootView && this.engineCommands.default.close.rootView.refresh) {
-			// Only refresh when some route changes or closes, but not when opens a secundary route.
+			// Only refresh when some route changes or closes, but not when opens a secondary route.
 			if (this.previousUrl && this.currentUrl) {
-				const c_secundaryParts = this.currentUrl.split('?');
-				const p_secundaryParts = this.previousUrl.split('?');
-				if (c_secundaryParts.length < p_secundaryParts.length || (c_secundaryParts.length === p_secundaryParts.length && (this.previousUrl !== this.currentUrl))) {
+				const c_secondaryParts = this.currentUrl.split('?');
+				const p_secondaryParts = this.previousUrl.split('?');
+				if (c_secondaryParts.length < p_secondaryParts.length || (c_secondaryParts.length === p_secondaryParts.length && (this.previousUrl !== this.currentUrl))) {
 					this.engineCommands.addPendingComand('$root', {name: 'refresh', value: true});
 				}
 			}
@@ -6327,20 +6327,20 @@ class Router {
 			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.mainChildRoutes, currentChildrens);
 		}
 
-		// Secundary and secundary children routes
-		const currentSecundaryRoutes = [];
-		const currentSecundaryChildRoutes = [];
-		for (const route of currentRoutesTree.secundaryRoutes) {
+		// Secondary and secondary children routes
+		const currentSecondaryRoutes = [];
+		const currentSecondaryChildRoutes = [];
+		for (const route of currentRoutesTree.secondaryRoutes) {
 			const secRoute = this.matchRouteAndGetIdAndParamKeys(route);
-			currentSecundaryRoutes.push(secRoute);
+			currentSecondaryRoutes.push(secRoute);
 			if (secRoute.childRoute) {
-				this.recursivelyGetChildrenRoutesToRunOnBeforeClose(secRoute.childRoute, currentSecundaryChildRoutes);
+				this.recursivelyGetChildrenRoutesToRunOnBeforeClose(secRoute.childRoute, currentSecondaryChildRoutes);
 			}
 		}
-		this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secundaryRoutes, currentSecundaryRoutes);
+		this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secondaryRoutes, currentSecondaryRoutes);
 		// Children
-		if (this.oldRoutes.secundaryChildRoutes.length) {
-			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secundaryChildRoutes, currentSecundaryChildRoutes);
+		if (this.oldRoutes.secondaryChildRoutes.length) {
+			this.addRouteToRoutesToClose(routesToClose, this.oldRoutes.secondaryChildRoutes, currentSecondaryChildRoutes);
 		}
 
 		// Hidden and hidden children routes
@@ -6391,9 +6391,9 @@ class Router {
 		}
 		// Add old child route from main route if have some
 		this.markToRemoveRouteViews('mainChildRoutes', 'child', propagateCommandsFromRouteId);
-		// Add old child route and secundary routes if have some
-		this.markToRemoveRouteViews('secundaryChildRoutes', 'child', propagateCommandsFromRouteId);
-		this.markToRemoveRouteViews('secundaryRoutes', 'secundary', propagateCommandsFromRouteId);
+		// Add old child route and secondary routes if have some
+		this.markToRemoveRouteViews('secondaryChildRoutes', 'child', propagateCommandsFromRouteId);
+		this.markToRemoveRouteViews('secondaryRoutes', 'secondary', propagateCommandsFromRouteId);
 		// Add old child route from hidden routes if have some
 		this.markToRemoveRouteViews('hiddenChildRoutes', 'child', propagateCommandsFromRouteId);
 		this.markToRemoveRouteViews('hiddenRoutes', 'hidden', propagateCommandsFromRouteId);
@@ -6430,7 +6430,7 @@ class Router {
 	}
 
 	addNewViewNode(viewId, routeViewNodeId) {
-		// Create a new element to this view and add it to secundary-view element (where all secundary views are)
+		// Create a new element to this view and add it to secondary-view element (where all secondary views are)
 		const newViewNode = document.createElement('div');
 		newViewNode.id = viewId;
 		newViewNode.classList.add('power-view');
@@ -6448,8 +6448,8 @@ class Router {
 			return _resolve();
 		}
 		if (route.commands.addView) {
-			if (route.kind === 'secundary' || route.kind === 'hidden') {
-				ctx.addNewViewNode(route.viewId, ctx.config.routerSecundaryViewId);
+			if (route.kind === 'secondary' || route.kind === 'hidden') {
+				ctx.addNewViewNode(route.viewId, ctx.config.routerSecondaryViewId);
 			} else if (route.kind === 'child') {
 				// Add the new node inside it's main route power-view node
 				ctx.addNewViewNode(route.viewId, route.powerViewNodeId);
@@ -6587,7 +6587,7 @@ class Router {
 		if (splitedOld.includes(splitedFragment[1])) {
 			return oldHash;
 		} else if (splitedChild.length > 1 && oldHash.includes(splitedChild[0])) {
-			// Secundary or hidden route with a new child must be replaced
+			// Secondary or hidden route with a new child must be replaced
 			const newEntry = splitedChild[0].split('?')[1];
 			let index = 0;
 			for (const item of splitedOld) {
@@ -6636,25 +6636,25 @@ class Router {
 		if (this.routeNotExists({routeId, params})) {
 			return;
 		} else {
-			// Close the current view and open the route in a new secundary view
+			// Close the current view and open the route in a new secondary view
 			if (target === '_self') {
 				const selfRoute = this.getOpenedRoute({routeId: currentRouteId, viewId: currentViewId});
-				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({filter: [selfRoute.route]});
+				const oldHash = this.getOpenedSecondaryOrHiddenRoutesHash({filter: [selfRoute.route]});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
-			// Open the route in a new secundary view without closing any view
+			// Open the route in a new secondary view without closing any view
 			} else if (target === '_blank') {
-				const oldHash = this.getOpenedSecundaryOrHiddenRoutesHash({});
+				const oldHash = this.getOpenedSecondaryOrHiddenRoutesHash({});
 				const fragment = `?${routeKind}=${this.buildHash({routeId, params, paramKeys})}`;
 				const newRoute = this.buildNewHash(oldHash, fragment);
 				this.navigate({hash: newRoute, title: title, data: data, commands: commands, routeId: routeId});
-			// Close all secundary views and open the route in the main view
+			// Close all secondary views and open the route in the main view
 			} else {
 				if (target === '_single') {
 					this.navigate({hash: this.buildHash({routeId, params, paramKeys}), title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
 				} else {
-					const oldHash = this.getOpenedSecundaryRoutesHash();
+					const oldHash = this.getOpenedSecondaryRoutesHash();
 					const newRoute = this.buildHash({routeId, params, paramKeys}) + oldHash;
 					this.navigate({hash: newRoute, title: title, isMainView: true, data: data, commands: commands, routeId: routeId});
 				}
@@ -6662,11 +6662,11 @@ class Router {
 		}
 	}
 
-	// Get the hash definition of current secundary and hidden routes
-	getOpenedSecundaryOrHiddenRoutesHash({filter=[]}) {
+	// Get the hash definition of current secondary and hidden routes
+	getOpenedSecondaryOrHiddenRoutesHash({filter=[]}) {
 		const routeParts = this.extractRouteParts(this.locationHashWithHiddenRoutes());
 		let oldHash = routeParts.path.replace(this.config.rootPath, '');
-		for (let route of routeParts.secundaryRoutes.concat(routeParts.hiddenRoutes)) {
+		for (let route of routeParts.secondaryRoutes.concat(routeParts.hiddenRoutes)) {
 			const routeKind = routeParts.hiddenRoutes.includes(route) ? 'hr' : 'sr';
 			route = route.replace(this.config.rootPath, '');
 			if (filter.lenght === 0 || !filter.includes(route)) {
@@ -6676,11 +6676,11 @@ class Router {
 		return oldHash;
 	}
 
-	// Get the hash definition of current secundary and hidden routes
-	getOpenedSecundaryRoutesHash() {
+	// Get the hash definition of current secondary and hidden routes
+	getOpenedSecondaryRoutesHash() {
 		const routeParts = this.extractRouteParts(window.location.hash);
 		let oldHash = '';
-		for (let route of routeParts.secundaryRoutes) {
+		for (let route of routeParts.secondaryRoutes) {
 			route = route.replace(this.config.rootPath, '');
 			oldHash = oldHash + `?sr=${route}`;
 		}
@@ -6691,7 +6691,7 @@ class Router {
 		const newHashParts = this.extractRouteParts(hash);
 		let newHash = newHashParts.path || '';
 		let newHiddenHash = '';
-		for (const part of newHashParts.secundaryRoutes) {
+		for (const part of newHashParts.secondaryRoutes) {
 			newHash = `${newHash}?sr=${part.replace(this.config.rootPath, '')}`;
 		}
 		for (const part of newHashParts.hiddenRoutes) {
@@ -6710,7 +6710,7 @@ class Router {
 				this.engineCommands.addCommands(commands);
 			}
 
-			// If there is some new secundary or main route
+			// If there is some new secondary or main route
 			if (window.location.hash !== newLoacationHash) {
 				window.history.pushState(null, title, window.location.href);
 				window.location.replace(encodeURI(this.config.rootPath) + encodeURI(newHash));
@@ -6765,8 +6765,8 @@ class Router {
 			}
 		}
 
-		// Test the secundary and hidden routes
-		for (const sroute of this.currentRoutes.secundaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
+		// Test the secondary and hidden routes
+		for (const sroute of this.currentRoutes.secondaryRoutes.concat(this.currentRoutes.hiddenRoutes)) {
 			if (routeId === sroute.id) {
 				let keyValueExists = false;
 				for (const targetParamKey of Object.keys(params || {})) {
@@ -6823,8 +6823,8 @@ class Router {
 		}
 		return newRoute;
 	}
-	setSecundaryRouteState(params) {
-		this.currentRoutes.secundaryRoutes.push(
+	setSecondaryRouteState(params) {
+		this.currentRoutes.secondaryRoutes.push(
 			this.setOtherRouteState(params));
 	}
 	setHiddenRouteState(params) {
@@ -6835,8 +6835,8 @@ class Router {
 		if (params.mainKind === 'main') {
 			this.currentRoutes.mainChildRoutes.push(
 				this.setOtherRouteState(params));
-		} else if (params.mainKind === 'secundary') {
-			this.currentRoutes.secundaryChildRoutes.push(
+		} else if (params.mainKind === 'secondary') {
+			this.currentRoutes.secondaryChildRoutes.push(
 				this.setOtherRouteState(params));
 		} else {
 			this.currentRoutes.hiddenChildRoutes.push(
@@ -6847,7 +6847,7 @@ class Router {
 	extractRouteParts(path) {
 		const routeParts = {
 			path: path,
-			secundaryRoutes: [],
+			secondaryRoutes: [],
 			hiddenRoutes: [],
 		};
 		if (path.includes('?')) {
@@ -6857,7 +6857,7 @@ class Router {
 				if (part.includes('sr=')) {
 					for (const fragment of part.split('sr=')) {
 						if (fragment) {
-							routeParts.secundaryRoutes.push(this.config.rootPath + fragment);
+							routeParts.secondaryRoutes.push(this.config.rootPath + fragment);
 						}
 					}
 				} else	if (part.includes('hr=')) {
@@ -6923,12 +6923,12 @@ class Router {
 					return route;
 				}
 			}
-			for (const route of this[listName].secundaryRoutes) {
+			for (const route of this[listName].secondaryRoutes) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
 			}
-			for (const route of this[listName].secundaryChildRoutes) {
+			for (const route of this[listName].secondaryChildRoutes) {
 				if (route.id === routeId && route.viewId === viewId) {
 					return route;
 				}
@@ -7836,7 +7836,7 @@ class TokensListener {
 			{name: 'separator', obj: DictPattern},
 			{name: 'short-hand', obj: ShortHandPattern},
 			{name: 'parentheses', obj: parenthesesPattern}
-			// {name: 'object', obj: ObjectPattern}, // this is a secundary detector
+			// {name: 'object', obj: ObjectPattern}, // this is a secondary detector
 		];
 		this.candidates = [];
 		this.checking = 'firstToken';
