@@ -87,6 +87,11 @@ body, html {
     white-space: nowrap;
 }
 
+.power-menu.power-active .power-item,
+.power-menu.power-active .power-brand {
+    width: 100%;
+}
+
 /* power menu-break query*/
     .pw-bar-break .power-split-bar.pw-split.pw-left:not(.pw-bar-fixed) {
         border-right-style: none;
