@@ -10888,7 +10888,7 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	setWindowsOrder(preventActivateWindow) {
-		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d => d.id !== this.dialogId);
+		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d => d.isWindow && d.id !== this.dialogId);
 		let biggerIndex = 1999;
 		for (const dialog of this.$powerUi.dialogs) {
 			biggerIndex = biggerIndex + 1;
