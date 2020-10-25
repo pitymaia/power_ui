@@ -786,14 +786,16 @@ class PowerWindow extends PowerDialogBase {
 	}
 
 	setWindowsOrder(preventActivateWindow) {
-		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d => d.isWindow && d.id !== this.dialogId);
+		this.$powerUi.dialogs = this.$powerUi.dialogs.filter(d => d.id !== this.dialogId);
 		let biggerIndex = 1999;
 		for (const dialog of this.$powerUi.dialogs) {
 			biggerIndex = biggerIndex + 1;
 			dialog.ctrl.zIndex = biggerIndex;
 			dialog.ctrl._dialog.style.zIndex = biggerIndex;
 			dialog.ctrl._dialog.classList.remove('pw-active');
-			dialog.ctrl.saveWindowState();
+			if (dialog.ctrl.isWindow && dialog.ctrl.saveWindowState) {
+				dialog.ctrl.saveWindowState();
+			}
 		}
 
 		this.zIndex = biggerIndex + 1;
