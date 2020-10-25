@@ -7048,7 +7048,7 @@ class FakeModal extends PowerModal {
 		if (kind === 'pwReload') {
 			this.$powerUi.pwReload();
 		} else if (kind === 'hardRefresh') {
-			this.$powerUi.hardRefresh(document);
+			this.$root.openGame();
 		} else if (kind === 'softRefresh') {
 			this.refresh();
 		}
