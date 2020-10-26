@@ -1417,7 +1417,7 @@ class Router {
 			} else {
 				// If users dynamicUrl set the current url as template
 				if (this.routes[routeId].dynamicUrl === true) {
-					const tmpCtrl = this.$powerUi.getRouteCtrl(routeId);
+					const tmpCtrl = this.$powerUi.getViewCtrl(_viewId);
 					if (!tmpCtrl.getDynamicUrl) {
 						throw `The "${routeId}" route controller is missing the "getDynamicUrl" method to return the current URL.`;
 						return;
