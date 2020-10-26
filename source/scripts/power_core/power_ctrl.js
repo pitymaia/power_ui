@@ -60,7 +60,7 @@ class PowerController extends PowerScope {
 		let param = this._routeParams.find((p)=> p.key === key);
 		let value = param ? param.value : null;
 		const valueAsInt = value ? parseInt(value) : null;
-		if (Number.isNan(valueAsInt)) {
+		if (Number.isNaN(valueAsInt)) {
 			return value;
 		} else {
 			return valueAsInt;
