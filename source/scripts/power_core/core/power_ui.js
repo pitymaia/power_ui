@@ -249,10 +249,7 @@ class ComponentsManager {
 				return;
 			}
 		}
-		this.setFixedBarsSizeAndPosition();
-		this._addMarginToBody();
-		this._setAppContainerHeight();
-		this.toggleSmallWindowMode();
+		this._basicRefresh();
 		for (const dialog of this.$powerUi.dialogs) {
 			if (dialog.ctrl.isWindow) {
 				dialog.ctrl.adjustWindowWithComponents();
@@ -270,10 +267,7 @@ class ComponentsManager {
 		}
 		// window.alert(window.innerWidth);
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
-		this.setFixedBarsSizeAndPosition();
-		this._addMarginToBody();
-		this._setAppContainerHeight();
-		this.toggleSmallWindowMode();
+		this._basicRefresh();
 	}
 
 	_orientationChange() {
@@ -282,6 +276,18 @@ class ComponentsManager {
 	}
 
 	_routeChange() {
+		// Give 3 chances, the first already delays 150 ms
+		this._basicRefresh();
+		const self = this;
+		setTimeout(function () {
+			self._basicRefresh();
+			setTimeout(function () {
+				self._basicRefresh();
+			}, 300);
+		}, 200);
+	}
+
+	_basicRefresh() {
 		// This change the "app-container" and body element to allow adjust for fixed bars/menus
 		this.setFixedBarsSizeAndPosition();
 		this._addMarginToBody();
@@ -527,8 +533,8 @@ class PowerUi extends _PowerUiBase {
 		}
 		window.addEventListener("resize", ()=> this.onBrowserWindowResize.broadcast());
 		this.router = new Router(config, this); // Router calls this.init();
-		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
 		this.router.onRouteChange.subscribe(this.componentsManager.runObserver.bind(this.componentsManager));
+		this.router.onRouteChange.subscribe(this.componentsManager._routeChange.bind(this.componentsManager));
 		this.onPowerWindowChange.subscribe(this.componentsManager.powerWindowChange.bind(this.componentsManager));
 		// suport ESC key
 		document.addEventListener('keyup', this._keyUp.bind(this), false);

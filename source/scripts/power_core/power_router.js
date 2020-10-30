@@ -787,7 +787,11 @@ class Router {
 			// Clear observers to call only a single time
 			this.onCycleEnds.observers = [];
 		}
-		this.onRouteChange.broadcast();
+		// Delay becouse some browsers still working
+		const self = this;
+		setTimeout(function () {
+			self.onRouteChange.broadcast();
+		}, 150);
 	}
 
 	// This is the first link in a chain of recursive loop with promises
