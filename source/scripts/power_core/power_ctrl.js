@@ -103,6 +103,10 @@ class PowerController extends PowerScope {
 			this._currentScrollTop = _appContainer.scrollTop;
 			this._currentScrollLeft = _appContainer.scrollLeft;
 		}
+
+		if (this.devMode) {
+			delete this.$powerUi.currentFiles[this._viewId];
+		}
 	}
 
 	addCommands(commands) {

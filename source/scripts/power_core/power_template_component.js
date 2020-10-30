@@ -6,6 +6,10 @@ class PowerTemplate extends PowerScope {
 		this.$ctrl = $ctrl;
 		this.$routeClassList = {};
 
+		if (this.$powerUi.devMode) {
+			this.$powerUi.currentFiles[this._viewId] = [];
+		}
+
 		if (this.css) {
 			const self = this;
 			const css = new Promise(this.css.bind(this));
@@ -32,6 +36,25 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
+				if (self.devMode) {
+					let saveFileExt = false;
+					if (filePath.slice(-4) === '.css') {
+						saveFileExt = '.css';
+					} else if (filePath.slice(-4) === '.htm') {
+						saveFileExt = '.htm';
+					} else if (filePath.slice(-5) === '.html') {
+						saveFileExt = '.html';
+					}
+
+					if (saveFileExt) {
+						self.$powerUi.currentFiles[self._viewId].push({
+							extension: saveFileExt,
+							path: filePath,
+							content: response,
+						});
+					}
+				}
+
 				resolve(response);
 			}).catch(function (error) {
 				window.console.log('Error importing file:', error);

@@ -31,7 +31,8 @@ gulp.task('insert-styles-bundle', gulp.series(function (done) {
 }));
 
 const distJsFiles = [
-	'source/scripts/power_core/core/power_core.js', // Order who goes first
+	'source/scripts/power_core/core/css-parser.js', // Order who goes first
+	'source/scripts/power_core/core/power_core.js',
 	'source/scripts/pow_attrs/*.js',
 	'source/scripts/power_core/core/power_ui.js',
 	'source/scripts/power_core/core/power_scope.js',

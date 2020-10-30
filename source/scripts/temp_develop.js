@@ -204,7 +204,7 @@ class SecondaryMainTemplate extends PowerTemplate {
 					"item": {
 						"id": "my-item-3",
 						"label": "Child Main",
-						"icon": "icon-food-carot",
+						"icon": "icon-food-carrot",
 						"events": [
 							{
 								"event": "onclick",
@@ -217,7 +217,7 @@ class SecondaryMainTemplate extends PowerTemplate {
 					"item": {
 						"id": "my-item-4",
 						"label": `${this.$ctrl.getMainvalue()}`,
-						// "icon": "icon-food-carot",
+						// "icon": "icon-food-carrot",
 					},
 				},
 			]
@@ -1250,7 +1250,7 @@ class SimpleTemplate extends PowerTemplate {
 		        {
 		            "item": {
 		                "id": "tool-item-343",
-		                "icon": "icon-food-carot",
+		                "icon": "icon-food-carrot",
 		                "events": [
 		                    {
 		                        "event": "onclick",
@@ -1507,7 +1507,7 @@ class SimpleTemplate extends PowerTemplate {
 		        {
 		            "item": {
 		                "id": "tool-item-3434",
-		                "icon": "icon-food-carot",
+		                "icon": "icon-food-carrot",
 		                "events": [
 		                    {
 		                        "event": "onclick",
@@ -1764,7 +1764,7 @@ class SimpleTemplate extends PowerTemplate {
 		        {
 		            "item": {
 		                "id": "tool-item-34345",
-		                "icon": "icon-food-carot",
+		                "icon": "icon-food-carrot",
 		                "events": [
 		                    {
 		                        "event": "onclick",
@@ -2651,7 +2651,7 @@ class RootScopeTemplate extends PowerTemplate {
 				{
 					"item": {
 						"id": "tool-item-34",
-						"icon": "icon-food-carot",
+						"icon": "icon-food-carrot",
 						"events": [
 							{
 								"event": "onclick",
@@ -7303,6 +7303,14 @@ let app = new PowerUi({
 });
 
 window.console.log('app', app);
+const cssString = ` .pity {
+	text-align: center;
+	color: #ffff00;
+	margin: 1em;
+}`;
+const parsed = app.cssParser.parseCSS(cssString);
+window.console.log('parsed', parsed);
+
 app.pity = function() {
 	return myName;
 }
