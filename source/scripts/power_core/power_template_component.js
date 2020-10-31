@@ -54,7 +54,7 @@ class PowerTemplate extends PowerScope {
 						content: JSON.stringify(content),
 						viewId: self._viewId,
 						routeId: self._routeId,
-						routeViewId: self.$ctrl._viewId,
+						routeViewId: `${self._routeId}-${self.$ctrl._viewId}`,
 						fileName: fileName,
 					});
 				}
