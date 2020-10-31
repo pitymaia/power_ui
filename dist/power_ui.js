@@ -1931,6 +1931,7 @@ class PowerUi extends _PowerUiBase {
 		super();
 
 		if (config.devMode) {
+			this.devMode = config.devMode;
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
 				if (event.origin.startsWith(config.devMode.main) || event.origin.startsWith(config.devMode.iframe)) {
@@ -5013,6 +5014,19 @@ class PowerController extends PowerScope {
 		const bind = this.getObjectById(id);
 		return bind ? bind.powBind : null;
 	}
+
+	_$postMessage(window, content, url) {
+	    window.postMessage(content, url);
+	}
+
+	_$postToIframe(id, content) {
+		const iframeEl = document.getElementById(id);
+		this._$postMessage(iframeEl.contentWindow, content, this.$powerUi.devMode.main);
+	}
+
+	_$postToMain(content) {
+		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.main);
+	}
 }
 
 export { PowerController };
@@ -7075,6 +7089,26 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
+				if (self.devMode && self.devMode.child) {
+					let fileExt = false;
+					let content = '';
+					if (filePath.slice(-4) === '.css') {
+						fileExt = '.css';
+						content = response;
+					} else if (filePath.slice(-4) === '.htm') {
+						fileExt = '.htm';
+						content = response;
+					} else if (filePath.slice(-5) === '.html') {
+						fileExt = '.html';
+						content = response;
+					}
+
+					self._$postToMain({
+						extension: fileExt || null,
+						path: JSON.stringify(filePath),
+						content: JSON.stringify(content),
+					});
+				}
 				resolve(response);
 			}).catch(function (error) {
 				window.console.log('Error importing file:', error);
