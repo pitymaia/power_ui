@@ -35,6 +35,8 @@ class PowerTemplate extends PowerScope {
 				if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
 					let fileExt = false;
 					let content = '';
+					const parts = filePath.split('/');
+					const fileName = parts[parts.length - 1];
 					if (filePath.slice(-4) === '.css') {
 						fileExt = '.css';
 						content = response;
@@ -52,6 +54,7 @@ class PowerTemplate extends PowerScope {
 						content: JSON.stringify(content),
 						viewId: self._viewId,
 						routeId: self._routeId,
+						fileName: fileName,
 					});
 				}
 				resolve(response);

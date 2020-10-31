@@ -1933,7 +1933,7 @@ class PowerUi extends _PowerUiBase {
 		if (config.devMode) {
 			this.devMode = config.devMode;
 			if (this.devMode.main) {
-				this.filesByViewId = {};
+				this.filesByRouteId = {};
 			}
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
@@ -1964,11 +1964,11 @@ class PowerUi extends _PowerUiBase {
 
 					// Register the file
 					if (this.devMode.main) {
-						if (!this.filesByViewId[event.data.viewId]) {
-							this.filesByViewId[event.data.viewId] = [];
+						if (!this.filesByRouteId[event.data.routeId]) {
+							this.filesByRouteId[event.data.routeId] = {};
 						}
-						this.filesByViewId[event.data.viewId].push(event.data);
-						window.console.log('filesByViewId', this.filesByViewId);
+						this.filesByRouteId[event.data.routeId][event.data.fileName] = event.data;
+						window.console.log('filesByRouteId', this.filesByRouteId);
 					}
 				} else {
 					window.console.log('DANGER', event.origin);
@@ -7103,6 +7103,8 @@ class PowerTemplate extends PowerScope {
 				if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
 					let fileExt = false;
 					let content = '';
+					const parts = filePath.split('/');
+					const fileName = parts[parts.length - 1];
 					if (filePath.slice(-4) === '.css') {
 						fileExt = '.css';
 						content = response;
@@ -7120,6 +7122,7 @@ class PowerTemplate extends PowerScope {
 						content: JSON.stringify(content),
 						viewId: self._viewId,
 						routeId: self._routeId,
+						fileName: fileName,
 					});
 				}
 				resolve(response);
