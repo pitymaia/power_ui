@@ -1958,7 +1958,7 @@ class PowerUi extends _PowerUiBase {
 							element.classList.remove(event.data.value);
 						}
 					}
-
+					console.log('event.data', event.data);
 				} else {
 					window.console.log('DANGER', event.origin);
 					// The data was NOT sent from your site!
