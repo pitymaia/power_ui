@@ -458,7 +458,7 @@ class PowerUi extends _PowerUiBase {
 		if (config.devMode) {
 			this.devMode = config.devMode;
 			if (this.devMode.main) {
-				this.filesByRouteId = {};
+				this.filesByRouteViewId = {};
 			}
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
@@ -489,11 +489,11 @@ class PowerUi extends _PowerUiBase {
 
 					// Register the file
 					if (this.devMode.main) {
-						if (!this.filesByRouteId[event.data.routeId]) {
-							this.filesByRouteId[event.data.routeId] = {};
+						if (!this.filesByRouteViewId[event.data.routeViewId]) {
+							this.filesByRouteViewId[event.data.routeViewId] = {};
 						}
-						this.filesByRouteId[event.data.routeId][event.data.fileName] = event.data;
-						window.console.log('filesByRouteId', this.filesByRouteId);
+						this.filesByRouteViewId[event.data.routeViewId][event.data.fileName] = event.data;
+						window.console.log('filesByRouteViewId', this.filesByRouteViewId);
 					}
 				} else {
 					window.console.log('DANGER', event.origin);
