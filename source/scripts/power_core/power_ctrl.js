@@ -148,11 +148,11 @@ class PowerController extends PowerScope {
 
 	_$postToIframe(id, content) {
 		const iframeEl = document.getElementById(id);
-		this._$postMessage(iframeEl.contentWindow, content, this.$powerUi.devMode.main);
+		this._$postMessage(iframeEl.contentWindow, content, this.$powerUi.devMode.target);
 	}
 
 	_$postToMain(content) {
-		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.main);
+		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.target);
 	}
 }
 

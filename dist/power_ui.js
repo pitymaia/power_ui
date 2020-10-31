@@ -1932,9 +1932,12 @@ class PowerUi extends _PowerUiBase {
 
 		if (config.devMode) {
 			this.devMode = config.devMode;
+			if (this.devMode.main) {
+				this.filesByViewId = {};
+			}
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
-				if (event.origin.startsWith(config.devMode.main) || event.origin.startsWith(config.devMode.iframe)) {
+				if (event.origin.startsWith(config.devMode.source) || event.origin.startsWith(config.devMode.target)) {
 					// The data was sent from your site.
 					// Data sent with postMessage is stored in event.data:
 					if (event.data.click === true && event.data.id) {
@@ -1943,7 +1946,7 @@ class PowerUi extends _PowerUiBase {
 					}
 
 					// Commands only to iframe element
-					if (window.location.href.startsWith(config.devMode.iframe)) {
+					if (this.devMode.child && window.location.href.startsWith(config.devMode.target)) {
 						if (event.data.command === 'addInnerHTML') {
 							const element = document.getElementById(event.data.id);
 							element.innerHTML = element.innerHTML + event.data.value;
@@ -1958,7 +1961,15 @@ class PowerUi extends _PowerUiBase {
 							element.classList.remove(event.data.value);
 						}
 					}
-					console.log('event.data', event.data);
+
+					// Register the file
+					if (this.devMode.main) {
+						if (!this.filesByViewId[event.data.viewId]) {
+							this.filesByViewId[event.data.viewId] = [];
+						}
+						this.filesByViewId[event.data.viewId].push(event.data);
+						window.console.log('filesByViewId', this.filesByViewId);
+					}
 				} else {
 					window.console.log('DANGER', event.origin);
 					// The data was NOT sent from your site!
@@ -5021,11 +5032,11 @@ class PowerController extends PowerScope {
 
 	_$postToIframe(id, content) {
 		const iframeEl = document.getElementById(id);
-		this._$postMessage(iframeEl.contentWindow, content, this.$powerUi.devMode.main);
+		this._$postMessage(iframeEl.contentWindow, content, this.$powerUi.devMode.target);
 	}
 
 	_$postToMain(content) {
-		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.main);
+		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.target);
 	}
 }
 
