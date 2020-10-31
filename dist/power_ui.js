@@ -7118,6 +7118,8 @@ class PowerTemplate extends PowerScope {
 						extension: fileExt || null,
 						path: JSON.stringify(filePath),
 						content: JSON.stringify(content),
+						viewId: self._viewId,
+						routeId: self._routeId,
 					});
 				}
 				resolve(response);
