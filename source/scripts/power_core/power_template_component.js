@@ -32,6 +32,26 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
+				if (self.devMode && self.devMode.child) {
+					let fileExt = false;
+					let content = '';
+					if (filePath.slice(-4) === '.css') {
+						fileExt = '.css';
+						content = response;
+					} else if (filePath.slice(-4) === '.htm') {
+						fileExt = '.htm';
+						content = response;
+					} else if (filePath.slice(-5) === '.html') {
+						fileExt = '.html';
+						content = response;
+					}
+
+					self._$postToMain({
+						extension: fileExt || null,
+						path: JSON.stringify(filePath),
+						content: JSON.stringify(content),
+					});
+				}
 				resolve(response);
 			}).catch(function (error) {
 				window.console.log('Error importing file:', error);

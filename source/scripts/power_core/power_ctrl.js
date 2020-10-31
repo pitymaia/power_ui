@@ -141,6 +141,19 @@ class PowerController extends PowerScope {
 		const bind = this.getObjectById(id);
 		return bind ? bind.powBind : null;
 	}
+
+	_$postMessage(window, content, url) {
+	    window.postMessage(content, url);
+	}
+
+	_$postToIframe(id, content) {
+		const iframeEl = document.getElementById(id);
+		this._$postMessage(iframeEl.contentWindow, content, this.$powerUi.devMode.main);
+	}
+
+	_$postToMain(content) {
+		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.main);
+	}
 }
 
 export { PowerController };

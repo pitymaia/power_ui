@@ -456,6 +456,7 @@ class PowerUi extends _PowerUiBase {
 		super();
 
 		if (config.devMode) {
+			this.devMode = config.devMode;
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
 				if (event.origin.startsWith(config.devMode.main) || event.origin.startsWith(config.devMode.iframe)) {
