@@ -7089,7 +7089,7 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
-				if (self.devMode && self.devMode.child) {
+				if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
 					let fileExt = false;
 					let content = '';
 					if (filePath.slice(-4) === '.css') {
@@ -7103,7 +7103,7 @@ class PowerTemplate extends PowerScope {
 						content = response;
 					}
 
-					self._$postToMain({
+					self.$ctrl._$postToMain({
 						extension: fileExt || null,
 						path: JSON.stringify(filePath),
 						content: JSON.stringify(content),
