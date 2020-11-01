@@ -7108,6 +7108,9 @@ class PowerTemplate extends PowerScope {
 					if (filePath.slice(-4) === '.css') {
 						fileExt = '.css';
 						content = response;
+					} else if (filePath.slice(-5) === '.json') {
+						fileExt = '.json';
+						content = response;
 					} else if (filePath.slice(-4) === '.htm') {
 						fileExt = '.htm';
 						content = response;
