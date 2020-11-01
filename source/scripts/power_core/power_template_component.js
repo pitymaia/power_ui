@@ -42,6 +42,7 @@ class PowerTemplate extends PowerScope {
 						content = response;
 					} else if (filePath.slice(-5) === '.json') {
 						fileExt = '.json';
+						response = JSON.parse(JSON.stringify(response));
 						content = response;
 					} else if (filePath.slice(-4) === '.htm') {
 						fileExt = '.htm';
