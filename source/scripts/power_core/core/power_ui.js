@@ -556,6 +556,45 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
+	simpleSweepDOM(node, callback, counter, level) {
+		const isNode = !!node && !!node.nodeType;
+		const hasChildren = !!node.children && !!node.children.length;
+
+		counter = counter || 0;
+		level = level ? level + '.' : '';
+		level = level + counter;
+
+		if (isNode) {
+			// Call back with any condition to apply
+			callback(node, level);
+
+			if (hasChildren) {
+				let counterChild = 0;
+				for (const currentNode of node.children) {
+					// The callback Recursively call simpleSweepDOM for it's children nodes
+					this.simpleSweepDOM(currentNode, callback, counterChild, level);
+					counterChild = counterChild + 1;
+				}
+			}
+		}
+	}
+
+	createEditableHtml(template, fileName) {
+		const _template = new DOMParser().parseFromString(template, 'text/html');
+
+		for (const child of _template.body.children) {
+			child.dataset.file = fileName;
+			//
+			this.simpleSweepDOM(
+				child,
+				function(node, level) {
+					node.dataset.level = level;
+				}
+			);
+		}
+		return _template;
+	}
+
 	// Return the "view" controller of any element inside the current view
 	getCurrentElementCtrl(node) {
 		if (node.classList && node.classList.contains('power-view') && this.controllers[node.id]) {

@@ -2907,8 +2907,23 @@ class RootScope extends PowerController {
 		// console.log('Root onViewLoad');
 	}
 	ctrl() {
+		const template = `<div class="block-header">
+			<h1>Contact page</h1>
+			<h2>Nice page</h2>
+			<p>A responsive template for a contact page.<br />Designed by PowerTeam. <span>Isso é</span></p>
+			<p>Outro paragrafo!</p>
+			<p>Outro paragrafo!</p>
+			<div>Outro paragrafo!
+				<span>Inner!</span>
+				<span>Inner!</span>
+				<span>Inner!</span>
+				<div>Inner!<span>Another level</span></div>
+			</div>
+		</div>`;
+		const result = this.$powerUi.createEditableHtml(template, 'somefile.html');
+		console.log('Root hi there!', result.body.innerHTML);
+
 		this.rootCounter = 0;
-		// console.log('Root ctrl');
 		this.cats = [
 			{cat: 'Penny', gender: 'female'},
 			{cat: 'Riquinho', gender: 'male'},
