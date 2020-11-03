@@ -7150,6 +7150,11 @@ class PowerTemplate extends PowerScope {
 		return new Promise(this.template.bind(this));
 	}
 
+	_replaceHtmlForEdit(response, fileName, self) {
+		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
+		return result.body.innerHTML;
+	}
+
 	_import(filePath) {
 		const self = this;
 		return new Promise(function (resolve, reject) {
@@ -7165,10 +7170,6 @@ class PowerTemplate extends PowerScope {
 					const parts = filePath.split('/');
 					const fileName = parts[parts.length - 1];
 
-					const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
-					console.log('_import!', result.body.innerHTML);
-					content = result.body.innerHTML;
-
 					if (filePath.slice(-4) === '.css') {
 						fileExt = '.css';
 						content = response;
@@ -7177,10 +7178,10 @@ class PowerTemplate extends PowerScope {
 						content = response;
 					} else if (filePath.slice(-4) === '.htm') {
 						fileExt = '.htm';
-						content = response;
+						content = self._replaceHtmlForEdit(response, fileName, self);
 					} else if (filePath.slice(-5) === '.html') {
 						fileExt = '.html';
-						content = response;
+						content = self._replaceHtmlForEdit(response, fileName, self);
 					}
 
 					self.$ctrl._$postToMain({
