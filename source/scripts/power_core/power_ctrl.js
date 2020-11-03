@@ -171,7 +171,7 @@ class PowerController extends PowerScope {
 
 	_$createEditableHtml(template, fileName, routeId) {
 		const _template = new DOMParser().parseFromString(template, 'text/html');
-
+		let counter = 0;
 		for (const child of _template.body.children) {
 			child.classList.add('pw-allow-edit-element');
 			child.dataset.file = fileName;
@@ -183,8 +183,11 @@ class PowerController extends PowerScope {
 				child,
 				function(node, level) {
 					node.dataset.level = level;
-				}
+				},
+				counter
 			);
+
+			counter = counter + 1;
 		}
 		return _template;
 	}
