@@ -7164,6 +7164,11 @@ class PowerTemplate extends PowerScope {
 					let content = '';
 					const parts = filePath.split('/');
 					const fileName = parts[parts.length - 1];
+
+					const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
+					console.log('_import!', result.body.innerHTML);
+					content = result.body.innerHTML;
+
 					if (filePath.slice(-4) === '.css') {
 						fileExt = '.css';
 						content = response;
@@ -7186,8 +7191,11 @@ class PowerTemplate extends PowerScope {
 						routeId: self._routeId,
 						fileName: fileName,
 					});
+
+					resolve(content);
+				} else {
+					resolve(response);
 				}
-				resolve(response);
 			}).catch(function (error) {
 				window.console.log('Error importing file:', error);
 				reject(error);
