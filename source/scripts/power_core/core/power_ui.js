@@ -579,11 +579,23 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	createEditableHtml(template, fileName) {
+	selectElementToEdit(event, element) {
+		if (this.nodeSelectedToEdit) {
+			this.nodeSelectedToEdit.classList.remove('pw-selected-to-edit');
+		}
+		this.nodeSelectedToEdit = event.target;
+		this.nodeSelectedToEdit.classList.add('pw-selected-to-edit');
+	}
+
+	createEditableHtml(template, fileName, routeId) {
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 
 		for (const child of _template.body.children) {
+			child.classList.add('pw-allow-edit-element');
 			child.dataset.file = fileName;
+			child.dataset.route = routeId;
+			child.dataset.powEvent = "";
+			child.setAttribute("onclick", "$powerUi.selectElementToEdit(event, _node)");
 			//
 			this.simpleSweepDOM(
 				child,
@@ -741,7 +753,9 @@ class PowerUi extends _PowerUiBase {
 			return;
 		}
 		ctrlScope.event = event.detail.event;
+		ctrlScope.elementId = event.detail.elementId;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
+		ctrlScope._node = element;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
 		const text = (element && attrName) ? this.interpolation.decodeHtml(element.getAttribute(attrName)) : false;
 

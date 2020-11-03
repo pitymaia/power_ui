@@ -15,6 +15,14 @@ body, html {
     overflow: hidden;
 }
 
+.pw-selected-to-edit {
+    border: 5px solid #ffff00;
+}
+.pw-allow-edit-element:hover:not(.pw-selected-to-edit),
+.pw-allow-edit-element *:hover:not(.pw-selected-to-edit) {
+    border: 3px solid #006600;
+}
+
 /*.pw-bar {
     border-width: 5px;
     border-style: solid;
