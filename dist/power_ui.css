@@ -2871,11 +2871,11 @@ body, html {
 }
 
 .pw-selected-to-edit {
-    border: 5px solid #ffff00;
+    border: 5px solid #ffff00 !important;
 }
 .pw-allow-edit-element:hover:not(.pw-selected-to-edit),
 .pw-allow-edit-element *:hover:not(.pw-selected-to-edit) {
-    border: 5px dashed #006600;
+    border: 5px dashed #006600 !important;
 }
 
 /*.pw-bar {

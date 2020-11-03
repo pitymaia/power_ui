@@ -465,10 +465,10 @@ class PowerUi extends _PowerUiBase {
 				if (event.origin.startsWith(config.devMode.source) || event.origin.startsWith(config.devMode.target)) {
 					// The data was sent from your site.
 					// Data sent with postMessage is stored in event.data:
-					if (event.data.click === true && event.data.id) {
-						const ctrl = this.getCurrentElementCtrl(document.getElementById(event.data.id));
-						ctrl.windowsOrder();
-					}
+					// if (event.data.click === true && event.data.id) {
+					// 	const ctrl = this.getCurrentElementCtrl(document.getElementById(event.data.id));
+					// 	ctrl.windowsOrder();
+					// }
 
 					// Commands only to iframe element
 					if (this.devMode.child && window.location.href.startsWith(config.devMode.target)) {
@@ -489,11 +489,15 @@ class PowerUi extends _PowerUiBase {
 
 					// Register the file
 					if (this.devMode.main) {
-						if (!this.filesByRouteId[event.data.routeId]) {
-							this.filesByRouteId[event.data.routeId] = {};
+						if (event.data.command === 'loadFile') {
+							if (!this.filesByRouteId[event.data.routeId]) {
+								this.filesByRouteId[event.data.routeId] = {};
+							}
+							this.filesByRouteId[event.data.routeId][event.data.fileName] = event.data;
+							window.console.log('filesByRouteId', this.filesByRouteId);
+						} else if (event.data.command === 'selectNodeToEdit') {
+							window.console.log('selected Node', event.data);
 						}
-						this.filesByRouteId[event.data.routeId][event.data.fileName] = event.data;
-						window.console.log('filesByRouteId', this.filesByRouteId);
 					}
 				} else {
 					window.console.log('DANGER', event.origin);
