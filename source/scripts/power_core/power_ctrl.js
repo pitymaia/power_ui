@@ -161,6 +161,12 @@ class PowerController extends PowerScope {
 		}
 		this._$nodeSelectdToEdit = event.target;
 		this._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
+		this._$postToMain({
+			command: 'selectNodeToEdit',
+			level: this._$nodeSelectdToEdit.dataset.level,
+			file: element.dataset.file,
+			route: element.dataset.route,
+		});
 	}
 
 	_$createEditableHtml(template, fileName, routeId) {

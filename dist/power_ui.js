@@ -2031,6 +2031,29 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
+	simpleSweepDOM(node, callback, counter, level) {
+		const isNode = !!node && !!node.nodeType;
+		const hasChildren = !!node.children && !!node.children.length;
+
+		counter = counter || 0;
+		level = level ? level + '.' : '';
+		level = level + counter;
+
+		if (isNode) {
+			// Call back with any condition to apply
+			callback(node, level);
+
+			if (hasChildren) {
+				let counterChild = 0;
+				for (const currentNode of node.children) {
+					// The callback Recursively call simpleSweepDOM for it's children nodes
+					this.simpleSweepDOM(currentNode, callback, counterChild, level);
+					counterChild = counterChild + 1;
+				}
+			}
+		}
+	}
+
 	// Return the "view" controller of any element inside the current view
 	getCurrentElementCtrl(node) {
 		if (node.classList && node.classList.contains('power-view') && this.controllers[node.id]) {
@@ -2177,7 +2200,9 @@ class PowerUi extends _PowerUiBase {
 			return;
 		}
 		ctrlScope.event = event.detail.event;
+		ctrlScope.elementId = event.detail.elementId;
 		const element = (event && event.detail && event.detail.elementId) ? document.getElementById(event.detail.elementId) : false;
+		ctrlScope._node = element;
 		const attrName = (event && event.detail && event.detail.attrName) ? `data-pow-${event.detail.attrName}` : false;
 		const text = (element && attrName) ? this.interpolation.decodeHtml(element.getAttribute(attrName)) : false;
 
@@ -5037,6 +5062,40 @@ class PowerController extends PowerScope {
 
 	_$postToMain(content) {
 		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.target);
+	}
+
+	_$selectElementToEdit(event, element) {
+		if (this._$nodeSelectdToEdit) {
+			this._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
+		}
+		this._$nodeSelectdToEdit = event.target;
+		this._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
+		this._$postToMain({
+			command: 'selectNodeToEdit',
+			level: this._$nodeSelectdToEdit.dataset.level,
+			file: element.dataset.file,
+			route: element.dataset.route,
+		});
+	}
+
+	_$createEditableHtml(template, fileName, routeId) {
+		const _template = new DOMParser().parseFromString(template, 'text/html');
+
+		for (const child of _template.body.children) {
+			child.classList.add('pw-allow-edit-element');
+			child.dataset.file = fileName;
+			child.dataset.route = routeId;
+			child.dataset.powEvent = "";
+			child.setAttribute("onclick", "_$selectElementToEdit(event, _node)");
+			//
+			this.$powerUi.simpleSweepDOM(
+				child,
+				function(node, level) {
+					node.dataset.level = level;
+				}
+			);
+		}
+		return _template;
 	}
 }
 
