@@ -494,9 +494,7 @@ class PowerUi extends _PowerUiBase {
 								this.filesByRouteId[event.data.routeId] = {};
 							}
 							this.filesByRouteId[event.data.routeId][event.data.fileName] = event.data;
-							window.console.log('filesByRouteId', this.filesByRouteId);
 						} else if (event.data.command === 'selectNodeToEdit') {
-							window.console.log('selected Node', event.data);
 							const $root = this.getRouteCtrl('$root');
 							$root.selectNodeToEdit(event.data);
 						}
