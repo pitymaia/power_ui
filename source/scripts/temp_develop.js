@@ -2080,7 +2080,7 @@ class RootScopeTemplate extends PowerTemplate {
 				<div>Inner!<span>Another level</span></div>
 			</div>
 		</div>`;
-		const result = this.$powerUi.createEditableHtml(template, 'somefile.html', this._routeId);
+		const result = this.$ctrl._$createEditableHtml(template, 'somefile.html', this._routeId);
 		console.log('Root hi there!', result.body.innerHTML);
 		const _tmpl = result.body.innerHTML;
 		newTmpl = _tmpl + newTmpl;

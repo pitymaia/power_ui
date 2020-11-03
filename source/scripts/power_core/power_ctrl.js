@@ -154,6 +154,34 @@ class PowerController extends PowerScope {
 	_$postToMain(content) {
 		this._$postMessage(window.parent.window, content, this.$powerUi.devMode.target);
 	}
+
+	_$selectElementToEdit(event, element) {
+		if (this._$nodeSelectdToEdit) {
+			this._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
+		}
+		this._$nodeSelectdToEdit = event.target;
+		this._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
+	}
+
+	_$createEditableHtml(template, fileName, routeId) {
+		const _template = new DOMParser().parseFromString(template, 'text/html');
+
+		for (const child of _template.body.children) {
+			child.classList.add('pw-allow-edit-element');
+			child.dataset.file = fileName;
+			child.dataset.route = routeId;
+			child.dataset.powEvent = "";
+			child.setAttribute("onclick", "_$selectElementToEdit(event, _node)");
+			//
+			this.$powerUi.simpleSweepDOM(
+				child,
+				function(node, level) {
+					node.dataset.level = level;
+				}
+			);
+		}
+		return _template;
+	}
 }
 
 export { PowerController };

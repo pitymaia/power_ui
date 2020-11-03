@@ -579,34 +579,6 @@ class PowerUi extends _PowerUiBase {
 		}
 	}
 
-	selectElementToEdit(event, element) {
-		if (this.nodeSelectedToEdit) {
-			this.nodeSelectedToEdit.classList.remove('pw-selected-to-edit');
-		}
-		this.nodeSelectedToEdit = event.target;
-		this.nodeSelectedToEdit.classList.add('pw-selected-to-edit');
-	}
-
-	createEditableHtml(template, fileName, routeId) {
-		const _template = new DOMParser().parseFromString(template, 'text/html');
-
-		for (const child of _template.body.children) {
-			child.classList.add('pw-allow-edit-element');
-			child.dataset.file = fileName;
-			child.dataset.route = routeId;
-			child.dataset.powEvent = "";
-			child.setAttribute("onclick", "$powerUi.selectElementToEdit(event, _node)");
-			//
-			this.simpleSweepDOM(
-				child,
-				function(node, level) {
-					node.dataset.level = level;
-				}
-			);
-		}
-		return _template;
-	}
-
 	// Return the "view" controller of any element inside the current view
 	getCurrentElementCtrl(node) {
 		if (node.classList && node.classList.contains('power-view') && this.controllers[node.id]) {
