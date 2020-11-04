@@ -1971,10 +1971,13 @@ class PowerUi extends _PowerUiBase {
 							}
 							if (!$root._$filesByRouteId[event.data.routeId][event.data.fileName]) {
 								$root._$filesByRouteId[event.data.routeId][event.data.fileName] = {source: event.data};
-								const currentRouteFiles = $root._$filesByRouteId[event.data.routeId][event.data.fileName].source;
-								const fileContent = JSON.parse(currentRouteFiles.content);
-								const _template = new DOMParser().parseFromString(fileContent, 'text/html');
-								$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
+								// Parse html files
+								if (event.data.extension === '.html' || event.data.extension === '.htm') {
+									const currentRouteFiles = $root._$filesByRouteId[event.data.routeId][event.data.fileName].source;
+									const fileContent = JSON.parse(currentRouteFiles.content);
+									const _template = new DOMParser().parseFromString(fileContent, 'text/html');
+									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
+								}
 								$root._$selectRouteFilesToEdit(event.data);
 							}
 
