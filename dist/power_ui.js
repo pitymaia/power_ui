@@ -1932,10 +1932,6 @@ class PowerUi extends _PowerUiBase {
 
 		if (config.devMode) {
 			this.devMode = config.devMode;
-			const $root = this.getRouteCtrl('$root');
-			if (this.devMode.main) {
-				$root._$filesByRouteId = {};
-			}
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
 				if (event.origin.startsWith(config.devMode.source) || event.origin.startsWith(config.devMode.target)) {
@@ -1965,6 +1961,10 @@ class PowerUi extends _PowerUiBase {
 
 					// Register the file
 					if (this.devMode.main) {
+						const $root = this.getRouteCtrl('$root');
+						if (!$root._$filesByRouteId) {
+							$root._$filesByRouteId = {};
+						}
 						if (event.data.command === 'loadFile') {
 							if (!$root._$filesByRouteId[event.data.routeId]) {
 								$root._$filesByRouteId[event.data.routeId] = {};
