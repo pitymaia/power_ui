@@ -499,8 +499,7 @@ class PowerUi extends _PowerUiBase {
 								// Parse html files
 								if (event.data.extension === '.html' || event.data.extension === '.htm') {
 									const currentRouteFiles = $root._$filesByRouteId[event.data.routeId][event.data.fileName].source;
-									const fileContent = JSON.parse(currentRouteFiles.content);
-									const _template = new DOMParser().parseFromString(fileContent, 'text/html');
+									const _template = new DOMParser().parseFromString(currentRouteFiles.content, 'text/html');
 									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
 								}
 								$root._$selectRouteFilesToEdit(event.data);
