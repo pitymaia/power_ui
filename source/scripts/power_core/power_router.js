@@ -791,6 +791,13 @@ class Router {
 		const self = this;
 		setTimeout(function () {
 			self.onRouteChange.broadcast();
+			if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
+				const $root = self.$powerUi.getRouteCtrl('$root');
+				$root._$postToMain({
+					command: 'setCurrentBody',
+					body: document.getElementsByTagName("BODY")[0],
+				});
+			}
 		}, 150);
 	}
 

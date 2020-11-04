@@ -507,6 +507,8 @@ class PowerUi extends _PowerUiBase {
 
 						} else if (event.data.command === 'selectNodeToEdit') {
 							$root._$selectNodeToEdit(event.data);
+						} else if (event.data.command === 'setCurrentBody') {
+							$root._$setCurrentBody(event.data);
 						}
 					}
 				} else {
