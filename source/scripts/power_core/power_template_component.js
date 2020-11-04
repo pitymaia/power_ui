@@ -60,8 +60,8 @@ class PowerTemplate extends PowerScope {
 					self.$ctrl._$postToMain({
 						command: 'loadFile',
 						extension: fileExt || null,
-						path: JSON.stringify(filePath),
-						content: JSON.stringify(content),
+						path: filePath,
+						content: content,
 						viewId: self._viewId,
 						routeId: self._routeId,
 						fileName: fileName,
