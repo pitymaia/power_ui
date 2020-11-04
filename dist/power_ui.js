@@ -6045,7 +6045,7 @@ class Router {
 				const $root = self.$powerUi.getRouteCtrl('$root');
 				$root._$postToMain({
 					command: 'setCurrentBody',
-					body: document.getElementsByTagName("BODY")[0],
+					body: document.getElementsByTagName("BODY")[0].innerHTML,
 				});
 			}
 		}, 150);
