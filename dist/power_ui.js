@@ -1932,8 +1932,9 @@ class PowerUi extends _PowerUiBase {
 
 		if (config.devMode) {
 			this.devMode = config.devMode;
+			const $root = this.getRouteCtrl('$root');
 			if (this.devMode.main) {
-				this.filesByRouteId = {};
+				$root._$filesByRouteId = {};
 			}
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
@@ -1965,13 +1966,20 @@ class PowerUi extends _PowerUiBase {
 					// Register the file
 					if (this.devMode.main) {
 						if (event.data.command === 'loadFile') {
-							if (!this.filesByRouteId[event.data.routeId]) {
-								this.filesByRouteId[event.data.routeId] = {};
+							if (!$root._$filesByRouteId[event.data.routeId]) {
+								$root._$filesByRouteId[event.data.routeId] = {};
 							}
-							this.filesByRouteId[event.data.routeId][event.data.fileName] = event.data;
+							if (!$root._$filesByRouteId[event.data.routeId][event.data.fileName]) {
+								$root._$filesByRouteId[event.data.routeId][event.data.fileName] = {source: event.data};
+								const currentRouteFiles = $root._$filesByRouteId[event.data.routeId].source;
+								const fileContent = JSON.parse(currentRouteFiles[event.data.fileName].content);
+								const _template = new DOMParser().parseFromString(fileContent, 'text/html');
+								$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
+								$root._$selectRouteFilesToEdit(event.data);
+							}
+
 						} else if (event.data.command === 'selectNodeToEdit') {
-							const $root = this.getRouteCtrl('$root');
-							$root.selectNodeToEdit(event.data);
+							$root._$selectNodeToEdit(event.data);
 						}
 					}
 				} else {
@@ -5084,7 +5092,6 @@ class PowerController extends PowerScope {
 
 	_$createEditableHtml(template, fileName, routeId) {
 		template = template.replaceAll('onclick', 'ondblclick');
-		console.log('TEMPLATE', template);
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
 		for (const child of _template.body.children) {
