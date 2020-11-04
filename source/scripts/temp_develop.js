@@ -2073,7 +2073,7 @@ class RootScopeTemplate extends PowerTemplate {
 			<p>A responsive template for a contact page.<br />Designed by PowerTeam. <span>Isso é</span></p>
 			<p>Outro paragrafo!</p>
 			<p>Outro paragrafo!</p>
-			<div>Outro paragrafo!
+			<div data-pow-event="" onclick="teste()">Outro paragrafo!
 				<span>Inner!</span>
 				<span>Inner!</span>
 				<span>Inner!</span>

@@ -170,7 +170,8 @@ class PowerController extends PowerScope {
 	}
 
 	_$createEditableHtml(template, fileName, routeId) {
-		template = template.replace('onclick', 'ondblclick');
+		template = template.replaceAll('onclick', 'ondblclick');
+		console.log('TEMPLATE', template);
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
 		for (const child of _template.body.children) {
