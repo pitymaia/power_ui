@@ -825,7 +825,7 @@ class Router {
 			if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
 				const $root = self.$powerUi.getRouteCtrl('$root');
 				$root._$postToMain({
-					routeIds: this.getCurrentRouteIds(),
+					routeIds: self.getCurrentRouteIds(),
 					command: 'setCurrentBody',
 					body: document.getElementsByTagName("BODY")[0].innerHTML,
 				});
