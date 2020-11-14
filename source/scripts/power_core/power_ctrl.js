@@ -169,6 +169,7 @@ class PowerController extends PowerScope {
 		});
 	}
 
+	// TODO: MOVE selectElementToEdit to view element (main-view, secundary-view, etc...)
 	_$createEditableHtml(template, fileName, routeId) {
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');

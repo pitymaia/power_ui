@@ -5094,6 +5094,7 @@ class PowerController extends PowerScope {
 		});
 	}
 
+	// TODO: MOVE selectElementToEdit to view element (main-view, secundary-view, etc...)
 	_$createEditableHtml(template, fileName, routeId) {
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
@@ -5533,6 +5534,37 @@ class Router {
 			// call engine if hash change
 			window.onhashchange = this.hashChange.bind(this);
 		}
+	}
+
+	getCurrentRouteIds() {
+		const routeIds = [];
+		// Root
+		if (this.currentRoutes.parentRouteId) {
+			routeIds.push(this.currentRoutes.parentRouteId);
+		}
+		// Main
+		routeIds.push(this.currentRoutes.id);
+		// Main child
+		for (const child of this.currentRoutes.mainChildRoutes) {
+			routeIds.push(child.id);
+		}
+		// Hidden
+		for (const child of this.currentRoutes.hiddenRoutes) {
+			routeIds.push(child.id);
+		}
+		// Hidden child
+		for (const child of this.currentRoutes.hiddenChildRoutes) {
+			routeIds.push(child.id);
+		}
+		// Secondary
+		for (const child of this.currentRoutes.secondaryRoutes) {
+			routeIds.push(child.id);
+		}
+		// Secondary child
+		for (const child of this.currentRoutes.secondaryChildRoutes) {
+			routeIds.push(child.id);
+		}
+		return routeIds;
 	}
 
 	add(route) {
@@ -6044,6 +6076,7 @@ class Router {
 			if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
 				const $root = self.$powerUi.getRouteCtrl('$root');
 				$root._$postToMain({
+					routeIds: this.getCurrentRouteIds(),
 					command: 'setCurrentBody',
 					body: document.getElementsByTagName("BODY")[0].innerHTML,
 				});
