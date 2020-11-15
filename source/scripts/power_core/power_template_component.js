@@ -76,7 +76,7 @@ class PowerTemplate extends PowerScope {
 						fileName: fileName,
 					});
 
-					resolve(content);
+					resolve(template || content);
 				} else {
 					resolve(response);
 				}

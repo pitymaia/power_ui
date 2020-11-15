@@ -1979,7 +1979,7 @@ class PowerUi extends _PowerUiBase {
 									const currentRouteFiles = $root._$filesByRouteId[event.data.routeId][event.data.fileName].source;
 									const _template = new DOMParser().parseFromString(currentRouteFiles.content, 'text/html');
 									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
-								} else if (event.data.extension === '.json' && event.data.template !== '') {
+								} else if ($root._$selectRouteFilesToEdit && (event.data.extension === '.json' && event.data.template !== '')) {
 									const _template = new DOMParser().parseFromString(event.data.template, 'text/html');
 									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
 								}
@@ -7276,7 +7276,7 @@ class PowerTemplate extends PowerScope {
 						fileName: fileName,
 					});
 
-					resolve(content);
+					resolve(template || content);
 				} else {
 					resolve(response);
 				}
