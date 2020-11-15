@@ -7271,6 +7271,7 @@ class PowerTemplate extends PowerScope {
 						extension: fileExt || null,
 						path: filePath,
 						content: content,
+						template: template,
 						viewId: self._viewId,
 						routeId: self._routeId,
 						fileName: fileName,
@@ -7328,7 +7329,6 @@ class PowerTemplate extends PowerScope {
 			throw 'ERROR: MISSING! importJson needs a file path and a JSONSchema selector! ';
 		}
 		const content = await this._import(filePath, selector);
-		console.log('content', content);
 		return content;
 	}
 
