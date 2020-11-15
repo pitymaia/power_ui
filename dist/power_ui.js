@@ -1941,9 +1941,9 @@ class PowerUi extends _PowerUiBase {
 					// 	const ctrl = this.getCurrentElementCtrl(document.getElementById(event.data.id));
 					// 	ctrl.windowsOrder();
 					// }
-
+					const isTarget = window.location.href.startsWith(config.devMode.target);
 					// Commands only to iframe element
-					if (this.devMode.child && window.location.href.startsWith(config.devMode.target)) {
+					if (this.devMode.appId && this.devMode.child && this.devMode.isEditable && isTarget) {
 						if (event.data.command === 'addInnerHTML') {
 							const element = document.getElementById(event.data.id);
 							element.innerHTML = element.innerHTML + event.data.value;
@@ -1957,6 +1957,15 @@ class PowerUi extends _PowerUiBase {
 							const element = document.getElementById(event.data.id);
 							element.classList.remove(event.data.value);
 						}
+					} else if (this.devMode.appId === false && this.devMode.child && isTarget) {
+						const appId = `app${this._Unique.next()}`;
+						this.devMode.appId = appId;
+						document.body.dataset.appId = appId;
+
+						const $root = this.getRouteCtrl('$root');
+						$root._$postToMain({appId: appId, command: 'setChildApp'});
+					} else if (event.data.command === 'setAsEditable' && this.devMode.appId === event.data.appId && isTarget) {
+						this.devMode.isEditable = true;
 					}
 
 					// Register the file
@@ -1972,7 +1981,7 @@ class PowerUi extends _PowerUiBase {
 							if (!$root._$filesByRouteId[event.data.routeId][event.data.fileName]) {
 								$root._$filesByRouteId[event.data.routeId][event.data.fileName] = {source: event.data};
 								// Parse html files
-								if (event.data.extension === '.html' || event.data.extension === '.htm') {
+								if ($root._$selectRouteFilesToEdit && (event.data.extension === '.html' || event.data.extension === '.htm')) {
 									const currentRouteFiles = $root._$filesByRouteId[event.data.routeId][event.data.fileName].source;
 									const _template = new DOMParser().parseFromString(currentRouteFiles.content, 'text/html');
 									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
@@ -1980,10 +1989,12 @@ class PowerUi extends _PowerUiBase {
 								$root._$selectRouteFilesToEdit(event.data);
 							}
 
-						} else if (event.data.command === 'selectNodeToEdit') {
+						} else if (event.data.command === 'selectNodeToEdit' && $root._$selectNodeToEdit) {
 							$root._$selectNodeToEdit(event.data);
-						} else if (event.data.command === 'setCurrentBody') {
+						} else if (event.data.command === 'setCurrentBody' && $root._$setCurrentBody) {
 							$root._$setCurrentBody(event.data);
+						} else if (event.data.command === 'setChildApp' && $root._$setChildApp) {
+							$root._$setChildApp(event.data);
 						}
 					}
 				} else {
@@ -1995,7 +2006,6 @@ class PowerUi extends _PowerUiBase {
 				}
 			});
 		}
-
 
 		window._$dispatchPowerEvent = this._$dispatchPowerEvent;
 		// Detect if is touchdevice (Phones, Ipads, etc)
