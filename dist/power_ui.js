@@ -1960,8 +1960,6 @@ class PowerUi extends _PowerUiBase {
 							const element = document.getElementById(event.data.id);
 							element.classList.remove(event.data.value);
 						}
-					} else if (event.data.command === 'setAsEditable' && isTarget) {
-						this.devMode.isEditable = true;
 					}
 
 					// Register the file
@@ -5087,7 +5085,7 @@ class PowerController extends PowerScope {
 	}
 
 	_$selectElementToEdit(event, element) {
-		if (!this.$powerUi.devMode.isEditable) {
+		if (!this.$powerUi.devMode.isEditable || !this.devMode.child) {
 			return;
 		}
 		if (this._$nodeSelectdToEdit) {
@@ -5105,7 +5103,7 @@ class PowerController extends PowerScope {
 
 	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
 	_$createEditableHtml(template, fileName, routeId) {
-		if (!this.$powerUi.devMode.isEditable) {
+		if (!this.$powerUi.devMode.isEditable || !this.devMode.child) {
 			return;
 		}
 		template = template.replaceAll('onclick', 'ondblclick');
@@ -6085,7 +6083,7 @@ class Router {
 		const self = this;
 		setTimeout(function () {
 			self.onRouteChange.broadcast();
-			if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
+			if (self.$powerUi.devMode && self.$powerUi.devMode.child && self.$powerUi.devMode.isEditable) {
 				const $root = self.$powerUi.getRouteCtrl('$root');
 				$root._$postToMain({
 					routeIds: self.getCurrentRouteIds(),
@@ -7223,7 +7221,7 @@ class PowerTemplate extends PowerScope {
 	}
 
 	_replaceHtmlForEdit(response, fileName, self) {
-		if (!this.$powerUi.devMode.isEditable) {
+		if (!this.$powerUi.devMode.isEditable || !this.devMode.child) {
 			return;
 		}
 		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);

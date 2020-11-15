@@ -822,7 +822,7 @@ class Router {
 		const self = this;
 		setTimeout(function () {
 			self.onRouteChange.broadcast();
-			if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
+			if (self.$powerUi.devMode && self.$powerUi.devMode.child && self.$powerUi.devMode.isEditable) {
 				const $root = self.$powerUi.getRouteCtrl('$root');
 				$root._$postToMain({
 					routeIds: self.getCurrentRouteIds(),

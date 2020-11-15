@@ -24,7 +24,7 @@ class PowerTemplate extends PowerScope {
 	}
 
 	_replaceHtmlForEdit(response, fileName, self) {
-		if (!this.$powerUi.devMode.isEditable) {
+		if (!this.$powerUi.devMode.isEditable || !this.devMode.child) {
 			return;
 		}
 		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);

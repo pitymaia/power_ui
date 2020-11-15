@@ -485,8 +485,6 @@ class PowerUi extends _PowerUiBase {
 							const element = document.getElementById(event.data.id);
 							element.classList.remove(event.data.value);
 						}
-					} else if (event.data.command === 'setAsEditable' && isTarget) {
-						this.devMode.isEditable = true;
 					}
 
 					// Register the file
