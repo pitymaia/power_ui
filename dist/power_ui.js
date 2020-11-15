@@ -1943,7 +1943,7 @@ class PowerUi extends _PowerUiBase {
 					// }
 					const isTarget = window.location.href.startsWith(config.devMode.target);
 					// Commands only to iframe element
-					if (this.devMode.appId && this.devMode.child && this.devMode.isEditable && isTarget) {
+					if (this.devMode.child && this.devMode.isEditable && isTarget) {
 						if (event.data.command === 'addInnerHTML') {
 							const element = document.getElementById(event.data.id);
 							element.innerHTML = element.innerHTML + event.data.value;
@@ -1957,14 +1957,7 @@ class PowerUi extends _PowerUiBase {
 							const element = document.getElementById(event.data.id);
 							element.classList.remove(event.data.value);
 						}
-					} else if (this.devMode.appId === false && this.devMode.child && isTarget) {
-						const appId = `app${this._Unique.next()}`;
-						this.devMode.appId = appId;
-						document.body.dataset.appId = appId;
-
-						const $root = this.getRouteCtrl('$root');
-						$root._$postToMain({appId: appId, command: 'setChildApp'});
-					} else if (event.data.command === 'setAsEditable' && this.devMode.appId === event.data.appId && isTarget) {
+					} else if (event.data.command === 'setAsEditable' && isTarget) {
 						this.devMode.isEditable = true;
 					}
 
@@ -5091,6 +5084,9 @@ class PowerController extends PowerScope {
 	}
 
 	_$selectElementToEdit(event, element) {
+		if (!this.$powerUi.devMode.isEditable) {
+			return;
+		}
 		if (this._$nodeSelectdToEdit) {
 			this._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
@@ -5104,8 +5100,11 @@ class PowerController extends PowerScope {
 		});
 	}
 
-	// TODO: MOVE selectElementToEdit to view element (main-view, secundary-view, etc...)
+	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
 	_$createEditableHtml(template, fileName, routeId) {
+		if (!this.$powerUi.devMode.isEditable) {
+			return;
+		}
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
