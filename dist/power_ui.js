@@ -5104,7 +5104,7 @@ class PowerController extends PowerScope {
 	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
 	_$createEditableHtml(template, fileName, routeId) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
-			return;
+			return template;
 		}
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
@@ -7222,13 +7222,13 @@ class PowerTemplate extends PowerScope {
 
 	_replaceHtmlForEdit(response, fileName, self) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
-			return;
+			return response;
 		}
 		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
-		return result ? result.body.innerHTML : null;
+		return (result && result.body) ? result.body.innerHTML : response;
 	}
 
-	_import(filePath) {
+	_import(filePath, selector) {
 		const self = this;
 		return new Promise(function (resolve, reject) {
 			self.$powerUi.request({
@@ -7248,7 +7248,12 @@ class PowerTemplate extends PowerScope {
 						content = response;
 					} else if (filePath.slice(-5) === '.json') {
 						fileExt = '.json';
-						content = response;
+						if (selector) {
+							content = self.$service('JSONSchema')[selector](response);
+							content = self._replaceHtmlForEdit(content, fileName, self);
+						} else {
+							content = response;
+						}
 					} else if (filePath.slice(-4) === '.htm') {
 						fileExt = '.htm';
 						content = self._replaceHtmlForEdit(response, fileName, self);
@@ -7312,6 +7317,15 @@ class PowerTemplate extends PowerScope {
 		} else {
 			throw "Error: import expects a string or array";
 		}
+	}
+
+	async importJson(filePath, selector) {
+		if (!filePath || !selector) {
+			throw 'ERROR: MISSING! importJson needs a file path and a JSONSchema selector! ';
+		}
+		const content = await this._import(filePath, selector);
+		console.log('content', content);
+		return content;
 	}
 
 	request(options) {
