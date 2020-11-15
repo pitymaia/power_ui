@@ -156,9 +156,6 @@ class PowerController extends PowerScope {
 	}
 
 	_$selectElementToEdit(event, element) {
-		if (!this.$powerUi.devMode.isEditable) {
-			return;
-		}
 		if (this._$nodeSelectdToEdit) {
 			this._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
@@ -174,9 +171,6 @@ class PowerController extends PowerScope {
 
 	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
 	_$createEditableHtml(template, fileName, routeId) {
-		if (!this.$powerUi.devMode.isEditable) {
-			return;
-		}
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;

@@ -25,7 +25,7 @@ class PowerTemplate extends PowerScope {
 
 	_replaceHtmlForEdit(response, fileName, self) {
 		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
-		return result.body.innerHTML;
+		return result ? result.body.innerHTML : null;
 	}
 
 	_import(filePath) {
