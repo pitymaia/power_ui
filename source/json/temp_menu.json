@@ -1,0 +1,47 @@
+{
+    "id": "secondary-menu",
+    "mirrored": false,
+    "position": "top-right",
+    "orientation": "horizontal",
+    "items": [
+        {
+            "item": {
+                "id": "my-item-1",
+                "label": "Child 1",
+                "icon": "icon-food-lollipop",
+                "events": [
+                    {
+                        "event": "onclick",
+                        "fn": "openChild()"
+                    }
+                ]
+            }
+        },
+        {
+            "item": {
+                "id": "my-item-2",
+                "label": "Child 2",
+                "icon": "icon-food-hamburguer",
+                "events": [
+                    {
+                        "event": "onclick",
+                        "fn": "openChild2()"
+                    }
+                ]
+            }
+        },
+        {
+            "item": {
+                "id": "my-item-3",
+                "label": "Child Main",
+                "icon": "icon-food-carrot",
+                "events": [
+                    {
+                        "event": "onclick",
+                        "fn": "openChild3()"
+                    }
+                ]
+            }
+        }
+    ]
+}

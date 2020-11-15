@@ -161,7 +161,7 @@ class PowerThirdCtrl2 extends PowerController {
 }
 
 class SecondaryMainTemplate extends PowerTemplate {
-	template(resolve, reject) {
+	async template(resolve, reject) {
 		// console.log('Secondary main template');
 		let newTmpl = `<div>
 			<div class="power-view" id="secondary-child-views"></div>
@@ -223,7 +223,9 @@ class SecondaryMainTemplate extends PowerTemplate {
 			]
 		};
 
-		newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
+		// newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
+		const _m = await this.importJson('/json/temp_menu.json', 'menu');
+		newTmpl = _m + newTmpl;
 
 		resolve(newTmpl);
 	}
@@ -2080,10 +2082,6 @@ class RootScopeTemplate extends PowerTemplate {
 				<div>Inner!<span>Another level</span></div>
 			</div>
 		</div>`;
-		const result = this.$ctrl._$createEditableHtml(template, 'somefile.html', this._routeId);
-		console.log('Root hi there!', result.body.innerHTML);
-		const _tmpl = result.body.innerHTML;
-		newTmpl = _tmpl + newTmpl;
 
 		const menu1 = {
 			"classList": ["pw-blue-white"],
