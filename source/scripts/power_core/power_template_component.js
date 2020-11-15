@@ -24,6 +24,9 @@ class PowerTemplate extends PowerScope {
 	}
 
 	_replaceHtmlForEdit(response, fileName, self) {
+		if (!this.$powerUi.devMode.isEditable) {
+			return;
+		}
 		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
 		return result ? result.body.innerHTML : null;
 	}
@@ -37,7 +40,7 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
-				if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
+				if (self.$powerUi.devMode && self.$powerUi.devMode.child && self.$powerUi.devMode.isEditable) {
 					let fileExt = false;
 					let content = '';
 					const parts = filePath.split('/');

@@ -1932,6 +1932,10 @@ class PowerUi extends _PowerUiBase {
 
 		if (config.devMode) {
 			this.devMode = config.devMode;
+			const isTarget = window.location.href.startsWith(config.devMode.target);
+			if (this.devMode.child && window.location.href.indexOf('isEditable') > -1) {
+				this.devMode.isEditable = true;
+			}
 			window.addEventListener('message', event => {
 				// IMPORTANT: check the origin of the data!
 				if (event.origin.startsWith(config.devMode.source) || event.origin.startsWith(config.devMode.target)) {
@@ -1941,7 +1945,6 @@ class PowerUi extends _PowerUiBase {
 					// 	const ctrl = this.getCurrentElementCtrl(document.getElementById(event.data.id));
 					// 	ctrl.windowsOrder();
 					// }
-					const isTarget = window.location.href.startsWith(config.devMode.target);
 					// Commands only to iframe element
 					if (this.devMode.child && this.devMode.isEditable && isTarget) {
 						if (event.data.command === 'addInnerHTML') {
@@ -5084,6 +5087,9 @@ class PowerController extends PowerScope {
 	}
 
 	_$selectElementToEdit(event, element) {
+		if (!this.$powerUi.devMode.isEditable) {
+			return;
+		}
 		if (this._$nodeSelectdToEdit) {
 			this._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
@@ -5099,6 +5105,9 @@ class PowerController extends PowerScope {
 
 	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
 	_$createEditableHtml(template, fileName, routeId) {
+		if (!this.$powerUi.devMode.isEditable) {
+			return;
+		}
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
@@ -7214,6 +7223,9 @@ class PowerTemplate extends PowerScope {
 	}
 
 	_replaceHtmlForEdit(response, fileName, self) {
+		if (!this.$powerUi.devMode.isEditable) {
+			return;
+		}
 		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
 		return result ? result.body.innerHTML : null;
 	}
@@ -7227,7 +7239,7 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
-				if (self.$powerUi.devMode && self.$powerUi.devMode.child) {
+				if (self.$powerUi.devMode && self.$powerUi.devMode.child && self.$powerUi.devMode.isEditable) {
 					let fileExt = false;
 					let content = '';
 					const parts = filePath.split('/');
