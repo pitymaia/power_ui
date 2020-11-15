@@ -173,7 +173,7 @@ class PowerController extends PowerScope {
 	}
 
 	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
-	_$createEditableHtml(template, fileName, routeId) {
+	_$createEditableHtml(template, fileName, routeId, jsonSelector) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}

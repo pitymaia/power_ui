@@ -1979,6 +1979,9 @@ class PowerUi extends _PowerUiBase {
 									const currentRouteFiles = $root._$filesByRouteId[event.data.routeId][event.data.fileName].source;
 									const _template = new DOMParser().parseFromString(currentRouteFiles.content, 'text/html');
 									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
+								} else if (event.data.extension === '.json' && event.data.template !== '') {
+									const _template = new DOMParser().parseFromString(event.data.template, 'text/html');
+									$root._$filesByRouteId[event.data.routeId][event.data.fileName].template = _template.body;
 								}
 								$root._$selectRouteFilesToEdit(event.data);
 							}
@@ -5102,7 +5105,7 @@ class PowerController extends PowerScope {
 	}
 
 	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
-	_$createEditableHtml(template, fileName, routeId) {
+	_$createEditableHtml(template, fileName, routeId, jsonSelector) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
@@ -7220,11 +7223,11 @@ class PowerTemplate extends PowerScope {
 		return new Promise(this.template.bind(this));
 	}
 
-	_replaceHtmlForEdit(response, fileName, self) {
+	_replaceHtmlForEdit(response, fileName, self, jsonSelector=false) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return response;
 		}
-		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
+		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId, jsonSelector);
 		return (result && result.body) ? result.body.innerHTML : response;
 	}
 
@@ -7240,6 +7243,7 @@ class PowerTemplate extends PowerScope {
 				if (self.$powerUi.devMode && self.$powerUi.devMode.child && self.$powerUi.devMode.isEditable) {
 					let fileExt = false;
 					let content = '';
+					let template = '';
 					const parts = filePath.split('/');
 					const fileName = parts[parts.length - 1];
 
@@ -7250,7 +7254,7 @@ class PowerTemplate extends PowerScope {
 						fileExt = '.json';
 						if (selector) {
 							content = self.$service('JSONSchema')[selector](response);
-							content = self._replaceHtmlForEdit(content, fileName, self);
+							template = self._replaceHtmlForEdit(content, fileName, self, selector);
 						} else {
 							content = response;
 						}
