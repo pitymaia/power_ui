@@ -31,7 +31,7 @@ class PowerTemplate extends PowerScope {
 		return (result && result.body) ? result.body.innerHTML : response;
 	}
 
-	_import(filePath, selector) {
+	_import(filePath) {
 		const self = this;
 		return new Promise(function (resolve, reject) {
 			self.$powerUi.request({
@@ -53,6 +53,7 @@ class PowerTemplate extends PowerScope {
 					} else if (filePath.slice(-5) === '.json') {
 						fileExt = '.json';
 						content = response;
+						const selector = response.$selector || null;
 						if (selector) {
 							const html = self.$service('JSONSchema')[selector](response);
 							template = self._replaceHtmlForEdit(html, fileName, self, selector);
@@ -121,14 +122,6 @@ class PowerTemplate extends PowerScope {
 		} else {
 			throw "Error: import expects a string or array";
 		}
-	}
-
-	async importJson(filePath, selector) {
-		if (!filePath || !selector) {
-			throw 'ERROR: MISSING! importJson needs a file path and a JSONSchema selector! ';
-		}
-		const content = await this._import(filePath, selector);
-		return content;
 	}
 
 	request(options) {

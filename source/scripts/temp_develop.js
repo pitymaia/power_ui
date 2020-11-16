@@ -224,7 +224,7 @@ class SecondaryMainTemplate extends PowerTemplate {
 		};
 
 		// newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
-		const _m = await this.importJson('/json/temp_menu.json', 'menu');
+		const _m = await this.import('/json/temp_menu.json');
 		newTmpl = _m + newTmpl;
 
 		resolve(newTmpl);
