@@ -52,11 +52,10 @@ class PowerTemplate extends PowerScope {
 						content = response;
 					} else if (filePath.slice(-5) === '.json') {
 						fileExt = '.json';
+						content = response;
 						if (selector) {
-							content = self.$service('JSONSchema')[selector](response);
-							template = self._replaceHtmlForEdit(content, fileName, self, selector);
-						} else {
-							content = response;
+							const html = self.$service('JSONSchema')[selector](response);
+							template = self._replaceHtmlForEdit(html, fileName, self, selector);
 						}
 					} else if (filePath.slice(-4) === '.htm') {
 						fileExt = '.htm';
