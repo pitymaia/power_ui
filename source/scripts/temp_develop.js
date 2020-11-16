@@ -223,9 +223,9 @@ class SecondaryMainTemplate extends PowerTemplate {
 			]
 		};
 
-		// newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
-		const _m = await this.import('/json/temp_menu.json');
-		newTmpl = _m + newTmpl;
+		newTmpl = this.$service('JSONSchema').menu(menu1) + newTmpl;
+
+		// newTmpl = newTmpl + newTmpl;
 
 		resolve(newTmpl);
 	}
@@ -298,10 +298,55 @@ class SecondaryChildCtrl extends PowerController {
 class SecondaryChildTemplate2 extends PowerTemplate {
 	template(resolve, reject) {
 		this.$routeClassList['secondary-main'] = ['orange-bg'];
-		// console.log('Secondary child 2 template');
+		const html = {
+		    "id": "primary-content",
+		    "$selector": "html",
+		    "tagName": "div",
+		    "classList": ["block-primary"],
+		    "children": [
+		        {
+		            "grid": {
+		                "id": "contact",
+		                "$selector": "grid",
+		                "kind": "scroll-12",
+		                "border": false,
+		                "gap": 4,
+		                "sizes": [
+		                    "s-12 m-12 l-8 xl-8",
+		                    "s-12 m-12 l-4 xl-4"
+		                ],
+		                "fields": [
+		                    {
+		                        "classList": ["contact-form-col"],
+		                        "children": [
+		                            {
+		                                "html": {
+		                                    "tagName": "h1",
+		                                    "text": "Contact Us"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "p",
+		                                    "classList": ["pw-align-justify"],
+		                                    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean non turpis viverra, tincidunt orci vitae, molestie augue. Vestibulum lectus dui, gravida quis elementum eleifend, maximus et eros. Suspendisse volutpat dolor eu ante tempor, nec commodo est accumsan. Aenean non leo tincidunt, feugiat velit a, dictum leo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aliquam blandit volutpat felis."
+		                                }
+		                            }
+		                        ]
+		                    },
+		                    {
+		                        "text": "<h2>Our offices</h2><p>Suspendisse ornare, magna nec feugiat faucibus, sem mauris egestas libero, quis consequat odio nisi sit amet nunc.</p><h2>Address</h2><p>303 Wayback Lane,<br />New York,<br />CA 10101<br /></p><h2>Working hours</h2><p>9AM - 6PM, Mon to Sat</p><h2>Contact</h2><p>contact@business.com<br />01 (640) 769 7933</p>"
+		                    }
+		                ]
+		            }
+		        }
+		    ]
+		};
+		const _tmpl = this.$service('JSONSchema').html(html);
 		resolve(`<div>
 			<h1>This is the child page 2</h1>
 			<div>SO GREAT FRAMEWORK!</div>
+			${_tmpl}
 		</div>`);
 	}
 }
@@ -675,7 +720,6 @@ class PowerMainCtrl extends PowerController {
 
 class PowerMainChildTemplate extends PowerTemplate {
 	template(resolve, reject) {
-		// console.log('Child template');
 		resolve(`<div>
 			<h1>This is the Child page 2</h1>
 			<div>VIVA!</div>

@@ -2904,6 +2904,7 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	otherJsonKind(item) {
+		console.log('child', item);
 		if (item.button) {
 			return this.button(item.button);
 		} else if (item.simpleForm) {
@@ -2924,6 +2925,8 @@ class JSONSchemaService extends PowerServices {
 			return this.status(item.status);
 		} else if (item.html) {
 			return this.html(item.html);
+		} else if (item.grid) {
+			return this.grid(item.grid);
 		} else {
 			return null;
 		}
@@ -4733,7 +4736,7 @@ class JSONSchemaService extends PowerServices {
 					}
 				}
 			},
-			"required": ["tagName"]
+			// "required": ["tagName"]
 		};
 	}
 
