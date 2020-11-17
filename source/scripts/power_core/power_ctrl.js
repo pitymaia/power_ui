@@ -176,15 +176,12 @@ class PowerController extends PowerScope {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
-		const _appContainer = document.getElementById('app-container');
-		if (_appContainer && !_appContainer.classList.contains('pw-allow-edit-element')) {
-			_appContainer.classList.add('pw-allow-edit-element');
-		}
 
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
 		for (const child of _template.body.children) {
+			child.classList.add('pw-allow-edit-element');
 			child.dataset.file = fileName;
 			child.dataset.route = routeId;
 			child.dataset.powEvent = "";
