@@ -5093,14 +5093,14 @@ class PowerController extends PowerScope {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return;
 		}
-		if (this._$nodeSelectdToEdit) {
-			this._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
+		if (this.$powerUi._$nodeSelectdToEdit) {
+			this.$powerUi._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
-		this._$nodeSelectdToEdit = event.target;
-		this._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
+		this.$powerUi._$nodeSelectdToEdit = event.target;
+		this.$powerUi._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
 		this._$postToMain({
 			command: 'selectNodeToEdit',
-			level: this._$nodeSelectdToEdit.dataset.level,
+			level: this.$powerUi._$nodeSelectdToEdit.dataset.level,
 			file: element.dataset.file,
 			route: element.dataset.route,
 		});
@@ -5110,6 +5110,11 @@ class PowerController extends PowerScope {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
+		const _appContainer = document.getElementById('app-container');
+		if (_appContainer && !_appContainer.classList.contains('pw-allow-edit-element')) {
+			_appContainer.classList.add('pw-allow-edit-element');
+		}
+
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
