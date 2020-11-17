@@ -191,7 +191,7 @@ class PowerController extends PowerScope {
 				child,
 				function(node, level) {
 					node.dataset.level = level;
-					if (node.for) {
+					if (node.tagName.toLowerCase() === 'label') {
 						node.removeAttribute('for');
 					}
 				},
