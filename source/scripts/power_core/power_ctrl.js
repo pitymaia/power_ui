@@ -191,6 +191,9 @@ class PowerController extends PowerScope {
 				child,
 				function(node, level) {
 					node.dataset.level = level;
+					if (node.for) {
+						node.for = null;
+					}
 				},
 				counter
 			);
