@@ -5126,7 +5126,7 @@ class PowerController extends PowerScope {
 				function(node, level) {
 					node.dataset.level = level;
 					if (node.for) {
-						node.for = null;
+						node.removeAttribute('for');
 					}
 				},
 				counter
