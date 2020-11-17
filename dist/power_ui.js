@@ -2904,7 +2904,6 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	otherJsonKind(item) {
-		console.log('child', item);
 		if (item.button) {
 			return this.button(item.button);
 		} else if (item.simpleForm) {
@@ -7243,9 +7242,9 @@ class PowerTemplate extends PowerScope {
 					method: 'GET',
 					status: 'Loading file',
 			}).then(function (response) {
+				let content = '';
 				if (self.$powerUi.devMode && self.$powerUi.devMode.child && self.$powerUi.devMode.isEditable) {
 					let fileExt = false;
-					let content = '';
 					let template = '';
 					const parts = filePath.split('/');
 					const fileName = parts[parts.length - 1];
@@ -7282,7 +7281,12 @@ class PowerTemplate extends PowerScope {
 
 					resolve(template || content);
 				} else {
-					resolve(response);
+					if (filePath.slice(-5) === '.json' && response.$selector) {
+						content = self.$service('JSONSchema')[response.$selector](response);
+						resolve(content);
+					} else {
+						resolve(response);
+					}
 				}
 			}).catch(function (error) {
 				window.console.log('Error importing file:', error);

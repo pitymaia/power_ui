@@ -253,7 +253,6 @@ class JSONSchemaService extends PowerServices {
 	}
 
 	otherJsonKind(item) {
-		console.log('child', item);
 		if (item.button) {
 			return this.button(item.button);
 		} else if (item.simpleForm) {
