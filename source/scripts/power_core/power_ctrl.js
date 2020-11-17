@@ -172,8 +172,7 @@ class PowerController extends PowerScope {
 		});
 	}
 
-	// TODO: MOVE 'pw-allow-edit-element' to view element (main-view, secundary-view, etc...)?????
-	_$createEditableHtml(template, fileName, routeId, jsonSelector) {
+	_$createEditableHtml(template, fileName, routeId) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
@@ -181,7 +180,6 @@ class PowerController extends PowerScope {
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
 		for (const child of _template.body.children) {
-			child.classList.add('pw-allow-edit-element');
 			child.dataset.file = fileName;
 			child.dataset.route = routeId;
 			child.dataset.powEvent = "";

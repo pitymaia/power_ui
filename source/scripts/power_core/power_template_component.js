@@ -23,11 +23,11 @@ class PowerTemplate extends PowerScope {
 		return new Promise(this.template.bind(this));
 	}
 
-	_replaceHtmlForEdit(response, fileName, self, jsonSelector=false) {
+	_replaceHtmlForEdit(response, fileName, self) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return response;
 		}
-		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId, jsonSelector);
+		const result = self.$ctrl._$createEditableHtml(response, fileName, self._routeId);
 		return (result && result.body) ? result.body.innerHTML : response;
 	}
 
@@ -56,7 +56,7 @@ class PowerTemplate extends PowerScope {
 						const selector = response.$selector || null;
 						if (selector) {
 							const html = self.$service('JSONSchema')[selector](response);
-							template = self._replaceHtmlForEdit(html, fileName, self, selector);
+							template = self._replaceHtmlForEdit(html, fileName, self);
 						}
 					} else if (filePath.slice(-4) === '.htm') {
 						fileExt = '.htm';
