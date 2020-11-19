@@ -2011,6 +2011,7 @@ class PowerUi extends _PowerUiBase {
 		this.dialogs = [];
 		this.JSONById = {};
 		this._Unique = _Unique;
+		this.UEvent = UEvent;
 		this.addScopeEventListener();
 		this.numberOfopenModals = 0;
 		this.ctrlWaitingToRun = [];
