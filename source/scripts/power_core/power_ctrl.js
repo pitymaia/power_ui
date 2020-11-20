@@ -195,7 +195,7 @@ class PowerController extends PowerScope {
 
 		node.style.fontSize = savedSize;
 		node.style.fontSize = null;
-	};
+	}
 
 	_$createEditableHtml(template, fileName, routeId) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
