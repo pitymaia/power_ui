@@ -5107,11 +5107,36 @@ class PowerController extends PowerScope {
 		});
 	}
 
+	_$addSizesInPx(node) {
+		let nodeStyles = window.getComputedStyle(node, null);
+		const savedSize = nodeStyles.fontSize;
+		// px
+		node.dataset.currentPx = nodeStyles.getPropertyValue('font-size');
+
+		// em
+		node.style.fontSize = '1em';
+		nodeStyles = window.getComputedStyle(node, null);
+		node.dataset.emPx = nodeStyles.getPropertyValue('font-size');
+
+		// rem
+		node.style.fontSize = '1rem';
+		nodeStyles = window.getComputedStyle(node, null);
+		node.dataset.remPx = nodeStyles.getPropertyValue('font-size');
+
+		// Percentage
+		node.style.fontSize = '100%';
+		nodeStyles = window.getComputedStyle(node, null);
+		node.dataset.percentagePx = nodeStyles.getPropertyValue('font-size');
+
+		node.style.fontSize = savedSize;
+		node.style.fontSize = null;
+	};
+
 	_$createEditableHtml(template, fileName, routeId) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
-
+		const self = this;
 		template = template.replaceAll('onclick', 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
@@ -5125,6 +5150,7 @@ class PowerController extends PowerScope {
 			this.$powerUi.simpleSweepDOM(
 				child,
 				function(node, level) {
+					self._$addSizesInPx(node);
 					node.dataset.level = level;
 					if (node.htmlFor) {
 						node.dataset.sFor = node.htmlFor;
