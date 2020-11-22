@@ -162,7 +162,7 @@ class PowerController extends PowerScope {
 		if (this.$powerUi._$nodeSelectdToEdit) {
 			this.$powerUi._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
-		const sizes = _$addSizesInPx(event.target);
+		const sizes = this._$addSizesInPx(event.target);
 		this.$powerUi._$nodeSelectdToEdit = event.target;
 		this.$powerUi._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
 		this._$postToMain({
