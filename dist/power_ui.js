@@ -1959,7 +1959,11 @@ class PowerUi extends _PowerUiBase {
 						} else if (event.data.command === 'removeClassList') {
 							const element = document.getElementById(event.data.id);
 							element.classList.remove(event.data.value);
+						} else if (event.data.command === 'reloadRoot') {
+							const $root = this.getRouteCtrl('$root');
+							$root.reload();
 						}
+
 					}
 
 					// Register the file
