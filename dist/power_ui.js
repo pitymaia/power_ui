@@ -5097,6 +5097,7 @@ class PowerController extends PowerScope {
 		if (this.$powerUi._$nodeSelectdToEdit) {
 			this.$powerUi._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
+		const sizes = _$addSizesInPx(event.target);
 		this.$powerUi._$nodeSelectdToEdit = event.target;
 		this.$powerUi._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
 		this._$postToMain({
@@ -5104,32 +5105,36 @@ class PowerController extends PowerScope {
 			level: this.$powerUi._$nodeSelectdToEdit.dataset.level,
 			file: element.dataset.file,
 			route: element.dataset.route,
+			sizes: sizes,
 		});
 	}
 
 	_$addSizesInPx(node) {
+		const sizes = {};
 		let nodeStyles = window.getComputedStyle(node, null);
 		const savedSize = nodeStyles.fontSize;
 		// px
-		node.dataset.currentPx = nodeStyles.getPropertyValue('font-size');
+		sizes.currentPx = nodeStyles.getPropertyValue('font-size');
 
 		// em
 		node.style.fontSize = '1em';
 		nodeStyles = window.getComputedStyle(node, null);
-		node.dataset.emPx = nodeStyles.getPropertyValue('font-size');
+		sizes.emPx = nodeStyles.getPropertyValue('font-size');
 
 		// rem
 		node.style.fontSize = '1rem';
 		nodeStyles = window.getComputedStyle(node, null);
-		node.dataset.remPx = nodeStyles.getPropertyValue('font-size');
+		sizes.remPx = nodeStyles.getPropertyValue('font-size');
 
 		// Percentage
 		node.style.fontSize = '100%';
 		nodeStyles = window.getComputedStyle(node, null);
-		node.dataset.percentagePx = nodeStyles.getPropertyValue('font-size');
+		sizes.percentagePx = nodeStyles.getPropertyValue('font-size');
 
 		node.style.fontSize = savedSize;
 		node.style.fontSize = null;
+
+		return sizes;
 	}
 
 	_$createEditableHtml(template, fileName, routeId) {
@@ -5150,7 +5155,6 @@ class PowerController extends PowerScope {
 			this.$powerUi.simpleSweepDOM(
 				child,
 				function(node, level) {
-					self._$addSizesInPx(node);
 					node.dataset.level = level;
 					if (node.htmlFor) {
 						node.dataset.sFor = node.htmlFor;
