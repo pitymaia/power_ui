@@ -458,6 +458,7 @@ class PowerUi extends _PowerUiBase {
 		if (config.devMode) {
 			this.devMode = config.devMode;
 			const isTarget = window.location.href.startsWith(config.devMode.target);
+			const isSource = window.location.href.startsWith(config.devMode.source);
 			if (this.devMode.child && window.location.href.indexOf('isEditable') > -1) {
 				this.devMode.isEditable = true;
 			}
@@ -471,7 +472,7 @@ class PowerUi extends _PowerUiBase {
 					// 	ctrl.windowsOrder();
 					// }
 					// Commands only to iframe element
-					if (this.devMode.child && this.devMode.isEditable && isTarget) {
+					if (this.devMode.child && this.devMode.isEditable && isSource) {
 						if (event.data.command === 'addInnerHTML') {
 							const element = document.getElementById(event.data.id);
 							element.innerHTML = element.innerHTML + event.data.value;
