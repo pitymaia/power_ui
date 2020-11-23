@@ -68,7 +68,15 @@ class PowerController extends PowerScope {
 	}
 
 	request(options) {
-		return this.$powerUi.request(options);
+		const self = this;
+		const promise = new Promise(function (resolve, reject) {
+			self.$powerUi.request(options).then(function(response) {
+				resolve(response);
+			}).catch(function (error) {
+				reject(error);
+			});
+		});
+		return promise;
 	}
 
 	openRoute({routeId, params, target, data={}, commands=[]}) {
