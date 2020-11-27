@@ -254,7 +254,7 @@ class JSONSchemaService extends PowerServices {
 
 	otherJsonKind(item, keysPath) {
 		if (item.button) {
-			return this.button(item.button, keysPath);
+			return this.button(item.button, null, keysPath);
 		} else if (item.simpleForm) {
 			return this.simpleForm(item.simpleForm, keysPath);
 		} else if (item.tree) {
@@ -262,7 +262,7 @@ class JSONSchemaService extends PowerServices {
 		} else if (item.dropMenuButton) {
 			return this.dropMenuButton(item.dropMenuButton, keysPath);
 		} else if (item.dropmenu) {
-			return this.dropmenu(item.dropmenu, keysPath);
+			return this.dropmenu(item.dropmenu, null, null, keysPath);
 		} else if (item.menu) {
 			return this.menu(item.menu, keysPath);
 		} else if (item.accordion) {
@@ -918,7 +918,7 @@ class JSONSchemaService extends PowerServices {
 			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
 		} else if (_dropmenu.$ref) {
 			// Use the original JSON
-			return this.dropmenu(this.getNewJSON(_dropmenu), keysPath);
+			return this.dropmenu(this.getNewJSON(_dropmenu), mirrored, flip, keysPath);
 		} else {
 			if (_dropmenu.$id) {
 				// Register original JSON
@@ -1002,7 +1002,7 @@ class JSONSchemaService extends PowerServices {
 				} else if (item.dropmenu && !item.button) {
 					// Add submenu if have one and is not a button
 					const submenuHolderEl = document.createElement('div');
-					submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, null, flip, currentKeysPath);
+					submenuHolderEl.innerHTML = this.dropmenu(item.dropmenu, mirrored, flip, currentKeysPath);
 					tmpEl.children[0].appendChild(submenuHolderEl.children[0]);
 				}
 				counter = counter + 1;
@@ -1020,7 +1020,7 @@ class JSONSchemaService extends PowerServices {
 			return this._arrayOfSchemas(item, 'item');
 		} else if (item.$ref) {
 			// Use the original JSON
-			return this.item(this.getNewJSON(item), keysPath);
+			return this.item(this.getNewJSON(item), mirrored, dropmenuId, keysPath);
 		} else {
 			if (item.$id) {
 				// Register original JSON
@@ -1107,7 +1107,7 @@ class JSONSchemaService extends PowerServices {
 			return this._arrayOfSchemas(_button, 'button');
 		} else if (_button.$ref) {
 			// Use the original JSON
-			return this.button(this.getNewJSON(_button), keysPath);
+			return this.button(this.getNewJSON(_button), mirrored, keysPath);
 		} else {
 			if (_button.$id) {
 				// Register original JSON
