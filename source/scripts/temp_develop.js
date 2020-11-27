@@ -4231,8 +4231,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1, 'menu');
 
-		console.log('menuTemplate', htmlTemplate);
-
 		const form1 = {
 			// "type": "form",
 			"inline": true,
@@ -6239,7 +6237,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		htmlTemplate = htmlTemplate + this.$service('JSONSchema').tree(tree);
+		const _treeTmpl = this.$service('JSONSchema').tree(tree, 'tree');
+
+		htmlTemplate = htmlTemplate + _treeTmpl
+
+		console.log('_treeTmpl', _treeTmpl);
 
 		const grid = {
 			"id": "the-grid-json",

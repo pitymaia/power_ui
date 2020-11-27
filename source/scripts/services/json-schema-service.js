@@ -1153,7 +1153,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	tree(_tree) {
+	tree(_tree, keysPath) {
 		// Do not change the original JSON
 		const tree = this.cloneObject(_tree);
 		// This allow pass an array of trees
@@ -1161,7 +1161,7 @@ class JSONSchemaService extends PowerServices {
 			return this._arrayOfSchemas(_tree, 'tree');
 		} else if (_tree.$ref) {
 			// Use the original JSON
-			return this.tree(this.getNewJSON(_tree));
+			return this.tree(this.getNewJSON(_tree), keysPath);
 		} else {
 			if (_tree.$id) {
 				// Register original JSON
@@ -1185,9 +1185,11 @@ class JSONSchemaService extends PowerServices {
 
 			tree.classList.push('power-tree-view');
 
-			let template = `<nav ${this._getHtmlMoreBasicTmpl(tree)} ${tree.onClickFile ? 'data-on-click-file="' + tree.onClickFile + '"' : ''}>`;
+			let template = `<nav ${this._getHtmlMoreBasicTmpl(tree)} ${tree.onClickFile ? 'data-on-click-file="' + tree.onClickFile + '"' : ''}${keysPath ? ' data-keys-path="' + keysPath + '"' : ''}>`;
 
+			let counter = 0;
 			for (const item of tree.nodes) {
+				const currentKeysPath = keysPath ? `${keysPath},${counter}` : '';
 				if (this._validate(this.treeNodeDef(), item) === false) {
 					window.console.log('Failed JSON tree node:', item);
 					throw 'Failed JSON tree node!';
@@ -1206,18 +1208,19 @@ class JSONSchemaService extends PowerServices {
 					item.classList.push('power-item');
 
 					template = `${template}
-					<a ${this._getHtmlMoreBasicTmpl(item)} ${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''} `;
-					template = `${template}
-					><span class="pw-icon ${item.icon || 'icon-document-blank'}"></span> <span>${item.fullName}</span></a>`;
+					<a ${this._getHtmlMoreBasicTmpl(item)} ${item.path ? ' data-file-path="' + encodeURI(item.path) + '"' : ''}${currentKeysPath ? ' data-keys-path="' + currentKeysPath + '"' : ''} `;
+					template = `${template}>
+						<span class="pw-icon ${item.icon || 'icon-document-blank'}"></span> <span>${item.fullName}</span></a>`;
 				} else if (item.kind === 'folder') {
 					const id = `list-${this.$powerUi._Unique.next()}`;
 					item.classList.push('power-list');
 					template = `${template}
-					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}">
+					<a ${this._getHtmlMoreBasicTmpl(item)} data-power-target="${id}"${currentKeysPath ? ' data-keys-path="' + currentKeysPath + '"' : ''}>
 						<span class="power-status pw-icon" data-power-active="${item.active || 'icon-folder-open'}" data-power-inactive="${item.inactive || 'icon-folder-close'}"></span> <span>${item.fullName}</span>
 					</a>
-					${this.tree({nodes: item.nodes, id: id})}`;
+					${this.tree({nodes: item.nodes, id: id}, currentKeysPath)}`;
 				}
+				counter = counter + 1;
 			}
 			template = `${template}
 			</nav>`;
