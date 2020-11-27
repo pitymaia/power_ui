@@ -464,7 +464,7 @@ class PowerMainTemplate extends PowerTemplate {
 			"priority": 2,
 			"ignore": false,
 			"brand": {
-				"content": "PowerEasy",
+				"text": "PowerEasy",
 			},
 			"items": [
 				{
@@ -1913,7 +1913,7 @@ class SimpleTemplate extends PowerTemplate {
 			"position": "fixed-window-left",
 			"priority": 2,
 			"brand": {
-				"content": "WinMenu",
+				"text": "WinMenu",
 			},
 			"items": [
 				{
@@ -1940,7 +1940,7 @@ class SimpleTemplate extends PowerTemplate {
 			"ignore": true,
 			"priority": 3,
 			"brand": {
-				"content": "WinMenu",
+				"text": "WinMenu",
 			},
 			"items": [
 				{
@@ -2137,7 +2137,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"priority": 7,
 			"ignore": false,
 			"brand": {
-				"content": "PowerEasy",
+				"text": "PowerEasy",
 			},
 			"items": [
 				{
@@ -2374,7 +2374,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"ignore": false,
 			"priority": 6,
 			"brand": {
-				"content": "PowerUi",
+				"text": "PowerUi",
 			},
 			"items": [
 				{
@@ -2500,7 +2500,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"ignore": false,
 			"priority": 1,
 			"brand": {
-				"content": "SuperGame",
+				"text": "SuperGame",
 			},
 			"items": [
 				{
@@ -2529,7 +2529,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"ignore": false,
 			"priority": 4,
 			"brand": {
-				"content": "Great",
+				"text": "Great",
 			},
 			"items": [
 				{
@@ -3924,7 +3924,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			"id": 'my-menu-1',
 			// "orientation": "horizontal",
 			"brand": {
-				"content": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
+				"html": "<img src='/vendors/imgs/Brazil-Flag-icon.png' width='44px' />",
 				"events": [
 					{
 						"event": "onclick",
@@ -4229,7 +4229,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1);
+		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1, 'menu');
+
+		console.log('menuTemplate', htmlTemplate);
 
 		const form1 = {
 			// "type": "form",
@@ -4647,8 +4649,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 				}
 			]
 		};
+		const accordionTemplate = this.$service('JSONSchema').accordion(accordion);
 
-		htmlTemplate = htmlTemplate + this.$service('JSONSchema').accordion(accordion);
+		htmlTemplate = htmlTemplate + accordionTemplate;
 
 		const button = {
 			"classList": ['my-custom-button'],
@@ -5916,7 +5919,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 		const menu2 = {
 			"classList": ["custom-menu"],
 			"id": 'my-menu-2',
-			"brand": {"content": "PowerUi"},
+			"brand": {"text": "PowerUi"},
 			"mirrored": false,
 			"dropMenuPostision": "top-right",
 			// "orientation": "horizontal",

@@ -210,7 +210,7 @@ class PowerController extends PowerScope {
 		return sizes;
 	}
 
-	_$createEditableHtml(template, fileName, routeId) {
+	_$createEditableHtml(template, fileName, routeId, json) {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
@@ -225,17 +225,21 @@ class PowerController extends PowerScope {
 			child.dataset.powEvent = "";
 			child.setAttribute("onclick", "_$selectElementToEdit(event, _node)");
 			//
-			this.$powerUi.simpleSweepDOM(
-				child,
-				function(node, level) {
-					node.dataset.level = level;
-					if (node.htmlFor) {
-						node.dataset.sFor = node.htmlFor;
-						node.removeAttribute('for');
-					}
-				},
-				counter
-			);
+			if (json) {
+
+			} else {
+				this.$powerUi.simpleSweepDOM(
+					child,
+					function(node, level) {
+						node.dataset.level = level;
+						if (node.htmlFor) {
+							node.dataset.sFor = node.htmlFor;
+							node.removeAttribute('for');
+						}
+					},
+					counter
+				);
+			}
 
 			counter = counter + 1;
 		}
