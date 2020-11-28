@@ -4548,7 +4548,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		htmlTemplate = htmlTemplate + this.$service('JSONSchema').simpleForm(form1);
+		const _formTmpl = this.$service('JSONSchema').simpleForm(form1, 'form');
+
+		htmlTemplate = htmlTemplate + _formTmpl;
+
+		console.log('_formTmpl', _formTmpl);
 
 		const accordion = {
 			"classList": ['my-custom-accordion'],
@@ -6307,11 +6311,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		const _gridTmpl = this.$service('JSONSchema').grid(grid, 'grid');
+		const _gridTmpl = this.$service('JSONSchema').grid(grid);
 
 		htmlTemplate = htmlTemplate + _gridTmpl;
-
-		console.log('_gridTmpl', _gridTmpl);
 
 		const iconsGrid = {
 			"id": "icons-grid",

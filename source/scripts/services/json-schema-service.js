@@ -1330,8 +1330,11 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	simpleFormControls({controls, template, inline}) {
+	simpleFormControls({controls, template, inline, keysPath=false}) {
+		let _counter = 0;
 		for (const control of controls) {
+			const _currentKeysPath = keysPath ? `${keysPath},${_counter}` : '';
+			_counter = _counter + 1;
 			if (this._validate(this.simpleformcontrolsDef(), control) === false) {
 				window.console.log('Failed JSON control:', control);
 				throw 'Failed JSON control!';
@@ -1362,32 +1365,35 @@ class JSONSchemaService extends PowerServices {
 			const size = control.size ? control.size : 's-12 m-12 l-12 xl-12';
 
 			template = `${template}
-				<div class="${control.controls ? 'pw-inner-grid' : ''} pw-col ${size}">`;
+				<div ${_currentKeysPath ? 'data-keys-path="' + _currentKeysPath + '" ' : ''} class="${control.controls ? 'pw-inner-grid' : ''} pw-col ${size}">`;
 
 			// Allow a inner grid with controls
 			if (control.controls) {
 
 				template = `${template}
 				<div class="pw-grid scroll-12 gap-1 ${((control.inline === true) || (inline === true)) ? 'inline-grid' : ''}">
-					${this.simpleFormControls({controls: control.controls, template: ''})}
+					${this.simpleFormControls({controls: control.controls, template: '', keysPath: _currentKeysPath})}
 				</div>`;
 
 			// Allow adding any other html or json object
 			} else if (control.children) {
+				let counter = 0;
 				for (const child of control.children) {
-					template = template + this.otherJsonKind(child);
+					const currentKeysPath = _currentKeysPath ? `${_currentKeysPath},${counter}` : '';
+					template = template + this.otherJsonKind(child, currentKeysPath);
+					counter = counter + 1;
 				}
 
 			} else if (control.button) {
 
 				template = `${template}
-					${this.button(control.button)}`;
+					${this.button(control.button, _currentKeysPath)}`;
 
 			} else if (control.type === 'submit' || control.type === 'reset') {
 
 				control.classList.pop();
 				template = `${template}
-				<div class="pw-field-container">
+				<div ${_currentKeysPath ? 'data-keys-path="' + _currentKeysPath + '" ' : ''}class="pw-field-container">
 					<input ${this._getInputBasicTmpl(control)} />
 					<div class="pw-control-helper"></div>
 				</div>`;
@@ -1395,11 +1401,14 @@ class JSONSchemaService extends PowerServices {
 			} else if (control.type === 'select') {
 
 				template = `${template}
-				<div class="pw-field-container">
+				<div ${_currentKeysPath ? 'data-keys-path="' + _currentKeysPath + '" ' : ''}class="pw-field-container">
 					${label ? label : ''}
 					<select ${this._getInputBasicTmpl(control)} ${control.multiple === true ? 'multiple' : ''}>`;
+						let counter = 0;
 						for (const item of control.list) {
-							template = `${template}<option value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
+							const currentKeysPath = _currentKeysPath ? `${_currentKeysPath},${counter}` : '';
+							template = `${template}<option ${currentKeysPath ? 'data-keys-path="' + currentKeysPath + '" ' : ''}value="${item.value}"${item.disabled === true ? ' disabled' : ''}${item.selected === true ? ' selected' : ''}>${item.label}</option>`;
+							counter = counter + 1;
 						}
 					template = `${template}
 					</select>
@@ -1409,14 +1418,14 @@ class JSONSchemaService extends PowerServices {
 			} else if (control.type === 'radio' || control.type === 'checkbox') {
 
 				template = `${template}
-				<div class="pw-field-container">
+				<div ${_currentKeysPath ? 'data-keys-path="' + _currentKeysPath + '" ' : ''}class="pw-field-container">
 					<input ${this._getInputBasicTmpl(control)} /> ${label ? label : ''}
 				</div>`;
 
 			} else if (control.type === 'textarea') {
 
 				template = `${template}
-				<div class="pw-field-container">
+				<div ${_currentKeysPath ? 'data-keys-path="' + _currentKeysPath + '" ' : ''}class="pw-field-container">
 					${label ? label : ''}
 					<textarea ${this._getInputBasicTmpl(control)} ${control.rows ? 'rows="' + control.rows + '"' : ''} ${control.cols ? 'cols="' + control.cols + '"' : ''}>
 						${control.value || ''}
@@ -1427,7 +1436,7 @@ class JSONSchemaService extends PowerServices {
 			} else {
 
 				template = `${template}
-				<div class="pw-field-container">
+				<div ${_currentKeysPath ? 'data-keys-path="' + _currentKeysPath + '" ' : ''}class="pw-field-container">
 					${label ? label : ''}
 					<input ${this._getInputBasicTmpl(control)} />
 					<div class="pw-control-helper"></div>
@@ -1441,7 +1450,7 @@ class JSONSchemaService extends PowerServices {
 		return template;
 	}
 
-	simpleForm(_form) {
+	simpleForm(_form, keysPath) {
 		// Do not change the original JSON
 		const form = this.cloneObject(_form);
 		// This allow pass an array of forms
@@ -1484,11 +1493,11 @@ class JSONSchemaService extends PowerServices {
 			}
 			const classTmpl = this._getClassTmpl(classList);
 
-			const formType = form.type === 'form' ? 'form' : 'div';
+			const formType = form.type ? form.type : 'form';
 
-			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')} ${classTmpl}>`;
+			let template = `<${formType} ${this._getIdTmpl(form.id, 'form')}${keysPath ? ' data-keys-path="' + keysPath + '"' : ''} ${classTmpl}>`;
 
-			template = this.simpleFormControls({controls: form.controls, template: template});
+			template = this.simpleFormControls({controls: form.controls, template: template, keysPath: keysPath});
 
 			template = `${template}
 			</${formType}>`;
