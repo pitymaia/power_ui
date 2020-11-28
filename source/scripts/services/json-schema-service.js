@@ -242,11 +242,14 @@ class JSONSchemaService extends PowerServices {
 		return `${this._getHtmlBasicTmpl(control, required)} type="${control.type || 'text'}"${control.pattern ? ' pattern="' + control.pattern + '"' : ''}`;
 	}
 
-	_arrayOfSchemas(_array, func) {
+	_arrayOfSchemas(_array, func, keysPath) {
 		let template = '';
+		let counter = 0;
 		for (const tag of _array) {
+			const currentKeysPath = keysPath ? `${keysPath},${counter}` : '';
 			template = `${template}
-				${this[func](tag)}`;
+				${this[func](tag, currentKeysPath)}`;
+			counter = counter + 1;
 		}
 
 		return template;
@@ -330,7 +333,7 @@ class JSONSchemaService extends PowerServices {
 		const accordion = this.cloneObject(_accordion);
 		// This allow pass an array of accordions
 		if (_accordion.length) {
-			return this._arrayOfSchemas(_accordion, 'accordion');
+			return this._arrayOfSchemas(_accordion, 'accordion', keysPath);
 		} else if (_accordion.$ref) {
 			// Use the original JSON
 			return this.accordion(this.getNewJSON(_accordion), keysPath);
@@ -431,7 +434,7 @@ class JSONSchemaService extends PowerServices {
 		const powertabs = this.cloneObject(_powertabs);
 		// This allow pass an array of powertabs
 		if (_powertabs.length) {
-			return this._arrayOfSchemas(_powertabs, 'powertabs');
+			return this._arrayOfSchemas(_powertabs, 'powertabs', keysPath);
 		} else if (_powertabs.$ref) {
 			// Use the original JSON
 			return this.powertabs(this.getNewJSON(_powertabs), keysPath);
@@ -618,7 +621,7 @@ class JSONSchemaService extends PowerServices {
 		const menu = this.cloneObject(_menu);
 		// This allow pass an array of menus
 		if (_menu.length) {
-			return this._arrayOfSchemas(_menu, 'menu');
+			return this._arrayOfSchemas(_menu, 'menu', keysPath);
 		} else if (_menu.$ref) {
 			// Use the original JSON
 			return this.menu(this.getNewJSON(_menu), keysPath);
@@ -715,7 +718,7 @@ class JSONSchemaService extends PowerServices {
 		const toolbar = this.cloneObject(_toolbar);
 		// This allow pass an array of menus
 		if (_toolbar.length) {
-			return this._arrayOfSchemas(_toolbar, 'toolbar');
+			return this._arrayOfSchemas(_toolbar, 'toolbar', keysPath);
 		} else if (_toolbar.$ref) {
 			// Use the original JSON
 			return this.toolbar(this.getNewJSON(_toolbar), keysPath);
@@ -784,7 +787,7 @@ class JSONSchemaService extends PowerServices {
 		const splitbar = this.cloneObject(_splitbar);
 		// This allow pass an array of menus
 		if (_splitbar.length) {
-			return this._arrayOfSchemas(_splitbar, 'splitbar');
+			return this._arrayOfSchemas(_splitbar, 'splitbar', keysPath);
 		} else if (_splitbar.$ref) {
 			// Use the original JSON
 			return this.splitbar(this.getNewJSON(_splitbar), keysPath);
@@ -915,7 +918,7 @@ class JSONSchemaService extends PowerServices {
 		const dropmenuPosition = dropmenu.position;
 		// This allow pass an array of dropmenus
 		if (_dropmenu.length) {
-			return this._arrayOfSchemas(_dropmenu, 'dropmenu');
+			return this._arrayOfSchemas(_dropmenu, 'dropmenu', keysPath);
 		} else if (_dropmenu.$ref) {
 			// Use the original JSON
 			return this.dropmenu(this.getNewJSON(_dropmenu), mirrored, flip, keysPath);
@@ -1017,7 +1020,7 @@ class JSONSchemaService extends PowerServices {
 		const newItem = this.cloneObject(item);
 		// This allow pass an array of items
 		if (item.length) {
-			return this._arrayOfSchemas(item, 'item');
+			return this._arrayOfSchemas(item, 'item', keysPath);
 		} else if (item.$ref) {
 			// Use the original JSON
 			return this.item(this.getNewJSON(item), mirrored, dropmenuId, keysPath);
@@ -1065,7 +1068,7 @@ class JSONSchemaService extends PowerServices {
 		const dropMenuButton = this.cloneObject(_dropMenuButton);
 		// This allow pass an array of dropMenuButtons
 		if (_dropMenuButton.length) {
-			return this._arrayOfSchemas(_dropMenuButton, 'dropMenuButton');
+			return this._arrayOfSchemas(_dropMenuButton, 'dropMenuButton', keysPath);
 		} else if (_dropMenuButton.$ref) {
 			// Use the original JSON
 			return this.dropMenuButton(this.getNewJSON(_dropMenuButton), keysPath);
@@ -1104,7 +1107,7 @@ class JSONSchemaService extends PowerServices {
 		const button = this.cloneObject(_button);
 		// This allow pass an array of buttons
 		if (_button.length) {
-			return this._arrayOfSchemas(_button, 'button');
+			return this._arrayOfSchemas(_button, 'button', keysPath);
 		} else if (_button.$ref) {
 			// Use the original JSON
 			return this.button(this.getNewJSON(_button), mirrored, keysPath);
@@ -1158,7 +1161,7 @@ class JSONSchemaService extends PowerServices {
 		const tree = this.cloneObject(_tree);
 		// This allow pass an array of trees
 		if (_tree.length) {
-			return this._arrayOfSchemas(_tree, 'tree');
+			return this._arrayOfSchemas(_tree, 'tree', keysPath);
 		} else if (_tree.$ref) {
 			// Use the original JSON
 			return this.tree(this.getNewJSON(_tree), keysPath);
@@ -1234,7 +1237,7 @@ class JSONSchemaService extends PowerServices {
 		const grid = this.cloneObject(_grid);
 		// This allow pass an array of grids
 		if (_grid.length) {
-			return this._arrayOfSchemas(_grid, 'grid');
+			return this._arrayOfSchemas(_grid, 'grid', keysPath);
 		} else if (_grid.$ref) {
 			// Use the original JSON
 			return this.grid(this.getNewJSON(_grid));
@@ -1455,10 +1458,10 @@ class JSONSchemaService extends PowerServices {
 		const form = this.cloneObject(_form);
 		// This allow pass an array of forms
 		if (_form.length) {
-			return this._arrayOfSchemas(_form, 'form');
+			return this._arrayOfSchemas(_form, 'form', keysPath);
 		} else if (_form.$ref) {
 			// Use the original JSON
-			return this.simpleForm(this.getNewJSON(_form));
+			return this.simpleForm(this.getNewJSON(_form), keysPath);
 		} else {
 			if (_form.$id) {
 				// Register original JSON
@@ -1506,15 +1509,15 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	html(_html) {
+	html(_html, keysPath) {
 		// Do not change the original JSON
 		const html = this.cloneObject(_html);
 		// This allow pass an array of tags
 		if (_html.length) {
-			return this._arrayOfSchemas(_html, 'html');
+			return this._arrayOfSchemas(_html, 'html', keysPath);
 		} else if (_html.$ref) {
 			// Use the original JSON
-			return this.html(this.getNewJSON(_html));
+			return this.html(this.getNewJSON(_html), keysPath);
 		} else {
 			if (_html.$id) {
 				// Register original JSON
@@ -1534,25 +1537,28 @@ class JSONSchemaService extends PowerServices {
 
 			// If this is not an html json, but a button, dropmenu or other kind of json
 			if (html.tagName === undefined) {
-				return this.otherJsonKind(html);
+				return this.otherJsonKind(html, keysPath);
 			}
 
 			const tag = html.tagName.toLowerCase();
-			// Void tags without input tag
-			const voidTags = ["area", "base", "br", "col", "embed", "hr", "img", "link", "meta", "param", "source", "track", "wbr"];
+			// Avoid tags without input tag
+			const avoidTags = ["area", "base", "br", "col", "embed", "hr", "img", "link", "meta", "param", "source", "track", "wbr"];
 
-			if (voidTags.includes(tag)) {
-				return `<${tag} ${this._getHtmlBasicTmpl(html)} />`;
+			if (avoidTags.includes(tag)) {
+				return `<${tag} ${this._getHtmlBasicTmpl(html)}${keysPath ? ' data-keys-path="' + keysPath + '" ' : ''} />`;
 			} else if (tag === 'input') {
-				return `<${tag} ${this._getInputBasicTmpl(html)} />`;
+				return `<${tag} ${this._getInputBasicTmpl(html)}${keysPath ? ' data-keys-path="' + keysPath + '" ' : ''} />`;
 			} else {
-				let template = `<${tag} ${this._getHtmlBasicTmpl(html)} ${html.multiple === true ? 'multiple' : ''}>
+				let template = `<${tag} ${this._getHtmlBasicTmpl(html)} ${html.multiple === true ? 'multiple' : ''}${keysPath ? ' data-keys-path="' + keysPath + '" ' : ''}>
 					${html.text || ''}`;
 
 				if (html.children) {
+					let counter = 0;
 					for (const child of html.children) {
+						const currentKeysPath = keysPath ? `${keysPath},${counter}` : '';
 						template = `${template}
-							${this.html(child)}`;
+							${this.html(child, currentKeysPath)}`;
+						counter = counter + 1;
 					}
 				}
 

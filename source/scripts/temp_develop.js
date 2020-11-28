@@ -3539,7 +3539,7 @@ class GridPageTemplate extends PowerTemplate {
 			]
 		};
 
-		newTmpl = newTmpl + this.$service('JSONSchema').html(htmlTag);
+		newTmpl = newTmpl + this.$service('JSONSchema').html(htmlTag, 'html');
 
 		const tags = [
 			{
@@ -3736,7 +3736,10 @@ class GridPageTemplate extends PowerTemplate {
 			}
 		];
 
-		newTmpl = newTmpl + this.$service('JSONSchema').html(tags);
+		const _htmlTmpl = this.$service('JSONSchema').html(tags, 'html');
+
+		newTmpl = newTmpl + _htmlTmpl;
+		console.log('_htmlTmpl', _htmlTmpl);
 
 		const grid = {
 			"id": "the-grid",
@@ -4548,11 +4551,9 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		const _formTmpl = this.$service('JSONSchema').simpleForm(form1, 'form');
+		const _formTmpl = this.$service('JSONSchema').simpleForm(form1);
 
 		htmlTemplate = htmlTemplate + _formTmpl;
-
-		console.log('_formTmpl', _formTmpl);
 
 		const accordion = {
 			"classList": ['my-custom-accordion'],
