@@ -1229,7 +1229,7 @@ class JSONSchemaService extends PowerServices {
 		}
 	}
 
-	grid(_grid) {
+	grid(_grid, keysPath) {
 		// Do not change the original JSON
 		const grid = this.cloneObject(_grid);
 		// This allow pass an array of grids
@@ -1282,8 +1282,9 @@ class JSONSchemaService extends PowerServices {
 			}
 
 			let currentSizeCount = 0;
-
+			let counter = 0;
 			for (const field of grid.fields) {
+				const currentKeysPath = keysPath ? `${keysPath},${counter}` : '';
 				if (this._validate(this.gridDef().properties.fields, field) === false) {
 					window.console.log('Failed JSON grid field:', field, grid);
 					throw 'Failed JSON grid field!';
@@ -1302,13 +1303,11 @@ class JSONSchemaService extends PowerServices {
 				field.classList.push('pw-col');
 				field.classList.push(field.size || grid.sizes[currentSizeCount]);
 
-				template = `${template}
-					<div ${this._getIdTmpl(field.id)} ${this._getClassTmpl(field.classList)}>${field.text || ''}`;
+				template = `${template}\n\t<div ${currentKeysPath ? 'data-keys-path="' + currentKeysPath + '" ' : ''}${this._getIdTmpl(field.id)} ${this._getClassTmpl(field.classList)}>${field.text || ''}`;
 
 				if (field.children) {
 					for (const child of field.children) {
-						template = `${template}
-							${this.otherJsonKind(child)}`;
+						template = `${template}\n\t\t${this.otherJsonKind(child, currentKeysPath)}`;
 					}
 				}
 
@@ -1322,10 +1321,10 @@ class JSONSchemaService extends PowerServices {
 				if (currentSizeCount >= grid.sizes.length) {
 					currentSizeCount = 0;
 				}
+				counter = counter + 1;
 			}
 
-			template = `${template}
-			</div>`;
+			template = `${template}\n</div>`;
 
 			return template;
 		}

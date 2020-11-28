@@ -4229,7 +4229,7 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1, 'menu');
+		let htmlTemplate = '<p data-pow-eval="name + \' o bom!\'"></p>{{name}} {{2 + 2}}' + this.$service('JSONSchema').menu(menu1);
 
 		const form1 = {
 			// "type": "form",
@@ -6241,8 +6241,6 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 
 		htmlTemplate = htmlTemplate + _treeTmpl
 
-		console.log('_treeTmpl', _treeTmpl);
-
 		const grid = {
 			"id": "the-grid-json",
 			"kind": "scroll-12",
@@ -6309,7 +6307,11 @@ class JSONViewsTemplateComponent extends PowerTemplate {
 			]
 		};
 
-		htmlTemplate = htmlTemplate + this.$service('JSONSchema').grid(grid);
+		const _gridTmpl = this.$service('JSONSchema').grid(grid, 'grid');
+
+		htmlTemplate = htmlTemplate + _gridTmpl;
+
+		console.log('_gridTmpl', _gridTmpl);
 
 		const iconsGrid = {
 			"id": "icons-grid",
