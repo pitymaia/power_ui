@@ -225,22 +225,17 @@ class PowerController extends PowerScope {
 			child.dataset.powEvent = "";
 			child.setAttribute("onclick", "_$selectElementToEdit(event, _node)");
 			//
-			if (json) {
-
-			} else {
-				this.$powerUi.simpleSweepDOM(
-					child,
-					function(node, level) {
-						node.dataset.level = level;
-						if (node.htmlFor) {
-							node.dataset.sFor = node.htmlFor;
-							node.removeAttribute('for');
-						}
-					},
-					counter
-				);
-			}
-
+			this.$powerUi.simpleSweepDOM(
+				child,
+				function(node, level) {
+					node.dataset.level = level;
+					if (node.htmlFor) {
+						node.dataset.sFor = node.htmlFor;
+						node.removeAttribute('for');
+					}
+				},
+				counter
+			);
 			counter = counter + 1;
 		}
 		return _template;
