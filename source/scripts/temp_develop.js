@@ -311,6 +311,7 @@ class SecondaryChildTemplate2 extends PowerTemplate {
 		                "kind": "scroll-12",
 		                "border": false,
 		                "gap": 4,
+		                "classList": ["contact-grid"],
 		                "sizes": [
 		                    "s-12 m-12 l-8 xl-8",
 		                    "s-12 m-12 l-4 xl-4"
@@ -331,18 +332,144 @@ class SecondaryChildTemplate2 extends PowerTemplate {
 		                                    "classList": ["pw-align-justify"],
 		                                    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean non turpis viverra, tincidunt orci vitae, molestie augue. Vestibulum lectus dui, gravida quis elementum eleifend, maximus et eros. Suspendisse volutpat dolor eu ante tempor, nec commodo est accumsan. Aenean non leo tincidunt, feugiat velit a, dictum leo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aliquam blandit volutpat felis."
 		                                }
+		                            },
+		                            {
+		                                "simpleForm": {
+		                                    "type": "form",
+		                                    "inline": true,
+		                                    "padding": false,
+		                                    "$selector": "simpleForm",
+		                                    "classList": ["contact-form"],
+		                                    "controls": [
+		                                        {
+		                                            "label": "Name:",
+		                                            "type": "text",
+		                                            "value": "",
+		                                            "name": "name",
+		                                            "bind": "form.name",
+		                                            "size": "s-12 m-12 l-12 xl-12",
+		                                            "id": "name"
+		                                        },
+		                                        {
+		                                            "label": "E-mail:",
+		                                            "type": "email",
+		                                            "value": "",
+		                                            "name": "email",
+		                                            "bind": "form.email",
+		                                            "size": "s-12 m-12 l-12 xl-12",
+		                                            "id": "email"
+		                                        },
+		                                        {
+		                                            "label": "Message:",
+		                                            "type": "textarea",
+		                                            "value": "",
+		                                            "name": "message",
+		                                            "rows": 6,
+		                                            "bind": "form.message",
+		                                            "size": "s-12 m-12 l-12 xl-12"
+		                                        },
+		                                        {
+		                                            "children": [
+		                                                {
+		                                                    "button": {
+		                                                        "id": "bt-form1",
+		                                                        "label": "Send",
+		                                                        "icon": "icon-mail-stroke",
+		                                                        "kind": "secondary",
+		                                                        "events": [
+		                                                            {
+		                                                                "event": "onclick",
+		                                                                "fn": "contact()"
+		                                                            }
+		                                                        ]
+		                                                    }
+		                                                }
+		                                            ]
+		                                        }
+		                                    ]
+		                                }
 		                            }
 		                        ]
 		                    },
 		                    {
-		                        "text": "<h2>Our offices</h2><p>Suspendisse ornare, magna nec feugiat faucibus, sem mauris egestas libero, quis consequat odio nisi sit amet nunc.</p><h2>Address</h2><p>303 Wayback Lane,<br />New York,<br />CA 10101<br /></p><h2>Working hours</h2><p>9AM - 6PM, Mon to Sat</p><h2>Contact</h2><p>contact@business.com<br />01 (640) 769 7933</p>"
+		                        "children": [
+		                            {
+		                                "html": {
+		                                    "tagName": "h2",
+		                                    "text": "Our offices"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "p",
+		                                    "text": "Suspendisse ornare, magna nec feugiat faucibus, sem mauris egestas libero, quis consequat odio nisi sit amet nunc."
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "h2",
+		                                    "text": "Address"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "p",
+		                                    "text": "303 Wayback Lane,<br />New York,<br />CA 10101<br />"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "h2",
+		                                    "text": "Contact"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "p",
+		                                    "text": "303 Wayback Lane,<br />New York,<br />CA 10101<br />"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "p",
+		                                    "text": "9AM - 6PM, Mon to Sat"
+		                                }
+		                            },
+		                            {
+		                                "html": {
+		                                    "tagName": "p",
+		                                    "children": [
+					                            {
+					                                "html": {
+					                                    "tagName": "span",
+					                                    "text": "contact@business.com"
+					                                }
+					                            },
+					                            {
+					                                "html": {
+					                                    "tagName": "br",
+					                                }
+					                            },
+					                            {
+					                                "html": {
+					                                    "tagName": "span",
+					                                    "text": "01 (640) 769 7933"
+					                                }
+					                            }
+					                        ]
+		                                }
+		                            }
+		                        ]
 		                    }
 		                ]
 		            }
 		        }
 		    ]
 		};
-		const _tmpl = this.$service('JSONSchema').html(html);
+
+		const _htmlTmpl = this.$service('JSONSchema').html(html, 'html');
+		const _tmpl = _htmlTmpl;
+		console.log('_htmlTmpl', _htmlTmpl);
 		resolve(`<div>
 			<h1>This is the child page 2</h1>
 			<div>SO GREAT FRAMEWORK!</div>
@@ -3736,10 +3863,9 @@ class GridPageTemplate extends PowerTemplate {
 			}
 		];
 
-		const _htmlTmpl = this.$service('JSONSchema').html(tags, 'html');
+		const _htmlTmpl = this.$service('JSONSchema').html(tags);
 
 		newTmpl = newTmpl + _htmlTmpl;
-		console.log('_htmlTmpl', _htmlTmpl);
 
 		const grid = {
 			"id": "the-grid",

@@ -410,15 +410,15 @@ class JSONSchemaService extends PowerServices {
 				let sectionTmpl = `<div class="power-accordion-section"${panelJson}${currentKeysPath ? ' data-keys-path="' + currentKeysPath + '"' : ''} ${this._getIdTmpl(sectionId)}>
 					${panel.section.text || ''}`;
 
-					// If this is not an html json, but a button, dropmenu or other kind of json
-					if (panel.section.children) {
-						let _c = 0;
-						for (const child of panel.section.children) {
-							const _cKeysPath = currentKeysPath ? `${currentKeysPath},${_c}` : '';
-							sectionTmpl = sectionTmpl + this.otherJsonKind(child, _cKeysPath);
-							_c = _c + 1;
-						}
+				// If this is not an html json, but a button, dropmenu or other kind of json
+				if (panel.section.children) {
+					let _c = 0;
+					for (const child of panel.section.children) {
+						const _cKeysPath = currentKeysPath ? `${currentKeysPath},${_c}` : '';
+						sectionTmpl = sectionTmpl + this.otherJsonKind(child, _cKeysPath);
+						_c = _c + 1;
 					}
+				}
 				sectionTmpl = sectionTmpl + '</div>';
 
 				mainTmpl = mainTmpl + headerTmpl + sectionTmpl;
@@ -1309,8 +1309,11 @@ class JSONSchemaService extends PowerServices {
 				template = `${template}\n\t<div ${currentKeysPath ? 'data-keys-path="' + currentKeysPath + '" ' : ''}${this._getIdTmpl(field.id)} ${this._getClassTmpl(field.classList)}>${field.text || ''}`;
 
 				if (field.children) {
+					let _c = 0;
 					for (const child of field.children) {
-						template = `${template}\n\t\t${this.otherJsonKind(child, currentKeysPath)}`;
+						const _cKeysPath = currentKeysPath ? `${currentKeysPath},${_c}` : '';
+						template = `${template}\n\t\t${this.otherJsonKind(child, _cKeysPath)}`;
+						_c = _c + 1;
 					}
 				}
 
