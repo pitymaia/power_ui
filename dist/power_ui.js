@@ -7362,7 +7362,7 @@ class PowerTemplate extends PowerScope {
 						content = response;
 						const selector = response.$selector || null;
 						if (selector) {
-							const html = self.$service('JSONSchema')[selector](response, true);
+							const html = self.$service('JSONSchema')[selector](response, selector);
 							template = self._replaceHtmlForEdit(html, fileName, self, response);
 						}
 					} else if (filePath.slice(-4) === '.htm') {
