@@ -98,9 +98,10 @@ class PowerAction extends PowerList {
 		const targetElement = document.getElementById(this.targetObj.id);
 		const powerActionElement = document.getElementById(this.id);
 		let elementToCheck = event.target; // clicked element
+		const devMode = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable);
 
 		// Do not close if click some power-action
-		if ((!elementToCheck.classList.contains('power-status') && !elementToCheck.classList.contains('power-action') && !elementToCheck.classList.contains('power-list') && !elementToCheck.classList.contains('power-toggle')) && ((elementToCheck.parentNode && elementToCheck.parentNode.classList) && (!elementToCheck.parentNode.classList.contains('power-status') && !elementToCheck.parentNode.classList.contains('power-action') && !elementToCheck.parentNode.classList.contains('power-list') && !elementToCheck.parentNode.classList.contains('power-toggle')))) {
+		if ((!elementToCheck.classList.contains('power-status') && !elementToCheck.classList.contains('power-action') && !elementToCheck.classList.contains('power-list') && !elementToCheck.classList.contains('power-toggle')) && ((elementToCheck.parentNode && elementToCheck.parentNode.classList) && (!elementToCheck.parentNode.classList.contains('power-status') && !elementToCheck.parentNode.classList.contains('power-action') && !elementToCheck.parentNode.classList.contains('power-list') && !elementToCheck.parentNode.classList.contains('power-toggle'))) && (!devMode || (devMode && !elementToCheck.classList.contains('power-item') && !elementToCheck.parentNode.classList.contains('power-item')))) {
 			this.toggle();
 			return;
 		}
