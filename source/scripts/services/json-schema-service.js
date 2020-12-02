@@ -408,7 +408,7 @@ class JSONSchemaService extends PowerServices {
 
 				// Sections
 				let sectionTmpl = `<div class="power-accordion-section"${panelJson}${currentKeysPath ? ' data-keys-path="' + currentKeysPath + '"' : ''} ${this._getIdTmpl(sectionId)}>
-					${panel.section.text || ''}`;
+					<div>${panel.section.text || ''}</div>`;
 
 				// If this is not an html json, but a button, dropmenu or other kind of json
 				if (panel.section.children) {

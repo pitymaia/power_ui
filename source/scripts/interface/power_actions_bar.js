@@ -17,7 +17,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
-				action.unsubscribe({event: 'click', fn: this.hoverModeOn, bar: this});
+				action.unsubscribe({event: this.clickEvent, fn: this.hoverModeOn, bar: this});
 				action.unsubscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, bar: this});
 			}
 		}
@@ -25,6 +25,7 @@ class PowerActionsBar extends _PowerBarsBase {
 
 	init() {
 		super.init();
+		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
 		// Child powerActions - Hold all the power actions in this bar, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Child powerItem - Hold all the power items in this bar, but not the ones on the internal Power dropmenus
@@ -51,7 +52,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
-				action.subscribe({event: 'click', fn: this.hoverModeOn, bar: this});
+				action.subscribe({event: this.clickEvent, fn: this.hoverModeOn, bar: this});
 				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, bar: this});
 			}
 		}
@@ -68,7 +69,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		}
 		for (const action of params.bar.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
-			action.subscribe({event: 'click', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
+			action.subscribe({event: this.clickEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 		}
 	}
 
@@ -153,7 +154,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		params.bar.stopWatchMouseMove();
 		for (const action of params.bar.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
-			action.unsubscribe({event: 'click', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
+			action.unsubscribe({event: this.clickEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 		}
 	}
 

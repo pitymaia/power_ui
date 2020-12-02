@@ -3065,7 +3065,7 @@ class JSONSchemaService extends PowerServices {
 
 				// Sections
 				let sectionTmpl = `<div class="power-accordion-section"${panelJson}${currentKeysPath ? ' data-keys-path="' + currentKeysPath + '"' : ''} ${this._getIdTmpl(sectionId)}>
-					${panel.section.text || ''}`;
+					<div>${panel.section.text || ''}</div>`;
 
 				// If this is not an html json, but a button, dropmenu or other kind of json
 				if (panel.section.children) {
@@ -11481,6 +11481,7 @@ class PowerList extends PowerTarget {
 	}
 
 	init() {
+		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
 		// Add the target element to the list/action
 		// It selects the first element with this id that have a powerTarget
 		const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById[this._target];
@@ -11490,7 +11491,7 @@ class PowerList extends PowerTarget {
 			}
 		}
 		// Add the action to the target Class
-		this.subscribe({event: 'click', fn: this.toggle});
+		this.subscribe({event: this.clickEvent, fn: this.toggle});
 	}
 
 	toggle() {
@@ -11620,7 +11621,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
-				action.unsubscribe({event: 'click', fn: this.hoverModeOn, bar: this});
+				action.unsubscribe({event: this.clickEvent, fn: this.hoverModeOn, bar: this});
 				action.unsubscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, bar: this});
 			}
 		}
@@ -11628,6 +11629,7 @@ class PowerActionsBar extends _PowerBarsBase {
 
 	init() {
 		super.init();
+		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
 		// Child powerActions - Hold all the power actions in this bar, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Child powerItem - Hold all the power items in this bar, but not the ones on the internal Power dropmenus
@@ -11654,7 +11656,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		for (const action of this.childrenPowerActions) {
 			// Only atach the windows like behaviour if not a touchdevice
 			if (!this.$powerUi.touchdevice) {
-				action.subscribe({event: 'click', fn: this.hoverModeOn, bar: this});
+				action.subscribe({event: this.clickEvent, fn: this.hoverModeOn, bar: this});
 				action.subscribe({event: 'toggle', fn: this.maySetHoverModeOff, action: action, bar: this});
 			}
 		}
@@ -11671,7 +11673,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		}
 		for (const action of params.bar.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
-			action.subscribe({event: 'click', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
+			action.subscribe({event: this.clickEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 		}
 	}
 
@@ -11756,7 +11758,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		params.bar.stopWatchMouseMove();
 		for (const action of params.bar.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
-			action.unsubscribe({event: 'click', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
+			action.unsubscribe({event: this.clickEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 		}
 	}
 
@@ -11838,6 +11840,7 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 	init() {
+		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
@@ -11891,7 +11894,7 @@ class PowerDropmenu extends PowerTarget {
 		}
 		for (const action of this.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
-			action.subscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+			action.subscribe({event: this.clickEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
 	}
 
@@ -11958,7 +11961,7 @@ class PowerDropmenu extends PowerTarget {
 		this.stopWatchMouseMove();
 		for (const action of this.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
-			action.unsubscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+			action.unsubscribe({event: this.clickEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
 	}
 

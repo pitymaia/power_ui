@@ -10,6 +10,7 @@ class PowerDropmenu extends PowerTarget {
 	}
 
 	init() {
+		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
@@ -63,7 +64,7 @@ class PowerDropmenu extends PowerTarget {
 		}
 		for (const action of this.childrenPowerActions) {
 			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
-			action.subscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+			action.subscribe({event: this.clickEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
 	}
 
@@ -130,7 +131,7 @@ class PowerDropmenu extends PowerTarget {
 		this.stopWatchMouseMove();
 		for (const action of this.childrenPowerActions) {
 			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
-			action.unsubscribe({event: 'click', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+			action.unsubscribe({event: this.clickEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
 	}
 

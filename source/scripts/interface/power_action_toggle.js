@@ -10,6 +10,7 @@ class PowerList extends PowerTarget {
 	}
 
 	init() {
+		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
 		// Add the target element to the list/action
 		// It selects the first element with this id that have a powerTarget
 		const allPowerObjsById = this.$powerUi.powerTree.allPowerObjsById[this._target];
@@ -19,7 +20,7 @@ class PowerList extends PowerTarget {
 			}
 		}
 		// Add the action to the target Class
-		this.subscribe({event: 'click', fn: this.toggle});
+		this.subscribe({event: this.clickEvent, fn: this.toggle});
 	}
 
 	toggle() {
