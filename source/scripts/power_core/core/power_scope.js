@@ -5,6 +5,14 @@ class PowerScope {
 		this._servicesInstances = {};
 	}
 
+	newPowerTextBind(propertyName, bindsArray) {
+		return new PowerTextBind(propertyName, bindsArray);
+	}
+
+	newPowerStyleBind(propertyName, bindsArray) {
+		return new PowerStyleBind(propertyName, bindsArray);
+	}
+
 	$service(name) {
 		if (this._servicesInstances[name]) {
 			return this._servicesInstances[name];

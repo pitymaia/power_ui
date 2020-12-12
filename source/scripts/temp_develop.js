@@ -3402,7 +3402,10 @@ class MenuWindowTemplate extends PowerTemplate {
 		        </nav>
 		    </div>
 		</nav>
-		<h1>Split Menu on Window!</h1>`;
+		<h1 data-pow-event=""
+			onclick="changeText()"
+			data-pow-style-bind="styleBinds.headerStyle"
+			data-pow-text-bind="splitmenu.headerText">Split Menu on Window!</h1>`;
 
 		const tree = {
 			// "classList": ["custom-tree"],
@@ -3493,7 +3496,24 @@ class MenuWindowTemplate extends PowerTemplate {
 }
 
 class MenuWindowCtrl extends PowerWindow {
+	ctrl() {
+		this.splitmenu = this.newPowerTextBind('splitmenu', [
+			{key: 'headerText'},
+		]);
 
+		this.styleBinds = this.newPowerStyleBind('styleBinds', [
+			{key: 'headerStyle', values: [{property: 'color', value: 'blue'}]},
+		]);
+	}
+
+	changeText() {
+		this.counter = this.counter ? this.counter + 1 : 1;
+		this.splitmenu.headerText = `Split Menu on Window! ${this.counter}`;
+		this.styleBinds.headerStyle =  [
+			{property: 'color', value: this.counter % 2 === 0 ? 'orange' : 'blue'},
+			{property: 'cursor', value: this.counter % 2 === 0 ? 'pointer' : 'grab'},
+		];
+	}
 }
 
 class GridPageTemplate extends PowerTemplate {
