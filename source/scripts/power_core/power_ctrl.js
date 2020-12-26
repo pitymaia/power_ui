@@ -175,7 +175,8 @@ class PowerController extends PowerScope {
 		this.$powerUi._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
 		this._$postToMain({
 			command: 'selectNodeToEdit',
-			event: event,
+			clientX: event.clientX,
+			clientY: event.clientY,
 			level: this.$powerUi._$nodeSelectdToEdit.dataset.level,
 			file: element.dataset.file,
 			route: element.dataset.route,
