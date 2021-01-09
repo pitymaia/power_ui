@@ -5292,9 +5292,12 @@ class PowerController extends PowerScope {
 			this.$powerUi._$nodeSelectdToEdit.classList.remove('pw-selected-to-edit');
 		}
 		const sizes = this._$addSizesInPx(event.target);
+		const nodeContainer = document.createElement('div');
+		nodeContainer.appendChild(event.target.cloneNode());
 		this.$powerUi._$nodeSelectdToEdit = event.target;
 		this.$powerUi._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
 		this._$postToMain({
+			nodeContent: nodeContainer.innerHTML,
 			command: 'selectNodeToEdit',
 			clientX: event.clientX,
 			clientY: event.clientY,
@@ -5321,6 +5324,11 @@ class PowerController extends PowerScope {
 		node.style.fontSize = '1rem';
 		nodeStyles = window.getComputedStyle(node, null);
 		sizes.remPx = nodeStyles.getPropertyValue('font-size');
+
+		// pt
+		node.style.fontSize = '1pt';
+		nodeStyles = window.getComputedStyle(node, null);
+		sizes.ptPx = nodeStyles.getPropertyValue('font-size');
 
 		// Percentage
 		node.style.fontSize = '100%';
