@@ -26,6 +26,7 @@ class PowerActionsBar extends _PowerBarsBase {
 	init() {
 		super.init();
 		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
+		this.mouseenterEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'mouseenter';
 		// Child powerActions - Hold all the power actions in this bar, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Child powerItem - Hold all the power items in this bar, but not the ones on the internal Power dropmenus
@@ -68,7 +69,7 @@ class PowerActionsBar extends _PowerBarsBase {
 			return;
 		}
 		for (const action of params.bar.childrenPowerActions) {
-			action.subscribe({event: 'mouseenter', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
+			action.subscribe({event: params.bar.mouseenterEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 			action.subscribe({event: this.clickEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 		}
 	}
@@ -88,7 +89,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		params.action.toggle();
 		params.bar.onMouseEnterItem(ctx, event, params, true);
 		for (const item of params.bar.childrenPowerItems) {
-			item.subscribe({event: 'mouseenter', fn: params.bar.onMouseEnterItem, action: params.action, bar: params.bar, item: item});
+			item.subscribe({event: params.bar.mouseenterEvent, fn: params.bar.onMouseEnterItem, action: params.action, bar: params.bar, item: item});
 		}
 		params.bar.startWatchMouseMove(ctx, event, params);
 	}
@@ -126,7 +127,7 @@ class PowerActionsBar extends _PowerBarsBase {
 
 		// Unsubscribe from all the power items mouseenter
 		for (const item of params.bar.childrenPowerItems) {
-			item.unsubscribe({event: 'mouseenter', fn: params.bar.onMouseEnterItem, action: params.action, bar: params.bar});
+			item.unsubscribe({event: params.bar.mouseenterEvent, fn: params.bar.onMouseEnterItem, action: params.action, bar: params.bar});
 		}
 
 	}
@@ -153,7 +154,7 @@ class PowerActionsBar extends _PowerBarsBase {
 	hoverModeOff(ctx, event, params) {
 		params.bar.stopWatchMouseMove();
 		for (const action of params.bar.childrenPowerActions) {
-			action.unsubscribe({event: 'mouseenter', fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
+			action.unsubscribe({event: params.bar.mouseenterEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 			action.unsubscribe({event: this.clickEvent, fn: params.bar.onMouseEnterAction, action: action, bar: params.bar});
 		}
 	}
@@ -167,8 +168,9 @@ class PowerActionsBar extends _PowerBarsBase {
 		// If it is already active then wait user to mover over it
 		if (this.$powerUi.tmp.bar._possibleNewTarget && !this.$powerUi.tmp.bar._possibleNewTarget._$pwActive) {
 			const item = this.$powerUi.tmp.bar._possibleNewTarget;
+			const self = this;
 			setTimeout(function () {
-				item.broadcast('mouseenter');
+				item.broadcast(self.mouseenterEvent);
 			}, 10);
 			this.stopWatchMouseMove();
 		} else {
@@ -184,7 +186,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		if (this.$powerUi.tmp.bar._mouseIsMovingTo) {
 			return;
 		}
-		params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, bar: params.bar});
+		params.action.targetObj.subscribe({event: params.bar.mouseenterEvent, fn: this.stopWatchMouseMove, action: params.action, bar: params.bar});
 		this.$powerUi.tmp.bar._mouseIsMovingTo = params.action.targetObj;
 		this.$powerUi.tmp.bar._onmousestop = this.onmousestop.bind(this);
 		this.$powerUi.tmp.bar._resetMouseTimeout = this.resetMouseTimeout.bind(this);
@@ -196,7 +198,7 @@ class PowerActionsBar extends _PowerBarsBase {
 		this.$powerUi.tmp.bar._possibleNewTarget = false;
 		clearTimeout(this.$powerUi.tmp.bar.timeout);
 		document.removeEventListener('mousemove', this.$powerUi.tmp.bar._resetMouseTimeout, true);
-		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
+		this.unsubscribe({event: this.mouseenterEvent, fn: this.stopWatchMouseMove});
 	}
 
 	toggle() {

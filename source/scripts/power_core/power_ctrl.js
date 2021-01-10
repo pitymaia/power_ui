@@ -224,9 +224,7 @@ class PowerController extends PowerScope {
 		if (!this.$powerUi.devMode.isEditable || !this.$powerUi.devMode.child) {
 			return template;
 		}
-		const self = this;
 		template = template.replace(/onclick/g, 'ondblclick');
-		template = template.replace(/mouseenter/g, 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
 		for (const child of _template.body.children) {

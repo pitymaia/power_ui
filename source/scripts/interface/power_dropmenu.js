@@ -11,6 +11,7 @@ class PowerDropmenu extends PowerTarget {
 
 	init() {
 		this.clickEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'click';
+		this.mouseenterEvent = (this.$powerUi.devMode && this.$powerUi.devMode.child && this.$powerUi.devMode.isEditable) ? 'dblclick' : 'mouseenter';
 		// Child powerActions - Hold all the power actions in this dropmenu, but not the children of childrens (the ones on the internal Power dropmenus)
 		this.childrenPowerActions = this.getChildrenByPowerCss('powerAction');
 		// Inner powerActions - Hold all the power actions in the internal Power dropmenus, but not the childrens directly in this dropmenu
@@ -63,7 +64,7 @@ class PowerDropmenu extends PowerTarget {
 			return;
 		}
 		for (const action of this.childrenPowerActions) {
-			action.subscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+			action.subscribe({event: this.mouseenterEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 			action.subscribe({event: this.clickEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
 	}
@@ -83,7 +84,7 @@ class PowerDropmenu extends PowerTarget {
 		params.action.toggle();
 		params.dropmenu.onMouseEnterItem(ctx, event, params, true);
 		for (const item of params.dropmenu.childrenPowerItems) {
-			item.subscribe({event: 'mouseenter', fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu, item: item});
+			item.subscribe({event: params.dropmenu.mouseenterEvent, fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu, item: item});
 		}
 		params.dropmenu.startWatchMouseMove(ctx, event, params);
 	}
@@ -121,7 +122,7 @@ class PowerDropmenu extends PowerTarget {
 
 		// Unsubscribe from all the power items mouseenter
 		for (const item of params.dropmenu.childrenPowerItems) {
-			item.unsubscribe({event: 'mouseenter', fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu});
+			item.unsubscribe({event: params.dropmenu.mouseenterEvent, fn: params.dropmenu.onMouseEnterItem, action: params.action, dropmenu: params.dropmenu});
 		}
 
 	}
@@ -130,7 +131,7 @@ class PowerDropmenu extends PowerTarget {
 	hoverModeOff() {
 		this.stopWatchMouseMove();
 		for (const action of this.childrenPowerActions) {
-			action.unsubscribe({event: 'mouseenter', fn: this.onMouseEnterAction, action: action, dropmenu: this});
+			action.unsubscribe({event: this.mouseenterEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 			action.unsubscribe({event: this.clickEvent, fn: this.onMouseEnterAction, action: action, dropmenu: this});
 		}
 	}
@@ -145,7 +146,7 @@ class PowerDropmenu extends PowerTarget {
 		if (this.$powerUi.tmp.dropmenu._possibleNewTarget && !this.$powerUi.tmp.dropmenu._possibleNewTarget._$pwActive) {
 			const item = this.$powerUi.tmp.dropmenu._possibleNewTarget;
 			setTimeout(function () {
-				item.broadcast('mouseenter');
+				item.broadcast(this.mouseenterEvent);
 			}, 10);
 			this.stopWatchMouseMove();
 		} else {
@@ -161,7 +162,7 @@ class PowerDropmenu extends PowerTarget {
 		if (this.$powerUi.tmp.dropmenu._mouseIsMovingTo) {
 			return;
 		}
-		params.action.targetObj.subscribe({event: 'mouseenter', fn: this.stopWatchMouseMove, action: params.action, dropmenu: params.dropmenu});
+		params.action.targetObj.subscribe({event: params.dropmenu.mouseenterEvent, fn: this.stopWatchMouseMove, action: params.action, dropmenu: params.dropmenu});
 		this.$powerUi.tmp.dropmenu._mouseIsMovingTo = params.action.targetObj;
 		this.$powerUi.tmp.dropmenu._onmousestop = this.onmousestop.bind(this);
 		this.$powerUi.tmp.dropmenu._resetMouseTimeout = this.resetMouseTimeout.bind(this);
@@ -172,8 +173,8 @@ class PowerDropmenu extends PowerTarget {
 		this.$powerUi.tmp.dropmenu._mouseIsMovingTo = false;
 		this.$powerUi.tmp.dropmenu._possibleNewTarget = false;
 		clearTimeout(this.$powerUi.tmp.dropmenu.timeout);
-		document.removeEventListener('mousemove', this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
-		this.unsubscribe({event: 'mouseenter', fn: this.stopWatchMouseMove});
+		document.removeEventListener(this.mouseenterEvent, this.$powerUi.tmp.dropmenu._resetMouseTimeout, true);
+		this.unsubscribe({event: this.mouseenterEvent, fn: this.stopWatchMouseMove});
 	}
 
 	setPositionRightBottom(position) {
