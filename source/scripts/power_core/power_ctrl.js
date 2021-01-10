@@ -226,6 +226,7 @@ class PowerController extends PowerScope {
 		}
 		const self = this;
 		template = template.replace(/onclick/g, 'ondblclick');
+		template = template.replace(/mouseenter/g, 'ondblclick');
 		const _template = new DOMParser().parseFromString(template, 'text/html');
 		let counter = 0;
 		for (const child of _template.body.children) {
