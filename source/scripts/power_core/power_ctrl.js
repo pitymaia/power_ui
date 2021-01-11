@@ -175,8 +175,10 @@ class PowerController extends PowerScope {
 		nodeContainer.appendChild(event.target.cloneNode());
 		this.$powerUi._$nodeSelectdToEdit = event.target;
 		this.$powerUi._$nodeSelectdToEdit.classList.add('pw-selected-to-edit');
+		const rect = event.target.getBoundingClientRect();
 		this._$postToMain({
 			nodeContent: nodeContainer.innerHTML,
+			nodeRect: {top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left},
 			command: 'selectNodeToEdit',
 			clientX: event.clientX,
 			clientY: event.clientY,
