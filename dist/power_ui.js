@@ -3368,7 +3368,7 @@ class JSONSchemaService extends PowerServices {
 				menuEl.classList.add('pw-colapse');
 				const hamburgerHolderEl = document.createElement('div');
 				hamburgerHolderEl.innerHTML = `<a id="${menu.id}-action" class="power-toggle" data-power-target="${menu.id}">
-					<i class="pw-icon icon-hamburguer"></i>
+					<i class="pw-icon ${menu.toggleIcon ? menu.toggleIcon : 'icon-hamburguer'}"></i>
 				</a>`;
 				const hamburgerEl = hamburgerHolderEl.children[0];
 				menuEl.appendChild(hamburgerEl);
@@ -4525,6 +4525,7 @@ class JSONSchemaService extends PowerServices {
 				"position": {"type": "string"},
 				"priority": {"type": "number"},
 				"ignore": {"type": "boolean"},
+				"toggleIcon": {"type": "string"},
 				"items": {
 					"type": "array",
 					"properties": {

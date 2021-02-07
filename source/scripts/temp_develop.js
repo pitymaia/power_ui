@@ -2261,6 +2261,7 @@ class RootScopeTemplate extends PowerTemplate {
 			"flip": false,
 			"position": "fixed-bottom",
 			"dropMenuPosition": "top-right",
+			"toggleIcon": "icon-food-mushroom",
 			"priority": 7,
 			"ignore": false,
 			"brand": {
