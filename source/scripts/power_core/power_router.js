@@ -1638,7 +1638,7 @@ class Router {
 		let route = this.routes[routeId].route.slice(3, this.routes[routeId].length);
 		if (params && paramKeys.length) {
 			for (const key of paramKeys) {
-				if (params[key]) {
+				if (params[key] !== undefined) {
 					route = route.replace(`:${key}`, params[key]);
 				}
 			}

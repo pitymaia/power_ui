@@ -61,10 +61,8 @@ class PowerController extends PowerScope {
 		let value = (param && param.value !== undefined) ? param.value : null;
 		if (Number.isNaN(value)) {
 			return value;
-		} else if (Number.isInteger(value)) {
-			return parseInt(value);
 		} else {
-			return parseFloat(value);
+			return value * 1;
 		}
 	}
 
