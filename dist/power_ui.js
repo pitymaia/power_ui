@@ -5180,12 +5180,13 @@ class PowerController extends PowerScope {
 
 	getRouteParam(key) {
 		let param = this._routeParams.find((p)=> p.key === key);
-		let value = param ? param.value : null;
-		const valueAsInt = value ? parseInt(value) : null;
-		if (Number.isNaN(valueAsInt)) {
+		let value = (param && param.value !== undefined) ? param.value : null;
+		if (Number.isNaN(value)) {
 			return value;
+		} else if (Number.isInteger(value)) {
+			return parseInt(value);
 		} else {
-			return valueAsInt;
+			return parseFloat(value);
 		}
 	}
 
