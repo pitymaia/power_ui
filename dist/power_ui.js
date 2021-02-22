@@ -7043,7 +7043,7 @@ class Router {
 		const paramKeys = this.getRouteParamKeysWithoutDots(this.routes[routeId].route);
 		if (paramKeys) {
 			for (const key of paramKeys) {
-				if (!params || !params[key]) {
+				if (!params || params[key] === undefined) {
 					throw `The parameter "${key}" of route "${routeId}" is missing!`;
 				}
 			}
@@ -7391,7 +7391,7 @@ class Router {
 
 	getParamValue(key) {
 		const param = this.currentRoutes.params.find(p => p.key === key);
-		return param ? param.value : null;
+		return (param && param.value !== undefined) ? param.value : null;
 	}
 }
 
